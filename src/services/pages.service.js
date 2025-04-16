@@ -80,7 +80,8 @@ async function create(body) {
     const data = await prisma.page.create(
         {
             data: {
-                name, link, active, type, pageGroupId: parseInt(pageGroupId)
+                name, link, active, type, 
+                pageGroupId: pageGroupId ?  parseInt(pageGroupId) : null
             }
         }
     )

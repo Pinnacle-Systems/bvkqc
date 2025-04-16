@@ -20,7 +20,7 @@ import Modal from "../../../UiComponents/Modal";
 import { statusDropdown, employeeType, genderList, maritalStatusList, bloodList } from "../../../Utils/DropdownData";
 import moment from "moment";
 import { useGetEmployeeCategoryQuery } from "../../../redux/services/EmployeeCategoryMasterService";
-import { viewBase64String } from '../../../Utils/helper';
+import { getCommonParams, viewBase64String } from '../../../Utils/helper';
 import SingleImageFileUploadComponent from "../SingleImageUploadComponent";
 import EmployeeLeavingForm from "./EmployeeLeavingForm";
 import { useGetDepartmentQuery } from "../../../redux/services/DepartmentMasterService";
@@ -95,17 +95,32 @@ export default function Form() {
     const [formHeading, setFormHeading] = ("");
 
 
+    console.log(regNo,"regNo")
 
     const childRecord = useRef(0);
     const dispatch = useDispatch();
 
-    // console.log(form)
 
     const params = {
         companyId: secureLocalStorage.getItem(
             sessionStorage.getItem("sessionId") + "userCompanyId"
         ),
-    };
+        finYearId: secureLocalStorage.getItem(
+            sessionStorage.getItem("sessionId") + "currentFinYear"
+        ),
+        userId: secureLocalStorage.getItem(
+            sessionStorage.getItem("sessionId") + "userId"
+        ),
+        branchId: secureLocalStorage.getItem(
+            sessionStorage.getItem("sessionId") + "currentBranchId"
+        ),
+        
+        };
+    const companyId =  secureLocalStorage.getItem(
+        sessionStorage.getItem("sessionId") + "userCompanyId"
+    )
+        
+ 
     const { data: countriesList, isLoading: isCountryLoading, isFetching: isCountryFetching } =
         useGetCountriesQuery({ params });
 
@@ -113,7 +128,7 @@ export default function Form() {
         useGetCityQuery({ params });
 
     const { data: employeeCategoryList } =
-        useGetEmployeeCategoryQuery({ params });
+        useGetEmployeeCategoryQuery( {params:companyId});
 
     const { data: departmentList } =
         useGetDepartmentQuery({ params });
@@ -133,6 +148,20 @@ export default function Form() {
     const [addData] = useAddEmployeeMutation();
     const [updateData] = useUpdateEmployeeMutation();
     const [removeData] = useDeleteEmployeeMutation();
+
+    const getRegNo = useCallback(() => {
+
+        if (id || isLoading || isFetching) return
+
+        if (allData?.Regno) {
+            
+          setRegNo(allData?.Regno)
+        }
+
+      }, [allData, isLoading, isFetching, id])
+      
+      useEffect(getRegNo,id [getRegNo,id])
+
 
     const syncFormWithDb = useCallback((data) => {
         if (!id) {
@@ -231,14 +260,13 @@ export default function Form() {
         branchId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "currentBranchId"), panNo, name, fatherName, dob, chamberNo, localAddress, localCity, localPincode, mobile, degree, specialization, salaryPerMonth,
         commissionCharges, gender, joiningDate, permAddress, permCity, permPincode, email, maritalStatus, consultFee, accountNo,
         ifscNo, branchName, bloodGroup, ...department && { department }, employeeCategoryId: employeeCategory, permanent, active,
-        id, leavingReason, leavingDate, canRejoin, rejoinReason
+        id, leavingReason, leavingDate, canRejoin, rejoinReason,regNo
     }
 
     const validateData = (data) => {
-        return data.name && data.joiningDate && data.fatherName && data.dob && data.gender && data.maritalStatus && data.bloodGroup &&
-            data.panNo && data.email && data.mobile && data.degree && data.specialization &&
-            data.localAddress && data.localCity && data.localPincode && data.employeeCategoryId && (isCurrentEmployeeDoctor(employeeCategory) ? data.department && data.chamberNo : true)
-
+        return data.name && data.joiningDate  && data.dob && data.gender && 
+             data.mobile &&   data.gender &&
+            data.localAddress && data.localCity && data.localPincode
     }
 
 
@@ -405,25 +433,14 @@ export default function Form() {
             if (!data.joiningDate) newErrors.joiningDate = 'Joining Date is required';
             if (!data.department) newErrors.department = 'Select a department';
         } else if (step === 2) {
-            if (!data.email) newErrors.email = 'Email is required';
             if (!data.mobile) newErrors.mobile = 'Mobile No is required';
         } else if (step === 3) {
-            if (!data.fatherName) newErrors.fatherName = 'Father Name is required';
-            if (!data.panNo) newErrors.panNo = 'Pan number is required';
             if (!data.dob) newErrors.dob = 'Date of Birth is required';
             if (!data.gender) newErrors.gender = 'Gender is required';
-            if (!data.maritalStatus) newErrors.maritalStatus = 'Marital Status is required';
-            if (!data.bloodGroup) newErrors.bloodGroup = 'Blood Group is required';
-            if (!data.degree) newErrors.degree = 'Degree is required';
-            if (!data.specialization) newErrors.specialization = 'Specialization is required';
-        } else if (step === 4) {
+            } else if (step === 4) {
             if (!data.localAddress) newErrors.localAddress = 'Local Address is required';
             if (!data.localPincode) newErrors.localPincode = 'Local Pincode is required';
             if (!data.localCity) newErrors.localCity = 'Local City is required';
-        } else if (step === 5) {
-            // if (!data.accountNo) newErrors.accountNo = 'Account No is required';
-            // if (!data.ifscNo) newErrors.ifscNo = 'IFSC No is required';
-            // if (!data.active) newErrors.active = 'Employee Status is required';
         } else if (step === 6) {
             if (!data.active) newErrors.active = 'Set Status';
         }
@@ -628,7 +645,7 @@ export default function Form() {
                                                         {errors.name && <span className="text-red-500 text-[10px]">{errors.name}</span>}
                                                     </div>
                                                     <div className='w-[100%]  mb-3'>
-                                                        <DropdownInput ref={input2Ref} name="Employee Category" width={""} options={dropDownListObject(id ? employeeCategoryList.data : employeeCategoryList.data.filter(item => item.active), "name", "id")} value={employeeCategory} setValue={(value) => { setEmployeeCategory(value); if (!isCurrentEmployeeDoctor(value)) { setDepartment("") }; setChamberNo(""); }} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} onKeyDown={(e) => handleKeyNext(e, input3Ref)} />
+                                                        <DropdownInput ref={input2Ref} name="Employee Category" width={""} options={dropDownListObject(id ? employeeCategoryList?.data : employeeCategoryList?.data?.filter(item => item.active), "name", "id")} value={employeeCategory} setValue={(value) => { setEmployeeCategory(value); if (!isCurrentEmployeeDoctor(value)) { setDepartment("") }; setChamberNo(""); }} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} onKeyDown={(e) => handleKeyNext(e, input3Ref)} />
                                                         {(branchPrefixCategory === "Specific")
                                                             ?
                                                             <DropdownInput name="Employee Type" options={employeeType} value={permanent} setValue={setPermanent} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
@@ -649,7 +666,7 @@ export default function Form() {
                                             </div>
 
                                             <div className="w-[100%] mb-3">
-                                                <DropdownInput name="Department" options={dropDownListObject(id ? departmentList.data : departmentList.data.filter(item => item.active), "name", "id")} value={department} setValue={setDepartment} readOnly={readOnly} required={true} disabled={(childRecord.current > 0)} />
+                                                <DropdownInput name="Department" options={dropDownListObject(id ? departmentList?.data : departmentList?.data?.filter(item => item.active), "name", "id")} value={department} setValue={setDepartment} readOnly={readOnly} required={true} disabled={(childRecord.current > 0)} />
                                                 {errors.department && <span className="text-red-500 text-[10px]">{errors.department}</span>}
                                             </div>
                                             <div className="w-[100%] mb-3">
@@ -685,7 +702,7 @@ export default function Form() {
                                     <div className='ms-0.5 mb-2 text-sm  font-semibold'>Contact Details</div>
                                     <div className='w-[100%] '>
                                         <div className="w-[100%] mb-3">
-                                            <TextInput name="Email Id" width={"w-full md:w-full"} type="email" value={email} setValue={setEmail} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                            <TextInput name="Email Id" width={"w-full md:w-full"} type="email" value={email} setValue={setEmail}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             {errors.email && <span className="text-red-500 text-[10px]">{errors.email}</span>}
                                         </div>
                                         <div className="w-[100%] mb-3">
@@ -704,43 +721,43 @@ export default function Form() {
                                     <div className='ms-0.5 mb-2 text-sm  font-semibold'>Personal Details</div>
                                     <div className='w-[100%]'>
                                         <div className="w-[48%] mb-3">
-                                            <TextInput name="Father Name" type="text" width={"md:w-[220px]"} value={fatherName} setValue={setFatherName} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                            <TextInput name="Father Name" type="text" width={"md:w-[220px]"} value={fatherName} setValue={setFatherName} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             {errors.fatherName && <span className="text-red-500 text-[10px]">{errors.fatherName}</span>}
                                         </div>
 
                                         <div className="flex justify-between">
                                             <div className="w-[48%] mb-3">
-                                                <TextInput name="Pan No" width={"md:w-[100%]"} type="pan_no" value={panNo} setValue={setPanNo} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <TextInput name="Pan No" width={"md:w-[100%]"} type="pan_no" value={panNo} setValue={setPanNo}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                                 {errors.panNo && <span className="text-red-500 text-[10px]">{errors.panNo}</span>}
                                             </div>
 
                                             <div className="w-[48%] mb-3">
-                                                <DateInput name="Date Of Birth" width={"md:w-[100%]"} value={dob} setValue={setDob} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <DateInput name="Date Of Birth" width={"md:w-[100%]"} value={dob} setValue={setDob}  readOnly={readOnly} disabled={(childRecord.current > 0)} required={true} />
                                                 {errors.dob && <span className="text-red-500 text-[10px]">{errors.dob}</span>}
                                             </div>
                                         </div>
                                         <div className="flex  flex-wrap justify-between">
                                             <div className="w-[30%] mb-3">
-                                                <DropdownInput name="Gender" options={genderList} value={gender} setValue={setGender} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <DropdownInput name="Gender" options={genderList} value={gender} setValue={setGender} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)}  />
                                                 {errors.gender && <span className="text-red-500 text-[10px]">{errors.gender}</span>}
                                             </div>
                                             <div className="w-[30%] mb-3">
-                                                <DropdownInput name="Marital Status" options={maritalStatusList} value={maritalStatus} setValue={setMaritalStatus} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <DropdownInput name="Marital Status" options={maritalStatusList} value={maritalStatus} setValue={setMaritalStatus}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                                 {errors.maritalStatus && <span className="text-red-500 text-[10px]">{errors.maritalStatus}</span>}
                                             </div>
                                             <div className="w-[30%] mb-3">
-                                                <DropdownInput name="Blood Group" options={bloodList} value={bloodGroup} setValue={setBloodGroup} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <DropdownInput name="Blood Group" options={bloodList} value={bloodGroup} setValue={setBloodGroup}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                                 {errors.bloodGroup && <span className="text-red-500 text-[10px]">{errors.bloodGroup}</span>}
                                             </div>
 
                                         </div>
                                         <div className="w-[100%] mt-1 flex justify-between">
                                             <div className="w-[20%] mb-3">
-                                                <TextInput name="Degree" type="text" value={degree} setValue={setDegree} readOnly={readOnly} required={true} />
+                                                <TextInput name="Degree" type="text" value={degree} setValue={setDegree} readOnly={readOnly}/>
                                                 {errors.degree && <span className="text-red-500 text-[10px]">{errors.degree}</span>}
                                             </div>
                                             <div className="w-[75%] mb-3">
-                                                <TextInput name="Specialization" width={"w-[100%]]"} type="text" value={specialization} setValue={setSpecialization} readOnly={readOnly} required={true} />
+                                                <TextInput name="Specialization" width={"w-[100%]]"} type="text" value={specialization} setValue={setSpecialization} readOnly={readOnly}  />
                                                 {errors.specialization && <span className="text-red-500 text-[10px]">{errors.specialization}</span>}
                                             </div>
 

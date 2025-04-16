@@ -17,10 +17,7 @@ async function get(req) {
         },
         include: {
 
-            PartyOnAccessoryItems: true,
-
-
-            City: {
+             City: {
                 select: {
                     name: true,
                     state: true
@@ -40,8 +37,6 @@ async function getOne(id) {
             id: parseInt(id)
         },
         include: {
-            PartyOnProcess: true,
-            PartyOnAccessoryItems: true,
             City: {
                 select: {
                     name: true,
@@ -49,20 +44,7 @@ async function getOne(id) {
                 }
             },
 
-            ShippingAddress: {
-                select: {
-                    id: true,
-                    address: true
-                }
-            },
-            ContactDetails: {
-                select: {
-                    id: true,
-                    contactPersonName: true,
-                    mobileNo: true,
-                    email: true
-                }
-            }
+           
         }
     })
     if (!data) return NoRecordFound("party");
@@ -114,7 +96,7 @@ export async function upload(req) {
 async function create(body) {
     const { name, code, aliasName, displayName, isSupplier, isBuyer, isClient, processDetails,
         cityId, pincode, panNo, tinNo, cstNo, cstDate, isIgst, yarn, fabric,
-        cinNo, faxNo, website,
+        cinNo, faxNo, website,partyType,
         gstNo, currencyId, costCode, priceDetails, shippingAddress, contactDetails, accessoryGroup, accessoryItemList,
 
         companyId, active, userId } = await body
@@ -123,7 +105,8 @@ async function create(body) {
     data = await prisma.party.create(
         {
             data: {
-                name, code, aliasName, displayName, isSupplier, isBuyer, isIgst, isClient,
+                name, code, aliasName, displayName, isSupplier, isBuyer, isIgst : isIgst ? isIgst : false
+                , isClient,
                 cityId: cityId ? parseInt(cityId) : undefined, pincode: pincode ? pincode : undefined,
                 panNo, tinNo, cstNo, cstDate: cstDate ? new Date(cstDate) : undefined,
                 cinNo, faxNo, website,
@@ -131,39 +114,8 @@ async function create(body) {
                 createdById: userId ? parseInt(userId) : undefined,
                 companyId: parseInt(companyId), active, yarn, fabric,
                 accessoryGroup,
-                PartyOnAccessoryItems: accessoryItemList ? {
-                    createMany: {
-                        data: accessoryItemList.map(item => { return { accessoryItemId: item } })
-                    }
-                } : undefined,
-                PartyOnProcess: processDetails ? {
-                    createMany: {
-                        data: processDetails.map(item => { return { processId: item } })
-                    }
-                } : undefined
-                ,
-
-                ShippingAddress: {
-                    createMany: shippingAddress ? {
-                        data: shippingAddress?.map((temp) => {
-                            let newItem = {}
-                            newItem["address"] = temp["address"] ? temp["address"] : null;
-                            return newItem
-                        })
-                    } : undefined
-                },
-                ContactDetails: contactDetails ? {
-                    createMany: {
-                        data: contactDetails.map(item => {
-                            let newItem = {};
-                            newItem["contactPersonName"] = item["contactPersonName"];
-                            newItem["mobileNo"] = item["mobileNo"];
-
-                            newItem["email"] = item["email"];
-                            return newItem
-                        })
-                    }
-                } : undefined,
+                partyType : partyType ? partyType : null,
+                
 
             }
         }
@@ -178,7 +130,8 @@ async function create(body) {
 async function update(id, body) {
     const { name, code, aliasName, displayName, address, isSupplier, isBuyer, isClient, isIgst, processDetails,
         cityId, pincode, panNo, tinNo, cstNo, cstDate, yarn, fabric, accessoryGroup, accessoryItemList,
-        cinNo, faxNo, email, website, shippingAddress, contactDetails, isContactOnly = false,
+        cinNo, faxNo, email, website, shippingAddress, contactDetails, isContactOnly = false, partyType,
+
         gstNo, isLeadForm = false,
         companyId, active, userId } = await body
 
@@ -196,20 +149,7 @@ async function update(id, body) {
                     state: true
                 }
             },
-            ShippingAddress: {
-                select: {
-                    id: true,
-                    address: true
-                }
-            },
-            ContactDetails: {
-                select: {
-                    id: true,
-                    contactPersonName: true,
-                    mobileNo: true,
-                    email: true
-                }
-            }
+          
 
 
 
@@ -235,76 +175,16 @@ async function update(id, body) {
                     createdById: userId ? parseInt(userId) : undefined,
                     companyId: companyId ? parseInt(companyId) : undefined, active,
                     accessoryGroup,
-                    PartyOnAccessoryItems: accessoryItemList ? {
-                        deleteMany: {},
-                        createMany: {
-                            data: accessoryItemList.map(item => { return { accessoryItemId: item } })
-                        }
-                    } : undefined,
-                    PartyOnProcess: processDetails ? {
-                        deleteMany: {},
-                        createMany: {
-                            data: processDetails.map(item => { return { processId: item } })
-                        }
-                    } : undefined
+                    partyType : partyType ? partyType : null,
+
+                
                 }
 
 
             })
 
 
-            // if (dataFound?.contactPersonName) {
-
-            //     const oldContactDetailsIds = dataFound.contactDetails.map(item => parseInt(item.id));
-
-            //     const currentContactDetailsIds = contactDetails?.filter(i => i?.id)?.map(item => parseInt(item.id));
-            //     const removedContactDetails = getRemovedItems(oldContactDetailsIds, currentContactDetailsIds);
-
-            //     await tx.ContactDetails?.deleteMany({
-            //         where: {
-            //             id: {
-            //                 in: removedContactDetails
-            //             }
-            //         }
-            //     })
-
-            //     await (async function updateContactDetails() {
-            //         const promises = contactDetails?.map(async (h) => {
-
-            //             if (h?.id) {
-            //                 await tx.ContactDetails.update({
-            //                     where: {
-            //                         id: parseInt(h.id)
-            //                     },
-            //                     data: {
-            //                         partyId: parseInt(data?.id),
-            //                         contactPersonName: h.contactPersonName,
-            //                         mobileNo: h.mobileNo ? h.mobileNo : "",
-            //                         email: h.email ? h.email : ""
-
-            //                     }
-            //                 })
-            //             }
-
-            //             else {
-
-            //                 await tx.ContactDetails.create({
-
-            //                     data: {
-            //                         partyId: parseInt(data?.id),
-            //                         contactPersonName: h.contactPersonName,
-            //                         mobileNo: h.mobileNo ? h.mobileNo : "",
-            //                         email: h.email ? h.email : ""
-            //                     }
-            //                 })
-
-            //             }
-
-
-            //         })
-            //         return Promise.all(promises)
-            //     }())
-            // }
+            
 
         })
 
@@ -318,7 +198,7 @@ async function update(id, body) {
                     id: parseInt(id),
                 },
                 data: {
-                    name, code, aliasName, displayName, address, isBuyer, isSupplier, isIgst, isClient,
+                    name, code, aliasName, displayName, address, isBuyer, isSupplier, isIgst : isIgst ? isIgst : false, isClient,
                     cityId: cityId ? parseInt(cityId) : undefined, yarn, fabric,
                     pincode: pincode ? parseInt(pincode) : undefined,
                     panNo, tinNo, cstNo, cstDate: cstDate ? new Date(cstDate) : undefined,
@@ -327,113 +207,11 @@ async function update(id, body) {
                     createdById: userId ? parseInt(userId) : undefined,
                     companyId: companyId ? parseInt(companyId) : undefined, active,
                     accessoryGroup,
-                    PartyOnAccessoryItems: accessoryItemList ? {
-                        deleteMany: {},
-                        createMany: {
-                            data: accessoryItemList.map(item => { return { accessoryItemId: item } })
-                        }
-                    } : undefined,
-                    PartyOnProcess: processDetails ? {
-                        deleteMany: {},
-                        createMany: {
-                            data: processDetails.map(item => { return { processId: item } })
-                        }
-                    } : undefined
+                    partyType : partyType ? partyType : null,
+
                 }
 
             })
-
-            const oldShippingAddressIds = dataFound?.ShippingAddress?.map(item => parseInt(item.id));
-            const oldContactDetailsIds = dataFound?.ContactDetails?.map(item => parseInt(item.id));
-            const currentShippingAddressIds = shippingAddress?.filter(i => i?.id)?.map(item => parseInt(item.id));
-            const currentContactDetailsIds = contactDetails?.filter(i => i?.id)?.map(item => parseInt(item.id));
-            const removedShippingAddress = getRemovedItems(oldShippingAddressIds, currentShippingAddressIds);
-            const removedContactDetails = getRemovedItems(oldContactDetailsIds, currentContactDetailsIds);
-            await tx.ShippingAddress?.deleteMany({
-                where: {
-                    id: {
-                        in: removedShippingAddress
-                    }
-                }
-            })
-            await tx.ContactDetails?.deleteMany({
-                where: {
-                    id: {
-                        in: removedContactDetails
-                    }
-                }
-            })
-
-
-            await (async function updateShippingAddress() {
-                const promises = shippingAddress?.map(async (h) => {
-
-                    if (h?.id) {
-                        await tx.ShippingAddress.update({
-                            where: {
-                                id: parseInt(h.id)
-                            },
-                            data: {
-                                supplierId: parseInt(data?.id),
-                                address: h.address,
-
-                            }
-                        })
-                    }
-
-                    else {
-                        await tx.ShippingAddress.create({
-
-                            data: {
-                                supplierId: parseInt(data?.id),
-                                address: h.address,
-                            }
-                        })
-
-                    }
-
-
-                })
-                return Promise.all(promises)
-            }())
-
-
-            await (async function updateContactDetails() {
-                const promises = contactDetails?.map(async (h) => {
-
-                    if (h?.id) {
-                        await tx.ContactDetails.update({
-                            where: {
-                                id: parseInt(h.id)
-                            },
-                            data: {
-                                partyId: parseInt(data?.id),
-                                contactPersonName: h.contactPersonName,
-                                mobileNo: h.mobileNo ? h.mobileNo : "",
-                                email: h.email ? h.email : ""
-
-                            }
-                        })
-                    }
-
-                    else {
-
-                        await tx.ContactDetails.create({
-
-                            data: {
-                                partyId: parseInt(data?.id),
-                                contactPersonName: h.contactPersonName,
-                                mobileNo: h.mobileNo ? h.mobileNo : "",
-                                email: h.email ? h.email : ""
-                            }
-                        })
-
-                    }
-
-
-                })
-                return Promise.all(promises)
-            }())
 
         })
 

@@ -14,13 +14,18 @@ import { useGetBranchQuery } from "../../../redux/services/BranchMasterService";
 import FormHeader from "../FormHeader";
 import FormReport from "../FormReportTemplate";
 import { toast } from "react-toastify";
-import { TextInput, CheckBox, DropdownInput, MultiSelectDropdown } from "../../../Inputs";
+import { TextInput, CheckBox, DropdownInput, MultiSelectDropdown, PasswordTextInput } from "../../../Inputs";
 import ReportTemplate from "../ReportTemplate";
 import { dropDownListObject, multiSelectOption, multiSelectOptionSelectedApiData } from '../../../Utils/contructObject';
+import { Party } from "../../../Utils/DropdownData";
+import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
+import { push } from "../../../redux/features/opentabs";
+import { useDispatch } from "react-redux";
 
-const MODEL = "User Master";
 
-export default function Form() {
+
+export default function Form(activeNavBar,setActiveNavBar) {
+    const MODEL = activeNavBar.activeNavBar
     const [form, setForm] = useState(false);
 
     const [readOnly, setReadOnly] = useState(false);
@@ -32,6 +37,9 @@ export default function Form() {
     const [role, setRole] = useState("");
     const [branches, setBranches] = useState([]);
     const [employee, setEmployee] = useState("");
+    const [partyType, setPartyType] = useState("");
+  
+    const userType = activeNavBar?.activeNavBar;
 
 
     const [searchValue, setSearchValue] = useState("");
@@ -53,8 +61,9 @@ export default function Form() {
         useGetBranchQuery({ params: { ...params, active: true, defaultRole: false } }, { skip: !form });
 
     const { data: allData, isLoading, isFetching } = useGetUserQuery({ params: { ...params, defaultRole: false }, searchParams: searchValue });
+    const { data: partyList } = useGetPartyQuery({ params: { ...params}, searchParams: searchValue });
+ 
 
-    console.log(allData, "allDatauser")
     const {
         data: singleData,
         isFetching: isSingleFetching,
@@ -80,13 +89,20 @@ export default function Form() {
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
     const data = {
-        username: name, password, active, roleId: role, branches: multiSelectOptionSelectedApiData(branches), employeeId: employee, id
+        username: name, password, active, roleId: role, branches: multiSelectOptionSelectedApiData(branches), employeeId: employee, id,partyType,userType:activeNavBar?.activeNavBar
     }
 
     const validateData = (data) => {
-        if (data.username && (id ? true : data.password) && data.roleId && data.branches && data.employeeId) {
-            return true;
+        if(userType === "STANDARD USERS"){
+            if (data.username && (id ? true : data.password) && data.roleId && data.branches && data.employeeId ) {
+                return true;
+            }
         }
+        if(userType === "MANUFACTURE"  ||  userType === "VENDOR" ){
+            if (data.username && (id ? true : data.password) && data.partyType) {
+                return true;
+        }
+     }
         return false;
     }
 
@@ -146,15 +162,35 @@ export default function Form() {
         setReadOnly(false);
         setForm(true);
         setSearchValue("");
+        setName("");
+        setPassword("");
+        
     };
 
     function onDataClick(id) {
         setId(id);
         setForm(true);
     }
-    const tableHeaders = ["Username", "Role", "Status"]
-    const tableDataNames = ["dataObj.username", "dataObj?.role?.name", 'dataObj.active ? ACTIVE : INACTIVE']
+    const tableHeaders = ["Username",  "Status"]
+    const tableDataNames = ["dataObj.username", 'dataObj.active ? ACTIVE : INACTIVE']
 
+    
+    let party; 
+
+        if(userType === "STANDARD USERS"){
+            party = allData?.data?.filter(item  => item.userType === "STANDARD USERS")
+        }
+        if(userType === "MANUFACTURE"){
+            party = allData?.data?.filter(item  => item.userType === "MANUFACTURE")
+
+        }
+        if(userType === "VENDOR"){
+            party = allData?.data?.filter(item  => item.userType === "VENDOR")
+
+        }
+ 
+    
+console.log(party,"party",userType)
 
     if (!form)
         return (
@@ -166,7 +202,7 @@ export default function Form() {
                     isLoading || isFetching
                 }
                 setForm={setForm}
-                data={allData?.data}
+                data={party}
                 onClick={onDataClick}
                 onNew={onNew}
                 searchValue={searchValue}
@@ -177,9 +213,10 @@ export default function Form() {
     return (
         <div
             onKeyDown={handleKeyDown}
-            className="md:items-start md:justify-items-center grid h-full bg-theme"
-        >
-            <div className="flex flex-col frame w-full h-full">
+            className="md:items-start md:justify-items-center grid h-full bg-theme "
+        >    
+            <div className="flex flex-col frame w-full h-full  ">
+       
                 <FormHeader
                     onNew={onNew}
                     onClose={() => {
@@ -192,6 +229,7 @@ export default function Form() {
                     deleteData={deleteData}
                     childRecord={childRecord.current}
                 />
+              
 
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-x-2 overflow-clip">
 
@@ -199,23 +237,43 @@ export default function Form() {
                         <div className='mr-1 md:ml-2'>
                             <fieldset className='frame my-1'>
                                 <legend className='sub-heading'>User Info</legend>
+                                 
                                 <form className='grid grid-cols-1 my-2' autoComplete="chrome-off">
                                     <TextInput name="Username" type="text" value={name} setValue={setName} required={true} readOnly={readOnly} />
                                     {!id
                                         ?
-                                        <TextInput name="Password" type="password" value={password} setValue={setPassword} required={true} readOnly={readOnly} />
+                                        <PasswordTextInput name="Password" type="password" value={password} setValue={setPassword} required={true} readOnly={readOnly} />
                                         :
                                         ""
                                     }
+                                    {activeNavBar.activeNavBar  === "STANDARD USERS"  ?
+                                    <>
+                                
                                     <DropdownInput name="Employee" options={!employeeList ? [] : employeeList?.data.map(employee => { return { show: `${employee.regNo}/${employee.name}/${employee.EmployeeCategory?.name}`, value: employee.id } })} value={employee} setValue={setEmployee} required={true} readOnly={readOnly} />
                                     <DropdownInput name="Role" options={dropDownListObject(roleList ? roleList?.data : [], "name", "id")} value={role} setValue={setRole} required={true} readOnly={readOnly} />
                                     <MultiSelectDropdown readOnly={readOnly} name="Branch" selected={branches} setSelected={setBranches} options={multiSelectOption(branchesList ? branchesList.data : [], "branchName", "id")} />
+                                    </>
+                                    : "" }
+                                 {activeNavBar.activeNavBar  === "MANUFACTURE"  ? 
+
+                                    <DropdownInput name="Party" options={dropDownListObject(partyList ? partyList?.data?.filter(item  => item.partyType  === "MANUFACTURE") : [], "name", "id")} value={partyType} setValue={setPartyType} required={true} readOnly={readOnly} />
+                                        :
+                                    
+                                      activeNavBar.activeNavBar  ===  "VENDOR"   ?
+                                      <DropdownInput name="Party" options={dropDownListObject(partyList ? partyList?.data?.filter(item  => item.partyType  === "VENDOR") : [], "name", "id")} value={partyType} setValue={setPartyType} required={true} readOnly={readOnly} />
+
+                                        :
+                                        ""
+                                    }
                                     <CheckBox name="Active" value={active} setValue={setActive} />
+                                  
                                 </form>
+
                             </fieldset>
                         </div>
                     </div>
-                    <div className="frame hidden md:block overflow-x-hidden">
+                
+                    {/* <div className="frame hidden md:block overflow-x-hidden">
                         <FormReport
                             searchValue={searchValue}
                             setSearchValue={setSearchValue}
@@ -227,7 +285,7 @@ export default function Form() {
                                 isLoading || isFetching
                             }
                         />
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

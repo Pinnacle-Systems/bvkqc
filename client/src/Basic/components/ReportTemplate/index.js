@@ -73,7 +73,7 @@ const Report = ({
                 <table className="table-auto text-center">
                   <thead className="border-2 table-header">
                     <tr>
-                      {tableHeaders.map((head, index) => (
+                      {tableHeaders?.map((head, index) => (
                         <th
                           key={index}
                           className="border-2  top-0 stick-bg"
@@ -90,7 +90,7 @@ const Report = ({
                         className="border-2 table-row"
                         onClick={() => onClick(dataObj.id)}
                       >
-                        {tableDataNames.map((data, index) => (
+                        {tableDataNames?.map((data, index) => (
                           <td key={index} className="table-data" style={{ backgroundColor: data === "dataObj.color" ? eval("dataObj.pantone") : undefined }}>
                             {eval(data)}
                           </td>

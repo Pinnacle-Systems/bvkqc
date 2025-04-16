@@ -87,7 +87,7 @@ const AppHeader = ({ setIsGlobalOpen, setLogout }) => {
           BASE_URL +
           ROLES_API +
           `/${secureLocalStorage.getItem(
-            sessionStorage.getItem("sessionId") + "userRoleId"
+            sessionStorage.getItem("sessionId") + "ch"
           )}`,
       }).then(
         (result) => {

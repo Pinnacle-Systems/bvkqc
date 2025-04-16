@@ -36,7 +36,7 @@ export default function Form() {
 
     const params = {
         companyId: secureLocalStorage.getItem(
-            sessionStorage.getItem("sessionId") + "userCompanyId"
+            sessionStorage.getItem("sessionId") + "currentBranchId"
         ),
     };
     const { data: allData, isLoading, isFetching } = useGetEmployeeCategoryQuery({ params, searchParams: searchValue });

@@ -9,17 +9,15 @@ import {
 } from "../../../redux/services/CityMasterService";
 import { useGetStateQuery } from "../../../redux/services/StateMasterService";
 
-import FormHeader from "../FormHeader";
-import FormReport from "../FormReportTemplate";
+
 import { toast } from "react-toastify";
-import { TextInput, CheckBox, DropdownInput, DisabledInput, Modal, ToggleButton } from "../../../Inputs";
-import ReportTemplate from "../ReportTemplate";
+import { TextInput, DropdownInput, DisabledInput, Modal, ToggleButton } from "../../../Inputs";
 import { dropDownListObject } from '../../../Utils/contructObject';
-import Loader from "../Loader";
 import { useDispatch } from "react-redux";
 import Mastertable from "../MasterTable/Mastertable";
 import MastersForm from '../MastersForm/MastersForm';
 import { statusDropdown } from "../../../Utils/DropdownData";
+import { push } from "../../../redux/features/opentabs";
 
 const MODEL = "City Master";
 
@@ -236,7 +234,7 @@ export default function Form() {
                                 readOnly={readOnly}
                                 emptyErrors={() => setErrors({})}
                             >
-
+         
                                 <fieldset className=' rounded mt-2'>
 
                                     <div className=''>
@@ -250,7 +248,7 @@ export default function Form() {
                                         </div>
                                         <div className="flex flex-wrap w-full justify-between">
                                             <div className="mb-3 w-[48%]">
-                                                <DropdownInput name="State" options={dropDownListObject(id ? stateList.data : stateList.data.filter(item => item.active), "name", "id")} value={state} setValue={setState} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <DropdownInput name="State" options={dropDownListObject(id ? stateList?.data : stateList?.data?.filter(item => item.active), "name", "id")} value={state} setValue={setState} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                             <div className="mb-3 w-[48%]">
                                                 <DisabledInput name="Country" width={"w-[150px]"} type="text" value={countryFromState()} disabled={(childRecord.current > 0)} />

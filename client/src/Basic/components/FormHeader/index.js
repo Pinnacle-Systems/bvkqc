@@ -105,15 +105,15 @@ const FormHeader = ({
       {isLoading || isFetching ? (
         <div></div>
       ) : (
-        <div className="md:flex md:items-center md:justify-between ">
+        <div className="md:flex md:items-center md:justify-between bg-gray-800 ">
           {model ? (
-            <div className="font-bold  heading text-center md:mx-10">
+            <div className="font-bold  heading text-center md:mx-10 bg-gray-800">
               {model}
             </div>
           ) : (
             <div></div>
           )}
-          <div className="flex sub-heading">
+          <div className="flex sub-heading ">
             {
               viewReport &&
               <ViewButtton onClick={viewReport} />

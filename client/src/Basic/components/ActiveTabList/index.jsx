@@ -16,6 +16,7 @@ import {
   PageGroupMaster,
   CompanyMaster,
   Dashboard,
+  Role,
 
 } from "../../components";
 
@@ -50,6 +51,7 @@ const ActiveTabList = () => {
     "EMPLOYEE CATEGORY MASTER": <EmployeeCategoryMaster />,
     "FIN YEAR MASTER": <FinYearMaster />,
     "USERS & ROLES": <UserAndRolesMaster />,
+    "ROLE":<Role/>,
     "ACCOUNT SETTINGS": <AccountSettings />,
     "CONTROL PANEL": <ControlPanel />,
     "EMPLOYEE MASTER": <EmployeeMaster />,
@@ -63,17 +65,11 @@ const ActiveTabList = () => {
     "STYLE MASTER": <StyleMaster />,
     "PROCESS MASTER": <ProcessMaster />,
     "SIZE TEMPLATE MASTER": <SizeTemplateMaster />,
-    "LOSS REASON MASTER": <LossReasonMaster />,
-    "CONTENT MASTER": <ContentMaster />,
-    "YARN TYPE MASTER": <YarnTypeMaster />,
-    "YARN BLEND MASTER": <YarnBlendMaster />,
-    "YARN MASTER": <YarnMaster />,
-    "COUNTS MASTER": <CountsMaster />,
-    "ACCESSORY GROUP MASTER": <AccessoryGroupMaster />,
-    "ACCESSORY ITEM MASTER": <AccessoryItemMaster />,
-    "ACCESSORY MASTER": <AccessoryMaster />,
+    "DASHBOARD": <Dashboard />,
     "ORDER": <Order />,
-    "DASHBOARD": <Dashboard />
+
+
+  
 
   };
   const innerWidth = window.innerWidth;

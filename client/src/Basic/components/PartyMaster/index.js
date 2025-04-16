@@ -11,7 +11,7 @@ import Loader from '../../components/Loader';
 import { dropDownListMergedObject, dropDownListObject, multiSelectOption } from '../../../Utils/contructObject';
 import PartyOnItems from './PartyOnItems';
 import { ChevronLeft, ChevronRight, Delete, Plus } from 'lucide-react';
-import { statusDropdown } from '../../../Utils/DropdownData';
+import { PartyTypes, statusDropdown } from '../../../Utils/DropdownData';
 import BrowseSingleImage from '../../components/BrowseSingleImage';
 import MastersForm from '../MastersForm/MastersForm';
 import { Modal, ToggleButton, CheckBox, DateInput, DropdownInput, MultiSelectDropdown, RadioButton, TextArea, TextInput, LongTextInput } from '../../../Inputs';
@@ -21,7 +21,7 @@ import { useGetCurrencyMasterQuery } from '../../../redux/services/CurrencyMaste
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { DELETE, PLUS } from '../../../icons';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 
 const MODEL = "Party Master"
@@ -49,7 +49,7 @@ export default function Form() {
     const [costCode, setCostCode] = useState("");
     const [contactMobile, setContactMobile] = useState('');
 
-    const [processDetails, setProcessDetails] = useState([]);
+    const [partyType, setpartyType] = useState("");
 
     const [cstDate, setCstDate] = useState("");
     const [email, setEmail] = useState("");
@@ -140,7 +140,7 @@ export default function Form() {
             setAccessoryGroup((false));
             setAccessoryItemList(([]))
             setPriceTemplateId("")
-            setProcessDetails([])
+            setpartyType("")
         } else {
             setReadOnly(true);
             setPanNo(data?.panNo || "");
@@ -175,13 +175,7 @@ export default function Form() {
             setContactDetails((data?.ContactDetails ? data.ContactDetails : ''));
             setSupplier(data?.isSupplier || false);
             setClient(data?.isClient || false);
-            setProcessDetails(data?.PartyOnProcess
-                ?
-                data.PartyOnProcess.map(item => {
-                    return { value: parseInt(item.processId), label: findFromList(item.processId, processList.data, "name") }
-                })
-                :
-                [])
+            setpartyType(data?.partyType)
         }
 
     }, [id]);
@@ -194,7 +188,7 @@ export default function Form() {
         name, code, aliasName, displayName, address, cityId: city, pincode, panNo, tinNo, cstNo, cstDate, cinNo,
         faxNo, email, website, contactPersonName, isIgst, currencyId: currency, costCode, contactMobile,
         active, isSupplier, isClient, accessoryGroup, companyId, shippingAddress, contactDetails,
-        accessoryItemList, processDetails: processDetails ? processDetails.map(item => item.value) : undefined,
+        accessoryItemList,partyType ,
         id, userId, priceTemplateId, image
     }
 
@@ -202,7 +196,7 @@ export default function Form() {
 
     const validateData = (data) => {
 
-        if (data.name) {
+        if (data.name ) {
             return true;
             // && data.joiningDate && data.fatherName && data.dob && data.gender && data.maritalStatus && data.bloodGroup &&
             //     data.panNo && data.email && data.mobile && data.degree && data.specialization &&
@@ -404,6 +398,7 @@ export default function Form() {
     // if (isItemsFetching || isItemsLoading || isProcessLoading || isProcessFetching) {
     //     return <Loader />
     // }
+    console.log(partyType,"PartyType");
 
 
     return (
@@ -427,9 +422,10 @@ export default function Form() {
                     tableHeaders={tableHeaders}
                     tableDataNames={tableDataNames}
                     data={allData?.data}
-                    loading={
-                        isLoading || isFetching
-                    } />
+                    // loading={
+                    //     isLoading || isFetching
+                    // } 
+                    />
             </div>
             {form === true && <Modal isOpen={form} form={form} widthClass={"w-[40%] h-[80%]"} onClose={() => { setForm(false); setErrors({}); setStep(1) }}>
                 <Modal isOpen={itemsPopup} onClose={
@@ -485,8 +481,8 @@ export default function Form() {
                                     </fieldset>
                                     <div className="w-full  ">
                                         <div className='mb-5 w-full'>
-                                            <MultiSelectDropdown readOnly={readOnly} name="Process" selected={processDetails} setSelected={setProcessDetails}
-                                                options={multiSelectOption(processList ? processList.data : [], "name", "id")} />
+                                            <DropdownInput readOnly={readOnly} name="PartyType" value={partyType} setValue={setpartyType}
+                                                options={PartyTypes} />
                                         </div>
                                     </div>
                                 </div>

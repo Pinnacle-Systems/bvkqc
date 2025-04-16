@@ -19,6 +19,8 @@ const Home = () => {
   );
   const navigate = useNavigate();
   const openTabs = useSelector((state) => state.openTabs);
+
+ 
   return (
     <>
       <Modal
@@ -59,7 +61,7 @@ const Home = () => {
             <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} isMainDropdownOpen={isMainDropdownOpen} setIsMainDropdownOpen={setIsMainDropdownOpen} />
             <div className="mt-[30px]  p-5 bg-gray-100  :tab">
               <ActiveTabList />
-              {openTabs.tabs.length === 0 ? <Dashboard /> : ''}
+              {openTabs.tabs.length === 0 ? <Dashboard  setProfile={setProfile}  /> : ''}
             </div>
 
 

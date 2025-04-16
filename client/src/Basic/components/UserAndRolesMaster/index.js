@@ -1,44 +1,76 @@
-import React, { useState } from 'react'
-import RolesMaster from './RolesMaster';
+import React, { useEffect, useState } from 'react'
+import RolesMaster from '../RoleMaster';
 import UserMaster from './UserMaster';
+import { Party } from '../../../Utils/DropdownData';
+import { useDispatch, useSelector } from 'react-redux';
+import { push } from '../../../redux/features/opentabs';
+
+
 
 const UserRoles = () => {
-    const [activeNavBar, setActiveNavBar] = useState("Roles");
+    const [activeNavBar, setActiveNavBar] = useState("");
 
     const subMenus = [
         "Roles",
         "Users"
     ]
 
-    const getShowSubMenu = () => {
-        switch (activeNavBar) {
-            case "Roles":
-                return <RolesMaster />
-            case "Users":
-                return <UserMaster />
-            default:
-                return ""
-        }
-    }
+    // const openTabs = useSelector((state) => state.openTabs);
 
+    // const getShowSubMenu = () => {
+        
+    //     switch (activeNavBar) {
+    //         case "Roles":
+    //             return <RolesMaster    />
+    //         case "STANDARD USERS":
+    //             return <UserMaster activeNavBar={activeNavBar} />
+    //         // case "MANUFACTURE":
+    //         //         return < />
+    //         default:
+    //             return ""
+    //     }
+    // }
+     
+
+
+
+if(activeNavBar === "")
     return (
         <div className='h-full flex flex-col'>
             <div className='md:flex md:items-center page-heading font-bold heading text-center py-2 justify-center'>
-                User & Roles
+                User Allocation
             </div>
-            <div className='row-span-6 grid grid-cols-8 flex-1'>
+            <div className=''>
                 <div className='border-2 bg-white'>
-                    <div>
-                        {subMenus.map((item, index) =>
-                            <div key={index} onClick={() => setActiveNavBar(item)} className={`${activeNavBar === item ? "sub-navbar-active" : "sub-navbar"} text-center`}>{item}</div>
+                    <div className='flex-col w-[50%]  items-center '>
+                        {Party.map((item, index) =>
+                            <div key={index} onClick={() => {
+                                setActiveNavBar(item.show) 
+                             }}
+                         className={`${activeNavBar === item ? "sub-navbar-active" : "sub-navbar"} text-center`}>{item.show}</div>
                         )}
                     </div>
                 </div>
                 <div className='col-span-7'>
-                {getShowSubMenu()}
                 </div>
             </div>
         </div>
+    );
+
+
+    return(
+            <>
+            <div className='flex-row justify-end  '> 
+            <button className="px-6 py-2 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 border border-gray-200 "
+                                            onClick={() => setActiveNavBar("")}
+                                    >
+                                    BACK
+                                        </button>     
+                { <UserMaster activeNavBar={activeNavBar}  setActiveNavBar={setActiveNavBar}/>    } 
+            </div>
+        
+
+            </>
     )
 }
 

@@ -236,8 +236,15 @@ export const WayOfSample = [
 ]
 
 
-export const uniformTypes = [
-    { show: "NORMAL", value: "NORMAL" },
-    { show: "HOUSE", value: "HOUSE" },
+export const PartyTypes = [
+    { show: "VENDOR", value: "VENDOR" },
+    { show: "MANUFACTURE", value: "MANUFACTURE" },
 
+]
+
+
+export const Party = [
+    { show: "STANDARD USERS", value: "STANDARD USERS" },
+    { show: "MANUFACTURE", value: "MANUFACTURE" },
+    { show: "VENDOR", value: "VENDOR" },
 ]

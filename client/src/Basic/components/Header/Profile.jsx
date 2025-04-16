@@ -5,10 +5,33 @@ import Logout from '../LogoutConfirm';
 import { useNavigate } from 'react-router-dom';
 import secureLocalStorage from 'react-secure-storage';
 import { useGetUserByIdQuery } from '../../../redux/services/UsersMasterService';
+import { useDispatch } from 'react-redux';
+import { push } from '../../../redux/features/opentabs';
+import useOutsideClick from '../../../CustomHooks/handleOutsideClick';
 
-const Profile = ({ dp, setProfile }) => {
+const Profile = ({ dp, setProfile,items = [] }) => {
+    
     const [logout, setLogout] = useState(false);
     const navigate = useNavigate();
+    const [allowedPages, setAllowedPages] = useState([]);
+ 
+
+    const [hideNavBar, sethideNavBar] = useState(true);
+
+    const navBatItemsStyle = hideNavBar ? "hidden" : "";
+  
+    const handleOutsideClick = () => {
+      sethideNavBar(true);
+    };
+  
+    const ref = useOutsideClick(handleOutsideClick);
+  
+    const toggleNavMenu = () => {
+        setProfile(false);
+    };
+  
+  const dispatch = useDispatch()
+
 
     const id = secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userId")
     const {
@@ -17,7 +40,7 @@ const Profile = ({ dp, setProfile }) => {
         isLoading: isSingleLoading,
     } = useGetUserByIdQuery(id);
     return (
-        <div className="absolute rounded-lg right-0 top-10 bg-white p-3 shadow w-[300px] z-10">
+        <div className={`absolute rounded-lg right-0 top-10 bg-white p-3 shadow w-[300px] z-10  `}>
             <Modal
                 isOpen={logout}
                 onClose={() => {
@@ -27,6 +50,12 @@ const Profile = ({ dp, setProfile }) => {
             >
                 <Logout setLogout={setLogout} />
             </Modal>
+            <div  >
+
+           <div  ref={ref}
+               onClick={toggleNavMenu}>
+            
+         
             <div className="font-semibold">Profile</div>
             <div className="bg-beige flex p-2 items-center rounded-lg">
                 <div className="mr-2 w-12">
@@ -39,16 +68,38 @@ const Profile = ({ dp, setProfile }) => {
                         )}
                     </div>
                     <div className="text-[11px] p-0 text-gray-400 -mt-1 ">{singleData?.data?.email}</div>
-                    {/* <button onClick={() => { navigate("/dashboard/accountsettings"); setProfile(false) }} className="button border border-black  rounded hover:bg-stone-900 hover:text-white mt-2">Edit Profile</button> */}
                 </div>
             </div>
+            <button className="nav-dropdown-bg z-99 p-2 w-full" onClick={() => { dispatch(push({id:1000000, name: "ACCOUNT SETTINGS"}))}}>
+          <pre>ACCOUNT SETTINGS</pre>
+        </button>
+        {items.map((item, index) => (
+          <button
+            key={index}
+            type="link"
+            className="nav-dropdown-bg z-99 p-2 text-start block w-full"
+            onClick={(e) => {
+                dispatch(push({id:item.id, name: item.name}))
+              secureLocalStorage.setItem(
+                sessionStorage.getItem("sessionId") + "currentPage",
+                item.id
+              );
+            }}
+          >
+            <pre>{item.name}</pre>
+          </button>
+        ))}
+           
             <div>
+
                 <div className="flex text-[12px] items-center mt-3 pt-3 border-t mx-2" style={{ borderTopWidth: '0.5px', borderColor: '#dce1e9' }}>
                     <span onClick={() => setLogout(true)} className="flex items-center cursor-pointer">
                         <LogOut className="mr-2" size={20} />
                         Sign Out
                     </span>
                 </div>
+            </div>
+            </div>
             </div>
         </div>
     )

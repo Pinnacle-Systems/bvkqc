@@ -124,11 +124,11 @@ label {
   }
 
   .sub-navbar {
-    @apply border rounded bg-sky-800 font-bold p-1 text-sm
+    @apply border rounded bg-gray-300 font-bold p-1 text-sm hover:bg-slate-900;
   }
 
   .sub-navbar-active {
-    @apply bg-blue-900 text-white rounded p-1 text-sm
+    @apply bg-gray-300 text-white rounded p-1 text-sm hover:bg-slate-900
   }
 
   .button-border {

@@ -24,7 +24,24 @@ export const handleOnChange = (event, setValue) => {
         event.target.setSelectionRange(valueBeforeCursor.length + inputValue.slice(inputSelectionStart, inputSelectionEnd).length, valueBeforeCursor.length + inputValue.slice(inputSelectionStart, inputSelectionEnd).length);
     });
 };
+export const handleOnChangeforpassword = (event, setValue) => {
+    const inputValue = event.target.value;
+    const inputSelectionStart = event.target.selectionStart;
+    const inputSelectionEnd = event.target.selectionEnd;
 
+    const LowerCaseValue = inputValue.toLowerCase();
+
+
+    const valueBeforeCursor = LowerCaseValue.slice(0, inputSelectionStart);
+    const valueAfterCursor = LowerCaseValue.slice(inputSelectionEnd);
+
+    setValue(valueBeforeCursor + inputValue.slice(inputSelectionStart, inputSelectionEnd) + valueAfterCursor);
+
+    // Set the cursor position to the end of the input value
+    setTimeout(() => {
+        event.target.setSelectionRange(valueBeforeCursor.length + inputValue.slice(inputSelectionStart, inputSelectionEnd).length, valueBeforeCursor.length + inputValue.slice(inputSelectionStart, inputSelectionEnd).length);
+    });
+};
 export const MultiSelectDropdown = ({ name, selected, labelName, setSelected, options, readOnly = false, tabIndex = null, className = "", inputClass }) => {
     return (
         <div className={`m-1  md:grid-cols-3 items-center z-0 md:my-0.5 md:py-3 data ${className}`}>
@@ -52,6 +69,7 @@ export const MultiSelectDropdown = ({ name, selected, labelName, setSelected, op
 //     )
 // }
 
+
 export const TextInput = ({ name, type, value, setValue, readOnly, className, required = false, disabled = false, tabIndex = null, onBlur = null, width }) => {
 
     return (
@@ -78,6 +96,40 @@ export const TextInput = ({ name, type, value, setValue, readOnly, className, re
                     }}
                     onBlur={onBlur} tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={readOnly} required={required}
                     value={value} onChange={(e) => { type === "number" ? setValue(e.target.value) : handleOnChange(e, setValue) }} readOnly={readOnly}
+                />
+            </div>
+
+
+        </>
+
+    )
+}
+export const PasswordTextInput = ({ name, type, value, setValue, readOnly, className, required = false, disabled = false, tabIndex = null, onBlur = null, width }) => {
+
+    return (
+        <>
+            <div className="group input-group  text-sm">
+                <label htmlFor="title" className="input-label group-hover:text-blue-600  font-weight: 100 ">
+                    <span className="flex items-center gap-2  font-weight: 100">
+                        {required ? <RequiredLabel name={name} /> : `${name}`}
+                    </span>
+                </label>
+                <TextField
+                    id={name}
+                    variant="standard"
+                    name={`${name}`}
+                    className={`input-base field-text p-0.5 rounded border border-gray-500 font-weight: 100 `}
+                    // placeholder={`${name}`}
+
+                    sx={{
+                        "& .MuiInputBase-input": { fontSize: "12px" },
+                        "& .MuiInputBase-input.Mui-disabled": {
+                            color: "#333",
+                            WebkitTextFillColor: "#333",
+                        }
+                    }}
+                    onBlur={onBlur} tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={readOnly} required={required}
+                    value={value} onChange={(e) => { type === "number" ? setValue(e.target.value) : handleOnChangeforpassword(e, setValue) }} readOnly={readOnly}
                 />
             </div>
 

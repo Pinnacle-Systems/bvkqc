@@ -176,7 +176,7 @@ const Dashboard = () => {
         { label: 'Absent Employees', value: 10, logo: <UserX size={50} color={'grey'} />, increase: true, percentage: '10%' }
     ];
     return (
-        <div className="mt-2  overflow-auto ">
+        <div className="mt-2  overflow-auto"  >
 
 
             <header className="mb-6">

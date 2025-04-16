@@ -61,12 +61,10 @@ const Mastertable = ({
 
                 <div className="flex justify-between mx-3 items-center py-1">
                     <div className='text-normal flex items-center text-gray-600'>
-                        {/* <FaTableList size={20} /> */}
-                        {/* <Table size={20}/> */}
+                  
                         <RiPlayListAddLine size={20} className=' mr-0.5' />
                         &nbsp; <div className='my-0'>
                             <div className=' text-[13px] text-black my-0'>{header}</div>
-                            {/* <div  className=' text-[9px]'>List of employees</div> */}
                         </div>
                     </div>
                     <div className="flex items-center">
@@ -130,7 +128,7 @@ const Mastertable = ({
                                                           ${(data === "dataObj.active ? ACTIVE : INACTIVE") &&
                                                             (header === "Employees list") ? "ps-[65px]" :
                                                             `${data === "dataObj.active ? ACTIVE : INACTIVE" ? "ps-[35px]" : "px-4"}`} `}
-                                                        onClick={() => { onDataClick(dataObj.id) }}
+                                                             onClick={() => { onDataClick(dataObj?.id) }} 
                                                     >
                                                         {eval(data)}
 
@@ -140,7 +138,7 @@ const Mastertable = ({
                                         ))}
                                     </tbody>
 
-                                </table>
+                                </table>    
                             </div>
                             {/* Pagination Controls */}
                             <div className="flex justify-center items-center mt-2  my-2 text-normal font-semibold">
