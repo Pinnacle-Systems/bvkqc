@@ -6,20 +6,24 @@ import {
   useGetCountriesQuery, useGetCountryByIdQuery,
   useUpdateCountryMutation
 } from '../../../redux/services/CountryMasterService';
-import FormHeader from '../../components/FormHeader';
-import FormReport from '../../components/FormReportTemplate';
+
 import { TextInput, ToggleButton } from '../../../Inputs';
 import { statusDropdown } from '../../../Utils/DropdownData';
 import Modal from '../../../UiComponents/Modal';
 import e from 'cors';
 import Mastertable from '../MasterTable/Mastertable';
 import MasterForm from '../MastersForm/MastersForm';
+import { push } from '../../../redux/features/opentabs';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 
 const MODEL = "Country Master";
 
 export default function Form() {
+
+  const openTabs = useSelector((state) => state.openTabs);
+
 
   const [form, setForm] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
@@ -42,7 +46,12 @@ export default function Form() {
   const [removeData] = useDeleteCountryMutation();
 
 
+  // const dispatch = useDispatch();
 
+  // useEffect(() => {
+  //   dispatch(push({ name: "COUNTRY MASTER" }))
+ 
+  // }, [ dispatch,openTabs])
 
   const syncFormWithDb = useCallback((data) => {
 
@@ -153,6 +162,7 @@ export default function Form() {
     "S.NO", "Code", "Name", "Status", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "
   ]
   const tableDataNames = ["index+1", "dataObj.code", "dataObj.name", 'dataObj.active ? ACTIVE : INACTIVE', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+
 
 
   return (

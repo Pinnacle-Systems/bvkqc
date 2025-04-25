@@ -18,7 +18,10 @@ import {
    taxTemplate, taxTerm, 
   termsAndCondition, 
 
-  dispatched
+  dispatched,
+  order,
+  po,
+  sendMail
 
 } from './src/routes/index.js';
 
@@ -61,7 +64,6 @@ BigInt.prototype['toJSON'] = function () {
   return parseInt(this.toString());
 };
 
-
 app.use("/employees", employees);
 app.use("/countries", countries);
 app.use("/states", states);
@@ -84,13 +86,17 @@ app.use("/taxTemplate", taxTemplate);
 app.use("/taxTerm", taxTerm);
 app.use("/termsAndCondition", termsAndCondition);
 app.use("/dispatched", dispatched);
-
+app.use("/order",order)
+app.use("/po",po)
 
 
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);
 })
+
+app.use("/sendMail", sendMail)
+
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {

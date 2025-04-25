@@ -75,7 +75,7 @@ export const TextInput = ({ name, type, value, setValue, readOnly, className, re
     return (
         <>
             <div className="group input-group  text-sm">
-                <label htmlFor="title" className="input-label group-hover:text-blue-600  font-weight: 100 ">
+                <label htmlFor="title" className="input-label group-hover:text-blue-600  font-weight: 100  ">
                     <span className="flex items-center gap-2  font-weight: 100">
                         {required ? <RequiredLabel name={name} /> : `${name}`}
                     </span>
@@ -84,7 +84,7 @@ export const TextInput = ({ name, type, value, setValue, readOnly, className, re
                     id={name}
                     variant="standard"
                     name={`${name}`}
-                    className={`input-base field-text p-0.5 rounded border border-gray-500 font-weight: 100 `}
+                    className={`input-base field-text p-0.5 rounded border border-gray-500 font-weight: 100  w-32`}
                     // placeholder={`${name}`}
 
                     sx={{
@@ -150,9 +150,18 @@ export const LongTextInput = ({ name, type, value, setValue, className, readOnly
 
 export const DisabledInput = ({ name, type, value, className = "", textClassName = "", tabIndex = null }) => {
     return (
-        <div className={`input-group grid-cols-1 md:grid-cols-2 items-center md:my-0.5 md:px-1 data  ${className}`}>
-            <label className={`md:text-start flex ${className} `}>{name}</label>
-            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} className={`input-field ${textClassName} focus:outline-none md:col-span-1 border border-gray-500 group-hover:text-blue-600 rounded `} value={value} disabled />
+        <div className={`grid-cols-1 md:grid-cols-3 items-center md:my-0.5 md:px-1  font-size:11.5px ${className}`}>
+            <label className={`md:text-start flex ${className} input-label group-hover:text-blue-600 `}>{name}</label>
+            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} className={`input-field ${textClassName}  p-0.5 focus:outline-none md:col-span-1 border-b border-b-gray-500 group-hover:text-blue-600  text-xs  w-32`} value={value} disabled />
+        </div>
+    )
+}
+
+export const SpecialInput = ({ name, type, value, className = "", textClassName = "", tabIndex = null }) => {
+    return (
+        <div className={`flex flex-col  md:my-0.5 md:px-1  font-size:16.5px ${className}  gap-4 border-b border-b-gray-500 w-32 `}>
+            <label className={`md:text-start flex ${className}  group-hover:text-blue-600  w-32`}>{name}</label>
+            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} className={` ${textClassName}   focus:outline-none md:col-span-1  group-hover:text-blue-600  text-xs  w-32`} value={value} disabled />
         </div>
     )
 }
@@ -185,17 +194,17 @@ export const TextArea = ({ name, value, setValue, readOnly, required = false, di
     )
 }
 
-export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, options, value, setValue, defaultValue, className, readOnly, required = false, disabled = false, clear = false, tabIndex = null, autoFocus = false }) => {
+export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, options, value, setValue, defaultValue, className, readOnly, required = false, disabled = false, clear = false, tabIndex = null, autoFocus = false ,width = '32'}) => {
     const handleOnChange = (e) => {
         setValue(e.target.value);
     }
     return (
         <div className='input-group items-center md:my-1 md:px-1 data '>
-            <label className={`md:text-start flex  text-sm ${className}`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
+            <label className={`md:text-start flex  text-xs ${className}`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
             <select
                 onBlur={onBlur}
                 autoFocus={autoFocus} tabIndex={tabIndex ? tabIndex : undefined} defaultValue={defaultValue} id='dd'
-                required={required} name="name" className='input-field  md:col-span-2 col-span-1 rounded min-w-52 border-b border-black'
+                required={required} name="name" className={`input-field  md:col-span-2 col-span-1   border-b border-black w-${width}px`}
                 value={value} onChange={(e) => { beforeChange(); handleOnChange(e); }} disabled={readOnly}>
                 <option value="" hidden={!clear}>Select</option>
                 {options.map((option, index) => <option key={index} value={option.value} >
@@ -353,10 +362,10 @@ const RequiredLabel = ({ name }) => <p>{`${name}`}<span className="text-red-500"
 
 export const DateInput = ({ name, value, setValue, readOnly, required = false, type = "date", disabled = false, tabIndex = null, inputClass, inputHead }) => {
     return (
-        <div className='   grid-cols-1 md:grid-cols-3 items-center md:my-1 md:px-1 data w-full'>
-            <label htmlFor="id" className={`md:text-start flex text-sm ${inputHead}`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
+        <div className='   grid-cols-1 md:grid-cols-3 items-center md:my-1 md:px-1  w-32'>
+            <label htmlFor="id" className={`md:text-start flex   input-label ${inputHead} group-hover:text-blue-600`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
             <input tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={disabled} required={required}
-                className={`input-field focus:outline-none md:col-span-2 border border-gray-500 rounded  ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
+                className={`focus:outline-none md:col-span-2 border-b border-b-gray-500 text-xs p-0.5  w-32 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
         </div>
     )
 }

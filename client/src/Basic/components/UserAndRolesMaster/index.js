@@ -4,34 +4,20 @@ import UserMaster from './UserMaster';
 import { Party } from '../../../Utils/DropdownData';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from '../../../redux/features/opentabs';
+import secureLocalStorage from 'react-secure-storage';
 
 
 
 const UserRoles = () => {
     const [activeNavBar, setActiveNavBar] = useState("");
 
-    const subMenus = [
-        "Roles",
-        "Users"
-    ]
-
-    // const openTabs = useSelector((state) => state.openTabs);
-
-    // const getShowSubMenu = () => {
-        
-    //     switch (activeNavBar) {
-    //         case "Roles":
-    //             return <RolesMaster    />
-    //         case "STANDARD USERS":
-    //             return <UserMaster activeNavBar={activeNavBar} />
-    //         // case "MANUFACTURE":
-    //         //         return < />
-    //         default:
-    //             return ""
-    //     }
-    // }
-     
-
+    const userRole = secureLocalStorage.getItem(
+        sessionStorage.getItem("sessionId") + "userRole"
+      );
+      const userRoleId = secureLocalStorage.getItem(
+        sessionStorage.getItem("sessionId") + "userRoleId"
+      );
+      console.log(userRoleId,"userRole", userRole);
 
 
 if(activeNavBar === "")

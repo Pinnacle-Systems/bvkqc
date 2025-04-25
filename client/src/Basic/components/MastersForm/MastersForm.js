@@ -37,11 +37,11 @@ const MastersForm = ({
 }) => {
 
 
-  const openTabs = useSelector((state) => state.openTabs);
+  const openTabs = useSelector((state) => state?.openTabs);
 
-  const activeTab = openTabs.tabs.find(tab => tab.active);
+  const activeTab = openTabs?.tabs?.find(tab => tab.active);
 
-  const currentPageId = activeTab.id
+  const currentPageId = activeTab?.id
 
   const userRoleId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userRoleId"

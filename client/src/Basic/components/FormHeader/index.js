@@ -35,12 +35,12 @@ const FormHeader = ({
   childRecordValidationActions = ["edit", "delete"],
 }) => {
 
-  const openTabs = useSelector((state) => state.openTabs);
+  const openTabs = useSelector((state) => state?.openTabs);
 
-  const activeTab = openTabs.tabs.find(tab => tab.active);
+  const activeTab = openTabs?.tabs?.find(tab => tab.active);
 
   // const currentPageId = activeTab.id
-  const currentPageId = activeTab.name
+  const currentPageId = activeTab?.name
 
   const userRoleId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userRoleId"
@@ -88,7 +88,7 @@ const FormHeader = ({
       if (isCurrentFinYearActive()) {
         if (IsDefaultAdmin()) {
           callback();
-        } else if (currentPagePermissions.data[type]) {
+        } else if (currentPagePermissions?.data[type]) {
           callback();
         } else {
           toast.info(`No Permission to ${type}...!`, {

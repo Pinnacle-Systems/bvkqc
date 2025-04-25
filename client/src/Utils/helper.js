@@ -1,6 +1,7 @@
 import moment from "moment";
 import secureLocalStorage from "react-secure-storage";
 import { IMAGE_UPLOAD_URL } from "../Constants";
+import { toast } from "react-toastify";
 
 
 export function getImageUrlPath(fileName) {
@@ -364,4 +365,64 @@ export async function classListData(data){
       if (numA !== numB) return numA - numB;
       return suffixA.localeCompare(suffixB);
     });
+}
+
+
+
+
+export function handleMailSend(blob, mailAddress, subject, fileName, logo, heading) {
+
+
+
+  let blobData = new Blob([blob], { type: 'application/pdf' });
+  let file = new File([blobData], 'document.pdf', { type: 'application/pdf' });
+  let form = new FormData();
+  form.append("file", file);
+  form.append("mailAddress", mailAddress);
+  form.append("subject", subject);
+  form.append("fileName", fileName);
+
+  form.append("logo", logo);
+  form.append("heading", heading);
+
+  fetch(`${process.env.REACT_APP_SERVER_URL}sendMail`, {
+    method: "POST",
+    body: form
+  }).then(res => {
+
+    toast.success("Mail Send SuccessFully");
+  }).catch(err => {
+    toast.error("Please Resend !")
+  });
+
+}
+export function handleMailSendWithMultipleAttachments(FromAddresss,ToAddress,passskey,subject,message,attachments, fileName, logo, reportNo) {
+  console.log("hit")
+  let form = new FormData();
+  console.log(attachments, "attachments")
+  attachments?.forEach(attachment => {
+    let blobData = new Blob([attachment.blob], { type: 'application/pdf' });
+    let file = new File([blobData], `${attachment.reportNo}.pdf`, { type: 'application/pdf' });
+    form.append("file", file);
+  });
+  
+  form.append("FromAddresss",FromAddresss );
+  form.append("ToAddresss",ToAddress );
+  form.append("subject", subject);
+  form.append("passskey", passskey);
+  form.append("fileName", fileName);
+  form.append("reportNo", reportNo);
+  form.append("message",message)
+  form.append("logo", logo);
+
+  console.log(form,"form")
+
+  fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
+    method: "POST",
+    body: form
+  }).then(res => {
+    toast.success("Mail Send SuccessFully");
+  }).catch(err => { 
+    toast.error("Please Resend !")
+  });
 }

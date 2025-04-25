@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -18,17 +16,17 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
 const Login = () => {
 
+  
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false)
-  // const [formData, setFormData] = useState({ email: email, password: password })
   const [errors, setErrors] = useState({});
   const [isGlobalOpen, setIsGlobalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [planExpirationDate, setPlanExpirationDate] = useState("");
   const navigate = useNavigate();
 
-  // Validation function to check email and password
   const validate = () => {
     const errors = {};
 
@@ -36,19 +34,11 @@ const Login = () => {
     if (!username) {
       errors.email = "Email is required";
     }
-    //  else if (
-    //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)
-    // ) {
-    //     errors.email = "Invalid email address";
-    // }
 
-    // Password validation
     if (!password) {
       errors.password = "Password is required";
     }
-    //  else if (password.length < 6) {
-    //     errors.password = "Password must be at least 6 characters";
-    // }
+  
 
     return errors;
   };
@@ -128,7 +118,7 @@ const Login = () => {
                     sessionStorage.getItem("sessionId") + "userRole",
                     result.data.userInfo.role.name
                   );
-                  setIsGlobalOpen(true);
+                  setIsGlobalOpen(true);                              ///  true for branch and fin  year 
                 } else {
                   const expireDate = new Date(
                     result.data.userInfo.role.company.Subscription[0].expireAt

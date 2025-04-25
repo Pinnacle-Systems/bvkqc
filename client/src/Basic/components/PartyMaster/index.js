@@ -516,9 +516,7 @@ export default function Form() {
 
                                         <div className='flex flex-wrap w-[100%] justify-between  '>
 
-                                            <div className="w-[48%] mb-3">
-                                                <DropdownInput name="Currency" width={'110px'} options={dropDownListObject(id ? (currencyList?.data ? currencyList.data : []) : (currencyList?.data ? currencyList?.data?.filter(item => item.active) : []), "name", "id")} value={currency} setValue={(value) => { setCurrency(value); }} readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                            </div>
+                                         
 
                                             <div className="mb-2  w-[48%]">
                                                 <DropdownInput name="City/State Name" options={dropDownListMergedObject(id ? cityList?.data : cityList?.data?.filter(item => item.active), "name", "id")} value={city} setValue={setCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
@@ -586,7 +584,7 @@ export default function Form() {
                                 <>
 
                                     <fieldset className=' my-1 h-[150px] overflow-y-auto '>
-                                        <legend className='sub-heading'>Shipping Address</legend>
+                                        <legend className='sub-heading'> Address</legend>
                                         <div className='grid grid-cols-1 gap-2 my-2 p-1 '>
                                             <table className=" border border-gray-500 text-xs  w-full">
                                                 <thead className='bg-blue-200 top-0 border-b border-gray-500'>

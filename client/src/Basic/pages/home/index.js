@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { AppHeader, AppFooter, Sidebar, Dashboard, Header } from "../../components";
+import {  Sidebar, Dashboard, Header } from "../../components";
 import Modal from "../../../UiComponents/Modal";
 import { BranchAndFinyearForm, LogoutConfirm } from "../../components";
 import ActiveTabList from "../../components/ActiveTabList";
 import secureLocalStorage from "react-secure-storage";
 import SuperAdminHeader from "../../components/SuperAdminHeader";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
+
+import { Order } from "../../../Uniform/Components";
+import SlackStyleUI from "../../../Uniform/Components/HomePage";
 
 const Home = () => {
   const [isGlobalOpen, setIsGlobalOpen] = useState(false);
@@ -17,10 +19,13 @@ const Home = () => {
   const isSuperAdmin = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "superAdmin"
   );
-  const navigate = useNavigate();
+  const userRole = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userRole"
+  );
+
+
   const openTabs = useSelector((state) => state.openTabs);
 
- 
   return (
     <>
       <Modal
@@ -41,7 +46,7 @@ const Home = () => {
       >
         <LogoutConfirm setLogout={setLogout} />
       </Modal>
-      <div className="h-screen overflow-hidden">
+      <div>
         {isSuperAdmin ? (
           <>
             <SuperAdminHeader
@@ -54,26 +59,43 @@ const Home = () => {
             </div>
 
           </>
-        ) : (
-          <div >
+        ) :      
+        
+        
+      userRole  === "MANUFACTURE"  ||     userRole  === "VENDOR"   ? 
+        <>
+        <div className="h-[7%]">
+        <Header profile={profile} setProfile={setProfile} />
+        </div>
+
+        <div className="">
+        <SlackStyleUI    />
+        </div>
+
+        </>
+        
+
+            
+          : 
+
+       (
+          <div className="h-[100vh]">
+
             <Header profile={profile} setProfile={setProfile} />
 
-            <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} isMainDropdownOpen={isMainDropdownOpen} setIsMainDropdownOpen={setIsMainDropdownOpen} />
-            <div className="mt-[30px]  p-5 bg-gray-100  :tab">
+            <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} 
+             isMainDropdownOpen={isMainDropdownOpen} 
+             setIsMainDropdownOpen={setIsMainDropdownOpen} />
+            <div className="mt-[30px]  p-5 bg-gray-100  ">
               <ActiveTabList />
-              {openTabs.tabs.length === 0 ? <Dashboard  setProfile={setProfile}  /> : ''}
+              {openTabs.tabs.length === 0 ? <SlackStyleUI  setProfile={setProfile}  /> : ''}
             </div>
 
 
           </div>
-        )}
+        )
+        }
 
-        {/* <AppFooter /> */}
-
-        {/* 
-        <div className="flex-1">
-          <ActiveTabList />
-        </div> */}
       </div>
     </>
   );

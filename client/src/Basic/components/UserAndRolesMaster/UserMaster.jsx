@@ -38,7 +38,6 @@ export default function Form(activeNavBar,setActiveNavBar) {
     const [branches, setBranches] = useState([]);
     const [employee, setEmployee] = useState("");
     const [partyType, setPartyType] = useState("");
-  
     const userType = activeNavBar?.activeNavBar;
 
 
@@ -69,40 +68,51 @@ export default function Form(activeNavBar,setActiveNavBar) {
         isFetching: isSingleFetching,
         isLoading: isSingleLoading,
     } = useGetUserByIdQuery(id, { skip: !id });
+    // console.log(singleData?.data,"branches",id)
 
     const [addData] = useAddUserMutation();
     const [updateData] = useUpdateUserMutation();
     const [removeData] = useDeleteUserMutation();
 
     const syncFormWithDb = useCallback((data) => {
-        if (id) setReadOnly(true);
+        if (!id) {
+            setReadOnly(false);
+            setName("");
+            setActive(id ? (data?.active ?? true) : false);
+        } 
+        else { 
+        setReadOnly(true);
         setId(data?.id ? data.id : "");
         setName(data?.username ? data.username : "");
         setActive(id ? (data?.active ? data.active : false) : true);
         setRole(data?.roleId ? data.roleId : "");
         setEmployee(data?.Employee?.id ? data?.Employee?.id : "");
         setBranches(data ? data?.UserOnBranch.map((branch) => { return { value: branch.branchId, label: branch.Branch.branchName } }) : [])
+        setPartyType(data?.partyType)
+        }
     }, [id]);
 
     useEffect(() => {
         syncFormWithDb(singleData?.data);
-    }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
+    }, [singleData]);
 
     const data = {
-        username: name, password, active, roleId: role, branches: multiSelectOptionSelectedApiData(branches), employeeId: employee, id,partyType,userType:activeNavBar?.activeNavBar
+        username: name, password, active, roleId: role, branches: multiSelectOptionSelectedApiData(branches), employeeId: employee, id,partyType,userType
     }
+console.log(data?.branches?.length <= 0,'data',data.branches);
 
     const validateData = (data) => {
         if(userType === "STANDARD USERS"){
-            if (data.username && (id ? true : data.password) && data.roleId && data.branches && data.employeeId ) {
+            if (data.username && (id ? true : data.password) && data.roleId && data.branches && data.employeeId  && data?.branches?.length > 0 ) {
                 return true;
             }
         }
         if(userType === "MANUFACTURE"  ||  userType === "VENDOR" ){
-            if (data.username && (id ? true : data.password) && data.partyType) {
+            if (data.username && (id ? true : data.password) && data.partyType && data.roleId  && data?.branches?.length > 0  ) {
                 return true;
         }
      }
+    
         return false;
     }
 
@@ -176,21 +186,26 @@ export default function Form(activeNavBar,setActiveNavBar) {
 
     
     let party; 
+    let roleType;
 
         if(userType === "STANDARD USERS"){
-            party = allData?.data?.filter(item  => item.userType === "STANDARD USERS")
+            party = allData?.data?.filter(item  => item.userType === "STANDARD USERS");
+            roleType =  roleList?.data?.filter(item => item.name === "ADMIN")
+          
         }
         if(userType === "MANUFACTURE"){
             party = allData?.data?.filter(item  => item.userType === "MANUFACTURE")
+            roleType =  roleList?.data?.filter(item => item.name === "MANUFACTURE")
 
         }
         if(userType === "VENDOR"){
             party = allData?.data?.filter(item  => item.userType === "VENDOR")
+            roleType =  roleList?.data?.filter(item => item.name === "VENDOR")
+
 
         }
  
     
-console.log(party,"party",userType)
 
     if (!form)
         return (
@@ -246,15 +261,15 @@ console.log(party,"party",userType)
                                         :
                                         ""
                                     }
+                                     <DropdownInput name="Role" options={dropDownListObject(roleType ? roleType : [], "name", "id")} value={role} setValue={setRole} required={true} readOnly={readOnly} />
+
                                     {activeNavBar.activeNavBar  === "STANDARD USERS"  ?
                                     <>
                                 
                                     <DropdownInput name="Employee" options={!employeeList ? [] : employeeList?.data.map(employee => { return { show: `${employee.regNo}/${employee.name}/${employee.EmployeeCategory?.name}`, value: employee.id } })} value={employee} setValue={setEmployee} required={true} readOnly={readOnly} />
-                                    <DropdownInput name="Role" options={dropDownListObject(roleList ? roleList?.data : [], "name", "id")} value={role} setValue={setRole} required={true} readOnly={readOnly} />
-                                    <MultiSelectDropdown readOnly={readOnly} name="Branch" selected={branches} setSelected={setBranches} options={multiSelectOption(branchesList ? branchesList.data : [], "branchName", "id")} />
                                     </>
                                     : "" }
-                                 {activeNavBar.activeNavBar  === "MANUFACTURE"  ? 
+                                    {activeNavBar.activeNavBar  === "MANUFACTURE"  ? 
 
                                     <DropdownInput name="Party" options={dropDownListObject(partyList ? partyList?.data?.filter(item  => item.partyType  === "MANUFACTURE") : [], "name", "id")} value={partyType} setValue={setPartyType} required={true} readOnly={readOnly} />
                                         :
@@ -265,6 +280,9 @@ console.log(party,"party",userType)
                                         :
                                         ""
                                     }
+                                      <MultiSelectDropdown readOnly={readOnly} name="Branch" selected={branches} setSelected={setBranches} options={multiSelectOption(branchesList ? branchesList.data : [], "branchName", "id")} />
+
+
                                     <CheckBox name="Active" value={active} setValue={setActive} />
                                   
                                 </form>
@@ -273,19 +291,7 @@ console.log(party,"party",userType)
                         </div>
                     </div>
                 
-                    {/* <div className="frame hidden md:block overflow-x-hidden">
-                        <FormReport
-                            searchValue={searchValue}
-                            setSearchValue={setSearchValue}
-                            setId={setId}
-                            tableHeaders={tableHeaders}
-                            tableDataNames={tableDataNames}
-                            data={allData?.data}
-                            loading={
-                                isLoading || isFetching
-                            }
-                        />
-                    </div> */}
+                    
                 </div>
             </div>
         </div>

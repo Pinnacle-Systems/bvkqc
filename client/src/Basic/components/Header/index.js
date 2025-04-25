@@ -148,7 +148,7 @@ console.log(profile,"profile")
                     </div>
                 </div>
                 <div className="mr-3 bg-beige p-2 rounded-full ">
-                    <Bell size={17} />
+                    <Bell size={17}  />
                 </div>
                 <div className="relative">
                     <img className="rounded-full cursor-pointer" onClick={() => setProfile(!profile)} width={'25px'}

@@ -1,5 +1,4 @@
 import { LogOut } from 'lucide-react'
-import React, { useState } from 'react'
 import Modal from '../../../UiComponents/Modal';
 import Logout from '../LogoutConfirm';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +7,7 @@ import { useGetUserByIdQuery } from '../../../redux/services/UsersMasterService'
 import { useDispatch } from 'react-redux';
 import { push } from '../../../redux/features/opentabs';
 import useOutsideClick from '../../../CustomHooks/handleOutsideClick';
+import { useState } from 'react';
 
 const Profile = ({ dp, setProfile,items = [] }) => {
     
@@ -15,7 +15,7 @@ const Profile = ({ dp, setProfile,items = [] }) => {
     const navigate = useNavigate();
     const [allowedPages, setAllowedPages] = useState([]);
  
-
+console.log(logout,"logout")
     const [hideNavBar, sethideNavBar] = useState(true);
 
     const navBatItemsStyle = hideNavBar ? "hidden" : "";
@@ -39,6 +39,10 @@ const Profile = ({ dp, setProfile,items = [] }) => {
         isFetching: isSingleFetching,
         isLoading: isSingleLoading,
     } = useGetUserByIdQuery(id);
+
+
+
+    
     return (
         <div className={`absolute rounded-lg right-0 top-10 bg-white p-3 shadow w-[300px] z-10  `}>
             <Modal
@@ -52,8 +56,9 @@ const Profile = ({ dp, setProfile,items = [] }) => {
             </Modal>
             <div  >
 
-           <div  ref={ref}
-               onClick={toggleNavMenu}>
+           {/* <div  ref={ref}
+               onClick={toggleNavMenu}> */}
+                   <div>
             
          
             <div className="font-semibold">Profile</div>
@@ -93,12 +98,22 @@ const Profile = ({ dp, setProfile,items = [] }) => {
             <div>
 
                 <div className="flex text-[12px] items-center mt-3 pt-3 border-t mx-2" style={{ borderTopWidth: '0.5px', borderColor: '#dce1e9' }}>
-                    <span onClick={() => setLogout(true)} className="flex items-center cursor-pointer">
+                   <button 
+                    type="button"
+                    className="flex items-center cursor-pointer w-full nav-dropdown-bg z-99"   
+                    onClick={() => {
+                        setLogout(true)
+                        console.log("hit")    
+                    }
+                    }
+                     
+                    >
                         <LogOut className="mr-2" size={20} />
                         Sign Out
-                    </span>
+                    </button>
                 </div>
             </div>
+             
             </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, LayoutDashboard, PanelLeftClose, PanelRightClose, Settings, Table, UserRoundPen, Grtransaction } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, PanelLeftClose, PanelRightClose, Settings, Table, UserRoundPen, Grtransaction, Home } from 'lucide-react';
 import './Sidebar.css';
 import secureLocalStorage from 'react-secure-storage';
 import { toast } from 'react-toastify';
@@ -8,7 +8,6 @@ import axios from 'axios';
 import { useGetPageGroupQuery } from '../../../redux/services/PageGroupMasterServices';
 import SidebarComponent from './SidebarComponent';
 import { useNavigate } from 'react-router-dom';
-
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
 
@@ -105,12 +104,12 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
   function findElement(id, arr) {
     if (!arr) return ""
     let data = arr.find(item => parseInt(item.id) === parseInt(id))
-    return data ? data.name : ""
+    return data?.name
   }
 
 
 
-  const masters = allowedPages.filter((page) => page.type === "Masters" )
+  const masters = allowedPages.filter((page) => page.type === "Masters" && page.active === true )
   const mastersGroup = [...new Set(masters.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
   const transactions = allowedPages.filter((page) => page.type === "Transactions")
   const transactionsGroup = [...new Set(transactions.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
@@ -118,7 +117,6 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
   const reportGroups = [...new Set(reports.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
 
 
-  console.log(masters.map(page => page.pageGroupId).map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } }),"masters")
 
 
   const headers = [
@@ -137,6 +135,9 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
     },
 
   ]
+
+  console.log(isOpen,"isOpen")
+
   return (
     <>
       <div onClick={() => {
@@ -146,34 +147,29 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
         }
         setIsOpen(!isOpen)
       }
-      } className='fixed z-[99] top-[16.5%]  bg-gray-600 opacity-50 px-0 h-[10%] flex items-center rounded-end cursor-pointer' >
-        <div className='text-white'>{isOpen ? <ChevronLeft style={{ width: '12px' }} /> : <ChevronRight style={{ width: '12px' }} />}</div>
-      </div>
+      } 
+      className='fixed z-[99] top-[16.5%]  bg-gray-600 opacity-50 px-0 h-[10%] flex items-center rounded-end cursor-pointer'
+       >
+           <div className='text-white'>{isOpen ? <ChevronLeft style={{ width: '12px' }} /> : <ChevronRight style={{ width: '12px' }} />}</div>
+    </div>
       {isOpen && <div className={`sidebar  w-[70px] ${isMainDropdownOpen ? "h-[400px]" : ""} bg-[#495057] top-[16.5%] left-[1%] fixed z-[999] rounded-lg flex justify-center py-3`}>
 
-
-        {/* <div className={`sidebar-header`}>
-              Logo
-              {isOpen && <img
-                  src={logo} // Replace with your logo URL
-                  alt="Logo"
-                  className="sidebar-logo"
-              />}
-
-              Toggle Button
-              <button className="sidebar-toggle" onClick={() => setIsOpen(!isOpen)}>
-                  {isOpen ? <PanelLeftClose size={20} /> : <PanelRightClose size={20} />}
-              </button>
-          </div> */}
-
-        {/* Navigation / Sidebar Content */}
-        <div className=" ">
-          <div className='text-white hover:text-gray-400 cursor-pointer mb-3' onClick={() => navigate('/dashboard')}>
+      
+    
+        <div className=" " >
+        <div className='text-white hover:text-gray-400 cursor-pointer mb-3 '
+          
+          >
+            <a className=' mx-auto text-light flex justify-center hover:text-gray-400 ' type="button" ><Home size={20} /></a>
+            <div className='text-[8.5px] w-full text-center'>Home</div>
+          </div>
+          <div className='text-white hover:text-gray-400 cursor-pointer mb-3'
+          
+          >
             <a className=' mx-auto text-light flex justify-center hover:text-gray-400 ' type="button" ><LayoutDashboard size={20} /></a>
             <div className='text-[8.5px] w-full text-center'>Dashboard</div>
           </div>
-          {/* Main Dropdown Trigger */}
-          {headers.map((ele, index) => {
+          { isOpen  && headers.map((ele, index) => {
             return (
 
               <div
@@ -187,7 +183,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
 
             )
           })}
-
+ 
         </div>
 
 
@@ -203,7 +199,6 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
               <div key={index}>
                 <li >
                   {name === ele.heading && <SidebarComponent setIsOpen={setIsOpen} heading={ele.heading} logo={ele.logo} groups={ele.groups} pages={ele.pages} isMainDropdownOpen={isMainDropdownOpen} setIsMainDropdownOpen={setIsMainDropdownOpen} />}
-
                 </li>
               </div>
             )
@@ -212,8 +207,9 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
         </ul>
 
       </div>
+    
     </>
   )
 }
 
-export default Sidebar
+export default Sidebar;

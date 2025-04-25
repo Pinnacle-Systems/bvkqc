@@ -85,6 +85,8 @@ model Branch {
   address                                String?
   gstNo                                  String?
   panNo                                  String?
+  order                                   order[]
+  po                                     Po[]
 
 }
 
@@ -125,14 +127,15 @@ model RoleOnPage {
 
 model User {
   id                                  Int                          @id @default(autoincrement())
-  username                            String                       @unique
+  username                            String?                       @unique
   email                               String?
+  passKey                             String?                
   Employee                            Employee?                    @relation(fields: [employeeId], references: [id])
   password                            String
   role                                Role?                        @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId                              Int?
   otp                                 String?
-  active                              Boolean                      @default(true)
+  active                              Boolean?                      @default(true)
   UserOnBranch                        UserOnBranch[]
   employeeId                          Int?
   partyType                           String?   
@@ -145,6 +148,11 @@ model User {
   TermsAndConditionsUpdateBy          TermsAndConditions[]         @relation(name: "updatedBy")
   BillEntryCreatedBy                  BillEntry[]                  @relation(name: "createdBy")
   BillEntryUpdatedBy                  BillEntry[]                  @relation(name: "updatedBy")
+  orderEntryCreatedBy                 order[]                      @relation(name: "createdBy")
+  orderEntryUpdatedBy                 order[]                      @relation(name: "updatedBy")
+  pocreatedBy                         Po[]                         @relation(name: "createdBy")
+  poUpdatedBy                         Po[]                         @relation(name: "updatedBy")
+
 }
 
 model Employee {
@@ -500,3 +508,66 @@ enum PaymentMode {
   IMVS
   IMPS
 }
+
+model order{
+  id                   Int                    @id @default(autoincrement())
+  Branch          Branch?  @relation(fields: [branchId], references: [id])
+  branchId        Int?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  createdBy            User?                   @relation("createdBy", fields: [createdById], references: [id])
+  createdById          Int?
+  updatedBy            User?                  @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById          Int?
+  docId                String?
+  orderdate            DateTime?
+  department           String?
+  class                String?
+  supplierCode         String?
+  styleCode            String?
+  product              String?
+  color                String?
+  poNumber             String?
+  isDeleted           Boolean    @default(false)
+  orderBillItems      orderBillItems[]
+}
+model orderBillItems{
+  id                  Int                    @id @default(autoincrement())
+  order               order?     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId             Int?
+  itemCode            String?
+  barCode             String?
+  sizeDesc            String?
+  size                String?
+  mrp                 Float?
+  qty                 Float?
+  orderQty            Float?
+           
+}
+
+model Po{
+  id                  Int                    @id @default(autoincrement())
+  poNumber            String?
+  jobNo               String?
+  dcNo                String?
+  orderNo             String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  createdBy           User?                  @relation("createdBy", fields: [createdById], references: [id])
+  createdById         Int?
+  updatedBy           User?                  @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById         Int?
+  branch              Branch?                @relation(fields: [branchId], references: [id])
+  branchId            Int?
+  poDate              DateTime?
+  deliveryDate        DateTime?
+  customerName        String?
+  primaryEmail        String?
+  secondaryEmail       String?
+  excelFile            String?
+  documantationFile    String?
+  status              String?
+  subject             String?
+  description         String?
+}
+  

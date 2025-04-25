@@ -3,37 +3,9 @@ import { useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { push } from "../../../redux/features/opentabs";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, HandCoins, LayoutDashboard, Search, University, Volleyball } from "lucide-react";
-// import { GrUserWorker } from "react-icons/gr";
-import { TfiWorld } from "react-icons/tfi";
-import { IoLocationOutline } from "react-icons/io5";
-import { MdOutlineMyLocation } from "react-icons/md";
-import { TbCalendarDollar } from "react-icons/tb";
-import { LuUserCheck } from "react-icons/lu";
-import { BiCategoryAlt } from "react-icons/bi";
-import { MdCurrencyRupee } from "react-icons/md";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { TbRulerMeasure2 } from "react-icons/tb";
-import { HiOutlineReceiptTax } from "react-icons/hi";
-import { HiReceiptTax } from "react-icons/hi";
-import { PiTShirtThin } from "react-icons/pi";
-import { FaMapLocationDot } from "react-icons/fa6";
-import { PiSock } from "react-icons/pi";
-import { PiSockFill } from "react-icons/pi";
-// import { MdWifiProtectedSetup } from "react-icons/md";
-// import { LuProportions } from "react-icons/lu";
-import { BsQuestionOctagon } from "react-icons/bs";
-import { FaCottonBureau } from "react-icons/fa6";
-import { GiYarn } from "react-icons/gi";
-import { PiYarnLight } from "react-icons/pi";
-// import { GiRolledCloth } from "react-icons/gi";
-// import { SiGsmarenadotcom } from "react-icons/si";
-// import { AiOutlineNumber } from "react-icons/ai";
-// import { PiScribbleLoopBold } from "react-icons/pi";
-// import { MdDesignServices } from "react-icons/md";
-import { FaSocks } from "react-icons/fa6";
-import { GiFoldedPaper } from "react-icons/gi";
-import { TbNeedleThread } from "react-icons/tb";
+import {  Search} from "lucide-react";
+
+
 
 import country from './images/flag.png';
 import employee from "./images/employee.png";
@@ -140,12 +112,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
                 <img />
             </span>
         ,
-        // "PORTION MASTER": <img />,
-        // "LOSS REASON MASTER":
-        //     <img src={lossreason} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-        // // <BsQuestionOctagon size={20} />
-        // ,
-    
+
        
         "FABRIC TYPE MASTER": <img />,
         "GSM MASTER": <img />,
@@ -181,7 +148,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
                         </div>
                         <ul className="w-full p-0 transition duration-150 ease-in-out origin-top   ">
 
-                            {groups && groups?.map((group) => (
+                            {groups && groups?.filter(item => item.id ).map((group) => (
                                 <li
                                     key={group?.id}
                                     className="rounded-md relative my-0"

@@ -54,13 +54,13 @@ async function getSearch(req) {
 }
 
 async function create(body) {
-    const { name, companyId, pages, active ,purchasePrice,purchaseDepartment} = await body
+    const { name, companyId, pages, active } = await body
    
     const data = await prisma.role.create({
         data: {
             name,
             companyId: companyId ? parseInt(companyId) : null,
-            active: active,purchasePrice,purchaseDepartment,
+            active: active,
             RoleOnPage: {
                 createMany: {
                     data: pages.map((page) => { return { pageId: parseInt(page.id), create: page.create, read: page.read, edit: page.edit, delete: page.delete } }),
@@ -72,7 +72,7 @@ async function create(body) {
 }
 
 async function update(id, body) {
-    const { name, companyId, pages, active,purchasePrice,purchaseDepartment } = await body
+    const { name, companyId, pages, active } = await body
     const dataFound = await prisma.role.findUnique({
         where: {
             id: parseInt(id)
@@ -84,7 +84,7 @@ async function update(id, body) {
             id: parseInt(id),
         },
         data: {
-            name,purchasePrice,purchaseDepartment,
+            name,
             companyId: parseInt(companyId),
             active: active,
             RoleOnPage: {
