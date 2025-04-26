@@ -26,14 +26,14 @@ const Header = ({ profile, setProfile }) => {
     const navBatItemsStyle = hideNavBar ? "hidden" : "";
   
     const [allowedPages, setAllowedPages] = useState([]);
-  
+
+  console.log(allowedPages, "allowedPages")
     const { data: pageGroup } = useGetPageGroupQuery({ searchParams: "" })
   
     const toggleNavMenu = () => {
         setProfile(!profile);
     };
   
-console.log(profile,"profile")
 
      const handleOutsideClick = () => {
                  sethideNavBar(false);
@@ -45,6 +45,11 @@ console.log(profile,"profile")
   
     useLogout()
 
+  
+    const userRole = secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userRole"
+    );
+
     const retrieveAllowedPages = useCallback(() => {
       if (
         JSON.parse(
@@ -52,7 +57,8 @@ console.log(profile,"profile")
             sessionStorage.getItem("sessionId") + "defaultAdmin"
           )
         )
-      ) {
+     
+      )    {
         axios({
           method: "get",
           url: BASE_URL + PAGES_API,
@@ -89,6 +95,7 @@ console.log(profile,"profile")
                     (page) => page.page.active && page.read
                   ).map((page) => {
                     return {
+                      active:true,
                       name: page.page.name,
                       type: page.page.type,
                       link: page.page.link,
@@ -109,7 +116,6 @@ console.log(profile,"profile")
         );
       }
     }, []);
-    console.log(allowedPages,"allowedPages")
     useEffect(retrieveAllowedPages, [retrieveAllowedPages]);
     const hideExpireWarning = () => {
       let expireWarningDiv = document.getElementById("expireWarning");

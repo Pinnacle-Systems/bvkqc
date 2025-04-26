@@ -65,7 +65,8 @@ function isFilterOrder(data, field) {
 
 async function get(req) {
     const { branchId, pagination, pageNumber, dataPerPage, searchDocId, searchBillDate, searchCustomerName, searchMobileNo, finYearId, isTaxBill, partyId,salesReport,IsorderFilter = false,orderFilter } = req.query
-
+    const {companyId , userRole , userId } = req.query
+    console.log(userRole,"userRole",userId)
     let data = await prisma.order.findMany({
         where: {
 
@@ -74,17 +75,8 @@ async function get(req) {
                     contains: searchDocId
                 }
                 : undefined,
-
-        },
-        // orderBy: {
-        //     id: "desc",
-        // },
-        // include: {
-        //     orderBillItems: true,
-          
-           
-
-        // }
+                // vendorId:userRole  ===  "VENDOR" ? parseInt(userId) :  userRole  ===  "MANUFACTURE" ? parseInt(0) : undefined,
+                }
     });
     
    
@@ -93,6 +85,14 @@ async function get(req) {
     if(IsorderFilter){
        data= isFilterOrder(data,orderFilter)
      }
+     if(userRole === "VENDOR")  {
+        data = data.filter(item => item.vendorId === parseInt(userId))
+     }
+     else if( userRole === "MANUFACTURE") {
+        data = data.filter(item => item.manufactureId === parseInt(userId))
+
+     }
+    
     const totalCount = data.length
     if (pagination) {
         data = data.slice(((pageNumber - 1) * parseInt(dataPerPage)), pageNumber * dataPerPage)
@@ -149,6 +149,20 @@ async function getSearch(req) {
     return { statusCode: 0, data: data };
 }
 
+ async function upload(req) {
+    const { id } = req.params
+    const { isDelete } = req.body
+    const data = await prisma.order.update({
+        where: {
+            id: parseInt(id)
+        },
+        data: {
+            excelFineName: (isDelete && JSON.parse(isDelete)) ? "" : req.file.filename,
+        }
+    }
+    )
+    return { statusCode: 0, data };
+}
 
 
 async function createOrderBillItems(tx, orderBillItems, order) {
@@ -349,5 +363,6 @@ export {
     create,
     update,
     remove,
+    upload,
     uploadBillProofImage
 }

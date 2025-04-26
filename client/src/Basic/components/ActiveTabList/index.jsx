@@ -27,17 +27,17 @@ import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
 import { AccessoryGroupMaster, AccessoryItemMaster, AccessoryMaster, CountsMaster, LossReasonMaster, ProcessMaster, SizeTemplateMaster, StyleMaster, YarnBlendMaster, YarnMaster, YarnTypeMaster } from "../../../Shocks";
 import ContentMaster from "../../../Shocks/ContentMaster";
 import secureLocalStorage from "react-secure-storage";
-import { HomePage, Order } from "../../../Uniform/Components";
+import {  MaxHomePage, Order } from "../../../Uniform/Components";
 
 const ActiveTabList = () => {
   const openTabs = useSelector((state) => state.openTabs);
-
 
   const dispatch = useDispatch();
   const [showHidden, setShowHidden] = useState(false);
   const [isAllowableUser, setIsAllowableUser] = useState(false)
 
   const ref = useOutsideClick(() => { setShowHidden(false) })
+
 
   const tabs = {
     "PAGE MASTER": <PageMaster />,
@@ -67,7 +67,7 @@ const ActiveTabList = () => {
     "SIZE TEMPLATE MASTER": <SizeTemplateMaster />,
     "DASHBOARD": <Dashboard />,
     "ORDER": <Order />,
-    "HOMEPAGE":<HomePage/>
+    "HOMEPAGE":<MaxHomePage/>
 
 
   

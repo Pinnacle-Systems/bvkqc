@@ -161,7 +161,7 @@ export const SpecialInput = ({ name, type, value, className = "", textClassName 
     return (
         <div className={`flex flex-col  md:my-0.5 md:px-1  font-size:16.5px ${className}  gap-4 border-b border-b-gray-500 w-32 `}>
             <label className={`md:text-start flex ${className}  group-hover:text-blue-600  w-32`}>{name}</label>
-            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} className={` ${textClassName}   focus:outline-none md:col-span-1  group-hover:text-blue-600  text-xs  w-32`} value={value} disabled />
+            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} className={` ${textClassName}   focus:outline-none md:col-span-1  group-hover:text-blue-600  text-xs  w-32`} value={value}  />
         </div>
     )
 }

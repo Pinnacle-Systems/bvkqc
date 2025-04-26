@@ -120,7 +120,9 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
         "LOOP LENGTH MASTER": <img />,
         "DESIGN MASTER": <img />,
 
-        }
+}
+        
+
     return (
         <div
             className="fixed top-[16.5%] left-[87px] z-50"
@@ -169,11 +171,12 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
                                                     (page) =>
                                                         parseInt(page.pageGroupId) === parseInt(group.id)
                                                 )
-                                                .map((page) => (<>
+                                                .map((page) => (
+                                                <>
                                                     <li
                                                         key={page.id}
                                                         onClick={() => {
-                                                            dispatch(push(page));
+                                                            dispatch(push({name:page.name}));
                                                             secureLocalStorage.setItem(
                                                                 sessionStorage.getItem("sessionId") + "currentPage",
                                                                 page?.id

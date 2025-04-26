@@ -4,21 +4,24 @@ import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService"
 import secureLocalStorage from "react-secure-storage";
 import { Button, Card, CardContent, Input } from "@mui/material";
 import { DELETE } from "../../../icons";
+import { AttachFile } from "@mui/icons-material";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 
 
 
-
-export default function MailForm() {
+export default function MailForm(fileName) {
         const id = secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userId")
 
-  const {
-        data: singleData,isFetching: isSingleFetching,isLoading: isSingleLoading,} = useGetUserByIdQuery(id);
+  const { data: singleData,isFetching: isSingleFetching,isLoading: isSingleLoading,} = useGetUserByIdQuery(id);
 
-  const Model = "Mail Form";
+  console.log(fileName,"fileName")
+
   const [toEmail, setToEmail] = useState("");
   const [subject, setSubject] = useState('');
   const [Message,setMessage] =  useState("")
+  const [excelData, setExcelData] = useState([]);
 
     
     const FromEmailAddress =  singleData?.data?.email
@@ -39,8 +42,27 @@ export default function MailForm() {
         const updated = ccList.filter((_, i) => i !== index);
         setCcList(updated);
       };
-console.log(ccList,"ccList")
 
+
+      const handleViewExcel = async () => {
+        try {
+            const fileUrl = `http://localhost:5000/uploads/${fileName}`;
+            const response = await fetch(fileUrl);
+            const blob = await response.blob();
+            const arrayBuffer = await blob.arrayBuffer();
+
+            const data = new Uint8Array(arrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            setExcelData(jsonData);
+        } catch (error) {
+            console.error("Error reading Excel file", error);
+        }
+    };
+ 
   return (
                 
                    <>
@@ -89,14 +111,14 @@ console.log(ccList,"ccList")
                                          
                         </div>
                  
-                         <div>
+                         <div className="">
                              <label className="block  text-black text-sm mb-1" htmlFor="subject">Subject:</label>
                              <input
                              type="text"
                              id="subject"
                              placeholder="Subject"
                              name="Subject" value={subject}  onChange={(e) => setSubject(e.target.value)}
-                             className="w-2/4 text-black p-1 rounded border border-gray-600 placeholder-gray-400 focus:outline-none"
+                             className="w-2/4 text-black p-1 rounded border border-gray-600 placeholder-gray-400 focus:outline-none mb-3"
                  
                              />
                          </div>
@@ -112,20 +134,50 @@ console.log(ccList,"ccList")
                              className="w-2/4  text-black p-2 rounded border border-gray-600 placeholder-gray-400 focus:outline-none"
                              ></textarea>
                          </div>
+                      
+
+                        
+                    
                          </div> 
              
                  
                              <div className="mt-auto flex justify-center">
                                  <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded" 
                                          onClick={() => {
+
                                              handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message);
-                                             // handlUpdateMail()
                                          }}
                                      >
                                  Send
                                  </button>
                              </div>
-                        
+                              <div>
+                              <button onClick={handleViewExcel} className="bg-blue-500 text-white px-4 py-2 rounded">
+                                  View Excel Data
+                              </button>
+                                
+                            </div>
+
+                {/* <table className="table-auto w-full mt-4">
+                    <thead>
+                        <tr>
+                             {Object.keys(excelData[0]).map((key) => (
+                                <th key={key} className="px-4 py-2">{key}</th>
+                              ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {excelData.map((row, idx) => (
+                            <tr key={idx}>
+                                {Object.values(row).map((value, idy) => (
+                                    <td key={idy} className="border px-4 py-2">{value}</td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table> */}
+  
+     
                                    
                                              
                      </>     

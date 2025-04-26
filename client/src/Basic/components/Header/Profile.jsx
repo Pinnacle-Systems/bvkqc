@@ -15,7 +15,6 @@ const Profile = ({ dp, setProfile,items = [] }) => {
     const navigate = useNavigate();
     const [allowedPages, setAllowedPages] = useState([]);
  
-console.log(logout,"logout")
     const [hideNavBar, sethideNavBar] = useState(true);
 
     const navBatItemsStyle = hideNavBar ? "hidden" : "";
@@ -40,6 +39,8 @@ console.log(logout,"logout")
         isLoading: isSingleLoading,
     } = useGetUserByIdQuery(id);
 
+    console.log("items",items,   secureLocalStorage.setItem(
+        sessionStorage.getItem("sessionId") + "currentPage"))
 
 
     
@@ -84,8 +85,9 @@ console.log(logout,"logout")
             type="link"
             className="nav-dropdown-bg z-99 p-2 text-start block w-full"
             onClick={(e) => {
+                console.log("Hit")
                 dispatch(push({id:item.id, name: item.name}))
-              secureLocalStorage.setItem(
+                 secureLocalStorage.setItem(
                 sessionStorage.getItem("sessionId") + "currentPage",
                 item.id
               );
@@ -103,7 +105,6 @@ console.log(logout,"logout")
                     className="flex items-center cursor-pointer w-full nav-dropdown-bg z-99"   
                     onClick={() => {
                         setLogout(true)
-                        console.log("hit")    
                     }
                     }
                      

@@ -18,7 +18,7 @@ import Order from "../Order";
 
 
 
-const SlackStyleUI = () => {
+export default  function Form(){
 
       const [active, setActive] = useState("home");
       const [isOpen,setisOpen]  =  useState(false)
@@ -26,17 +26,14 @@ const SlackStyleUI = () => {
       const [mailForm,setMailform] = useState(false)
 
       const getButtonStyle = (name) => ({
-         backgroundColor: active === name ? "#E9D5FF" : "transparent", // light purple bg
-         borderRadius: "8px", // optional: adds rounding
-         Padding: "2px" // optional: improves click area
+         backgroundColor: active === name ? "#E9D5FF" : "transparent",
+         borderRadius: "8px", 
+         Padding: "2px" 
          
        });
  
-       const userRole = secureLocalStorage.getItem(
-        sessionStorage.getItem("sessionId") + "userRole"
-      );
 
-console.log(isOpen,active,"active");
+
 
 
        return (
@@ -45,63 +42,63 @@ console.log(isOpen,active,"active");
 
         <>
         
-                  <div className="flex font-sans bg-gary-300 py-2 px-0  h-[85%] w-full">
+          <div className="flex font-sans bg-gary-300 py-2 px-0  h-[85%] w-full">
         
-                            <aside className="w-[4%] flex flex-col items-center py-4 space-y-6   h-[100%]   rounded-2xl  ">
-        
-                                      <button className="flex flex-col items-center "
-                                              onClick={() => setActive("home")}
-                                         
-        
-                                      >
-                                        <div style={getButtonStyle("home")}   >
-                                        <Home className="h-10 w-6 text-purple-600   "    />
-        
-                                        </div>
-                                        <span className="text-[10px] mt-1  text-purple-400">Home</span>
-                                      </button>
-                                
-                                      <button className="flex flex-col items-center "
-                                              onClick={() => {
-                                                setActive("order")
-                                                setisOpen(true)
-                                              }}
-                                         
-        
-                                      >
-                                        <div style={getButtonStyle("order")}   >
-                                        <RiOrderPlayFill className="h-10 w-6 text-purple-600   "    />
-        
-                                        </div>
-                                        <span className="text-[10px] mt-1  text-purple-400">Order</span>
-                                      </button>
-                                  
-                                      
-        
-                                      <button className="flex flex-col items-center"
-                                       onClick={() => setActive("DMs")}
-                                       >
-                                        <div style={getButtonStyle("DMs")}>
-                                        <MessageCircle className="h-10 w-6 text-purple-600" />
-        
-                                        </div>
-                                        <span className="text-[10px] mt-1 text-purple-400">DMs</span>
-                                      </button>
-        
-                                  
-        
-                                      <button className="flex flex-col items-center"
-                                       onClick={() => setActive("More")}
-                                        >
-                                        <div style={getButtonStyle("More")}>
-                                        <MoreHorizontal className="h-10 w-7 text-purple-600 " />
-        
-                                        </div>
-                                        <span className="text-[10px] mt-1 text-purple-400">More</span>
-                                      </button>
-        
-                           
-                           </aside>
+              <aside className="w-[4%] flex flex-col items-center py-4 space-y-6   h-[100%]   rounded-2xl  ">
+
+                        <button className="flex flex-col items-center "
+                                onClick={() => setActive("home")}
+                            
+
+                        >
+                          <div style={getButtonStyle("home")}   >
+                          <Home className="h-10 w-6 text-purple-600   "    />
+
+                          </div>
+                          <span className="text-[10px] mt-1  text-purple-400">Home</span>
+                        </button>
+                  
+                        <button className="flex flex-col items-center "
+                                onClick={() => {
+                                  setActive("order")
+                                  setisOpen(true)
+                                }}
+                            
+
+                        >
+                          <div style={getButtonStyle("order")}   >
+                          <RiOrderPlayFill className="h-10 w-6 text-purple-600   "    />
+
+                          </div>
+                          <span className="text-[10px] mt-1  text-purple-400">Order</span>
+                        </button>
+                    
+                        
+
+                        <button className="flex flex-col items-center"
+                          onClick={() => setActive("DMs")}
+                          >
+                          <div style={getButtonStyle("DMs")}>
+                          <MessageCircle className="h-10 w-6 text-purple-600" />
+
+                          </div>
+                          <span className="text-[10px] mt-1 text-purple-400">DMs</span>
+                        </button>
+
+                    
+
+                        <button className="flex flex-col items-center"
+                          onClick={() => setActive("More")}
+                          >
+                          <div style={getButtonStyle("More")}>
+                          <MoreHorizontal className="h-10 w-7 text-purple-600 " />
+
+                          </div>
+                          <span className="text-[10px] mt-1 text-purple-400">More</span>
+                        </button>
+
+              
+              </aside>
         
                <main className="flex-1 flex flex-col  p-6 shadow-2xl bg-white rounded-2xl pb-2  h-[100%] overflow-x-auto w-[50%] ">
                 {active  === "order"  &&   form === true  ||   mailForm === true ?
@@ -185,7 +182,7 @@ console.log(isOpen,active,"active");
        )
         
     }
-    export default SlackStyleUI;
+
 
 
 

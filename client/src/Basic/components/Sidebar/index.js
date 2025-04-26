@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, LayoutDashboard, PanelLeftClose, PanelRightClose, Settings, Table, UserRoundPen, Grtransaction, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, PanelLeftClose,  Table, Home } from 'lucide-react';
 import './Sidebar.css';
 import secureLocalStorage from 'react-secure-storage';
 import { toast } from 'react-toastify';
@@ -74,6 +74,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
                   (page) => page.page.active && page.read
                 ).map((page) => {
                   return {
+                    active:true,
                     name: page.page.name,
                     type: page.page.type,
                     link: page.page.link,
@@ -117,6 +118,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
   const reportGroups = [...new Set(reports.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
 
 
+  console.log("masters", masters)
 
 
   const headers = [
@@ -136,7 +138,6 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
 
   ]
 
-  console.log(isOpen,"isOpen")
 
   return (
     <>

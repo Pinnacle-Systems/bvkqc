@@ -152,6 +152,7 @@ model User {
   orderEntryUpdatedBy                 order[]                      @relation(name: "updatedBy")
   pocreatedBy                         Po[]                         @relation(name: "createdBy")
   poUpdatedBy                         Po[]                         @relation(name: "updatedBy")
+  order                               order[]
 
 }
 
@@ -529,8 +530,16 @@ model order{
   color                String?
   poNumber             String?
   isDeleted           Boolean    @default(false)
+  User                 User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             Int?
+  isApproval           Boolean    @default(false)
+  buyerGmail          String?
+  manufactureId       Int?
+  vendorId            Int?
+  excelFineName       String?
   orderBillItems      orderBillItems[]
 }
+
 model orderBillItems{
   id                  Int                    @id @default(autoincrement())
   order               order?     @relation(fields: [orderId], references: [id], onDelete: Cascade)

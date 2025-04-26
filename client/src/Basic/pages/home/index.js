@@ -7,7 +7,7 @@ import secureLocalStorage from "react-secure-storage";
 import SuperAdminHeader from "../../components/SuperAdminHeader";
 import {  useSelector } from "react-redux";
 
-import { Order } from "../../../Uniform/Components";
+import { MaxHomePage, Order } from "../../../Uniform/Components";
 import SlackStyleUI from "../../../Uniform/Components/HomePage";
 
 const Home = () => {
@@ -64,12 +64,19 @@ const Home = () => {
         
       userRole  === "MANUFACTURE"  ||     userRole  === "VENDOR"   ? 
         <>
+
         <div className="h-[7%]">
         <Header profile={profile} setProfile={setProfile} />
         </div>
-
+        <div>
+          
+        <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} 
+             isMainDropdownOpen={isMainDropdownOpen} 
+             setIsMainDropdownOpen={setIsMainDropdownOpen} />
+        </div>
         <div className="">
-        <SlackStyleUI    />
+
+        <MaxHomePage    />
         </div>
 
         </>
@@ -88,7 +95,7 @@ const Home = () => {
              setIsMainDropdownOpen={setIsMainDropdownOpen} />
             <div className="mt-[30px]  p-5 bg-gray-100  ">
               <ActiveTabList />
-              {openTabs.tabs.length === 0 ? <SlackStyleUI  setProfile={setProfile}  /> : ''}
+              {openTabs.tabs.length === 0 ? <MaxHomePage  setProfile={setProfile}  /> : ''}
             </div>
 
 

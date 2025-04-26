@@ -1,36 +1,86 @@
-import { singleQuote } from "pdf-lib"
 import {  SpecialInput } from "../../../Inputs"
 import { useState } from "react";
-import { handleMailSendWithMultipleAttachments } from "../../../Utils/helper";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import secureLocalStorage from "react-secure-storage";
 
+import * as XLSX from "xlsx"
+import { toast } from "react-toastify";
+import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
-export default function GeneralSummary({singleData ,setForm,setMailform}){
+export default function GeneralSummary({singleData ,setForm,setMailform,orderId,setFileName}){
 
         const Model = "Summary"
 
         let data = singleData?.data
         const id = secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userId")
 
-  const {
-        data: Userdata,isFetching: isSingleFetching,isLoading: isSingleLoading,} = useGetUserByIdQuery(id);
+  const {data: Userdata,isFetching: isSingleFetching,isLoading: isSingleLoading,} = useGetUserByIdQuery(id);
+  const [upload] = useUploadMutation();
 
-  const [toEmail, setToEmail] = useState("");
-  const [subject, setSubject] = useState('');
-  const [Message,setMessage] =  useState("")
+
+
+
 
     
     const FromEmailAddress =  Userdata?.data?.email
     const passskey  = Userdata?.data?.passKey
 
-
+    const exportAndUploadExcel = async ( text = "uploaded") => {
+        try {
+            const combinedData = singleData?.data?.orderBillItems?.map((item, index) => ({
+                SrNo: index + 1,
+                BranchID: data.branchId,
+                Department: data.department,
+                Class: data.class,
+                Color: data.color,
+                PONumber: data.poNumber,
+                Product: data.product,
+                StyleCode: data.styleCode,
+                SupplierCode: data.supplierCode,
+                OrderDate: data.orderdate,
+                ItemCode: item.itemCode,
+                BarCode: item.barCode,
+                Size: item.sizeDesc,
+                Quantity: item.qty
+            }));
+    
+            const worksheet = XLSX.utils.json_to_sheet(combinedData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const excelBlob = new Blob(
+                [excelBuffer],
+                { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+            );
+    
+            // saveAs(excelBlob, 'myData.xlsx'); 
+    
+            const formData = new FormData();
+            const fileName = `Order_${Date.now()}.xlsx`;
+            console.log(fileName,"fileName")
+            formData.append('file', excelBlob, fileName);
+            console.log("formData", formData,"id",id);
+    
+            const response = await upload({ id: id, body: formData }).unwrap();
+            console.log("Upload Response:", response?.data?.excelFineName);
+            setFileName(response?.data?.excelFineName)
+    
+            toast.success(`${text} Successfully`);
+            console.log("Upload Response:", response);
+    
+        } catch (error) {
+            console.error("Error during Export and Upload:", error);
+            toast.error("Something went wrong!");
+        }
+    };
 
     return(
         <>
          
             <div className="flex flex-col  w-[100%]">
+                
                 <div className="p-3 bg-blue-200 text-center mb-5">{Model}</div>
                   
 
@@ -84,8 +134,8 @@ export default function GeneralSummary({singleData ,setForm,setMailform}){
                         <th className="px-4 py-2 w-32 border border-gray-500">Size</th>
                         <th className="px-4 py-2 w-64 border border-gray-500">sizeDesc</th>
                         <th className="px-4 py-2 w-64 border border-gray-500">MRP</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">qty</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">orderQty</th>
+                        <th className="px-4 py-2 w-64 border border-gray-500">Qty</th>
+                        <th className="px-4 py-2 w-64 border border-gray-500">OrderQty</th>
 
                     </tr>
                 </thead>  
@@ -111,13 +161,13 @@ export default function GeneralSummary({singleData ,setForm,setMailform}){
                     )}
                 </tbody>
                         </table>    
-                  <div className="mt-auto flex justify-end">
+                  <div className="mt-3 flex justify-end">
                                                  <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded mt-2" 
                                                          onClick={() => {
+                                                             exportAndUploadExcel()
                                                             setForm(false)
                                                             setMailform(true)
-                                                            //  handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message);
-                                                            //  handlUpdateMail()
+
                                                          }}
                                                      >
                                                  Save And Send 
@@ -126,6 +176,7 @@ export default function GeneralSummary({singleData ,setForm,setMailform}){
                     </div>
                 </div>
                      
+
 
                
    

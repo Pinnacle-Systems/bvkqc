@@ -66,6 +66,17 @@ const OrderApi = createApi({
             }),
             invalidatesTags: ["Order"],
         }),
+        upload: builder.mutation({
+            query: (payload) => {
+              const { id, body } = payload;
+              return {
+                url: `${ORDER_API}/upload/${id}`,
+                method: "PATCH",
+                body,
+              };
+            },
+            invalidatesTags: ["Order"],
+          }),
         updateOrder: builder.mutation({
             query: (payload) => {
                 const { id, ...body } = payload;
@@ -95,6 +106,7 @@ export const {
     useAddOrderMutation,
     useUpdateOrderMutation,
     useDeleteOrderMutation,
+    useUploadMutation,
 } = OrderApi;
 
 export default OrderApi;
