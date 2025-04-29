@@ -159,8 +159,8 @@ const Login = () => {
         {/* Left Section */}
         <div className="flex justify-center items-center w-1/2 bg-[--main-color]">
           <div>
-            <div className="text-9xl font-bold ">erp</div>
-            <p className="text-xl text-end">systems</p>
+            <div className="text-9xl font-bold ">Max</div>
+            <p className="text-xl text-end">Supplier</p>
           </div>
         </div>
 

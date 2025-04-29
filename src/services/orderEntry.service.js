@@ -152,12 +152,12 @@ async function getSearch(req) {
  async function upload(req) {
     const { id } = req.params
     const { isDelete } = req.body
-    const data = await prisma.order.update({
-        where: {
-            id: parseInt(id)
-        },
+    console.log(id,"id")
+    const data = await prisma.email.create({
+      
         data: {
-            excelFineName: (isDelete && JSON.parse(isDelete)) ? "" : req.file.filename,
+            poExcelFileName: (isDelete && JSON.parse(isDelete)) ? "" : req.file.filename,
+            orderId:id  ? parseInt(id) : undefined,
         }
     }
     )

@@ -7,22 +7,21 @@ import { DELETE } from "../../../icons";
 import { AttachFile } from "@mui/icons-material";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { useGetOrderByIdQuery, useGetOrderQuery } from "../../../redux/uniformService/OrderService";
 
 
 
 
-export default function MailForm(fileName) {
-        const id = secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userId")
-
-  const { data: singleData,isFetching: isSingleFetching,isLoading: isSingleLoading,} = useGetUserByIdQuery(id);
-
-  console.log(fileName,"fileName")
-
+export default function MailForm({fileName,poNo,id,singleData}) {
+    console.log(singleData,"id");
+    
+ 
   const [toEmail, setToEmail] = useState("");
   const [subject, setSubject] = useState('');
   const [Message,setMessage] =  useState("")
   const [excelData, setExcelData] = useState([]);
 
+  console.log(excelData,"excelData")
     
     const FromEmailAddress =  singleData?.data?.email
     const passskey  = singleData?.data?.passKey
@@ -45,8 +44,9 @@ export default function MailForm(fileName) {
 
 
       const handleViewExcel = async () => {
+        console.log(fileName,"fileName")
         try {
-            const fileUrl = `http://localhost:5000/uploads/${fileName}`;
+            const fileUrl = `http://localhost:3000/uploads/Order_1745821075529.xlsx`;
             const response = await fetch(fileUrl);
             const blob = await response.blob();
             const arrayBuffer = await blob.arrayBuffer();
@@ -68,9 +68,6 @@ export default function MailForm(fileName) {
                    <>
                      
         
-                 
-
-                    
                          <div className=" p-3 rounded mb-4 h-[90%] ">
                          <div>
                              <label className="block  text-black text-sm mb-1" htmlFor="to">To:</label>
@@ -152,13 +149,16 @@ export default function MailForm(fileName) {
                                  </button>
                              </div>
                               <div>
-                              <button onClick={handleViewExcel} className="bg-blue-500 text-white px-4 py-2 rounded">
+                              <button onClick={() =>  handleViewExcel()} className="bg-blue-500 text-white px-4 py-2 rounded">
                                   View Excel Data
                               </button>
                                 
                             </div>
+{/* 
+                 
 
-                {/* <table className="table-auto w-full mt-4">
+                    
+                 <table className="table-auto w-full mt-4">
                     <thead>
                         <tr>
                              {Object.keys(excelData[0]).map((key) => (
@@ -175,8 +175,8 @@ export default function MailForm(fileName) {
                             </tr>
                         ))}
                     </tbody>
-                </table> */}
-  
+                </table> 
+   */}
      
                                    
                                              

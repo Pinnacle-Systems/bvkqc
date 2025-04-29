@@ -398,7 +398,6 @@ export default function Form() {
     // if (isItemsFetching || isItemsLoading || isProcessLoading || isProcessFetching) {
     //     return <Loader />
     // }
-    console.log(partyType,"PartyType");
 
 
     return (
@@ -452,76 +451,104 @@ export default function Form() {
                     readOnly={readOnly}
                     emptyErrors={() => setErrors({})}
                 >
-                    <fieldset className=' rounded '>
+                    <fieldset className='rounded'>
                         <div className=''>
 
-                            {step === 1 && (<div className='flex justify-between'>
-                                <div className='w-[50%]'>
-                                    <fieldset className=''>
-                                        <div className={` my-2 ${readOnly ? "pointer-events-none" : ""}`}>
-                                            <div>
-                                                <div className="flex items-center ">
-                                                    <div className='mb-3 '>
-                                                        <CheckBox name="Is Supplier" style={{ fontWeight: 'bold' }} readOnly={readOnly} value={isSupplier} setValue={setSupplier} />
-                                                    </div>
-                                                    <div className='mb-3 ms-4'>
-                                                        <CheckBox name="Is Client" readOnly={readOnly} value={isClient} setValue={setClient} />
-                                                    </div>
-                                                    <div className='mb-3 ms-4'>
-                                                        <CheckBox name="IGST" readOnly={readOnly} value={isIgst} setValue={setGstNo} />
-                                                    </div>
-                                                </div>
+                            {step === 1 && (
+                            <div className="flex flex-wrap justify-between gap-6">
 
+                                <div className="w-full md:w-[50%]">
+                                
+                       
 
-                                            </div>
-
-
-                                        </div>
-
-                                    </fieldset>
-                                    <div className="w-full  ">
-                                        <div className='mb-5 w-full'>
-                                            <DropdownInput readOnly={readOnly} name="PartyType" value={partyType} setValue={setpartyType}
-                                                options={PartyTypes} />
-                                        </div>
+                                <fieldset className="mb-4">
+                                    <div className={`my-2 ${readOnly ? "pointer-events-none" : ""}`}>
+                                    <div className="flex flex-wrap items-center gap-6">
+                                        <CheckBox 
+                                        name="Is Supplier" 
+                                        style={{ fontWeight: 'bold' }} 
+                                        readOnly={readOnly} 
+                                        value={isSupplier} 
+                                        setValue={setSupplier} 
+                                        />
+                                        <CheckBox 
+                                        name="Is Client" 
+                                        readOnly={readOnly} 
+                                        value={isClient} 
+                                        setValue={setClient} 
+                                        />
+                                        <CheckBox 
+                                        name="IGST" 
+                                        readOnly={readOnly} 
+                                        value={isIgst} 
+                                        setValue={setGstNo} 
+                                        />
+                                    </div>
+                                    </div>
+                                </fieldset>
+                                  <div className="flex flex-wrap justify-between w-full mb-4 gap-1">
+                                    <div className="w-[48%] mb-3">
+                                    <TextInput 
+                                        name="Party Name" 
+                                        width="w-full" 
+                                        type="text" 
+                                        value={name}
+                                        setValue={setName} 
+                                        required={true} 
+                                        readOnly={readOnly} 
+                                        disabled={(childRecord.current > 0)}
+                                        onBlur={(e) => {
+                                        if (aliasName) return;
+                                        setAliasName(e.target.value);
+                                        }}
+                                    />
+                                    </div>
+                                    <div className="w-[48%] mb-3">
+                                    <TextInput 
+                                        name="Alias Name" 
+                                        width="w-full" 
+                                        type="text" 
+                                        value={aliasName} 
+                                        setValue={setAliasName} 
+                                        required={true} 
+                                        readOnly={readOnly} 
+                                        disabled={(childRecord.current > 0)} 
+                                    />
                                     </div>
                                 </div>
-                                <div>
-                                    <div>
-                                        <BrowseSingleImage picture={image} setPicture={setImage} readOnly={readOnly} />
-                                    </div>
+                                {/* PartyType Dropdown */}
+                                <div className="w-full mb-4">
+                                    <DropdownInput 
+                                    readOnly={readOnly} 
+                                    name="PartyType" 
+                                    value={partyType} 
+                                    setValue={setpartyType}
+                                    options={PartyTypes} 
+                                    />
+                                </div>
                                 </div>
 
-                            </div>)}
+                                {/* Right side - Image Upload */}
+                                <div className="w-full md:w-auto flex justify-center items-start">
+                                <BrowseSingleImage 
+                                    picture={image} 
+                                    setPicture={setImage} 
+                                    readOnly={readOnly} 
+                                />
+                                </div>
+
+                            </div>
+                            )}
+
+
 
                             {step === 2 && (
                                 <fieldset >
                                     <div className='mt-2'>
-                                        {/* <TextInput name="Party Code" type="text" value={code} setValue={setCode} readOnly={readOnly}  disabled={(childRecord.current > 0)} /> */}
-                                        <div className="flex flex-wrap justify-between w-full">
-                                            <div className="w-[48%] mb-3">
-                                                <TextInput name="Party Name" width={'w-full'} type="text" value={name}
-                                                    setValue={setName} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)}
-                                                    onBlur={(e) => {
-                                                        if (aliasName) return
-                                                        setAliasName(e.target.value)
-                                                    }
-                                                    } />
-                                            </div>
-                                            <div className="w-[48%] mb-3">
-                                                <TextInput name="Alias Name" width={'w-full'} type="text" value={aliasName} setValue={setAliasName} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                            </div>
-                                        </div>
+                                  
 
 
-                                        <div className='flex flex-wrap w-[100%] justify-between  '>
-
-                                         
-
-                                            <div className="mb-2  w-[48%]">
-                                                <DropdownInput name="City/State Name" options={dropDownListMergedObject(id ? cityList?.data : cityList?.data?.filter(item => item.active), "name", "id")} value={city} setValue={setCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                            </div>
-                                        </div>
+                                     
                                         <div className="flex flex-wrap justify-between">
                                             <div className="w-[48%] mb-3">
                                                 <TextInput name="Pan No" width={'w-[110px]'} type="pan_no" value={panNo} setValue={setPanNo} readOnly={readOnly} disabled={(childRecord.current > 0)} />
@@ -552,16 +579,10 @@ export default function Form() {
                                             <div className="w-[48%] mb-3">
                                                 <DateInput name="CST Date" width={'w-[150px]'} value={cstDate} setValue={setCstDate} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
+                                            <div className="mb-2  w-[48%]">
+                                                <DropdownInput name="City/State Name" options={dropDownListMergedObject(id ? cityList?.data : cityList?.data?.filter(item => item.active), "name", "id")} value={city} setValue={setCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                            </div>
                                         </div>
-
-
-                                    </div>
-                                </fieldset>
-                            )}
-
-                            {step === 3 && (
-                                <fieldset>
-                                    <div className='grid grid-cols-1 gap-2 my-2'>
                                         <div className="flex flex-wrap justify-between">
                                             <div className="w-[48%] mb-3">
                                                 <TextInput name="Cin No" width={'w-[200px]'} type="text" value={cinNo} setValue={setCinNo} readOnly={readOnly} disabled={(childRecord.current > 0)} />
@@ -570,17 +591,15 @@ export default function Form() {
                                                 <TextInput name="Fax No" width={'w-[150px]'} type="text" value={faxNo} setValue={setFaxNo} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                         </div>
-
-
                                         <div className='mb-5'>
                                             <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
                                         </div>
-
                                     </div>
                                 </fieldset>
                             )}
 
-                            {step === 4 && (
+
+                            {step === 3 && (
                                 <>
 
                                     <fieldset className=' my-1 h-[150px] overflow-y-auto '>
@@ -748,7 +767,7 @@ export default function Form() {
                     <button
                         type="button"
                         onClick={handleNext}
-                        className={` text-gray-900 field-text rounded-pill flex items-center pl-2 ${(step < 4) ? "visible" : "invisible"}`}
+                        className={` text-gray-900 field-text rounded-pill flex items-center pl-2 ${(step < 3) ? "visible" : "invisible"}`}
 
                     >
                         {/* Next */}

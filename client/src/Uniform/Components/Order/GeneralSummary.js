@@ -1,32 +1,38 @@
-import {  SpecialInput } from "../../../Inputs"
-import { useState } from "react";
+import {  SpecialInput, TextInput } from "../../../Inputs"
+import { useEffect, useState } from "react";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import secureLocalStorage from "react-secure-storage";
-
+import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
 import { toast } from "react-toastify";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
-export default function GeneralSummary({singleData ,setForm,setMailform,orderId,setFileName}){
+export default function GeneralSummary({singleData ,setForm,setMailform,orderId,setFileName,poItems,setPoItems, setPoNo, poNo}){
 
         const Model = "Summary"
 
         let data = singleData?.data
         const id = secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userId")
 
-  const {data: Userdata,isFetching: isSingleFetching,isLoading: isSingleLoading,} = useGetUserByIdQuery(id);
-  const [upload] = useUploadMutation();
+        const {data: Userdata,isFetching: isSingleFetching,isLoading: isSingleLoading} = useGetUserByIdQuery(id);
+        const [upload] = useUploadMutation();
+
+        const [qty,setQty]  = useState("")
+
+   useEffect(() => {
+        if (poItems.length >= 6) return
+        setPoItems(prev => {
+            let newArray = Array.from({ length: 9  - prev.length }, i => {
+                return { accessoryItemId: "", accessoryGroupId: "", accessoryId: "", qty: "", colorId: "", taxPercent: "0.000", sizeId: "", uomId: "", qty: "", price: "", discountType: "Percentage", discountValue: 0 }
+            })
+            return [...prev, ...newArray]
+        }
+        )
+    }, [setPoItems, poItems])
 
 
-
-
-
-    
-    const FromEmailAddress =  Userdata?.data?.email
-    const passskey  = Userdata?.data?.passKey
-
-    const exportAndUploadExcel = async ( text = "uploaded") => {
+    const exportAndUploadExcel = async ( text = "Added") => {
         try {
             const combinedData = singleData?.data?.orderBillItems?.map((item, index) => ({
                 SrNo: index + 1,
@@ -41,7 +47,7 @@ export default function GeneralSummary({singleData ,setForm,setMailform,orderId,
                 OrderDate: data.orderdate,
                 ItemCode: item.itemCode,
                 BarCode: item.barCode,
-                Size: item.sizeDesc,
+                Sizedesc: item.sizeDesc,
                 Quantity: item.qty
             }));
     
@@ -63,7 +69,7 @@ export default function GeneralSummary({singleData ,setForm,setMailform,orderId,
             formData.append('file', excelBlob, fileName);
             console.log("formData", formData,"id",id);
     
-            const response = await upload({ id: id, body: formData }).unwrap();
+            const response = await upload({ id: orderId, body: formData }).unwrap();
             console.log("Upload Response:", response?.data?.excelFineName);
             setFileName(response?.data?.excelFineName)
     
@@ -79,16 +85,15 @@ export default function GeneralSummary({singleData ,setForm,setMailform,orderId,
     return(
         <>
          
-            <div className="flex flex-col  w-[100%]">
+            {/* <div className="flex flex-col  w-[100%]">
                 
-                <div className="p-3 bg-blue-200 text-center mb-5">{Model}</div>
                   
 
                   <div className="grid grid-cols-7  flex-row border-2 border-gray-500  w-full pb-2 p-2 ">
                  
 
                             <div className="mt-5 ">
-                                    <SpecialInput  name={"Order  Number"}  value={data?.docId}   />
+                                    <TextInput  name={"Order  Number"}  value={data?.docId}   />
                             </div>
                             <div className="mt-5 ">
                                     <SpecialInput  name={"Customer"}    />
@@ -137,6 +142,7 @@ export default function GeneralSummary({singleData ,setForm,setMailform,orderId,
                         <th className="px-4 py-2 w-64 border border-gray-500">Qty</th>
                         <th className="px-4 py-2 w-64 border border-gray-500">OrderQty</th>
 
+
                     </tr>
                 </thead>  
                 <tbody>
@@ -150,7 +156,12 @@ export default function GeneralSummary({singleData ,setForm,setMailform,orderId,
                         <td className="table-data ">{item?.sizeDesc}</td>
                         <td className="table-data text-right">{item?.mrp}</td>
                         <td className="table-data tetx-right">
-                            <input type="number" value={item?.qty} onChange={(e) => e.target.value}   className="p-0.5 w-full  text-right"/>
+                        <input
+                            type="number"
+                            // value={item?.qty || 0}
+                            onChange={(e) => setQty(Number(e.target.value))}
+                            className="p-0.5 w-full text-right"
+                            />
                         </td>
                         <td className="table-data text-right">{item?.orderQty}</td>
 
@@ -174,8 +185,77 @@ export default function GeneralSummary({singleData ,setForm,setMailform,orderId,
                                                  </button>
                                              </div>  
                     </div>
-                </div>
-                     
+                </div> */}
+        <div className="flex flex-col w-full bg-white p-6 h-[100%]">
+
+
+  <div className="grid grid-cols-7 gap-4 border p-4 rounded-lg mb-6 h-[35%]">
+    {[
+      "Order Number", "Customer", "Del Address", "Sales Ex", "Remarks", "Required Approval", "Reason",
+      "Cancelled By", "Cancel Date", "Approval Status", "Approved By"
+    ].map((label, index) => (
+      <div key={index} className="flex flex-col">
+        <label className="text-xs font-semibold text-gray-600">{label}</label>
+        <input
+          type="text"
+          className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          value={label === "Order Number" ? data?.docId : ""}
+          readOnly={label === "Order Number"}
+        />
+      </div>
+    ))}
+  </div>
+
+  <div className="overflow-y-auto custom-scrollbar  h-[100%]">
+    <table className="w-full text-sm border rounded-lg overflow-hidden" id="table-to-xls">
+      <thead className="bg-gray-100 text-gray-700">
+        <tr>
+          {["S No", "ItemCode", "BarCode", "Size", "sizeDesc", "MRP", "Qty", "OrderQty"].map((header, index) => (
+            <th key={index} className="px-4 py-2 border text-center whitespace-nowrap">
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {(poItems || []).map((item, index) => (
+          <tr key={index} className="hover:bg-gray-50 transition-colors">
+            <td className=" border-2 text-center">{index + 1}</td>
+            <td className=" border-2">{item?.itemCode}</td>
+            <td className=" border-2">{item?.barCode}</td>
+            <td className=" border-2 text-center">{item?.size}</td>
+            <td className=" border-2">{item?.sizeDesc}</td>
+            <td className=" border-2 text-right">{item?.mrp}</td>
+            <td className=" border-2">
+              <input
+                type="number"
+                onChange={(e) => setQty(Number(e.target.value))}
+                className="w-full p-1 border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </td>
+            <td className=" border text-right">{item?.orderQty}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Save Button */}
+  <div className="mt-6 flex justify-end ">
+    <button
+      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:scale-105 active:scale-95"
+      onClick={() => {
+        exportAndUploadExcel();
+        setForm(false);
+        setMailform(true);
+       
+      }}
+    >
+      Save And Send
+    </button>
+  </div>
+</div>
+
 
 
                

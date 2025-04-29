@@ -631,7 +631,7 @@ export default function Form() {
                                 <fieldset className='rounded  mb-1'>
                                     <div className=' mb-1 text-sm font-semibold'>Official Details</div>
 
-                                    <div className='w-100 flex justify-between'>
+                                    <div className='w-[100%] flex justify-between'>
                                         <div className=''>
                                             <div className='flex'>
 
@@ -702,68 +702,241 @@ export default function Form() {
                                             <TextInput name="Mobile No" width={"w-full md:w-full"} type="number" value={mobile} setValue={setMobile} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             {errors.mobile && <span className="text-red-500 text-[10px]">{errors.mobile}</span>}
                                         </div>
+                                       
+                                 
+                                         
 
                                     </div>
                                 </fieldset>
                             </div>
                         )}
-
+{/* 
                         {step === 3 && (
                             
-                                <fieldset className='rounded  mb-1'>
-                                    <div className='ms-0.5 mb-2 text-sm  font-semibold '>Personal Details</div>
-                                    <div className='flex flex-col w-[50%]  justify-between'>
-                                            <div className="w-[48%] mb-3 ">
-                                            <TextInput name="Father Name" type="text" width={"md:w-[220px]"} value={fatherName} setValue={setFatherName} readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                            {errors.fatherName && <span className="text-red-500 text-[10px]">{errors.fatherName}</span>}
-                                            </div>
-                                                 <div className="w-[48%] mb-3">
-                                                <TextInput name="Pan No" width={"md:w-[100%]"} type="pan_no" value={panNo} setValue={setPanNo}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                                {errors.panNo && <span className="text-red-500 text-[10px]">{errors.panNo}</span>}
-                                            </div>
+                                // <fieldset className='rounded  mb-1 '>
+                                //     <div className='ms-0.5 mb-2 text-sm  font-semibold '>Personal Details</div>
+                                //     <div className='grid grid-cols-2 w-[100%] justify-between '>
+                                //         <div className="">
+                                //              <div className=" mb-3 ">
+                                //                 <TextInput name="Father Name" type="text" width={"md:w-[220px]"} value={fatherName} setValue={setFatherName} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                //                 {errors.fatherName && <span className="text-red-500 text-[10px]">{errors.fatherName}</span>}
+                                //             </div>
+                                //             <div className=" mb-3">
+                                //                 <TextInput name="Pan No" width={"md:w-[100%]"} type="pan_no" value={panNo} setValue={setPanNo}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                //                 {errors.panNo && <span className="text-red-500 text-[10px]">{errors.panNo}</span>}
+                                //              </div>
+                                //              <div className="w-[30%] mb-3">
+                                //                     <DropdownInput name="Marital Status" options={maritalStatusList} value={maritalStatus} setValue={setMaritalStatus}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                //                     {errors.maritalStatus && <span className="text-red-500 text-[10px]">{errors.maritalStatus}</span>}
+                                //                 </div>
+                                  
+                                //         </div>
+                                       
+                                //         <div className="">
+                                           
+                                //                 <div className="w-[30%] mb-3">
+                                //                     <DropdownInput name="Blood Group" options={bloodList} value={bloodGroup} setValue={setBloodGroup}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                //                     {errors.bloodGroup && <span className="text-red-500 text-[10px]">{errors.bloodGroup}</span>}
+                                //                 </div>
+                                //                 <div className="w-[20%] mb-3">
+                                //                 <TextInput name="Degree" type="text" value={degree} setValue={setDegree} readOnly={readOnly}/>
+                                //                 {errors.degree && <span className="text-red-500 text-[10px]">{errors.degree}</span>}
+                                //                 </div>
+                                //                 <div className="w-[75%] mb-3">
+                                //                     <TextInput name="Specialization" width={"w-[100%]]"} type="text" value={specialization} setValue={setSpecialization} readOnly={readOnly}  />
+                                //                     {errors.specialization && <span className="text-red-500 text-[10px]">{errors.specialization}</span>}
+                                //                     </div>
+                                        
+                                //     </div>
                                                
-                                    </div>
-                                            <div className="w-[48%] mb-3">
-                                                <TextInput name="Pan No" width={"md:w-[100%]"} type="pan_no" value={panNo} setValue={setPanNo}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                                {errors.panNo && <span className="text-red-500 text-[10px]">{errors.panNo}</span>}
-                                            </div>
-                                            <div className="w-[48%] mb-3">
-                                                <DateInput name="Date Of Birth" width={"md:w-[100%]"} value={dob} setValue={setDob}  readOnly={readOnly} disabled={(childRecord.current > 0)} required={true} />
-                                                {errors.dob && <span className="text-red-500 text-[10px]">{errors.dob}</span>}
-                                            </div>
-                                            <div className="w-[30%] mb-3">
-                                                <DropdownInput name="Gender" options={genderList} value={gender} setValue={setGender} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)}  />
-                                                {errors.gender && <span className="text-red-500 text-[10px]">{errors.gender}</span>}
-                                            </div>
+                                //     </div>
+                                           
+                                    
                                     
                                       
                                       
 
                                 
-                                    <div className="flex  flex-col w-[50%]">
-                                    <div className="w-[30%] mb-3">
-                                        <DropdownInput name="Marital Status" options={maritalStatusList} value={maritalStatus} setValue={setMaritalStatus}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                        {errors.maritalStatus && <span className="text-red-500 text-[10px]">{errors.maritalStatus}</span>}
+                               
+                                // </fieldset>
+                                <fieldset className='rounded  mb-1'>
+                                <div className='ms-0.5 mb-2 text-sm  font-semibold'>Personal Details</div>
+                                <div className='w-[100%] '>
+                                    <div className="flex justify-between gap-40 mb-3">
+                                            <div>
+                                                <TextInput name="Father Name" type="text" width={"md:w-[220px]"} value={fatherName} setValue={setFatherName} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                {errors.fatherName && <span className="text-red-500 text-[10px]">{errors.fatherName}</span>}
+                                             </div>
+                                             <div className="mb-3">
+                                                <TextInput name="Pan No" width={"md:w-[100%]"} type="pan_no" value={panNo} setValue={setPanNo} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                {errors.panNo && <span className="text-red-500 text-[10px]">{errors.panNo}</span>}
+                                            </div>
+                                      
                                     </div>
-                                    <div className="w-[30%] mb-3">
-                                        <DropdownInput name="Blood Group" options={bloodList} value={bloodGroup} setValue={setBloodGroup}  readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                        {errors.bloodGroup && <span className="text-red-500 text-[10px]">{errors.bloodGroup}</span>}
+                                    
+
+                                    <div className="flex justify-between   mb-3">
+                                             <div className="">
+                                                <DropdownInput name="Gender" options={genderList} value={gender} setValue={setGender} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                {errors.gender && <span className="text-red-500 text-[10px]">{errors.gender}</span>}
+                                            </div>
+                                            <div className="">
+                                                <DropdownInput name="Marital Status" options={maritalStatusList} value={maritalStatus} setValue={setMaritalStatus} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                {errors.maritalStatus && <span className="text-red-500 text-[10px]">{errors.maritalStatus}</span>}
+                                            </div>
                                     </div>
-                                    <div className="w-[20%] mb-3">
-                                    <TextInput name="Degree" type="text" value={degree} setValue={setDegree} readOnly={readOnly}/>
-                                    {errors.degree && <span className="text-red-500 text-[10px]">{errors.degree}</span>}
-                                    </div>
-                                    <div className="w-[75%] mb-3">
-                                        <TextInput name="Specialization" width={"w-[100%]]"} type="text" value={specialization} setValue={setSpecialization} readOnly={readOnly}  />
-                                        {errors.specialization && <span className="text-red-500 text-[10px]">{errors.specialization}</span>}
+
+                                      
+                                    <div className="flex  flex-wrap justify-between  gap-40 mb-3">
+                                      
+                                        <div className=" mb-3">
+                                            <DropdownInput name="Blood Group" options={bloodList} value={bloodGroup} setValue={setBloodGroup} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                            {errors.bloodGroup && <span className="text-red-500 text-[10px]">{errors.bloodGroup}</span>}
                                         </div>
-                                        
+                                        <div className=" mb-3">
+                                            <DateInput name="Date Of Birth"  value={dob} setValue={setDob} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                            {errors.dob && <span className="text-red-500 text-[10px]">{errors.dob}</span>}
+                                         </div>
+
                                     </div>
-                                </fieldset>
+                                    <div className="w-[100%] mt-1 flex   justify-between  gap-40 mb-3">
+                                        <div className="">
+                                            <TextInput name="Degree" type="text" value={degree} setValue={setDegree} readOnly={readOnly} required={true} />
+                                            {errors.degree && <span className="text-red-500 text-[10px]">{errors.degree}</span>}
+                                        </div>
+                                        <div className=" mb-3">
+                                            <TextInput name="Specialization" width={"w-[100%]]"} type="text" value={specialization} setValue={setSpecialization} readOnly={readOnly} required={true} />
+                                            {errors.specialization && <span className="text-red-500 text-[10px]">{errors.specialization}</span>}
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </fieldset>
                         
                         
-                        )}
-                        {step === 4 && (
+                        )} */}
+                        {step === 3 && (
+  <fieldset className="rounded mb-4">
+    <div className="ms-0.5 mb-4 text-sm font-semibold">Personal Details</div>
+    <div className="grid grid-cols-1 gap-6">
+      
+      {/* Row 1 */}
+      <div className="grid grid-cols-2 gap-24">
+        <div>
+          <TextInput 
+            name="Father Name" 
+            type="text" 
+            width="w-full" 
+            value={fatherName} 
+            setValue={setFatherName} 
+            required 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+          {errors.fatherName && <span className="text-red-500 text-xs">{errors.fatherName}</span>}
+        </div>
+        <div>
+          <TextInput 
+            name="Pan No" 
+            type="pan_no" 
+            width="w-full" 
+            value={panNo} 
+            setValue={setPanNo} 
+            required 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+          {errors.panNo && <span className="text-red-500 text-xs">{errors.panNo}</span>}
+        </div>
+      </div>
+
+      {/* Row 2 */}
+      <div className="grid grid-cols-2 gap-24">
+        <div>
+          <DropdownInput 
+            name="Gender" 
+            options={genderList} 
+            value={gender} 
+            setValue={setGender} 
+            required 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+          {errors.gender && <span className="text-red-500 text-xs">{errors.gender}</span>}
+        </div>
+        <div>
+          <DropdownInput 
+            name="Marital Status" 
+            options={maritalStatusList} 
+            value={maritalStatus} 
+            setValue={setMaritalStatus} 
+            required 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+          {errors.maritalStatus && <span className="text-red-500 text-xs">{errors.maritalStatus}</span>}
+        </div>
+      </div>
+
+      {/* Row 3 */}
+      <div className="grid grid-cols-2 gap-24">
+        <div>
+          <DropdownInput 
+            name="Blood Group" 
+            options={bloodList} 
+            value={bloodGroup} 
+            setValue={setBloodGroup} 
+            required 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+          {errors.bloodGroup && <span className="text-red-500 text-xs">{errors.bloodGroup}</span>}
+        </div>
+        <div>
+          <DateInput 
+            name="Date Of Birth" 
+            value={dob} 
+            setValue={setDob} 
+            required 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+          {errors.dob && <span className="text-red-500 text-xs">{errors.dob}</span>}
+        </div>
+      </div>
+
+      {/* Row 4 */}
+      <div className="grid grid-cols-2 gap-24">
+        <div>
+          <TextInput 
+            name="Degree" 
+            type="text" 
+            value={degree} 
+            setValue={setDegree} 
+            required 
+            readOnly={readOnly} 
+          />
+          {errors.degree && <span className="text-red-500 text-xs">{errors.degree}</span>}
+        </div>
+        <div>
+          <TextInput 
+            name="Specialization" 
+            type="text" 
+            width="w-full" 
+            value={specialization} 
+            setValue={setSpecialization} 
+            required 
+            readOnly={readOnly} 
+          />
+          {errors.specialization && <span className="text-red-500 text-xs">{errors.specialization}</span>}
+        </div>
+      </div>
+
+    </div>
+  </fieldset>
+)}
+
+                        {/* {step === 4 && (
                             <div className='mr-1'>
 
                                 <fieldset className=' rounded  mb-1'>
@@ -787,17 +960,17 @@ export default function Form() {
                                 </fieldset>
                                 <fieldset className='pt-0 rounded  mb-1'>
                                     <div className='ms-0.5 mb-1 text-sm  font-semibold'>Local Address</div>
-                                    <div className='w-[100%]'>
+                                    <div className='w-[100%] flex flex-col'>
                                         <div className="mb-3">
                                             <TextArea name="Local Address" value={localAddress} rows={'2'} setValue={setlocalAddress} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             {errors.localAddress && <span className="text-red-500 text-[10px]">{errors.localAddress}</span>}
                                         </div>
-                                        <div className="mb-1 flex flex-wrap w-full">
-                                            <div className={`w-[30%] mb-3`}>
+                                        <div className="mb-1 flex  w-full justify-between">
+                                            <div className="w-[50%] mb-3">
                                                 <TextInput name="Pincode" type="number" value={localPincode} setValue={setLocalPincode} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                                 {errors.localPincode && <span className="text-red-500 text-[10px]">{errors.localPincode}</span>}
                                             </div>
-                                            <div className={`w-[48%] ms-4 mb-3`}>
+                                            <div className=" ms-4 mb-3">
                                                 <DropdownInput name="City/State Name" options={dropDownListMergedObject(id ? cityList.data : cityList.data.filter(item => item.active), "name", "id")} value={localCity} setValue={setLocalCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                                 {errors.localCity && <span className="text-red-500 text-[10px]">{errors.localCity}</span>}
                                             </div>
@@ -805,12 +978,120 @@ export default function Form() {
 
                                     </div>
                                 </fieldset>
-                            </div>)}
+                            </div>)} */}
+                            {step === 4 && (
+  <div className="mr-1">
+    
+    {/* Permanent Address */}
+    <fieldset className="rounded mb-4">
+      <div className="ms-0.5 mb-2 text-sm font-semibold">Address</div>
+      <div className="grid grid-cols-1 gap-6">
+        
+        {/* Permanent Address TextArea */}
+        <div>
+          <TextArea 
+            name="Permanent Address" 
+            rows="2" 
+            value={permAddress} 
+            setValue={setPermAddress} 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+        </div>
+
+        {/* Permanent Pincode and City */}
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <TextInput 
+              name="Pincode" 
+              type="number" 
+              value={permPincode} 
+              setValue={setPermPincode} 
+              readOnly={readOnly} 
+              disabled={childRecord.current > 0} 
+            />
+          </div>
+          <div>
+            <DropdownInput 
+              name="City/State Name" 
+              options={dropDownListMergedObject(
+                id ? cityList.data : cityList.data.filter(item => item.active),
+                "name", 
+                "id"
+              )}
+              value={permCity} 
+              setValue={setPermCity} 
+              readOnly={readOnly} 
+              disabled={childRecord.current > 0} 
+            />
+          </div>
+        </div>
+
+      </div>
+    </fieldset>
+
+    {/* Local Address */}
+    <fieldset className="rounded mb-4 pt-0">
+      <div className="ms-0.5 mb-2 text-sm font-semibold">Local Address</div>
+      <div className="grid grid-cols-1 gap-6">
+
+        {/* Local Address TextArea */}
+        <div>
+          <TextArea 
+            name="Local Address" 
+            rows="2" 
+            value={localAddress} 
+            setValue={setlocalAddress} 
+            required 
+            readOnly={readOnly} 
+            disabled={childRecord.current > 0} 
+          />
+          {errors.localAddress && <span className="text-red-500 text-xs">{errors.localAddress}</span>}
+        </div>
+
+        {/* Local Pincode and City */}
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <TextInput 
+              name="Pincode" 
+              type="number" 
+              value={localPincode} 
+              setValue={setLocalPincode} 
+              required 
+              readOnly={readOnly} 
+              disabled={childRecord.current > 0} 
+            />
+            {errors.localPincode && <span className="text-red-500 text-xs">{errors.localPincode}</span>}
+          </div>
+          <div>
+            <DropdownInput 
+              name="City/State Name" 
+              options={dropDownListMergedObject(
+                id ? cityList.data : cityList.data.filter(item => item.active),
+                "name", 
+                "id"
+              )}
+              value={localCity} 
+              setValue={setLocalCity} 
+              required 
+              readOnly={readOnly} 
+              disabled={childRecord.current > 0} 
+            />
+            {errors.localCity && <span className="text-red-500 text-xs">{errors.localCity}</span>}
+          </div>
+        </div>
+
+      </div>
+    </fieldset>
+
+  </div>
+)}
+
                         {step === 5 && (
                             <div className='mr-1 '>
                                 <fieldset className='rounded  mb-1'>
                                     <div className='ms-0.5 mb-2 text-sm  font-semibold'>Bank Details</div>
-                                    <div className='w-[100%] flex '>
+                                    <div className='w-[100%] flex gap-28'>
                                         <div className="w-[48%] mr-4 mb-3">
                                             <TextInput name="Account No" type="number" value={accountNo} setValue={setAccountNo} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                         </div>

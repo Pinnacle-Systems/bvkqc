@@ -152,6 +152,8 @@ model User {
   orderEntryUpdatedBy                 order[]                      @relation(name: "updatedBy")
   pocreatedBy                         Po[]                         @relation(name: "createdBy")
   poUpdatedBy                         Po[]                         @relation(name: "updatedBy")
+  emailcreatedBy                      Email[]                      @relation(name: "createdBy")
+  emailUpdatedBy                      Email[]                      @relation(name: "updatedBy")
   order                               order[]
 
 }
@@ -512,8 +514,8 @@ enum PaymentMode {
 
 model order{
   id                   Int                    @id @default(autoincrement())
-  Branch          Branch?  @relation(fields: [branchId], references: [id])
-  branchId        Int?
+  Branch               Branch?  @relation(fields: [branchId], references: [id])
+  branchId             Int?
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   createdBy            User?                   @relation("createdBy", fields: [createdById], references: [id])
@@ -537,6 +539,7 @@ model order{
   manufactureId       Int?
   vendorId            Int?
   excelFineName       String?
+  Email               Email[]
   orderBillItems      orderBillItems[]
 }
 
@@ -553,6 +556,7 @@ model orderBillItems{
   orderQty            Float?
            
 }
+
 
 model Po{
   id                  Int                    @id @default(autoincrement())
@@ -580,3 +584,17 @@ model Po{
   description         String?
 }
   
+
+model Email {
+  id                  Int                  @id @default(autoincrement())
+  order               order?     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId             Int?
+  poExcelFileName     String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  createdBy           User?                  @relation("createdBy", fields: [createdById], references: [id])
+  createdById         Int?
+  updatedBy           User?                  @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById         Int?
+  
+}
