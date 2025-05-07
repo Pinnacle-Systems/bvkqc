@@ -66,7 +66,6 @@ function isFilterOrder(data, field) {
 async function get(req) {
     const { branchId, pagination, pageNumber, dataPerPage, searchDocId, searchBillDate, searchCustomerName, searchMobileNo, finYearId, isTaxBill, partyId,salesReport,IsorderFilter = false,orderFilter } = req.query
     const {companyId , userRole , userId } = req.query
-    console.log(userRole,"userRole",userId)
     let data = await prisma.order.findMany({
         where: {
 
@@ -150,9 +149,10 @@ async function getSearch(req) {
 }
 
  async function upload(req) {
-    const { id } = req.params
+    const { id } = req.body
     const { isDelete } = req.body
     console.log(id,"id")
+
     const data = await prisma.email.create({
       
         data: {
@@ -165,9 +165,9 @@ async function getSearch(req) {
 }
 
 
-async function createOrderBillItems(tx, orderBillItems, order) {
-    const promises = orderBillItems.map(async (item) => {
-        return await tx.orderBillItems.create({
+async function createOrderBillItems(tx, orderDetails, order) {
+    const promises = orderDetails.map(async (item) => {
+        return await tx.orderDetails.create({
             data: {
                 orderId: parseInt(order.id) || null,
                 itemCode: item?.Itemcode ? item?.Itemcode.toString() : null,
@@ -175,8 +175,10 @@ async function createOrderBillItems(tx, orderBillItems, order) {
                 sizeDesc: item?.sizeDescription ? item.sizeDescription : null,
                 size: item?.size ? item.size : null,
                 mrp: item?.MRP ? parseInt(item.MRP) : null,
-                qty: item?.qty ? parseInt(item.qty) : null,
-                orderQty : item?.orderQty   ? parseInt(item?.orderQty)  : null
+                orderQty : item?.orderQty   ? parsefloat(item?.orderQty)  : null,
+                qty: item?.qty ? parsefloat(item.qty) : null,
+                excessQty : item?.excessQty  ? parsefloat(item?.excessQty)  : null
+             
 
             }
         })
@@ -189,7 +191,7 @@ async function createOrderBillItems(tx, orderBillItems, order) {
 async function create(body) {
     let data;
     const {       branchId, id, userId, companyId, active, orderQty, noOfSet,isTaxBill,
-         finYearId, Department, date, orderDetails,className,
+         finYearId, Department, date, orderDetails,className,isSave,
         seasonCode,styleCode,Product,Color,ponumber} = await body
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
     const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startTime, finYearDate?.endTime) : "";
@@ -201,14 +203,9 @@ async function create(body) {
                     docId: newDocId,
                     branchId: parseInt(branchId),
                     createdById: parseInt(userId),
-                    department : Department ? Department: null,
                     orderdate : date ? new Date(date): null,
-                    class : className ? className : null,
-                    supplierCode : seasonCode ?seasonCode : null,
-                    styleCode : styleCode ? styleCode : null,
-                    product : Product ? Product : null,
-                    color : Color ? Color : null,
-                    poNumber : ponumber ? ponumber : null
+                    poNumber : ponumber ? ponumber : null,
+                    isSave 
              
 
                 }
@@ -219,20 +216,20 @@ async function create(body) {
 }
 
 
-async function updateOrderBillItems(tx, orderBillItems, orderBill) {
-    let removedItems = order.OrderBillItems.filter(oldItem => {
-        let result = orderBillItems.find(newItem => newItem.id === oldItem.id)
-        if (result) return false
-        return true
-    })
-    let removedItemsId = removedItems.map(item => parseInt(item.id))
-    await tx.orderBillItems.deleteMany({
-        where: {
-            id: {
-                in: removedItemsId
-            }
-        }
-    })
+async function updateOrderBillItems(tx, orderBillItems, order) {
+    // let removedItems = order.OrderBillItems.filter(oldItem => {
+    //     let result = orderBillItems.find(newItem => newItem.id === oldItem.id)
+    //     if (result) return false
+    //     return true
+    // })
+    // let removedItemsId = removedItems.map(item => parseInt(item.id))
+    // await tx.orderBillItems.deleteMany({
+    //     where: {
+    //         id: {
+    //             in: removedItemsId
+    //         }
+    //     }
+    // })
 
     const promises = orderBillItems.map(async (item) => {
         if (item?.id) {
@@ -241,33 +238,44 @@ async function updateOrderBillItems(tx, orderBillItems, orderBill) {
                     id: parseInt(item.id)
                 },
                 data: {
-                    docId: newDocId,
-                    branchId: parseInt(branchId),
-                    createdById: parseInt(userId),
-                    department : Department ? Department: null,
-                    orderdate : date ? new Date(date): null,
-                    class : className ? className : null,
-                    supplierCode : seasonCode ?seasonCode : null,
-                    styleCode : styleCode ? styleCode : null,
-                    product : Product ? Product : null,
-                    color : Color ? Color : null,
-                    poNumber : ponumber ? ponumber : null
+                    orderId: parseInt(order.id) || null,
+                    barCode : item?.barCode  ? item?.barCode  : null,
+                    class: item?.class ?  item?.class : null,
+                    color: item?.color  ?   item?.color  : null,
+                    department : item?.department  ?    item?.department   :  null,
+                    itemCode: item?.itemCode ? item?.itemCode.toString() : null,
+                    mrp: item?.mrp ? parseInt(item.mrp) : null,
+                    orderQty : item?.orderQty   ? parseFloat(item?.orderQty)  : null,
+                    product  :  item?.product  ?   item?.product   : null,
+                    qty: item?.qty ? parseFloat(item.qty) : null,
+                    size: item?.size ? item.size : null,
+                    sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
+                    styleCode  : item?.styleCode  ?  item?.styleCode  : null,
+                    supplierCode  :  item?.supplierCode   ?      item?.supplierCode  : null,
+                    excessQty      :   item?.excessQty      ?   parseFloat(item?.excessQty)   :  null,
+
                 }
+                 
             })
         } else {
             return await tx.orderBillItems.create({
                 data: {
-                    docId: newDocId,
-                    branchId: parseInt(branchId),
-                    createdById: parseInt(userId),
-                    department : Department ? Department: null,
-                    orderdate : date ? new Date(date): null,
-                    class : className ? className : null,
-                    supplierCode : seasonCode ?seasonCode : null,
-                    styleCode : styleCode ? styleCode : null,
-                    product : Product ? Product : null,
-                    color : Color ? Color : null,
-                    poNumber : ponumber ? ponumber : null
+                    orderId: parseInt(order.id) || null,
+
+                    barCode : item?.barCode  ? item?.barCode  : null,
+                    class: item?.class ?  item?.class : null,
+                    color: item?.color  ?   item?.color  : null,
+                    department : item?.department  ?    item?.department   :  null,
+                    itemCode: item?.itemCode ? item?.itemCode.toString() : null,
+                    mrp: item?.mrp ? parseInt(item.mrp) : null,
+                    orderQty : item?.orderQty   ? parseFloat(item?.orderQty)  : null,
+                    product  :  item?.product  ?   item?.product   : null,
+                    qty: item?.qty ? parseFloat(item.qty) : null,
+                    size: item?.size ? item.size : null,
+                    sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
+                    styleCode  : item?.styleCode  ?  item?.styleCode  : null,
+                    supplierCode  :  item?.supplierCode   ?      item?.supplierCode  : null,
+                    excessQty      :   item?.excessQty      ?     parseFloat(item?.excessQty)  :  null,
                 }
             })
         }
@@ -276,14 +284,13 @@ async function updateOrderBillItems(tx, orderBillItems, orderBill) {
 }
 
 async function update(id,body) {
-
     let data;
-    const {  branchId, userId, companyId, active, orderQty, noOfSet,isTaxBill,
-        finYearId, Department, date, orderDetails,className,
-       seasonCode,styleCode,Product,Color,ponumber} = await body
+    const {  branchId, userId, isSave, excessQty,
+        excessQtyAmount, date, orderDetails,vendor,
+       ponumber} = await body
     
  
-   const dataFound = await prisma.orderBill.findUnique({
+   const dataFound = await prisma.order.findUnique({
            where: {
             id: parseInt(id)
         }
@@ -291,26 +298,20 @@ async function update(id,body) {
 
     if (!dataFound) return NoRecordFound("orderBill");
     await prisma.$transaction(async (tx) => {
-        data = await tx.orderBill.update({
+        data = await tx.order.update({
             where: {
                 id: parseInt(id),
             },
             data: {
-                docId: newDocId,
                 branchId: parseInt(branchId),
-                createdById: parseInt(userId),
-                department : Department ? Department: null,
-                orderdate : date ? new Date(date): null,
-                class : className ? className : null,
-                supplierCode : seasonCode ?seasonCode : null,
-                styleCode : styleCode ? styleCode : null,
-                product : Product ? Product : null,
-                color : Color ? Color : null,
-                poNumber : ponumber ? ponumber : null
-
-            },
+                isSave ,
+                vendorId : vendor  ? parseInt(vendor)   : null,
+                excessQty :  excessQty ? parseFloat(excessQty)   : null  ,
+                netAmount  :  excessQtyAmount   ?  parseFloat(excessQtyAmount)  :  null  ,
+              
+                        },
             include: {
-                OrderBillItems: true
+                orderBillItems: true
             }
         })
         await updateOrderBillItems(tx, orderDetails, data)

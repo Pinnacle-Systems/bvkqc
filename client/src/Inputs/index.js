@@ -5,6 +5,8 @@ import Select from 'react-dropdown-select';
 import { findFromList } from '../Utils/helper';
 import "./index.css"
 import { FormControl, MenuItem, TextField } from '@mui/material';
+import { push } from '../redux/features/opentabs';
+import { useDispatch } from 'react-redux';
 
 
 export const handleOnChange = (event, setValue) => {
@@ -207,7 +209,7 @@ export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, o
                 required={required} name="name" className={`input-field  md:col-span-2 col-span-1   border-b border-black w-${width}px`}
                 value={value} onChange={(e) => { beforeChange(); handleOnChange(e); }} disabled={readOnly}>
                 <option value="" hidden={!clear}>Select</option>
-                {options.map((option, index) => <option key={index} value={option.value} >
+                {options?.map((option, index) => <option key={index} value={option.value} >
                     {option.show}
                 </option>)}
             </select>
@@ -215,88 +217,28 @@ export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, o
     )
 }
 
-// export const DropdownInput = ({
-//     name,
-//     beforeChange = () => { },
-//     onBlur = null,
-//     options = [],
-//     value,
-//     setValue,
-//     defaultValue,
-//     className = "",
-//     readOnly = false,
-//     required = false,
-//     disabled = false,
-//     clear = false,
-//     tabIndex = null,
-//     autoFocus = false,
-//     width
-// }) => {
 
-//     const handleChange = (e) => {
-//         beforeChange();
-//         setValue(e.target.value);
-//     };
-
-//     return (
-//         <div className={`group input-group ${className}`}>
-//             <FormControl
-//                 variant="standard"
-//                 className="w-full"
-//                 sx={{
-//                     "& .MuiInputBase-input": { fontSize: "12px", padding: "1.5px" },
-//                     "& .MuiInputBase-input.Mui-disabled": {
-//                         color: "#333",
-//                         WebkitTextFillColor: "#333",
-//                     },
-//                 }}
-//             >
-//                 <label className="input-label group-hover:text-blue-600 text-normal">
-//                     <span className="flex items-center gap-2">
-//                         {required ? <RequiredLabel name={name} /> : name}
-//                     </span>
-//                 </label>
-
-//                 <Select
-//                     name="name"
-//                     value={value}
-//                     onChange={handleChange}
-//                     onBlur={onBlur}
-//                     defaultValue={defaultValue}
-//                     required={required}
-//                     disabled={readOnly || disabled}
-//                     autoFocus={autoFocus}
-//                     tabIndex={tabIndex ?? undefined}
-//                     className="rounded border-none mt-0"
-//                     sx={{
-//                         "& .MuiInputBase-input": { fontSize: "12px" },
-//                         "& .MuiInputBase-input.Mui-disabled": {
-//                             color: "#333",
-//                             WebkitTextFillColor: "#333",
-//                         },
-//                     }}
-//                 >
-//                     {clear && (
-//                         <MenuItem value="">
-//                             <em>Select</em>
-//                         </MenuItem>
-//                     )}
-
-//                     {options.map((option, index) => (
-//                         <MenuItem
-//                             key={index}
-//                             value={option.value}
-//                             sx={{ fontSize: "12px" }}
-//                         >
-//                             {option.show}
-//                         </MenuItem>
-//                     ))}
-//                 </Select>
-//             </FormControl>
-//         </div>
-//     );
-// };
-
+export const DropdownInputForm = ({ name, beforeChange = () => { }, onBlur = null, options, value, setValue, defaultValue, className, readOnly, required = false, disabled = false, clear = false, tabIndex = null, autoFocus = false ,width = '32'}) => {
+    const handleOnChange = (e) => {
+        setValue(e.target.value);
+    }
+   console.log(width,"width")
+    return (
+        <div className='input-group items-center md:my-1 md:px-1 data '>
+            <label className={`md:text-start flex  text-xs ${className}`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
+            <select
+                onBlur={onBlur}
+                autoFocus={autoFocus} tabIndex={tabIndex ? tabIndex : undefined} defaultValue={defaultValue} id='dd'
+                required={required} name="name" className={` md:col-span-2 col-span-1 px-2 py-1  focus:outline-none focus:ring-2 focus:ring-blue-400 border border-gray-300 w-${width}`}
+                value={value} onChange={(e) => { beforeChange(); handleOnChange(e); }} disabled={readOnly}>
+                <option value="" hidden={!clear}>Select</option>
+                {options?.map((option, index) => <option key={index} value={option.value} >
+                    {option.show}
+                </option>)}
+            </select>
+        </div>
+    )
+}
 
 export const LongDropdownInput = ({ name, options, value, setValue, defaultValue, className, readOnly, required = false,
     disabled = false, clear = false, tabIndex = null }) => {
@@ -415,8 +357,22 @@ export const validatePincode = (data) => {
     return data.toString().length === 6;
 }
 
-export const DropdownWithSearch = ({ className, options, value, setValue, readOnly, onCreateNew = null }) => {
+export const DropdownWithSearch = ({ className, options, value, setValue, readOnly, onCreateNew = null,optionName,  masterName = "", }) => {
+    console.log(value === "create_new_Vendor",typeof(value),value,"value")
 
+    const dispatch = useDispatch();
+
+    function handleChange(e) {
+        if (e.target.value === "create_new_Vendor") {
+            dispatch(push({ name: "PARTY MASTER",projectForm: true ,projectId :true}));
+
+        }
+        else{
+            setValue(e.target.value)
+        }
+            
+      }
+      
 
     const [currentIndex, setCurrentIndex] = useState("");
     useEffect(() => setCurrentIndex(new Date()), [])
@@ -443,7 +399,10 @@ export const DropdownWithSearch = ({ className, options, value, setValue, readOn
                 ev.preventDefault()
             }
         });
-
+     
+    
+        
+  
         return () => {
             dropDownElement.removeEventListener('keydown', () => { });
         };
@@ -456,30 +415,60 @@ export const DropdownWithSearch = ({ className, options, value, setValue, readOn
     //     <div tabIndex={0} className='hover:bg-blue-500'>{`${state?.values[0]}1`}</div>
 
 
-    return (
-        <div id={`dropdown${currentIndex}`} className={`${className} ${"bg-white text-black"}`}>
-            <Select searchBy='name'
-                options={options || []}
-                key={value}
-                create={onCreateNew ? true : false}
-                onCreateNew={onCreateNew}
-                // ContentRenderer={ContentRenderer}
-                // itemRenderer={ItemRenderer}
-                className={`${className} ${"text-black"}`}
-                disabled={readOnly}
-                labelField="name"
-                valueField="id"
-                multi={false}
-                values={value ? [{
-                    id: value, name:
-                        findFromList(value, options || [], "name")
-                }] : []}
+    // return (
+    //     <div id={`dropdown${currentIndex}`} className={`${className}  px-2 py-1 `}>
+    //         <Select searchBy='name'
+    //             options={options || []}
+    //             key={value}
+    //             create={onCreateNew ? true : false}
+    //             onCreateNew={onCreateNew}
+    //             // ContentRenderer={ContentRenderer}
+    //             // itemRenderer={ItemRenderer}
+    //             className={"border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 "}
+    //             disabled={readOnly}
+    //             labelField="name"
+    //             valueField="id"
+    //             multi={false}
+    //             values={value ? [{
+    //                 id: value, name:
+    //                     findFromList(value, options || [], "name")
+    //             }] : []}
 
-                onChange={(value) => {
-                    setValue(value[0] ? value[0]?.id : "")
-                }} />
+    //             onChange={(value) => {
+    //                 setValue(value[0] ? value[0]?.id : "")
+    //             }} />
+    //     </div>
+    // )
+    return (
+        <div id={`dropdown${currentIndex}`} className={`${className} px-2 py-1`}>
+            <select
+                className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+                disabled={readOnly}
+                value={value || ""}
+                onChange={(e) =>  {
+                    // setValue(e.target.value)
+                    handleChange(e)
+                }}
+            >
+                {!value && <option value="">Select  {optionName}</option>}
+                {masterName !== "" && (
+                            <option
+                                value="create_new_Vendor"
+                                className="text-blue-600 font-semibold"
+                            >
+                                + Create New Vendor
+                            </option>
+        )}
+                {(options || []).map((option) => (
+                    <option key={option.id} value={option.id} classname>
+                        {option.name}
+                    </option>
+                ))}
+       
+            </select>
         </div>
-    )
+    );
+    
 }
 
 

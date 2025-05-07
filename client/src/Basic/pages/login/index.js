@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import secureLocalStorage from "react-secure-storage";
 import axios from "axios";
+import logo from "../../../assets/max.svg"
 
 import { LOGIN_API } from '../../../Api';
 import { generateSessionId } from '../../../Utils/helper';
@@ -158,10 +159,14 @@ const Login = () => {
       <div className="flex flex-row w-screen h-screen bg-beige">
         {/* Left Section */}
         <div className="flex justify-center items-center w-1/2 bg-[--main-color]">
-          <div>
-            <div className="text-9xl font-bold ">Max</div>
-            <p className="text-xl text-end">Supplier</p>
-          </div>
+      
+          {/* <div> */}
+          {/* <div className="text-9xl font-bold ">max</div> */}
+        
+            <img className="rounded-lg" width={450}
+                  src={logo} 
+                  alt="" />
+          {/* </div> */}
         </div>
 
         {/* Right Section */}

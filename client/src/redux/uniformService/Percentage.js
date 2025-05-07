@@ -1,21 +1,21 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import { ORDER_API } from "../../Api";
+import { PERCENTAGE } from "../../Api";
 
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
-const OrderApi = createApi({
-    reducerPath: "Order",
+const PercentageApi = createApi({
+    reducerPath: "percentageMaster",
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
     }),
-    tagTypes: ["Order"],
+    tagTypes: ["Percentage"],
     endpoints: (builder) => ({
-        getOrder: builder.query({
+        getPercentage: builder.query({
             query: ({ params, searchParams }) => {
                 if (searchParams) {
                     return {
-                        url: ORDER_API + "/search/" + searchParams,
+                        url: PERCENTAGE + "/search/" + searchParams,
                         method: "GET",
                         headers: {
                             "Content-type": "application/json; charset=UTF-8",
@@ -24,7 +24,7 @@ const OrderApi = createApi({
                     };
                 }
                 return {
-                    url: ORDER_API,
+                    url: PERCENTAGE,
                     method: "GET",
                     headers: {
                         "Content-type": "application/json; charset=UTF-8",
@@ -32,35 +32,35 @@ const OrderApi = createApi({
                     params
                 };
             },
-            providesTags: ["Order"],
+            providesTags: ["Percentage"],
         }),
-        getOrderById: builder.query({
+        getPercentageById: builder.query({
             query: (id) => {
                 return {
-                    url: `${ORDER_API}/${id}`,
+                    url: `${PERCENTAGE}/${id}`,
                     method: "GET",
                     headers: {
                         "Content-type": "application/json; charset=UTF-8",
                     },
                 };
             },
-            providesTags: ["Order"],
+            providesTags: ["Percentage"],
         }),
-        getOrderItemsById: builder.query({
+        getPercentageItemsById: builder.query({
             query: ({ id, prevProcessId, packingCategory, packingType }) => {
                 return {
-                    url: `${ORDER_API}/getOrderItems/${id}/${prevProcessId ? prevProcessId : null}/${packingCategory ? packingCategory : null}/${packingType ? packingType : null}`,
+                    url: `${PERCENTAGE}/getOrderItems/${id}`,
                     method: "GET",
                     headers: {
                         "Content-type": "application/json; charset=UTF-8",
                     },
                 };
             },
-            providesTags: ["Order"],
+            providesTags: ["Percentage"],
         }),
-        addOrder: builder.mutation({
+        addPercentage: builder.mutation({
             query: (payload) => ({
-                url: ORDER_API,
+                url: PERCENTAGE,
                 method: "POST",
                 body: payload,
             }),
@@ -68,45 +68,44 @@ const OrderApi = createApi({
         }),
         upload: builder.mutation({
             query: (payload) => {
-              const { body } = payload;
+              const { id, body } = payload;
               return {
-                url: `${ORDER_API}/upload`,
-                method: "POST",
-                body
+                url: `${PERCENTAGE}/upload/${id}`,
+                method: "PATCH",
+                body,
               };
             },
-            invalidatesTags: ["Order"],
+            invalidatesTags: ["Percentage"],
           }),
-        updateOrder: builder.mutation({
+        updatePercentage: builder.mutation({
             query: (payload) => {
                 const { id, ...body } = payload;
                 return {
-                    url: `${ORDER_API}/${id}`,
+                    url: `${PERCENTAGE}/${id}`,
                     method: "PUT",
                     body,
                 };
             },
-            invalidatesTags: ["Order"],
+            invalidatesTags: ["Percentage"],
         }),
-        deleteOrder: builder.mutation({
+        deletePercentage: builder.mutation({
             query: (id) => ({
-                url: `${ORDER_API}/${id}`,
+                url: `${PERCENTAGE}/${id}`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["Order"],
+            invalidatesTags: ["Percentage"],
         }),
     }),
 });
 
 export const {
-    useLazyGetOrderQuery,
-    useGetOrderQuery,
-    useGetOrderByIdQuery,
-    useGetOrderItemsByIdQuery,
-    useAddOrderMutation,
-    useUpdateOrderMutation,
-    useDeleteOrderMutation,
-    useUploadMutation,
-} = OrderApi;
+    useGetPercentageQuery,
+    useGetPercentageByIdQuery,
+    useGetPercentageItemsByIdQuery,
+    useAddPercentageMutation,
+    useUpdatePercentageMutation,
+    useDeletePercentageMutation,
+    
+} = PercentageApi;
 
-export default OrderApi;
+export default PercentageApi;

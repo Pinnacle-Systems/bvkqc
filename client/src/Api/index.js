@@ -82,4 +82,6 @@ export const DISPATCHED_API = "dispatched"
 export const GENERALPURCHASE_API = "generalpurchase"
 export const RAW_MATERIAL_OPENING_STOCK_API = "rawMaterialOpeningStock"
 export const MACHINE_API = "machine"
+export const PERCENTAGE = "percentage"
+export const  EMAIL  = "email"
 

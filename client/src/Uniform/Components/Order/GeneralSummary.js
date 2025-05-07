@@ -1,260 +1,346 @@
-import {  SpecialInput, TextInput } from "../../../Inputs"
-import { useEffect, useState } from "react";
-import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
-import secureLocalStorage from "react-secure-storage";
+import {    DropdownWithSearch } from "../../../Inputs"
+import { useEffect } from "react";
+
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
 import { toast } from "react-toastify";
+import FormHeader from "../../../Basic/components/FormHeader";
+import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
+import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
+
+import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
-export default function GeneralSummary({singleData ,setForm,setMailform,orderId,setFileName,poItems,setPoItems, setPoNo, poNo}){
+export default function GeneralSummary({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
+                                       setActive,setIsSave,saveData,id,setEmailId}){
 
-        const Model = "Summary"
+         const [upload] = useUploadMutation();
 
+         const { branchId, finYearId, userId } = getCommonParams()
+   
+
+     
+
+     
+    
+
+        const {data: Partydata} = useGetPartyQuery({params:{branchId, finYearId, userId}});
+        const {data: percentage} = useGetPercentageQuery({params:{branchId, finYearId, userId}});
+
+        let excessQty =  percentage?.data?.filter(item  =>  item?.active   === true)
+        let  partyOptions = Partydata?.data?.filter(item  => item?.partyType  ===   "VENDOR")
         let data = singleData?.data
-        const id = secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userId")
+      
 
-        const {data: Userdata,isFetching: isSingleFetching,isLoading: isSingleLoading} = useGetUserByIdQuery(id);
-        const [upload] = useUploadMutation();
+        
+        
 
-        const [qty,setQty]  = useState("")
 
    useEffect(() => {
-        if (poItems.length >= 6) return
+        if (poItems.length >= 5) return
         setPoItems(prev => {
-            let newArray = Array.from({ length: 9  - prev.length }, i => {
-                return { accessoryItemId: "", accessoryGroupId: "", accessoryId: "", qty: "", colorId: "", taxPercent: "0.000", sizeId: "", uomId: "", qty: "", price: "", discountType: "Percentage", discountValue: 0 }
+            let newArray = Array.from({ length: 5  - prev.length }, i => {
+                return { excessQty: "", qty: 0.00,orderQty:0.00 }
             })
             return [...prev, ...newArray]
         }
         )
-    }, [setPoItems, poItems])
+    }, [poItems])
+
+ 
+       const exportAndUploadExcel = async ( text = "uploaded") => {
+           
+           try {
+               const combinedData =data?.orderBillItems?.map((item, index) => ({
+                   SrNo: index + 1,
+                   BranchID: data.branchId,
+                   Department: data.department,
+                   Class: data.class,
+                   Color: data.color,
+                   PONumber: data.poNumber,
+                   Product: data.product,
+                   StyleCode: data.styleCode,
+                   SupplierCode: data.supplierCode,
+                   OrderDate: data.orderdate,
+                   ItemCode: item.itemCode,
+                   BarCode: item.barCode,
+                   Size: item.sizeDesc,
+                   Quantity: item.qty
+               }));
+       
+               const worksheet = XLSX.utils.json_to_sheet(combinedData);
+               const workbook = XLSX.utils.book_new();
+               XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+       
+               const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+               const excelBlob = new Blob(
+                   [excelBuffer],
+                   { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+               );
+       
+               const fileName = `Order_${Date.now()}.xlsx`;
+    
+               const formData = new FormData();
+               formData.append('file', excelBlob, fileName);
+               formData.append('id',id);
+               const response = await upload({body: formData ,id }).unwrap();
+               console.log("Upload response?.data?.id:", response?.data?.id);
+
+               setEmailId(response?.data?.id)
+
+              //  toast.success(`${text} Successfully`);
+               console.log("Upload Response:", response);
+       
+       
+       
+           } catch (error) {
+               console.error("Error during Export and Upload:", error);
+               toast.error("Something went wrong!");
+           }
+       };
+       
+        
+    
 
 
-    const exportAndUploadExcel = async ( text = "Added") => {
-        try {
-            const combinedData = singleData?.data?.orderBillItems?.map((item, index) => ({
-                SrNo: index + 1,
-                BranchID: data.branchId,
-                Department: data.department,
-                Class: data.class,
-                Color: data.color,
-                PONumber: data.poNumber,
-                Product: data.product,
-                StyleCode: data.styleCode,
-                SupplierCode: data.supplierCode,
-                OrderDate: data.orderdate,
-                ItemCode: item.itemCode,
-                BarCode: item.barCode,
-                Sizedesc: item.sizeDesc,
-                Quantity: item.qty
-            }));
-    
-            const worksheet = XLSX.utils.json_to_sheet(combinedData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    
-            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-            const excelBlob = new Blob(
-                [excelBuffer],
-                { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-            );
-    
-            // saveAs(excelBlob, 'myData.xlsx'); 
-    
-            const formData = new FormData();
-            const fileName = `Order_${Date.now()}.xlsx`;
-            console.log(fileName,"fileName")
-            formData.append('file', excelBlob, fileName);
-            console.log("formData", formData,"id",id);
-    
-            const response = await upload({ id: orderId, body: formData }).unwrap();
-            console.log("Upload Response:", response?.data?.excelFineName);
-            setFileName(response?.data?.excelFineName)
-    
-            toast.success(`${text} Successfully`);
-            console.log("Upload Response:", response);
-    
-        } catch (error) {
-            console.error("Error during Export and Upload:", error);
-            toast.error("Something went wrong!");
+
+      const handleQtyChange = (field,index, value,orderQty) => {
+        setPoItems((prev) => {
+        let newItem=structuredClone(prev)
+        newItem[index][field]=value
+        if (field === 'excessQty' && index === 0 ) { 
+          for (let i = 0; i < newItem.length; i++) {
+            if(newItem[i].orderQty  > 0) {
+              newItem[i]['excessQty'] = value;
+              const percentage = parseFloat((newItem[i].orderQty * value) / 100);
+              newItem[i]['qty'] = parseFloat(newItem[i].orderQty) + percentage;
+            }
+  
+          }
+        } 
+        if(field === 'excessQty'){
+     
+          let qty = "qty"
+          let percentage=parseFloat((orderQty * value) / 100)
+          newItem[index][qty]=(parseFloat(orderQty) + percentage);
         }
-    };
+        return newItem
+      });
+    }
+      
+       console.log(poItems,"poItems");
+         
+       console.log(data,"data");
 
+
+    
     return(
         <>
-         
-            {/* <div className="flex flex-col  w-[100%]">
-                
-                  
-
-                  <div className="grid grid-cols-7  flex-row border-2 border-gray-500  w-full pb-2 p-2 ">
-                 
-
-                            <div className="mt-5 ">
-                                    <TextInput  name={"Order  Number"}  value={data?.docId}   />
-                            </div>
-                            <div className="mt-5 ">
-                                    <SpecialInput  name={"Customer"}    />
-                            </div> 
-                            <div className="mt-5 ">
-                                    <SpecialInput  name={"Del  Address"}    />
-                            </div> 
-                            <div className="mt-5 ">
-                                    <SpecialInput  name={"Sales Ex"}    />
-                            </div> 
-                            <div className="mt-5 ">
-                                    <SpecialInput  name={"Remarks"}    />
-                            </div> 
-                            <div className="mt-5 ">
-                                    <SpecialInput  name={"Required Approval"}    />
-                            </div> 
-                            <div className="mt-5 ">
-                                    <SpecialInput name={"Reason"}  />
-                            </div> 
-                            <div className="mt-5 ">
-                                    <SpecialInput   name={"Cancelled By"}   />
-                            </div>
-                            <div className="mt-5 ">
-                                    <SpecialInput   name={"Cancel Date"}    />
-                            </div> 
-                            <div className="mt-5 ">
-                                    <SpecialInput   name={"Approval Status"}    />
-                            </div>
-                            <div className="mt-5 ">
-                                    <SpecialInput    name={"Approved By"}   />
-                            </div>
-                    </div>   
-
-                <div className="custom-scrollbar flex-row w-full  mt-5 ">
-                 
-                    <table className="w-full  text-normal  overflow-y-auto "  id="table-to-xls">
-                <thead>
-                    
-                    <tr className="text-[12px]">
-                        <th className="px-4 py-2 w-2 text-center p-0.5 border border-gray-500">S No</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">ItemCode</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">BarCode</th>
-                        <th className="px-4 py-2 w-32 border border-gray-500">Size</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">sizeDesc</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">MRP</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">Qty</th>
-                        <th className="px-4 py-2 w-64 border border-gray-500">OrderQty</th>
+      <FormHeader
+      model={"Order"}
+      />   
+             
+    <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto">
 
 
-                    </tr>
-                </thead>  
-                <tbody>
-                    {(singleData ? singleData?.data?.orderBillItems : []).map((item, index) =>
-                    <tr className="p-0.5 text-sm">
+  <div className="grid grid-cols-7 gap-4 border border-gray-300 pb-3 p-2 rounded h-[15%]"  >
 
-                        <td className="table-data  text-center ">{index + 1}</td>
-                        <td className="table-data"> {item?.itemCode} </td>
-                        <td className="table-data">{item?.barCode}</td>
-                        <td className="table-data ">{item?.size}</td>
-                        <td className="table-data ">{item?.sizeDesc}</td>
-                        <td className="table-data text-right">{item?.mrp}</td>
-                        <td className="table-data tetx-right">
-                        <input
-                            type="number"
-                            // value={item?.qty || 0}
-                            onChange={(e) => setQty(Number(e.target.value))}
-                            className="p-0.5 w-full text-right"
-                            />
-                        </td>
-                        <td className="table-data text-right">{item?.orderQty}</td>
+  <div className="flex flex-col ">
+    <label className="text-xs font-semibold text-gray-600">Po Number</label>
+    <input
+      type="text"
+      className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
+      value={data?.docId}
+    />
+  </div>
+  <div className="flex flex-col ">
+    <label className="text-xs font-semibold text-gray-600">Po Date</label>
+    <input
+      type="text"
+      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
 
+      value={getDateFromDateTime(data?.updatedAt)}
 
-
-
-                    </tr>
-                    )}
-                </tbody>
-                        </table>    
-                  <div className="mt-3 flex justify-end">
-                                                 <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded mt-2" 
-                                                         onClick={() => {
-                                                             exportAndUploadExcel()
-                                                            setForm(false)
-                                                            setMailform(true)
-
-                                                         }}
-                                                     >
-                                                 Save And Send 
-                                                 </button>
-                                             </div>  
-                    </div>
-                </div> */}
-        <div className="flex flex-col w-full bg-white p-6 h-[100%]">
-
-
-  <div className="grid grid-cols-7 gap-4 border p-4 rounded-lg mb-6 h-[35%]">
-    {[
-      "Order Number", "Customer", "Del Address", "Sales Ex", "Remarks", "Required Approval", "Reason",
-      "Cancelled By", "Cancel Date", "Approval Status", "Approved By"
-    ].map((label, index) => (
-      <div key={index} className="flex flex-col">
-        <label className="text-xs font-semibold text-gray-600">{label}</label>
-        <input
-          type="text"
-          className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          value={label === "Order Number" ? data?.docId : ""}
-          readOnly={label === "Order Number"}
-        />
-      </div>
-    ))}
+    />
+  </div>
+  <div className="flex flex-col ">
+    <label className="text-xs font-semibold text-gray-600">Customer</label>
+    <input
+      type="text"
+      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+      value={ "MAX"}
+    />
   </div>
 
-  <div className="overflow-y-auto custom-scrollbar  h-[100%]">
-    <table className="w-full text-sm border rounded-lg overflow-hidden" id="table-to-xls">
-      <thead className="bg-gray-100 text-gray-700">
-        <tr>
-          {["S No", "ItemCode", "BarCode", "Size", "sizeDesc", "MRP", "Qty", "OrderQty"].map((header, index) => (
-            <th key={index} className="px-4 py-2 border text-center whitespace-nowrap">
-              {header}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {(poItems || []).map((item, index) => (
-          <tr key={index} className="hover:bg-gray-50 transition-colors">
-            <td className=" border-2 text-center">{index + 1}</td>
-            <td className=" border-2">{item?.itemCode}</td>
-            <td className=" border-2">{item?.barCode}</td>
-            <td className=" border-2 text-center">{item?.size}</td>
-            <td className=" border-2">{item?.sizeDesc}</td>
-            <td className=" border-2 text-right">{item?.mrp}</td>
-            <td className=" border-2">
-              <input
-                type="number"
-                onChange={(e) => setQty(Number(e.target.value))}
-                className="w-full p-1 border border-gray-300 rounded-md text-right focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </td>
-            <td className=" border text-right">{item?.orderQty}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
+  <div className="flex flex-col ">
+    <label className="text-xs font-semibold text-gray-600">Manufacture</label>
+    <input
+      type="text"
+      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+      value={data?.manufacture || ""}
+      />
 
-  {/* Save Button */}
-  <div className="mt-6 flex justify-end ">
-    <button
-      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:scale-105 active:scale-95"
-      onClick={() => {
-        exportAndUploadExcel();
-        setForm(false);
-        setMailform(true);
-       
-      }}
-    >
-      Save And Send
-    </button>
   </div>
 </div>
+
+     
+
+  <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto "> 
+  <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
+    <thead className="bg-gray-200 text-gray-700 ">
+      <tr className="p-2">
+        <th className="w-[50px] p-2">S No</th>
+        <th className="w-[120px] p-2">Department</th>   
+        <th className="w-[150px]">Class-SubClass</th>    
+        <th className="w-[120px]">ItemCode</th>     
+        <th className="w-[120px]">BarCode</th>    
+        <th className="w-[120px]">SeasonSupplierCode</th> 
+        <th className="w-[120px]">StyleCodeGroup</th>     
+        <th className="w-[150px]">SizeDesc</th> 
+         <th className="w-[50px]">Size</th>  
+        <th className="w-[90px]">Color</th>    
+        <th className="w-[50px]">MRP</th>   
+        <th className="w-[50px]">OrderQty</th> 
+        <th className="w-[50px]">Excess %</th>
+        <th className="w-[50px]">Qty</th>
+      </tr>
+    </thead>
+  
+      <tbody className="">
+          {(poItems || []).map((item, index) => (
+            <tr key={index} className=" table-row ">
+              <td className="border border-gray-300 text-center p-2">{index + 1}</td>
+              <td className="border border-gray-300 text-left ">{item?.department}</td>
+              <td className="border border-gray-300 text-left ">{item?.class}</td>
+
+              <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
+              <td className="border border-gray-300 text-left ">{item?.barCode}</td>
+    
+              <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
+              <td className="border border-gray-300 text-left ">{item?.styleCode    }</td>
+              <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
+
+              <td className="border border-gray-300 text-center ">{item?.size}</td>
+              <td className="border border-gray-300 text-center ">{item?.color}</td>
+
+              <td className="border border-gray-300 text-right ">{item?.mrp}</td>
+              <td className="border border-gray-300 text-right ">{item?.orderQty ||  ""}</td>
+              <td className="border border-gray-300 w-16">
+                {/* {item?.orderQty   >  0   &&   excessQty?.map(item  =>    */}
+                  <input
+                  type="number"
+                  value={item?.excessQty }
+                  onChange={(e) => handleQtyChange("excessQty" ,index, e.target.value,item?.orderQty)}
+                  className="w-full p-1   rounded-md text-right focus:ring-blue-400"
+                />
+                {/* )} */}
+            
+            </td>
+          
+              <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty  ||  ""  } </td>
+
+            </tr>
+          ))}
+            <tr className="border-2  border-gray-400 bg-gray-200 p-2">
+            <td className="border-b border-gray-300 text-center w-2"></td>
+            <td className="border-b border-gray-300 text-left w-32"></td>
+            <td className="border-b border-gray-300 text-left w-32"></td>
+            <td className="border-b border-gray-300 text-left w-32"></td>
+            <td className="border-b border-gray-300 text-left w-32 text-xl text-gray-800  font-extrabold">
+            Total
+            </td>
+            <td className="border-b border-gray-300 text-left w-32"></td>
+            <td className="border-b border-gray-300 text-left w-16"></td>
+            <td className="border-b border-gray-300 text-left w-52"></td>
+            <td className="border-b border-gray-300 text-left w-52"></td>
+            <td className="border-b border-gray-300 text-left w-52"></td>
+
+       
+          
+
+
+            <td className="border-b border-gray-300 text-right w-32"></td>
+            <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
+              {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) ||  ""}
+              </td>
+
+            <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
+               </td>
+            <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
+              {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+    
+            </td>
+
+
+          </tr>
+
+      </tbody>
+
+
+    </table>
+    </div>
+  
+    
+  
+
+
+  <div className=" w-full flex gap-4 border border-gray-300  p-2  h-[14%]">
+        <div className="flex flex-col w-72 ">
+          <label className="text-xs font-semibold text-gray-600">Tag vendor</label>
+     
+          <DropdownWithSearch  className={"w-72 text-xs border-gray-300"}   value={vendor} setValue={setVendor}  options={partyOptions} optionName={"Tag vendor On Party Master"}   masterName={"PARTY MASTER"}   />
+        </div>
+        
+            <div className="flex flex-col ">
+              <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={getDateFromDateTime(data?.orderdate)   ||   "18-05-2024"}
+
+              />
+            </div>
+  </div>
+
+
+  <div className=" flex  justify-end  gap-3 mt-[50px]">
+            {!data?.isSave    ?
+            <button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
+                onClick={() => {
+                  // setIsSave(true)
+                  setForm(false);
+                  setActive("order")
+                  saveData()
+
+                }}
+              >
+                Save  
+              </button>   
+     :   
+      <></>
+      }
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
+              onClick={() => {
+                // setIsSave(true);
+                saveData();
+                exportAndUploadExcel();
+                setForm(false);
+                setActive("Mail");
+
+
+              }}
+
+
+
+              
+            >
+              Save & Send 
+            </button>
+  </div>
+    </div>
 
 
 
@@ -265,4 +351,9 @@ export default function GeneralSummary({singleData ,setForm,setMailform,orderId,
 
         </>
     )
+
+
+    
+    
+    
 };

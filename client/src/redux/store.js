@@ -46,6 +46,8 @@ import CuttingReceiptApi from "./uniformService/CuttingReceiptServices";
 import sizeTemplateApi from "./uniformService/SizeTemplateMasterServices";
 import ContentMasterApi from "./uniformService/ContentMasterServices";
 import CountsMasterApi from "./uniformService/CountsMasterServices";
+import PercentageApi from "./uniformService/Percentage";
+import EmailApi from "./uniformService/Email.Services";
 
 
 
@@ -130,6 +132,8 @@ const commonReducers = {
   contentMaster: ContentMasterApi.reducer,
   countsMaster: CountsMasterApi.reducer,
   machineMaster: machineMasterApi.reducer,
+  percentageMaster : PercentageApi.reducer,
+  Email : EmailApi.reducer,
   [ProductionReceiptApi.reducerPath]: ProductionReceiptApi.reducer
 
 }
@@ -212,7 +216,9 @@ CurrencyMasterApi.middleware,
 sizeTemplateApi.middleware,
 ContentMasterApi.middleware,
 CountsMasterApi.middleware,
-machineMasterApi.middleware
+machineMasterApi.middleware,
+PercentageApi.middleware,
+EmailApi.middleware,
 ];
 
 

@@ -8,6 +8,8 @@ import axios from 'axios';
 import { useGetPageGroupQuery } from '../../../redux/services/PageGroupMasterServices';
 import SidebarComponent from './SidebarComponent';
 import { useNavigate } from 'react-router-dom';
+import { push } from '../../../redux/features/opentabs';
+import { useDispatch } from 'react-redux';
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
 
@@ -15,6 +17,8 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
 const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen }) => {
 
   const navigate = useNavigate()
+
+    const dispatch = useDispatch();
 
   const [name, setName] = useState("");
 
@@ -129,12 +133,12 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
       groups: mastersGroup,
       pages: masters
     },
-    {
-      heading: 'Transactions',
-      logo: <PanelLeftClose size={20} />,
-      groups: transactionsGroup,
-      pages: transactions
-    },
+    // {
+    //   heading: 'Transactions',
+    //   logo: <PanelLeftClose size={20} />,
+    //   groups: transactionsGroup,
+    //   pages: transactions
+    // },
 
   ]
 
@@ -158,18 +162,21 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
       
     
         <div className=" " >
-        <div className='text-white hover:text-gray-400 cursor-pointer mb-3 '
-          
-          >
-            <a className=' mx-auto text-light flex justify-center hover:text-gray-400 ' type="button" ><Home size={20} /></a>
-            <div className='text-[8.5px] w-full text-center'>Home</div>
-          </div>
-          <div className='text-white hover:text-gray-400 cursor-pointer mb-3'
-          
+        <div className='text-white hover:text-gray-400 cursor-pointer mb-3'
+                    onClick={()  =>   dispatch(push({name:"DASHBOARD"}))}
+
           >
             <a className=' mx-auto text-light flex justify-center hover:text-gray-400 ' type="button" ><LayoutDashboard size={20} /></a>
             <div className='text-[8.5px] w-full text-center'>Dashboard</div>
           </div>
+        <div className='text-white hover:text-gray-400 cursor-pointer mb-3 '
+             onClick={()  =>   dispatch(push({name:"HOMEPAGE"}))}
+
+          >
+            <a className=' mx-auto text-light flex justify-center hover:text-gray-400 ' type="button" ><Home size={20} /></a>
+            <div className='text-[8.5px] w-full text-center'>Home</div>
+          </div>
+        
           { isOpen  && headers.map((ele, index) => {
             return (
 

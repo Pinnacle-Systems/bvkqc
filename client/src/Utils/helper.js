@@ -4,6 +4,8 @@ import { IMAGE_UPLOAD_URL } from "../Constants";
 import { toast } from "react-toastify";
 
 
+
+
 export function getImageUrlPath(fileName) {
   return `${IMAGE_UPLOAD_URL}${fileName}`
 }
@@ -372,7 +374,8 @@ export async function classListData(data){
 
 export function handleMailSend(blob, mailAddress, subject, fileName, logo, heading) {
 
-
+ 
+  const path = require('path');
 
   let blobData = new Blob([blob], { type: 'application/pdf' });
   let file = new File([blobData], 'document.pdf', { type: 'application/pdf' });
@@ -395,27 +398,49 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
     toast.error("Please Resend !")
   });
 
+
+  console.log(form,"formmmmm")
+
 }
-export function handleMailSendWithMultipleAttachments(FromAddresss,ToAddress,passskey,subject,message,attachments, fileName, logo, reportNo) {
-  console.log("hit")
-  let form = new FormData();
-  console.log(attachments, "attachments")
-  attachments?.forEach(attachment => {
-    let blobData = new Blob([attachment.blob], { type: 'application/pdf' });
-    let file = new File([blobData], `${attachment.reportNo}.pdf`, { type: 'application/pdf' });
-    form.append("file", file);
-  });
+
+
+
+
+
+
+
+
+export function handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename) {
   
-  form.append("FromAddresss",FromAddresss );
-  form.append("ToAddresss",ToAddress );
+  // console.log(attachments, "attachments")
+  // attachments?.forEach(attachment => {
+  //   let blobData = new Blob([attachment.blob], { type: 'application/pdf' });
+  //   let file = new File([blobData], `${attachment.reportNo}.pdf`, { type: 'application/pdf' });
+  //   form.append("file", file);
+  // });
+
+  // const path = require('path');
+ 
+
+//   const searchDir = path.join(__dirname); 
+// const fileToFind = filename
+
+let files=[{filename:"tamilan"},{filename:"selva"}]
+
+  let mailAddress = "selvamanib986@gmail.com"
+  let form = new FormData();
+
+  for (let i = 0; i < files.length; i++) {
+    form.append('file[]', files[i], files[i].filename); 
+  }
+  form.append("FromAddresss",FromEmailAddress );
+  form.append("ToAddresss",toEmail );
   form.append("subject", subject);
   form.append("passskey", passskey);
-  form.append("fileName", fileName);
-  form.append("reportNo", reportNo);
-  form.append("message",message)
-  form.append("logo", logo);
+  form.append("fileName", filename);
+  form.append("message",Message)
 
-  console.log(form,"form")
+console.log(form,"formmmm")
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
     method: "POST",

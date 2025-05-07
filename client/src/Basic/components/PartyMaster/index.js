@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useDispatch } from 'react-redux';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import secureLocalStorage from 'react-secure-storage';
 import { useGetCityQuery } from '../../../redux/services/CityMasterService';
 // import { useGetCurrencyMasterQuery } from '../../../redux/ErpServices/CurrencyMasterServices';
@@ -22,11 +22,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { DELETE, PLUS } from '../../../icons';
 import { toast } from 'react-toastify';
+import { push } from '../../../redux/features/opentabs';
 
 
 const MODEL = "Party Master"
 
 export default function Form() {
+
+
 
     const [form, setForm] = useState(false);
     const [readOnly, setReadOnly] = useState(false);
@@ -70,6 +73,14 @@ export default function Form() {
 
 
     const [searchValue, setSearchValue] = useState("");
+
+    const openTabs = useSelector((state) => state.openTabs);
+    const projectForm = useMemo(() => { return openTabs.tabs.find(i => i.name === "PARTY MASTER")?.projectForm}, [openTabs])
+console.log(projectForm,"projectForm")
+    useEffect(() => {
+      setForm(projectForm);
+    }, [projectForm]);
+    
 
     const [errors, setErrors] = useState({});
     const [image, setImage] = useState({});
@@ -228,6 +239,10 @@ export default function Form() {
             // let returnData = await callback(data).unwrap();
             setId(returnData.data.id)
             toast.success(text + "Successfully");
+            if(projectForm){
+                            dispatch(push({ name: "ORDER",projectForm: true ,projectId :true}));
+                
+            }
         } catch (error) {
             console.log("handle");
         }
@@ -293,7 +308,6 @@ export default function Form() {
         if (id) {
             handleSubmitCustom(updateData, data, "Updated");
         } else {
-            console.log("hit")
             handleSubmitCustom(addData, data, "Added");
         }
     }

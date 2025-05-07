@@ -4,6 +4,8 @@ import { get, getOne, getSearch, create, update, remove, uploadBillProofImage,up
 import multerUpload from '../utils/multerUpload.js';
 
 
+
+
 router.post('/', create);
 
 router.patch('/uploadBillProofImage/:id', multerUpload.fields([{ name: 'images' }]), uploadBillProofImage);
@@ -16,7 +18,7 @@ router.get('/search/:searchKey', getSearch);
 
 router.put('/:id', update);
 
-router.patch('/upload/:id', multerUpload.single('file'), upload);
+router.post('/upload', multerUpload.single('file'), upload);
 
 
 router.delete('/:id', remove);

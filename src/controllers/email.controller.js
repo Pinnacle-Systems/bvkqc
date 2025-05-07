@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client'
 
-import { get as _get, getOne as _getOne, getSearch as _getSearch, create as _create, update as _update, remove as _remove, uploadBillProofImage as _uploadBillProofImage , upload as _upload } from '../services/orderEntry.service.js';
+import { get as _get, getOne as _getOne, getSearch as _getSearch, create as _create, update as _update, remove as _remove } from '../services/email.services.js';
 
 async function get(req, res, next) {
     try {
@@ -14,7 +14,7 @@ async function get(req, res, next) {
 
 async function getOne(req, res, next) {
     try {
-        res.json(await _getOne(req));
+        res.json(await _getOne(req.params.id));
         console.log(res.statusCode);
     } catch (err) {
         console.error(`Error`, err.message);
@@ -49,11 +49,9 @@ async function create(req, res, next) {
 }
 
 async function update(req, res, next) {
-   
     try {
         res.json(await _update(req.params.id, req.body));
         console.log(res.statusCode);
- 
     } catch (error) {
         console.error(`Error`, error.message);
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -64,48 +62,6 @@ async function update(req, res, next) {
             }
         } else {
             res.json({ statusCode: 1, message: error.message })
-        }
-    }
-}
-
-async function uploadBillProofImage(req, res, next) {
-    try {
-        res.json(await _uploadBillProofImage(req.params.id, req));
-        console.log(res.statusCode);
-    } catch (error) {
-        console.error(`Error`, error.message);
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === 'P2002') {
-                res.statusCode = 200;
-                res.json({ statusCode: 1, message: `${error.meta.target.split("_")[1].toUpperCase()} Already exists` })
-                console.log(res.statusCode)
-            }
-        } else {
-            res.json({ statusCode: 1, message: error.message })
-        }
-    }
-}
-
-
-export async function upload(req, res, next) {
-
-    try {
-    console.log("Hit")
-
-        res.json(await _upload(req));
-        console.log(res.statusCode);
-    } catch (error) {
-        console.error(`Error`, error.message);
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === 'P2002') {
-                res.statusCode = 200;
-                res.json({ statusCode: 1, message: `${error.meta.target.split("_")[1].toUpperCase()} Already exists` })
-                console.log(res.statusCode)
-            } else {
-                res.json({ statusCode: 1, message: "Child Record Exists" })
-            }
-        } else {
-            res.json({ statusCode: 1, message: (error?.message)?.match(/message: "(.*?)"/)?.[1] || error?.message })
         }
     }
 }
@@ -115,6 +71,8 @@ async function remove(req, res, next) {
         res.json(await _remove(req.params.id));
         console.log(res.statusCode);
     } catch (error) {
+
+        console.log(error, "errorrrr")
         if (error.code === 'P2025') {
             res.statusCode = 200;
             res.json({ statusCode: 1, message: `Record Not Found` })
@@ -134,6 +92,5 @@ export {
     getSearch,
     create,
     update,
-    remove,
-    uploadBillProofImage
+    remove
 };

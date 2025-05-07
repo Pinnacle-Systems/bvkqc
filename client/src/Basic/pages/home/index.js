@@ -5,10 +5,11 @@ import { BranchAndFinyearForm, LogoutConfirm } from "../../components";
 import ActiveTabList from "../../components/ActiveTabList";
 import secureLocalStorage from "react-secure-storage";
 import SuperAdminHeader from "../../components/SuperAdminHeader";
-import {  useSelector } from "react-redux";
+import {  useDispatch, useSelector } from "react-redux";
 
 import { MaxHomePage, Order } from "../../../Uniform/Components";
 import SlackStyleUI from "../../../Uniform/Components/HomePage";
+import { push } from "../../../redux/features/opentabs";
 
 const Home = () => {
   const [isGlobalOpen, setIsGlobalOpen] = useState(false);
@@ -22,6 +23,7 @@ const Home = () => {
   const userRole = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userRole"
   );
+    const dispatch = useDispatch();
 
 
   const openTabs = useSelector((state) => state.openTabs);
@@ -64,20 +66,20 @@ const Home = () => {
         
       userRole  === "MANUFACTURE"  ||     userRole  === "VENDOR"   ? 
         <>
+          <div className="h-[100vh]">
 
-        <div className="h-[7%]">
-        <Header profile={profile} setProfile={setProfile} />
-        </div>
-        <div>
-          
-        <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} 
-             isMainDropdownOpen={isMainDropdownOpen} 
-             setIsMainDropdownOpen={setIsMainDropdownOpen} />
-        </div>
-        <div className="">
+          <Header profile={profile} setProfile={setProfile} />
 
-        <MaxHomePage    />
-        </div>
+          <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} 
+          isMainDropdownOpen={isMainDropdownOpen} 
+          setIsMainDropdownOpen={setIsMainDropdownOpen} />
+          <div className="mt-[30px]  p-5 bg-gray-100  ">
+            <ActiveTabList />
+            {openTabs.tabs.length === 0 ? <Dashboard  setProfile={setProfile}  /> : ''}
+          </div>
+
+
+          </div>
 
         </>
         
@@ -95,7 +97,7 @@ const Home = () => {
              setIsMainDropdownOpen={setIsMainDropdownOpen} />
             <div className="mt-[30px]  p-5 bg-gray-100  ">
               <ActiveTabList />
-              {openTabs.tabs.length === 0 ? <MaxHomePage  setProfile={setProfile}  /> : ''}
+              {openTabs.tabs.length === 0 ? <Dashboard  setProfile={setProfile}  /> : ''}
             </div>
 
 

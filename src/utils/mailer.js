@@ -1,7 +1,7 @@
 
 import { createTransport } from 'nodemailer';
-
-
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const MailContents = {
           proforma: `
@@ -111,96 +111,186 @@ const MailContents = {
               `,  
 }
 
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let MAIL_SETTINGS= {};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export async function sendMailWithAttachmentWithMultipleFiles(req) {
 
-   MAIL_SETTINGS = {
-    service: 'gmail',
-    auth: {
-        user: req?.body?.FromAddresss,
-        pass:req?.body?.passskey
-  
-  }
-}
+
+ console.log(req,"filesss")
+
+
+  MAIL_SETTINGS = {
+        service: 'gmail',
+        auth: {
+            user: "iridescentcosting@gmail.com",
+            // req?.body?.FromAddresss,
+            pass:   "qowiqsbixattwtmw"  
+            //  req?.body?.passskey
+      
+      }
+    }
     
-const transporter = createTransport(MAIL_SETTINGS);
+    const transporter = createTransport(MAIL_SETTINGS);
+    
+      
+     
+      let FromAddresss = req?.body?.FromAddresss
+      let ToAddress = req?.body?.ToAddresss
+      let subject = req?.body?.subject;
+      let ccAddress;
+      let message  =  req?.body?.message;
+    let fileName=req.body.fileName
+
 
   
+
  
-  let FromAddresss = req?.body?.FromAddresss
-  let ToAddress = req?.body?.ToAddresss
-  let subject = req?.body?.subject;
-  let ccAddress;
-
-  // let ccAddress = mailAddress.length > 1 ? mailAddress.map((i, index) => {
  
-  //           if (index == 0) {
-
-  //             return
-  //           }
-  //           else {
-
-  //             return i
-  //           }          }) : []
-
-
-
-
-
-
-  let content;
-
-
-  if (req.body.subject == "DocumentProFormaInvoice") {
-    content = MailContents.proforma
-  }
-  else if (req.body.subject == "InvoiceDocument") {
-    content = MailContents.invoiceReport
-  }
-  else if (req.body.subject == "Sample Acknowledgement") {
-    content = MailContents.sampleAcknowledgement
-  }
-  else {
-    content = MailContents.testReport
-  };
-
   try {
-    const files = req.files;
+    const files = req.body;
+
     const attachments = [
       {
-        filename: "logo.png",
-        cid: "logo"
+        filename: `${files?.fileName}`,
+        path: `./uploads/${files.fileName}`,
+        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       }
     ]
-    files.forEach(file => {
-      let reportnumber = file?.originalname.split("-")
+    // files.forEach(file => {
+    //   let reportnumber = file?.fileName.split("-")
 
-      attachments.push(
-        {
-          filename: `${file?.originalname}`,
-          content: file.buffer
-        },
-      )
-    })
+    //   attachments.push(
+    //     {
+    //       filename: `${file?.fileName}`,
+    //       content: file.buffer
+    //     },
+    //   )
+    // })
 
+   
     let info = await transporter.sendMail({
-      from: MAIL_SETTINGS.auth.user,
-      to: ToAddress,
-      cc: ccAddress,
+            from: MAIL_SETTINGS.auth.user,
+            to: ToAddress,
+            cc: ccAddress,
+            subject: subject,
+            attachments,
+            html: `${message}
+                 <img src="cid:logo" alt="PNG Image" />`
+          });
+          return   { success: true, message: " send email with multiple Files ", info };;
+        } catch (error) {
+          console.error("Error sending mail:", error);
       
-      subject: subject,
-      attachments,
-      html: `${content}
-           <img src="cid:logo" alt="PNG Image" />`
-    });
-    return   { success: true, message: " send email with multiple Files ", info };;
-  } catch (error) {
-    console.error("Error sending mail:", error);
+        }
 
-  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export async function sendMailWithAttachmentWithMultipleFiles(req) {
+
+//    MAIL_SETTINGS = {
+//     service: 'gmail',
+//     auth: {
+//         user: "iridescentcosting@gmail.com",
+//         // req?.body?.FromAddresss,
+//         pass:   "qowiqsbixattwtmw"  
+//         //  req?.body?.passskey
+  
+//   }
+// }
+//     console.log(MAIL_SETTINGS,'MAIL_SETTINGS')
+// const transporter = createTransport(MAIL_SETTINGS);
+
+  
+ 
+//   let FromAddresss = req?.body?.FromAddresss
+//   let ToAddress = req?.body?.ToAddresss
+//   let subject = req?.body?.subject;
+//   let ccAddress;
+//   let message  =  req?.body?.message;
+
+
+
+
+
+
+//   let content;
+
+
+//   if (req.body.subject == "DocumentProFormaInvoice") {
+//     content = MailContents.proforma
+//   }
+//   else if (req.body.subject == "InvoiceDocument") {
+//     content = MailContents.invoiceReport
+//   }
+//   else if (req.body.subject == "Sample Acknowledgement") {
+//     content = MailContents.sampleAcknowledgement
+//   }
+//   else {
+//     content = MailContents.testReport
+//   };
+
+//   try {
+//     const fileName =  req?.body?.fileName;
+
+//     const files = req.files;
+//     // const attachments = [
+//     //   {
+//     //     filename: req?.body?.fileName,
+//     //     path: "/uploads/1746509275454Order_1746509275403.xlsx",
+//     //     cid: "logo"
+//     //   }
+//     // ]
+//     let info = await transporter.sendMail({
+//       from: MAIL_SETTINGS.auth.user,
+//       to: ToAddress,
+//       cc: ccAddress,
+      
+//       subject: subject,
+//       // attachments,
+//       html: `${message}
+//            <img src="cid:logo" alt="PNG Image" />`
+//     });
+//     return   { success: true, message: " send email with multiple Files ", info };;
+//   } catch (error) {
+//     console.error("Error sending mail:", error);
+
+//   }
+// }
 
 
 

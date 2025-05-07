@@ -14,14 +14,15 @@ import {
  
  
   project,
- processMaster, 
+  processMaster, 
    taxTemplate, taxTerm, 
   termsAndCondition, 
-
   dispatched,
   order,
   po,
-  sendMail
+  sendMail,
+  excessQty,
+  email
 
 } from './src/routes/index.js';
 
@@ -86,14 +87,18 @@ app.use("/taxTemplate", taxTemplate);
 app.use("/taxTerm", taxTerm);
 app.use("/termsAndCondition", termsAndCondition);
 app.use("/dispatched", dispatched);
-app.use("/order",order)
-app.use("/po",po)
+app.use("/order",order);
+app.use("/po",po);
+app.use("/email",email)
+app.use("/percentage",excessQty);
 
 
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);
 })
+
+app.use('/uploads', express.static('uploads'));
 
 app.use("/sendMail", sendMail)
 

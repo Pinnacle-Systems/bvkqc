@@ -39,7 +39,7 @@ const BrowseSingleImage = ({ picture, setPicture, readOnly }) => {
                                     // accept='image/png'
                                     />
 
-                                    <label htmlFor="profileImage" className="text-xs w-full"> Browse</label>
+                                    <label htmlFor="profileImage" className="text-xs w-full">Browse</label>
                                 </div>
                                 <div className='border border-gray-700 rounded-md h-8 px-2 text-xs hover:border-red-400'>
                                     {<DeleteButton onClick={() => { setPicture(null) }} />}

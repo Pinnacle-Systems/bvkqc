@@ -524,12 +524,6 @@ model order{
   updatedById          Int?
   docId                String?
   orderdate            DateTime?
-  department           String?
-  class                String?
-  supplierCode         String?
-  styleCode            String?
-  product              String?
-  color                String?
   poNumber             String?
   isDeleted           Boolean    @default(false)
   User                 User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -539,21 +533,38 @@ model order{
   manufactureId       Int?
   vendorId            Int?
   excelFineName       String?
+  isSave               Boolean?
+  excessQty            Float?
+  netAmount            Float?
+  manufacture       String?
+  vendor            String?
   Email               Email[]
   orderBillItems      orderBillItems[]
+
 }
 
 model orderBillItems{
-  id                  Int                    @id @default(autoincrement())
+  id                  Int        @id @default(autoincrement())
   order               order?     @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId             Int?
-  itemCode            String?
   barCode             String?
-  sizeDesc            String?
-  size                String?
+  class                String?
+  color                String?
+  department           String?
+  date                 DateTime?  
+  itemCode            String?
   mrp                 Float?
-  qty                 Float?
   orderQty            Float?
+  product              String?
+  qty                 Float?
+  size                String?
+  sizeDesc            String?
+  styleCode            String?
+  supplierCode         String?
+  excessQty            Float?
+  
+
+
            
 }
 
@@ -597,4 +608,11 @@ model Email {
   updatedBy           User?                  @relation("updatedBy", fields: [updatedById], references: [id])
   updatedById         Int?
   
+}
+
+model percentage {
+  id                  Int                  @id @default(autoincrement())
+  qty                 Int?
+    active    Boolean  @default(false)
+
 }

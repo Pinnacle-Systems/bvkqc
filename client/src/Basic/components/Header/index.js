@@ -3,7 +3,7 @@ import dp from "../../../assets/default-dp.png"
 import { Bell, Search } from "lucide-react"
 import { useCallback, useEffect, useState } from "react";
 import Profile from "./Profile";
-import logo from "../../../assets/pinnacle2.jpeg"
+import logo from "../../../assets/max'.png"
 import { useGetPageGroupQuery } from "../../../redux/services/PageGroupMasterServices";
 import { useGetProjectQuery } from "../../../redux/services/ProjectService";
 import secureLocalStorage from "react-secure-storage";
