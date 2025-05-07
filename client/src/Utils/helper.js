@@ -410,28 +410,14 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-export function handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename) {
+export function handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename,files) {
   
-  // console.log(attachments, "attachments")
-  // attachments?.forEach(attachment => {
-  //   let blobData = new Blob([attachment.blob], { type: 'application/pdf' });
-  //   let file = new File([blobData], `${attachment.reportNo}.pdf`, { type: 'application/pdf' });
-  //   form.append("file", file);
-  // });
-
-  // const path = require('path');
- 
-
-//   const searchDir = path.join(__dirname); 
-// const fileToFind = filename
-
-let files=[{filename:"tamilan"},{filename:"selva"}]
 
   let mailAddress = "selvamanib986@gmail.com"
   let form = new FormData();
 
   for (let i = 0; i < files.length; i++) {
-    form.append('file[]', files[i], files[i].filename); 
+    form.append('file[]', files[i]); 
   }
   form.append("FromAddresss",FromEmailAddress );
   form.append("ToAddresss",toEmail );
@@ -440,7 +426,7 @@ let files=[{filename:"tamilan"},{filename:"selva"}]
   form.append("fileName", filename);
   form.append("message",Message)
 
-console.log(form,"formmmm")
+
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
     method: "POST",

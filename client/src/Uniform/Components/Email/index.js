@@ -27,6 +27,7 @@ export default function MailForm({fileName,singleData,emailId}) {
     const [filename,setfileName]  = useState('')
     const [files, setFiles] = useState([]);
 
+
     const FromEmailAddress =  singleData?.data?.email;
     const passskey  = singleData?.data?.passKey;
 
@@ -213,7 +214,7 @@ export default function MailForm({fileName,singleData,emailId}) {
                          <div className="mt-auto flex justify-end w-full">
                                 <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded" 
                                         onClick={() => {
-                                         handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename);
+                                         handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename,files);
                                         }}
                                     >
                                 Send

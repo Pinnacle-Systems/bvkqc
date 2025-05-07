@@ -161,7 +161,7 @@ export default  function Order({setForm,form,setEmailId,setActive}){
                       <td className="p-2">{item?.docId}</td>
                       <td className="p-3">{item?.manufacture}</td>
                   <td className="p-3">{item?.vendor}</td>
-                  <td className="p-3">{item?.isApproval ===  1   ?  "TSHIRT AND SHORTS"  :   "TSHIRT AND SHORTS"}</td>
+                  <td className="p-3">{item?.isApproval ===  1   ?  "TSHIRT AND SHORTS"  :   "TSHIRT AND SHORTS"} </td>
 
                   <th className="py-3 px-6">{getDateFromDateTime(item?.orderdate)}</th>
 
