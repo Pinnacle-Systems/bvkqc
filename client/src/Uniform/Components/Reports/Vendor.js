@@ -1,13 +1,15 @@
-import {    DropdownWithSearch } from "../../../Inputs"
+import {    DropdownWithSearch, Modal } from "../../../Inputs"
 import { useEffect, useState } from "react";
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
 import { toast } from "react-toastify";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
-import { useGetPartyQuery, useUploadMutation } from "../../../redux/services/PartyMasterService";
+import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime, renameFile } from "../../../Utils/helper";
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
+import ArtDesignFormreport from "./ArtDesignReport";
+import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function VendorForm({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
@@ -16,10 +18,11 @@ export default function VendorForm({singleData ,setForm,setMailform,vendor,setVe
          const [upload] = useUploadMutation();
          const [fileName, setFileName] = useState([]);
 
+         const [formReport, setFormReport] = useState(false);
+         const [searchValue, setSearchValue] = useState("");
          const { branchId, finYearId, userId } = getCommonParams()
    
 
-     console.log(fileName,"fileName")
 
      
     
@@ -146,7 +149,23 @@ console.log(data,"data")
       <FormHeaderNew
       model={"Order"}
       />   
-             
+                   <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
+                     <ArtDesignFormreport
+                         // heading={MODEL}
+                       
+                         tableWidth="100%"
+                         // data={allData?.data}
+                         // onClick={(id) => {
+                         // setId(id);
+                         // setFormReport(false);
+                         // }
+                         // }
+                         setFileName={setFileName}
+                         fileName={fileName}
+                         searchValue={searchValue}
+                         setSearchValue={setSearchValue}
+                     />
+                     </Modal> 
     <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto">
 
 
@@ -188,6 +207,13 @@ console.log(data,"data")
       />
 
   </div>
+   
+  <div>
+        <button
+        onClick={() =>  setFormReport(true)}
+        >View Art Design</button>
+    </div>
+
 </div>
 
      
@@ -291,17 +317,17 @@ console.log(data,"data")
 
 
   <div className=" flex  justify-end  gap-3 mt-[50px]">
-  {Array.isArray(fileName) && fileName.map((_, index) => (
-    <div key={index}>
-        <input
-            title=" "
-            type="file"
-            onChange={(e) =>
-                e.target.files[0] ? handleInputChange(renameFile(e.target.files[0]), index, "filePath") : null
-            }
+    <div >
+    <input
+          title=" "
+          type="file"
+          onChange={(e) => {
+            console.log(e, "e");
+           handleInputChange(renameFile(e.target.files[0]), 1, "filePath") 
+          }}
         />
     </div>
-))}
+{/* ))} */}
 
       {/* <div>
               <input
@@ -325,13 +351,13 @@ console.log(data,"data")
 
 
               }}
+              >
+              Save & Send 
+                </button>
 
 
 
               
-            >
-              Save & Send 
-            </button>
   </div>
     </div>
 

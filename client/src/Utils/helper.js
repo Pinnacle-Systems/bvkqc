@@ -346,6 +346,7 @@ export function renameFile(originalFile) {
     type: originalFile.type,
     lastModified: originalFile.lastModified,
   });
+  console.log(file,"file")
   return file;
 }
 
