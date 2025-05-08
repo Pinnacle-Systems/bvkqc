@@ -639,6 +639,7 @@ model OrderImportItems {
   qty                  String?
   order_qty            String?
   po_number            String?
+  class                String?
 }
 
 model Attachments {

@@ -60,7 +60,7 @@ const FormReport = ({
             <div className="md:flex md:items-center md:justify-between page-heading p-1">
                 <div className="heading text-center md:mx-10">{heading}</div>
                 <div className=" sub-heading justify-center md:justify-start items-center">
-                    <label className="text-white text-sm rounded-md m-1  border-none">Show Entries</label>
+                    <label className="text-gray-700 text-sm rounded-md m-1  border-none">Show Entries</label>
                     <select value={dataPerPage}
                         onChange={(e) => setDataPerPage(e.target.value)} className='h-6 w-40 border border-gray-500 rounded mr-9'>
                         {showEntries.map((option) => <option value={option.value} >{option.show}</option>)}
@@ -105,7 +105,7 @@ const FormReport = ({
                                         }}
                                     />
                                 </th>
-                                <th
+                                {/* <th
                                     className="border-2  top-0 stick-bg"
                                 >
                                     <label>Supplier</label><input
@@ -130,7 +130,7 @@ const FormReport = ({
                                             setOrder(e.target.value);
                                         }}
                                     />
-                                </th>
+                                </th> */}
 
                             </tr>
                         </thead>
@@ -152,9 +152,9 @@ const FormReport = ({
                                         <td className='py-1'> {(index + 1) + (dataPerPage * (currentPageNumber - 1))}</td>
                                         <td className='py-1'> {dataObj.docId}</td>
                                         <td className='py-1'>{dataObj?.docDate} </td>
-                                        <td className='py-1'>{dataObj?.Party?.name}</td>
+                                        {/* <td className='py-1'>{dataObj?.Party?.name}</td>
 
-                                        <td className="py-1">{dataObj?.Order?.docId}</td>
+                                        <td className="py-1">{dataObj?.Order?.docId}</td> */}
 
                                     </tr>
                                 ))}

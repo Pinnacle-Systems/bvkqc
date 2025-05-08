@@ -57,7 +57,7 @@ export const NewButton = ({ onClick }) => {
 
 export const EditButton = ({ onClick }) => {
     return (
-        <button className='text-yellow-300 text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => onClick()}>
+        <button className='text-yellow-700 text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => onClick()}>
             {<FontAwesomeIcon icon={faEdit} />} Edit
         </button>
     )
@@ -82,7 +82,7 @@ export const SaveButton = ({ onClick }) => {
     };
     return (
         <button disabled={isDisabled}
-            className='text-sky-300 text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+            className='text-green-600 text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline'
             onClick={() => { onClick(); disableButton(); }}>
             {<FontAwesomeIcon icon={faSave} />} Save
         </button>
@@ -125,7 +125,7 @@ export const PrintButtonOnly = ({ onClick }) => {
 
 export const SearchButton = ({ onClick }) => {
     return (
-        <button className='text-pink-200 text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => onClick()}>
+        <button className='text-pink-600 text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => onClick()}>
             {<FontAwesomeIcon icon={faSearch} />} Search
         </button>
     )
@@ -150,7 +150,7 @@ export const PreviewButtonOnly = ({ onClick }) => {
 export const ViewButtton = ({ onClick }) => {
     return (
         <button className='text-pink-200 text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => onClick()}>
-          View
+            View
         </button>
     )
 }

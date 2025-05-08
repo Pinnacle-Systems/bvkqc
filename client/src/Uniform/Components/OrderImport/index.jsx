@@ -55,8 +55,6 @@ export default function Form() {
     const { data: allData, isLoading, isFetching } = useGetOrderImportQuery({ params, searchParams: '' });
 
 
-    console.log(allData, "allData")
-
     const getNextDocId = useCallback(() => {
         if (id || isLoading || isFetching) return
         if (allData?.nextDocId) {
@@ -86,8 +84,8 @@ export default function Form() {
             setDocId(data?.docId)
         }
         setDate(data?.createdAt ? moment(data?.createdAt).format("YYYY-MM-DD") : moment(new Date()).format("YYYY-MM-DD"));
+        setOrderImportItems(data?.orderImportItems ? data?.orderImportItems : [])
 
-        setAdditionalImportData(data?.additionalImportData || [])
     }, [id]);
 
     useEffect(() => {
@@ -116,13 +114,11 @@ export default function Form() {
             "size_desc"
         ];
 
-        console.log(isGridDatasValid(pres, false, mandatoryFields), "isGridDatasValid(pres, false, mandatoryFields)")
 
         return isGridDatasValid(pres, false, mandatoryFields)
     }
 
 
-    console.log(pres, "presss")
 
     const handleSubmitCustom = async (callback, data, text) => {
         try {
@@ -206,7 +202,7 @@ export default function Form() {
         <div
             onKeyDown={handleKeyDown}
             className="md:items-start md:justify-items-center grid h-full bg-theme overflow-auto">
-            <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[90%]"}>
+            <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[50%]"}>
                 <FormReport
                     heading={MODEL}
                     loading={
@@ -221,49 +217,7 @@ export default function Form() {
                     }
                 />
             </Modal>
-            {/* <Modal isOpen={error} onClose={() => setError('')} widthClass={"px-2 w-[500px] overflow-auto"}>
-                <div className="w-full">
-                    <div className="text-center font-bold ">{error?.message}</div>
-                    {((error?.data?.missingItemsInClassMaster || [])?.length > 0) &&
-                        <div className="flex gap-1 mt-1">
-                            <span className="font-bold"> Class: </span>
-                            <span> {(error?.data?.missingItemsInClassMaster || []).join(",")} </span>
-                        </div>
-                    }
-                    {((error?.data?.missingItemsInSizeMaster || [])?.length > 0) &&
-                        <div className="flex gap-1 mt-1">
-                            <span className="font-bold"> Size: </span>
-                            <span> {(error?.data?.missingItemsInSizeMaster || []).join(",")} </span>
-                        </div>
-                    }
-                    {((error?.data?.missingItemsInBottomSizeMaster || [])?.length > 0) &&
-                        <div className="flex gap-1 mt-1">
-                            <span className="font-bold"> BottomSize: </span>
-                            <span> {(error?.data?.missingItemsInBottomSizeMaster || []).join(",")} </span>
-                        </div>
-                    }
-                    {((error?.data?.missingItemsInColorMaster || [])?.length > 0) &&
-                        <div className="flex gap-1 mt-1">
-                            <span className="font-bold"> Color: </span>
-                            <span> {(error?.data?.missingItemsInColorMaster || []).join(",")} </span>
-                        </div>
-                    }
-                    {((error?.data?.missingItemsInBottomColorMaster || [])?.length > 0) &&
-                        <div className="flex gap-1 mt-1">
-                            <span className="font-bold"> BottomColor: </span>
-                            <span> {(error?.data?.missingItemsInBottomColorMaster || []).join(",")} </span>
-                        </div>
-                    }
-                    <div className="w-full flex justify-around">
-                        <button className="bg-red-500 text-white p-1 rounded-md" onClick={() => setError("")} >
-                            Cancel
-                        </button>
-                        <button className="bg-blue-500 text-white p-1 rounded-md" onClick={() => saveData(true)}>
-                            Auto Create Masters
-                        </button>
-                    </div>
-                </div>
-            </Modal> */}
+
             <div className="flex flex-col frame w-full h-full">
                 <FormHeader
                     onNew={onNew}

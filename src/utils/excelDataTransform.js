@@ -1,7 +1,8 @@
 export function convertToImportFormat(importedData) {
     const headerNames = [
         "department",
-        "class_Subclass",
+        // "class_subclass",
+        "class",
         "season_supplier_code",
         "item_code",
         "ean_barcode",
@@ -29,13 +30,13 @@ export function convertToImportFormat(importedData) {
         });
         return obj;
     });
-    transformedData = transformedData?.map((val) => {
-        return {
-            ...val, bottomsize: val?.bottomsize ? val?.bottomsize : val?.size,
-            bottomcolor: val?.bottomcolor ? val?.bottomcolor : val?.color,
-        }
-    }
-    );
+    // transformedData = transformedData?.map((val) => {
+    //     return {
+    //         ...val, bottomsize: val?.bottomsize ? val?.bottomsize : val?.size,
+    //         bottomcolor: val?.bottomcolor ? val?.bottomcolor : val?.color,
+    //     }
+    // }
+    // );
 
     return transformedData
 }
