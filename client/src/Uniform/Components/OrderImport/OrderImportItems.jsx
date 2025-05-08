@@ -4,13 +4,22 @@ import { convertSpaceToUnderScore } from '../../../Utils/helper'
 const OrderImportItems = ({ orderImportItems }) => {
 
     const header = [
-        "student name",
-        "class",
-        "gender",
-        "color",
-        "bottomColor",
-        "size",
-        "bottomsize"
+        "department",
+        "class_Subclass",
+        "season_supplier_code",
+        "item_code",
+        "ean_barcode",
+        "style_code_group",
+        "mrp",
+        "month_year",
+        "product",
+        "size_desc",
+        "code",
+        "colour",
+        "qty",
+        "order_qty",
+        "po_number",
+
     ]
     return (
         <div className="w-full">{console.log(orderImportItems, "orderImportItems", header, "header")}
@@ -27,7 +36,7 @@ const OrderImportItems = ({ orderImportItems }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {orderImportItems?.map(j => { return { ...j, bottomcolor: j.bottomColor } }).map((row, rowIndex) => (
+                            {orderImportItems?.map((row, rowIndex) => (
                                 <tr key={rowIndex}>
                                     <td className="border border-gray-400 text-sm py-1 text-center">{rowIndex + 1}</td>
                                     {header.map((columnName, columnIndex) => (
