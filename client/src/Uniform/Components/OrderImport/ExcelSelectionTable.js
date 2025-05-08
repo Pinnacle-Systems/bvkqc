@@ -2,7 +2,7 @@ import React from "react";
 import { read, utils } from "xlsx";
 import { convertSpaceToUnderScore } from "../../../Utils/helper";
 
-const   ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
+const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -32,19 +32,6 @@ const   ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
         });
         return obj;
       });
-      transformedData = transformedData?.map((val) => {
-        return {
-          ...val, bottomsize: val?.bottomsize ? val?.bottomsize : val?.size,
-          bottomColor: val?.bottomColor ? val?.bottomColor : val?.color
-        }
-      }
-      );
-      // transformedData = transformedData?.map((val) => {
-      //   return {
-      //     ...val, bottomColor: val?.bottomColor ? val?.bottomColor : val?.color
-      //   }
-      // });
-
       setPres(transformedData);
     };
 
@@ -65,13 +52,21 @@ const   ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
 
 
   const header = [
-    "student name",
-    "class",
-    "gender",
-    "color",
-    "bottomcolor",
-    "size",
-    "bottomsize"
+    "department",
+    "class_Subclass",
+    "season_supplier_code",
+    "item_code",
+    "ean_barcode",
+    "style_code_group",
+    "mrp",
+    "month_year",
+    "product",
+    "size_desc",
+    "code",
+    "colour",
+    "qty",
+    "order_qty",
+    "po_number",
   ]
 
   return (

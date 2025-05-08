@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, LayoutDashboard, PanelLeftClose,  Table, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, PanelLeftClose, Table, Home } from 'lucide-react';
 import './Sidebar.css';
 import secureLocalStorage from 'react-secure-storage';
 import { toast } from 'react-toastify';
@@ -18,7 +18,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
 
   const navigate = useNavigate()
 
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const [name, setName] = useState("");
 
@@ -78,7 +78,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
                   (page) => page.page.active && page.read
                 ).map((page) => {
                   return {
-                    active:true,
+                    active: true,
                     name: page.page.name,
                     type: page.page.type,
                     link: page.page.link,
@@ -114,7 +114,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
 
 
 
-  const masters = allowedPages.filter((page) => page.type === "Masters" && page.active === true )
+  const masters = allowedPages.filter((page) => page.type === "Masters" && page.active === true)
   const mastersGroup = [...new Set(masters.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
   const transactions = allowedPages.filter((page) => page.type === "Transactions")
   const transactionsGroup = [...new Set(transactions.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
@@ -152,32 +152,32 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
         }
         setIsOpen(!isOpen)
       }
-      } 
-      className='fixed z-[99] top-[16.5%]  bg-gray-600 opacity-50 px-0 h-[10%] flex items-center rounded-end cursor-pointer'
-       >
-           <div className='text-white'>{isOpen ? <ChevronLeft style={{ width: '12px' }} /> : <ChevronRight style={{ width: '12px' }} />}</div>
-    </div>
+      }
+        className='fixed z-[99] top-[16.5%]  bg-gray-600 opacity-50 px-0 h-[10%] flex items-center rounded-end cursor-pointer'
+      >
+        <div className='text-white'>{isOpen ? <ChevronLeft style={{ width: '12px' }} /> : <ChevronRight style={{ width: '12px' }} />}</div>
+      </div>
       {isOpen && <div className={`sidebar  w-[70px] ${isMainDropdownOpen ? "h-[400px]" : ""} bg-[#495057] top-[16.5%] left-[1%] fixed z-[999] rounded-lg flex justify-center py-3`}>
 
-      
-    
+
+
         <div className=" " >
-        <div className='text-white hover:text-gray-400 cursor-pointer mb-3'
-                    onClick={()  =>   dispatch(push({name:"DASHBOARD"}))}
+          <div className='text-white hover:text-gray-400 cursor-pointer mb-3'
+            onClick={() => dispatch(push({ name: "DASHBOARD" }))}
 
           >
             <a className=' mx-auto text-light flex justify-center hover:text-gray-400 ' type="button" ><LayoutDashboard size={20} /></a>
             <div className='text-[8.5px] w-full text-center'>Dashboard</div>
           </div>
-        <div className='text-white hover:text-gray-400 cursor-pointer mb-3 '
-             onClick={()  =>   dispatch(push({name:"HOMEPAGE"}))}
+          <div className='text-white hover:text-gray-400 cursor-pointer mb-3 '
+            onClick={() => dispatch(push({ name: "HOMEPAGE" }))}
 
           >
             <a className=' mx-auto text-light flex justify-center hover:text-gray-400 ' type="button" ><Home size={20} /></a>
             <div className='text-[8.5px] w-full text-center'>Home</div>
           </div>
-        
-          { isOpen  && headers.map((ele, index) => {
+
+          {isOpen && headers.map((ele, index) => {
             return (
 
               <div
@@ -191,7 +191,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
 
             )
           })}
- 
+
         </div>
 
 
@@ -215,7 +215,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
         </ul>
 
       </div>
-    
+
     </>
   )
 }

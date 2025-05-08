@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { push } from "../../../redux/features/opentabs";
 import { useNavigate } from "react-router-dom";
-import {  Search} from "lucide-react";
+import { Search } from "lucide-react";
 
 
 
@@ -84,7 +84,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
         "CURRENCY MASTER":
             <img src={currency} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
         ,
-     
+
         "UNIT OF MEASUREMENT MASTER": <img />,
         "PAY TERM MASTER":
             <img src={payterm} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
@@ -113,15 +113,15 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
             </span>
         ,
 
-       
+
         "FABRIC TYPE MASTER": <img />,
         "GSM MASTER": <img />,
         "GAUGE MASTER": <img />,
         "LOOP LENGTH MASTER": <img />,
         "DESIGN MASTER": <img />,
 
-}
-        
+    }
+
 
     return (
         <div
@@ -150,7 +150,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
                         </div>
                         <ul className="w-full p-0 transition duration-150 ease-in-out origin-top   ">
 
-                            {groups && groups?.filter(item => item.id ).map((group) => (
+                            {groups && groups?.filter(item => item.id).map((group) => (
                                 <li
                                     key={group?.id}
                                     className="rounded-md relative my-0"
@@ -163,7 +163,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
 
                                         <ul
                                             className=" grid grid-cols-3  rounded-xl left-full  transition-all duration-200 ease-in-out origin-top-left z-50 w-56  px-0 pt-0 pb-3"
-                                       
+
                                         >
 
                                             {filteredData
@@ -172,36 +172,36 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
                                                         parseInt(page.pageGroupId) === parseInt(group.id)
                                                 )
                                                 .map((page) => (
-                                                <>
-                                                    <li
-                                                        key={page.id}
-                                                        onClick={() => {
-                                                            dispatch(push({name:page.name}));
-                                                            secureLocalStorage.setItem(
-                                                                sessionStorage.getItem("sessionId") + "currentPage",
-                                                                page?.id
-                                                            );
-                                                            // navigate(page.type)
-                                                            setIsMainDropdownOpen(false)
-                                                            setIsOpen(false)
-                                                        }}
-                                                        className={`rounded-md text-[9px]  relative flex justify-center items-center  cursor-pointer    text-gray-800
+                                                    <>
+                                                        <li
+                                                            key={page.id}
+                                                            onClick={() => {
+                                                                dispatch(push({ name: page.name }));
+                                                                secureLocalStorage.setItem(
+                                                                    sessionStorage.getItem("sessionId") + "currentPage",
+                                                                    page?.id
+                                                                );
+                                                                // navigate(page.type)
+                                                                setIsMainDropdownOpen(false)
+                                                                setIsOpen(false)
+                                                            }}
+                                                            className={`rounded-md text-[9px]  relative flex justify-center items-center  cursor-pointer    text-gray-800
                                                           hover:text-[black] hover:bg-gray-300
                                                           transition duration-100  my-0 h-[60px]`}
-                                                    >
+                                                        >
 
-                                                        <div className="flex flex-col align-middle text-center justify-center">
-                                                            <div className="w-full flex justify-center mb-0.5 ">
-                                                                {/* <Gamepad2 size={20} /> */}
-                                                                {iconMapping[page?.name] || <img />}
+                                                            <div className="flex flex-col align-middle text-center justify-center">
+                                                                <div className="w-full flex justify-center mb-0.5 ">
+                                                                    {/* <Gamepad2 size={20} /> */}
+                                                                    {iconMapping[page?.name] || <img />}
 
+                                                                </div>
+                                                                <div className="">
+                                                                    {page?.name.replace(/\bMASTER\b/g, "").trim().toLowerCase().replace(/\b[a-z]/g, char => char.toUpperCase())}
+                                                                </div>
                                                             </div>
-                                                            <div className="">
-                                                                {page?.name.replace(/\bMASTER\b/g, "").trim().toLowerCase().replace(/\b[a-z]/g, char => char.toUpperCase())}
-                                                            </div>
-                                                        </div>
 
-                                                    </li></>
+                                                        </li></>
 
                                                 ))}
                                         </ul>

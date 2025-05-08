@@ -27,7 +27,7 @@ import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
 import { AccessoryGroupMaster, AccessoryItemMaster, AccessoryMaster, CountsMaster, LossReasonMaster, ProcessMaster, SizeTemplateMaster, StyleMaster, YarnBlendMaster, YarnMaster, YarnTypeMaster } from "../../../Shocks";
 import ContentMaster from "../../../Shocks/ContentMaster";
 import secureLocalStorage from "react-secure-storage";
-import {  MaxHomePage, Order } from "../../../Uniform/Components";
+import { MaxHomePage, Order } from "../../../Uniform/Components";
 
 const ActiveTabList = () => {
   const openTabs = useSelector((state) => state.openTabs);
@@ -51,7 +51,7 @@ const ActiveTabList = () => {
     "EMPLOYEE CATEGORY MASTER": <EmployeeCategoryMaster />,
     "FIN YEAR MASTER": <FinYearMaster />,
     "USERS & ROLES": <UserAndRolesMaster />,
-    "ROLE":<Role/>,
+    "ROLE": <Role />,
     "ACCOUNT SETTINGS": <AccountSettings />,
     "CONTROL PANEL": <ControlPanel />,
     "EMPLOYEE MASTER": <EmployeeMaster />,
@@ -67,10 +67,10 @@ const ActiveTabList = () => {
     "SIZE TEMPLATE MASTER": <SizeTemplateMaster />,
     "DASHBOARD": <Dashboard />,
     "ORDER": <Order />,
-    "HOMEPAGE":<MaxHomePage/>
+    "HOMEPAGE": <MaxHomePage />
 
 
-  
+
 
   };
   const innerWidth = window.innerWidth;
@@ -143,7 +143,7 @@ const ActiveTabList = () => {
             )}
           </ul>
         }
-      </div>
+      </div>{console.log(openTabs, "openTabs")}
 
       {(openTabs?.tabs)?.map((tab, index) => (
         <div key={index} className={`${tab.active ? "block" : "hidden"}`}>
