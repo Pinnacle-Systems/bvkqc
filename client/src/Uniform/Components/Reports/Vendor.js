@@ -1,13 +1,11 @@
 import {    DropdownWithSearch } from "../../../Inputs"
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
 import { toast } from "react-toastify";
-
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
 import { useGetPartyQuery, useUploadMutation } from "../../../redux/services/PartyMasterService";
-import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
+import { getCommonParams, getDateFromDateTime, renameFile } from "../../../Utils/helper";
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 
@@ -16,11 +14,12 @@ export default function VendorForm({singleData ,setForm,setMailform,vendor,setVe
                                        setActive,setIsSave,saveData,id,setEmailId}){
 
          const [upload] = useUploadMutation();
+         const [fileName, setFileName] = useState([]);
 
          const { branchId, finYearId, userId } = getCommonParams()
    
 
-     
+     console.log(fileName,"fileName")
 
      
     
@@ -136,7 +135,11 @@ console.log(data,"data")
          
        console.log(data,"data");
 
-
+       function handleInputChange(value, index, field) {
+           const newBlend = structuredClone(fileName);
+           newBlend[index][field] = value;
+           setFileName(newBlend);
+       };
     
     return(
         <>
@@ -285,42 +288,32 @@ console.log(data,"data")
   
 
 
-  {/* <div className=" w-full flex gap-4 border border-gray-300  p-2  h-[14%]">
-        <div className="flex flex-col w-72 ">
-          <label className="text-xs font-semibold text-gray-600">Tag vendor</label>
-     
-          <DropdownWithSearch  className={"w-72 text-xs border-gray-300"}   value={vendor} setValue={setVendor}  options={partyOptions} optionName={"Tag vendor On Party Master"}   masterName={"PARTY MASTER"}   />
-         </div>
-        
-            <div className="flex flex-col ">
-              <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={getDateFromDateTime(data?.deliverydate) }
-
-              />
-            </div>
-  </div> */}
 
 
   <div className=" flex  justify-end  gap-3 mt-[50px]">
-            {/* {!data?.isSave    ?
-            <button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
-                onClick={() => {
-                  // setIsSave(true)
-                  setForm(false);
-                  setActive("order")
-                  saveData()
+  {Array.isArray(fileName) && fileName.map((_, index) => (
+    <div key={index}>
+        <input
+            title=" "
+            type="file"
+            onChange={(e) =>
+                e.target.files[0] ? handleInputChange(renameFile(e.target.files[0]), index, "filePath") : null
+            }
+        />
+    </div>
+))}
 
-                }}
-              >
-                Save  
-              </button>   
-     :   
-      <></>
-      } */}
+      {/* <div>
+              <input
+                                title=" "
+                                type="file"
+                                // disabled={readOnly}
+                                onChange={(e) =>
+                                    e.target.files[0] ? handleInputChange(renameFile(e.target.files[0]), "filePath") : () => { }
+                                }
+                            />
+       </div> */}
+                        
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
               onClick={() => {
