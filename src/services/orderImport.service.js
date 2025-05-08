@@ -105,26 +105,7 @@ async function getOne(id) {
                 }
             },
             orderImportItems: true,
-            additionalImportData: {
-                select: {
-                    orderImportId: true,
-                    student_name: true,
-                    class: true,
-                    gender: true,
-                    color: true,
-                    bottomColor: true,
-                    bottomsize: true,
-                    size: true,
-                    itemTypeId: true,
-                    itemId: true,
-                    colorId: true,
-                    bottomColorId: true,
-                    bottomSizeId: true,
-                    sizeId: true,
-                    qty: true,
-                    classIds: true
-                }
-            }
+
 
         }
     })
@@ -231,168 +212,49 @@ async function createOrderImportItems(additionalImportData) {
 
 
 async function create(req) {
-    // const { finYearId, branchId, userId } = await req.body
-    const { userId, branchId, partyId, companyId, orderId, isCreateMasters, additionalImportData, isDirectImportItems } = await req.body
-    // let finYearDate = await getFinYearStartTimeEndTime(finYearId);
-    // const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startTime, finYearDate?.endTime) : "";
-    // let docId = await getNextDocId(branchId, shortCode, finYearDate?.startTime, finYearDate?.endTime);
+
+    const { userId, branchId, partyId, companyId, orderId } = await req.body
+
     let docId = await getNextDocId(branchId);
     let data;
 
-    if (JSON.parse(isDirectImportItems)) {
-
-        let tempOrderImportItems = await createOrderImportItems(additionalImportData);
 
 
+    let file = new Uint8Array(req.file.buffer)
+    let workbook = read(file, { type: "array" });
+    var sheet_name_list = workbook.SheetNames;
+    const importedData = utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+    let headerNames = importedData;
 
-        await prisma.$transaction(async (tx) => {
-            data = await tx.orderImport.create({
+
+    const orderImportItems = convertToImportFormat(importedData, headerNames);
+
+
+    console.log(orderImportItems, "orderImportItems")
+
+    await prisma.$transaction(async (tx) => {
+        data = await tx.orderImport.create(
+            {
                 data: {
-                    partyId: partyId ? parseInt(partyId) : undefined,
+
                     companyId: companyId ? parseInt(companyId) : undefined,
                     branchId: branchId ? parseInt(branchId) : undefined,
-                    orderId: parseInt(orderId),
                     docId,
                     createdById: parseInt(userId),
-                    isDirectImportItems,
-                    orderImportItems: tempOrderImportItems?.length > 0 ? {
+                    orderImportItems: {
                         createMany: {
-                            data: tempOrderImportItems?.map(temp => ({
-                                classId: parseInt(temp?.classId),
-                                sizeId: parseInt(temp?.sizeId),
-                                bottomSizeId: parseInt(temp?.sizeId),
-                                bottomColorId: parseInt(temp?.colorId),
-                                colorId: parseInt(temp?.colorId),
-                                bottomColor: temp?.color,
-                                student_name: "samplename",
-                                class: temp?.class,
-                                color: temp?.color,
-                                size: temp?.size,
-                                bottomsize: temp?.size,
-                                gender: temp?.gender,
-                            }))
-                        }
-                    } : undefined
-                }
-            })
-
-            await createAdditionalImportData(tx, additionalImportData, data?.id);
-
-        })
-        return { statusCode: 0, data };
-    }
-    else {
-        let file = new Uint8Array(req.file.buffer)
-        let workbook = read(file, { type: "array" });
-        var sheet_name_list = workbook.SheetNames;
-        const importedData = utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-        let headerNames = importedData;
-        headerNames = headerNames?.map(val => {
-            return {
-                ...val, BOTTOMSIZE: val?.BOTTOMSIZE ? val?.BOTTOMSIZE : val?.SIZE,
-                BOTTOMCOLOR: val?.BOTTOMCOLOR ? val?.BOTTOMCOLOR : val?.COLOR
-            }
-        })
-
-        const orderImportItems = convertToImportFormat(importedData, headerNames);
-
-
-        let isCreateMastersValue = JSON.parse((isCreateMasters === "undefined" || typeof (isCreateMasters) === "undefined") ? false : isCreateMasters);
-        return await prisma.$transaction(async (tx) => {
-            const colorList = await getAllColor(tx);
-            const bottomColorList = await getAllColor(tx);
-            const sizeList = await getAllSize(tx);
-            const bottomSizeList = await getAllSize(tx);
-            const classList = await getAllClass(tx);
-            const missingItemsInClassMaster = [...new Set(orderImportItems.filter(i => !(classList.map(i => i.name).includes(i.class))).map(i => i.class))];
-            const missingItemsInSizeMaster = [...new Set(orderImportItems.filter(i => !(sizeList.map(i => i.name).includes(i.size))).map(i => i.size))];
-            const missingItemsInBottomSizeMaster = [...new Set(orderImportItems.filter(i => !(bottomSizeList.map(i => i.name).includes(i.bottomsize))).map(i => i.bottomsize))];
-            const missingItemsInBottomColorMaster = [...new Set(orderImportItems.filter(i => !(bottomColorList.map(i => i.name).includes(i.bottomcolor))).map(i => i.bottomcolor))];
-            const missingItemsInColorMaster = [...new Set(orderImportItems.filter(i => !(colorList.map(i => i.name).includes(i.color))).map(i => i.color))];
-            if (!isCreateMastersValue) {
-                if (missingItemsInClassMaster.length > 0 || missingItemsInSizeMaster.length > 0 || missingItemsInColorMaster.length > 0 || missingItemsInBottomSizeMaster.length > 0 || missingItemsInBottomColorMaster.length > 0) {
-
-                    let missingInfoArray = [];
-                    if (missingItemsInClassMaster.length > 0) {
-                        missingInfoArray.push("Class");
-                    }
-                    if (missingItemsInSizeMaster.length > 0) {
-                        missingInfoArray.push("Size");
-                    }
-                    if (missingItemsInColorMaster.length > 0) {
-                        missingInfoArray.push("Colors");
-                    }
-                    if (missingItemsInBottomSizeMaster.length > 0) {
-                        missingInfoArray.push("bottomsize");
-                    }
-                    if (missingItemsInBottomColorMaster.length > 0) {
-                        missingInfoArray.push("bottomcolor");
-                    }
-                    return { statusCode: 2, message: `Some Below ${missingInfoArray.join(",")} Not in Master...!!!`, data: { missingItemsInClassMaster, missingItemsInColorMaster, missingItemsInSizeMaster, missingItemsInBottomSizeMaster, missingItemsInBottomColorMaster } }
-                }
-            }
-            let colorListUpdated;
-            let sizeListUpdated;
-            let bottomsizeListUpdated;
-            let bottomColorListUpdated;
-            let classListUpdated;
-            if (isCreateMastersValue) {
-                colorListUpdated = await createAllColor(tx, missingItemsInColorMaster);
-                sizeListUpdated = await createAllSize(tx, missingItemsInSizeMaster);
-                bottomsizeListUpdated = await createAllSize(tx, missingItemsInBottomSizeMaster);
-                bottomColorListUpdated = await createAllColor(tx, missingItemsInBottomColorMaster);
-                classListUpdated = await createAllClass(tx, missingItemsInClassMaster);
-            } else {
-                colorListUpdated = colorList;
-                sizeListUpdated = sizeList;
-                bottomsizeListUpdated = bottomSizeList;
-                bottomColorListUpdated = bottomColorList;
-                classListUpdated = classList;
-            }
-            let orderImportItemsForStoring = orderImportItems.map(item => ({
-                ...item,
-                classId: parseInt(classListUpdated.find(i => i.name === item.class)?.id),
-                sizeId: parseInt(sizeListUpdated.find(i => i.name === item.size)?.id),
-                bottomSizeId: parseInt(bottomsizeListUpdated.find(i => i.name === item.bottomsize)?.id),
-                bottomColorId: parseInt(bottomColorListUpdated.find(i => i.name === item.bottomcolor)?.id),
-                colorId: parseInt(colorListUpdated.find(i => i.name === item.color)?.id),
-                bottomColor: item?.bottomcolor ? item?.bottomcolor : item?.color,
-
-            }));
-
-            const removeField = (fieldToRemove) => {
-                return (orderImportItemsForStoring.map(({ [fieldToRemove]: _, ...rest }) => rest));
-            };
-
-            orderImportItemsForStoring = removeField("bottomcolor")
-            data = await tx.orderImport.create(
-                {
-                    data: {
-                        partyId: partyId ? parseInt(partyId) : undefined,
-                        companyId: companyId ? parseInt(companyId) : undefined,
-                        branchId: branchId ? parseInt(branchId) : undefined,
-                        orderId: parseInt(orderId),
-                        docId,
-                        createdById: parseInt(userId),
-                        orderImportItems: {
-                            createMany: {
-                                data: orderImportItemsForStoring
-                            }
+                            data: orderImportItems
                         }
                     }
                 }
-            )
-            return { statusCode: 0, data: orderImportItemsForStoring };
-        })
-    }
-
-
-
-
-
-
+            }
+        )
+    })
+    return { statusCode: 0, data: orderImportItems };
 
 }
+
+
 
 async function update(id, body) {
     const { name, code, active, orderId } = await body

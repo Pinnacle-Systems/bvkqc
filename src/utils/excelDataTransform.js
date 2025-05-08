@@ -1,11 +1,20 @@
 export function convertToImportFormat(importedData) {
-    const headerNames = ["student_name",
-        "class",
-        "gender",
-        "color",
-        "bottomcolor",
-        "size",
-        "bottomsize"
+    const headerNames = [
+        "department",
+        "class_Subclass",
+        "season_supplier_code",
+        "item_code",
+        "ean_barcode",
+        "style_code_group",
+        "mrp",
+        "month_year",
+        "product",
+        "size_desc",
+        "code",
+        "colour",
+        "qty",
+        "order_qty",
+        "po_number",
     ]
     let transformedData = importedData.map((row) => {
         let newRow = {};

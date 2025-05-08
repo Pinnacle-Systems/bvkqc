@@ -113,10 +113,16 @@ export default function Form() {
         let mandatoryFields = ["po_number",
             "order_qty",
             "colour",
-            " size_desc",
+            "size_desc"
         ];
+
+        console.log(isGridDatasValid(pres, false, mandatoryFields), "isGridDatasValid(pres, false, mandatoryFields)")
+
         return isGridDatasValid(pres, false, mandatoryFields)
     }
+
+
+    console.log(pres, "presss")
 
     const handleSubmitCustom = async (callback, data, text) => {
         try {
