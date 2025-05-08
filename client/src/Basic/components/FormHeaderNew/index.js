@@ -6,7 +6,7 @@ import { useGetPagePermissionsByIdQuery } from "../../../redux/services/PageMast
 import { CloseButton, DeleteButton, EditButton, NewButton, OpenProjectButton, PrintButtonOnly, SaveButton, SearchButton, ViewButtton } from "../../../Buttons";
 
 
-const FormHeader = ({
+const FormHeaderNew = ({
   setNavigateProjectId = null,
   quotesData = null,
   projectOpen = null,
@@ -91,68 +91,22 @@ const FormHeader = ({
   return (
     <>
 
-{isLoading || isFetching ? (
-        <div></div>
-      ) : (
-        <div className="md:flex md:items-center md:justify-between page-heading">
-          {model ? (
-            <div className="font-bold  heading text-center md:mx-10">
+
+   
+        <div className="md:flex md:items-center md:justify-between bg-gray-200 p-2">
+      
+            <div className="font-bold   text-gray-800 ">
               {model}
             </div>
-          ) : (
-            <div></div>
-          )}
-          <div className="flex sub-heading">
-          {
-              viewReport  &&
-              <ViewButtton   onClick={viewReport}  />
-            }
-            {
-              projectOpen &&
-              <OpenProjectButton setNavigateProjectId={setNavigateProjectId} quotesData={quotesData} onClick={() => {
-                projectOpen()
-              }} />
-
-            }
-
-            <NewButton onClick={() => { hasPermission(onNew, "create") }} />
-            {setReadOnly &&
-              <EditButton
-                onClick={() => {
-                  hasPermission(setReadOnly, "edit");
-                  toast.info("You Can Edit The Datas...!", { position: "top-center" })
-                }}
-              />}
-
-            {
-              saveData && <SaveButton
-                onClick={saveData}
-              />
-            }
-            {
-              deleteData &&
-              <DeleteButton
-                onClick={() => {
-                  hasPermission(deleteData, "delete");
-                }}
-              />
-            }
-
-            {openReport && <SearchButton onClick={openReport} />}
-            {onPrint &&
-              <PrintButtonOnly onClick={onPrint}
-              />}
-            {onClose &&
-              <CloseButton onClick={onClose} />
-            }
-        
-          </div>
+     
+       
+       
         </div>
-      )}  
+   
 
   
     </>
   );
 };
 
-export default FormHeader;
+export default FormHeaderNew;

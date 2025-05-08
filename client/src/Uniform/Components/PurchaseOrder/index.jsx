@@ -59,8 +59,8 @@ export default function Form() {
   const [remarks, setRemarks] = useState("")
 
   const [formReport, setFormReport] = useState(false);
-
   const [searchValue, setSearchValue] = useState("");
+
   const [deliveryType, setDeliveryType] = useState("")
   const [deliveryToId, setDeliveryToId] = useState("")
 

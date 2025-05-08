@@ -4,15 +4,15 @@ import { useEffect } from "react";
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
 import { toast } from "react-toastify";
-import FormHeader from "../../../Basic/components/FormHeader";
-import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
-import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
-import { useUploadMutation } from "../../../redux/uniformService/OrderService";
+import { useGetPartyQuery, useUploadMutation } from "../../../redux/services/PartyMasterService";
+import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
+import FormHeader from "../../../Basic/components/FormHeader";
+import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 
 
-export default function GeneralSummary({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
+export default function VendorForm({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
                                        setActive,setIsSave,saveData,id,setEmailId}){
 
          const [upload] = useUploadMutation();
@@ -140,7 +140,7 @@ console.log(data,"data")
     
     return(
         <>
-      <FormHeader
+      <FormHeaderNew
       model={"Order"}
       />   
              
@@ -205,7 +205,7 @@ console.log(data,"data")
         <th className="w-[90px]">Color</th>    
         <th className="w-[50px]">MRP</th>   
         <th className="w-[50px]">OrderQty</th> 
-        <th className="w-[50px]">Excess %</th>
+        {/* <th className="w-[50px]">Excess %</th> */}
         <th className="w-[50px]">Qty</th>
       </tr>
     </thead>
@@ -229,17 +229,15 @@ console.log(data,"data")
 
               <td className="border border-gray-300 text-right ">{item?.mrp}</td>
               <td className="border border-gray-300 text-right ">{item?.orderQty ||  ""}</td>
-              <td className="border border-gray-300 w-16">
-                {/* {item?.orderQty   >  0   &&   excessQty?.map(item  =>    */}
+              {/* <td className="border border-gray-300 w-16">
                   <input
                   type="number"
                   value={item?.excessQty }
                   onChange={(e) => handleQtyChange("excessQty" ,index, e.target.value,item?.orderQty)}
                   className="w-full p-1   rounded-md text-right focus:ring-blue-400"
                 />
-                {/* )} */}
             
-            </td>
+                </td> */}
           
               <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty  ||  ""  } </td>
 
@@ -268,8 +266,7 @@ console.log(data,"data")
               {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) ||  ""}
               </td>
 
-            <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
-               </td>
+       
             <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
               {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
     
@@ -288,7 +285,7 @@ console.log(data,"data")
   
 
 
-  <div className=" w-full flex gap-4 border border-gray-300  p-2  h-[14%]">
+  {/* <div className=" w-full flex gap-4 border border-gray-300  p-2  h-[14%]">
         <div className="flex flex-col w-72 ">
           <label className="text-xs font-semibold text-gray-600">Tag vendor</label>
      
@@ -304,11 +301,11 @@ console.log(data,"data")
 
               />
             </div>
-  </div>
+  </div> */}
 
 
   <div className=" flex  justify-end  gap-3 mt-[50px]">
-            {!data?.isSave    ?
+            {/* {!data?.isSave    ?
             <button
                 className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
                 onClick={() => {
@@ -323,13 +320,13 @@ console.log(data,"data")
               </button>   
      :   
       <></>
-      }
+      } */}
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
               onClick={() => {
                 // setIsSave(true);
-                saveData();
-                exportAndUploadExcel(data);
+                // saveData();
+                // exportAndUploadExcel(data);
                 setForm(false);
                 setActive("Mail");
 

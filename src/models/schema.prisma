@@ -155,6 +155,8 @@ model User {
   emailcreatedBy                      Email[]                      @relation(name: "createdBy")
   emailUpdatedBy                      Email[]                      @relation(name: "updatedBy")
   order                               order[]
+  attachmentcreatedBy                 Attachments[]                 @relation(name: "createdBy")
+  attachmentUpdatedBy                 Attachments[]                 @relation(name: "updatedBy")
 
 }
 
@@ -514,34 +516,35 @@ enum PaymentMode {
 
 model order{
   id                   Int                    @id @default(autoincrement())
-  Branch               Branch?  @relation(fields: [branchId], references: [id])
+  Branch               Branch?                @relation(fields: [branchId], references: [id])
   branchId             Int?
   createdAt            DateTime?               @default(now())
   updatedAt            DateTime?               @updatedAt
   createdBy            User?                   @relation("createdBy", fields: [createdById], references: [id])
   createdById          Int?
-  updatedBy            User?                  @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedBy            User?                   @relation("updatedBy", fields: [updatedById], references: [id])
   updatedById          Int?
   docId                String?
   orderdate            DateTime?
   poNumber             String?
-  isDeleted           Boolean    @default(false)
-  User                 User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId             Int?
-  isApproval           Boolean    @default(false)
-  buyerGmail          String?
-  manufactureId       Int?
-  vendorId            Int?
-  excelFineName       String?
-  isSave               Boolean?
+  isDeleted            Boolean                  @default(false)
+  User                 User?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               Int?
+  isApproval           Boolean                  @default(false)
+  buyerGmail           String?
+  manufactureId        Int?
+  vendorId             Int?
+  excelFineName        String?
+  isSave               Boolean? 
   excessQty            Float?
   netAmount            Float?
-  manufacture       String?
-  vendor            String?
-  deliverydate       DateTime?
+  manufacture          String?
+  vendor               String?  
+  deliverydate         DateTime?
   Email               Email[]
   orderBillItems      orderBillItems[]
-
+  Attachments         Attachments[]
+  
 }
 
 model orderBillItems{
@@ -614,6 +617,20 @@ model Email {
 model percentage {
   id                  Int                  @id @default(autoincrement())
   qty                 Int?
-    active    Boolean  @default(false)
+  active    Boolean  @default(false)
 
+}
+
+model Attachments {
+  id                  Int                  @id @default(autoincrement())
+  order               order?     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId             Int?
+  fileName            String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  createdBy           User?                  @relation("createdBy", fields: [createdById], references: [id])
+  createdById         Int?
+  updatedBy           User?                  @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById         Int?
+  
 }

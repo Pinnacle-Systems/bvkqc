@@ -4,15 +4,15 @@ import { useEffect } from "react";
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
 import { toast } from "react-toastify";
-import FormHeader from "../../../Basic/components/FormHeader";
-import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
-import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
-import { useUploadMutation } from "../../../redux/uniformService/OrderService";
+import { useGetPartyQuery, useUploadMutation } from "../../../redux/services/PartyMasterService";
+import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
+import FormHeader from "../../../Basic/components/FormHeader";
+import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 
 
-export default function GeneralSummary({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
+export default function Manufactureform({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
                                        setActive,setIsSave,saveData,id,setEmailId}){
 
          const [upload] = useUploadMutation();
@@ -140,7 +140,7 @@ console.log(data,"data")
     
     return(
         <>
-      <FormHeader
+      <FormHeaderNew
       model={"Order"}
       />   
              
@@ -176,15 +176,6 @@ console.log(data,"data")
     />
   </div>
 
-  <div className="flex flex-col ">
-    <label className="text-xs font-semibold text-gray-600">Manufacture</label>
-    <input
-      type="text"
-      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-      value={data?.manufacture || ""}
-      />
-
-  </div>
 </div>
 
      

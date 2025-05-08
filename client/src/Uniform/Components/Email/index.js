@@ -90,52 +90,7 @@ export default function MailForm({fileName,singleData,emailId}) {
     
 
     
-    // const exportAndUploadExcel = async (data, text = "uploaded") => {
-        
-    //     try {
-    //         const combinedData = data?.data?.orderBillItems?.map((item, index) => ({
-    //             SrNo: index + 1,
-    //             BranchID: data.branchId,
-    //             Department: data.department,
-    //             Class: data.class,
-    //             Color: data.color,
-    //             PONumber: data.poNumber,
-    //             Product: data.product,
-    //             StyleCode: data.styleCode,
-    //             SupplierCode: data.supplierCode,
-    //             OrderDate: data.orderdate,
-    //             ItemCode: item.itemCode,
-    //             BarCode: item.barCode,
-    //             Size: item.sizeDesc,
-    //             Quantity: item.qty
-    //         }));
-    
-    //         const worksheet = XLSX.utils.json_to_sheet(combinedData);
-    //         const workbook = XLSX.utils.book_new();
-    //         XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    
-    //         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    //         const excelBlob = new Blob(
-    //             [excelBuffer],
-    //             { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    //         );
-    
-    //         const fileName = `Order_${Date.now()}.xlsx`;
- 
-    //         const formData = new FormData();
-    //         formData.append('file', excelBlob, fileName);
-    //         const response = await upload({ body: formData }).unwrap();
-    //         toast.success(`${text} Successfully`);
-    //         console.log("Upload Response:", response);
-    
-    
-    
-    //     } catch (error) {
-    //         console.error("Error during Export and Upload:", error);
-    //         toast.error("Something went wrong!");
-    //     }
-    // };
-    
+   
 
  
   return (
