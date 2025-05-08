@@ -157,9 +157,10 @@ model User {
   emailcreatedBy              Email[]              @relation(name: "createdBy")
   emailUpdatedBy              Email[]              @relation(name: "updatedBy")
   order                       order[]
-
-  OrderImport         OrderImport[] @relation(name: "createdBy")
-  OrderImportUpdateBy OrderImport[] @relation(name: "updatedBy")
+  OrderImport                 OrderImport[]        @relation(name: "createdBy")
+  OrderImportUpdateBy         OrderImport[]        @relation(name: "updatedBy")
+  Attachments                 Attachments[]        @relation(name: "createdBy")
+  AttachmentsUpdatedBy        Attachments[]        @relation(name: "updatedBy")
 }
 
 model Employee {
@@ -534,6 +535,7 @@ model order {
   deliverydate   DateTime?
   Email          Email[]
   orderBillItems orderBillItems[]
+  Attachments    Attachments[]
 }
 
 model orderBillItems {
@@ -637,4 +639,17 @@ model OrderImportItems {
   qty                  String?
   order_qty            String?
   po_number            String?
+}
+
+model Attachments {
+  id          Int      @id @default(autoincrement())
+  order       order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     Int?
+  fileName    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("createdBy", fields: [createdById], references: [id])
+  createdById Int?
+  updatedBy   User?    @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById Int?
 }

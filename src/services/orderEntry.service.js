@@ -64,8 +64,10 @@ function isFilterOrder(data, field) {
 
 
 async function get(req) {
-    const { branchId, pagination, pageNumber, dataPerPage, searchDocId, searchBillDate, searchCustomerName, searchMobileNo, finYearId, isTaxBill, partyId,salesReport,IsorderFilter = false,orderFilter } = req.query
-    const {companyId , userRole , userId } = req.query
+    const { branchId, pagination, pageNumber, dataPerPage, searchDocId, searchBillDate, searchCustomerName, searchMobileNo, finYearId, isTaxBill,salesReport,IsorderFilter = false,orderFilter } = req.query
+    const {companyId , userRole , userId, partyId } = req.query
+    console.log(partyId,"partyId",userRole)
+
     let data = await prisma.order.findMany({
         where: {
 
@@ -74,7 +76,7 @@ async function get(req) {
                     contains: searchDocId
                 }
                 : undefined,
-                // vendorId:userRole  ===  "VENDOR" ? parseInt(userId) :  userRole  ===  "MANUFACTURE" ? parseInt(0) : undefined,
+     
                 }
     });
     
@@ -85,10 +87,10 @@ async function get(req) {
        data= isFilterOrder(data,orderFilter)
      }
      if(userRole === "VENDOR")  {
-        data = data.filter(item => item.vendorId === parseInt(userId))
+        data = data.filter(item => item.vendorId === parseInt(partyId))
      }
      else if( userRole === "MANUFACTURE") {
-        data = data.filter(item => item.manufactureId === parseInt(userId))
+        data = data.filter(item => item.manufactureId === parseInt(partyId))
 
      }
     
@@ -190,7 +192,7 @@ async function createOrderBillItems(tx, orderDetails, order) {
 
 async function create(body) {
     let data;
-    const {       branchId, id, userId, companyId, active, orderQty, noOfSet,isTaxBill,
+    const {       branchId, id, userId, vendor, active, orderQty, noOfSet,isTaxBill,
          finYearId, Department, date, orderDetails,className,isSave,
         seasonCode,styleCode,Product,Color,ponumber} = await body
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
@@ -205,7 +207,8 @@ async function create(body) {
                     createdById: parseInt(userId),
                     orderdate : date ? new Date(date): null,
                     poNumber : ponumber ? ponumber : null,
-                    isSave 
+                    isSave ,
+                    vendorId:vendor ? parseInt(vendor) : null,
              
 
                 }
@@ -308,6 +311,7 @@ async function update(id,body) {
                 vendorId : vendor  ? parseInt(vendor)   : null,
                 excessQty :  excessQty ? parseFloat(excessQty)   : null  ,
                 netAmount  :  excessQtyAmount   ?  parseFloat(excessQtyAmount)  :  null  ,
+                
               
                         },
             include: {

@@ -57,6 +57,7 @@ const Login = () => {
         data: data,
       }).then(
         (result) => {
+          console.log(result,"result")
           if (result.status === 200) {
             if (result.data.statusCode === 0) {
               sessionStorage.setItem("sessionId", generateSessionId());
@@ -68,6 +69,10 @@ const Login = () => {
                 secureLocalStorage.setItem(
                   sessionStorage.getItem("sessionId") + "username",
                   result.data.userInfo.username
+                );
+                secureLocalStorage.setItem(
+                  sessionStorage.getItem("sessionId") + "partyId",
+                  result.data.userInfo.partyType
                 );
                 secureLocalStorage.setItem(
                   sessionStorage.getItem("sessionId") + "superAdmin",
@@ -107,6 +112,10 @@ const Login = () => {
                   secureLocalStorage.setItem(
                     sessionStorage.getItem("sessionId") + "userRoleId",
                     result.data.userInfo.roleId
+                  );
+                  secureLocalStorage.setItem(
+                    sessionStorage.getItem("sessionId") + "partyId",
+                    result.data.userInfo.partyType
                   );
                   secureLocalStorage.setItem(
                     sessionStorage.getItem("sessionId") +

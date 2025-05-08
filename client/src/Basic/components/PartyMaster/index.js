@@ -156,7 +156,7 @@ console.log(projectForm,"projectForm")
             setReadOnly(true);
             setPanNo(data?.panNo || "");
             setName(data?.name || "");
-
+            
             setAliasName(data?.aliasName || "");
             setImage(data?.image || "")
             setDisplayName(data?.displayName || "");

@@ -261,7 +261,7 @@ console.log(data?.branches?.length <= 0,'data',data.branches);
                                         :
                                         ""
                                     }
-                                     <DropdownInput name="Role" options={dropDownListObject(roleType ? roleType : [], "name", "id")} value={role} setValue={setRole} required={true} readOnly={readOnly} />
+                                     <DropdownInput name="UserType" options={dropDownListObject(roleType ? roleType : [], "name", "id")} value={role} setValue={setRole} required={true} readOnly={readOnly} />
 
                                     {activeNavBar.activeNavBar  === "STANDARD USERS"  ?
                                     <>
