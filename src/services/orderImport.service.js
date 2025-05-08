@@ -99,11 +99,7 @@ async function getOne(id) {
             id: parseInt(id)
         },
         include: {
-            Party: {
-                select: {
-                    name: true
-                }
-            },
+
             orderImportItems: true,
 
 
@@ -230,7 +226,7 @@ async function create(req) {
     const orderImportItems = convertToImportFormat(importedData, headerNames);
 
 
-    console.log(orderImportItems, "orderImportItems")
+
 
     await prisma.$transaction(async (tx) => {
         data = await tx.orderImport.create(

@@ -53,7 +53,7 @@ const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
 
   const header = [
     "department",
-    "class_Subclass",
+    "class",
     "season_supplier_code",
     "item_code",
     "ean_barcode",

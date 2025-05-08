@@ -59,7 +59,7 @@ label {
   }
 
   .page-heading {
-    @apply bg-gray-600 text-white;
+    @apply bg-gray-200 text-white;
   }
 
   .nav-bar-bg {
@@ -83,7 +83,7 @@ label {
   }
 
   .heading {
-    @apply text-lg text-white font-bold;
+    @apply text-lg text-gray-700 font-bold;
   }
 
   .sub-heading {
@@ -310,6 +310,3 @@ label {
     @apply text-gray-600 hover:text-gray-800;
   }
 }
-
-
-
