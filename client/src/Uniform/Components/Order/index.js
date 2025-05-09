@@ -2,7 +2,7 @@ import { useAddOrderMutation, useGetOrderByIdQuery, useGetOrderQuery, useUpdateO
 import secureLocalStorage from "react-secure-storage";
 import { useCallback, useEffect, useState } from "react";
 import GeneralSummary from "./GeneralSummary";
-import {  getCommonParams } from "../../../Utils/helper";
+import { getCommonParams } from "../../../Utils/helper";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
@@ -13,96 +13,101 @@ import Manufactureform from "../Reports/Manufacture";
 import VendorForm from "../Reports/Vendor";
 import BuyerForm from "../Reports/Buyer";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
+import { useGetUserByIdQuery, useGetUserQuery } from "../../../redux/services/UsersMasterService";
 
 
-export default  function Order({setForm,form,setEmailId,setActive}){
+export default function Order({ setForm, form, setEmailId, setActive }) {
 
-      const [id,setId] = useState(""); 
-      const [fileName, setFileName] = useState("");
-      const [poItems, setPoItems] = useState([]);
-      const [poNo, setPoNo] = useState(null)
-      const [vendor,setVendor]  =   useState('')
-      const [isSave,setIsSave]  =  useState(true)
-      const dispatch = useDispatch()
-      const { branchId, finYearId ,userId} = getCommonParams()
+  const [id, setId] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [poItems, setPoItems] = useState([]);
+  const [poNo, setPoNo] = useState(null)
+  const [vendor, setVendor] = useState('')
+  const [isSave, setIsSave] = useState(true)
+  const dispatch = useDispatch()
+  const { branchId, finYearId, userId } = getCommonParams()
 
-      const partyId = secureLocalStorage.getItem(
-        sessionStorage.getItem("sessionId") + "partyId"
-        
-      )
-      const userRole = secureLocalStorage.getItem(
-        sessionStorage.getItem("sessionId") + "userRole"
-        
-      )
-      const { data: partyData } = useGetPartyQuery({ params:{ branchId ,  finYearId  }});
+  const partyId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "partyId"
 
-     const { data: allData } = useGetOrderQuery({ params:{ branchId ,  finYearId , partyId ,userRole }});
-     const { data: singleData,isSingleFetching, isSingleLoading } = useGetOrderByIdQuery( id, { skip: !id } );
-     const [addData] = useAddOrderMutation();
-     const [updateData] = useUpdateOrderMutation();
+  )
 
 
-     console.log(partyData,"partyData")
-     console.log(allData,"allData")
-      console.log(userRole,"userRole");
-      
 
-    const syncFormWithDb = useCallback(
-              (data) => {
-                  if (!id) {
-                    setPoItems([]);
-                   
-                  } else {
-                    setPoItems(data?.orderBillItems  ||  []);
-                    setIsSave(data?.isSave)
-                    setVendor(data?.vendorId)
-                  }
-              },
-              [id]
-          );
-              useEffect(() => {
-                  syncFormWithDb(singleData?.data);
-              }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
-      const excessQty =  poItems.reduce((a, c) => a + parseFloat(c.excessQty || 0), 0);
-      const excessQtyAmount  =   poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0);
-      const data = {
-        id,
-        branchId, userId,
-        orderDetails: poItems?.filter(item => item?.orderQty > 0),
-        finYearId,
-        vendor,
-        excessQty,
-        isSave:true ,excessQtyAmount
-    
+  const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
+
+  const userRole = singleuserData?.data?.userType
+  console.log(singleuserData, "userdatatata")
+
+  const { data: partyData } = useGetPartyQuery({ params: { branchId, finYearId } });
+
+  const { data: allData } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
+  const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
+  const [addData] = useAddOrderMutation();
+  const [updateData] = useUpdateOrderMutation();
+
+
+
+  console.log(userRole, "userRole");
+
+
+  const syncFormWithDb = useCallback(
+    (data) => {
+      if (!id) {
+        setPoItems([]);
+
+      } else {
+        setPoItems(data?.orderBillItems || []);
+        setIsSave(data?.isSave)
+        setVendor(data?.vendorId)
       }
-        
-        const handleSubmitCustom = async (callback, data, text) => {
-          try {
-            let returnData = await callback(data).unwrap();
-            if (returnData.statusCode === 0) {
-              setId(returnData?.data?.id)
-              toast.success(text + "Successfully");
-              dispatch({
-                type: `partyMaster/invalidateTags`,
-                payload: ['Party'],
-              });
-            } else {
-              toast.error(returnData?.message)
-            }
-          } catch (error) {
-            console.log(error)
-          }
+    },
+    [id]
+  );
+  useEffect(() => {
+    syncFormWithDb(singleData?.data);
+  }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
-        }
-       
-   const saveData = () => {
-    
+  const excessQty = poItems.reduce((a, c) => a + parseFloat(c.excessQty || 0), 0);
+  const excessQtyAmount = poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0);
+  const data = {
+    id,
+    branchId, userId,
+    orderDetails: poItems?.filter(item => item?.orderQty > 0),
+    finYearId,
+    vendor,
+    excessQty,
+    isSave: true, excessQtyAmount
+
+  }
+
+  const handleSubmitCustom = async (callback, data, text) => {
+    try {
+      let returnData = await callback(data).unwrap();
+      if (returnData.statusCode === 0) {
+        setId(returnData?.data?.id)
+        toast.success(text + "Successfully");
+        dispatch({
+          type: `partyMaster/invalidateTags`,
+          payload: ['Party'],
+        });
+      } else {
+        toast.error(returnData?.message)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  const saveData = () => {
+
     if (!window.confirm("Are you sure you want to save the details?")) {
-      return ; 
+      return;
     }
     if (id) {
-    
+
       handleSubmitCustom(updateData, data, "Updated")
 
     } else {
@@ -111,15 +116,15 @@ export default  function Order({setForm,form,setEmailId,setActive}){
 
     }
 
-  }  
+  }
 
 
-    return(
-    
-        
-          <> 
+  return (
 
-              {/* { form === true   ? 
+
+    <> {console.log(userRole, "userRoleuserRole")}
+
+      {/* { form === true   ? 
               
               <GeneralSummary  setForm={setForm} singleData={singleData}  poItems={poItems}  setPoItems={setPoItems}
 
@@ -132,58 +137,58 @@ export default  function Order({setForm,form,setEmailId,setActive}){
              />  */}
 
 
-             {
-             form === true  &&  userRole  ===  "MANUFACTURE"     ? 
+      {
+        form === true && userRole === "MANUFACTURE" ?
 
-                <Manufactureform
-                
-                setForm={setForm} singleData={singleData}  poItems={poItems}  setPoItems={setPoItems}
+          <Manufactureform
 
-              vendor={vendor}  setVendor={setVendor}    setIsSave={setIsSave}  saveData={saveData}
-         
-              orderId={id}  setFileName={setFileName} setPoNo={setPoNo} poNo={poNo}    setActive={setActive}  
-             
-             id={id}   setEmailId={setEmailId}
-                />
-             
-        
-                :
+            setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
- 
-                form === true  &&  userRole  ===  "VENDOR"     ? 
+            vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
-                  <VendorForm
-                  
-                  setForm={setForm} singleData={singleData}  poItems={poItems}  setPoItems={setPoItems}
-  
-                vendor={vendor}  setVendor={setVendor}    setIsSave={setIsSave}  saveData={saveData}
-           
-                orderId={id}  setFileName={setFileName} setPoNo={setPoNo} poNo={poNo}    setActive={setActive}  
-               
-               id={id}   setEmailId={setEmailId}
-                  />
-        :
+            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-            form === true  &&  userRole  ===  "DEFAULT ADMIN"     ? 
+            id={id} setEmailId={setEmailId}
+          />
+
+
+          :
+
+
+          form === true && userRole === "VENDOR" ?
+
+            <VendorForm
+
+              setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+
+              vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+
+              orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
+
+              id={id} setEmailId={setEmailId}
+            />
+            :
+
+            form === true && userRole === "DEFAULT ADMIN" ?
 
               <BuyerForm
-              
-              setForm={setForm} singleData={singleData}  poItems={poItems}  setPoItems={setPoItems}
 
-            vendor={vendor}  setVendor={setVendor}    setIsSave={setIsSave}  saveData={saveData}
+                setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-            orderId={id}  setFileName={setFileName} setPoNo={setPoNo} poNo={poNo}    setActive={setActive}  
-          
-          id={id}   setEmailId={setEmailId}
+                vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+
+                orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
+
+                id={id} setEmailId={setEmailId}
               />
-    
-      :
-          <div className="flex-1 flex flex-col">
-                                        
-            <FormHeaderNew   model={"Order Report"} />  
-       
-           
-            {/* <main className="p-2 space-y-6">
+
+              :
+              <div className="flex-1 flex flex-col">
+
+                <FormHeaderNew model={"Order Report"} />
+
+
+                {/* <main className="p-2 space-y-6">
 
               {   userRole ===  "VENDOR"   ||       userRole ===  "MANUFACTURE"  ?
 
@@ -331,56 +336,56 @@ export default  function Order({setForm,form,setEmailId,setActive}){
                 
 
             </main> */}
-       
-              <main  className="p-2 space-y-6">
-              {
-                userRole  ===  "MANUFACTURE"    &&   
 
-                <>
-                  <Manufacture   
-                  
-                  allData ={allData}
-                  setForm = {setForm}   
-                  setId ={setId}
-                  setPoNo={setPoNo}
+                <main className="p-2 space-y-6">
+                  {
+                    userRole === "MANUFACTURE" &&
 
-                   />
-                </>
-              }
-              {
-                userRole  ===  "VENDOR"    &&   
+                    <>
+                      <Manufacture
 
-                <>
-                  <Vendor   
-                  
-                  allData ={allData}
-                  setForm = {setForm}   
-                  setId ={setId}
-                  setPoNo={setPoNo}
-
-                  />
-                </>
-                 }
-                     {
-                userRole  ===  "DEFAULT ADMIN"    &&   
-                 <Buyer 
-                        
-                        allData ={allData}
-                        setForm = {setForm}   
-                        setId ={setId}
+                        allData={allData}
+                        setForm={setForm}
+                        setId={setId}
                         setPoNo={setPoNo}
-                 />
-                     }
-              </main>
 
-         </div>
+                      />
+                    </>
+                  }
+                  {
+                    userRole === "VENDOR" &&
+
+                    <>
+                      <Vendor
+
+                        allData={allData}
+                        setForm={setForm}
+                        setId={setId}
+                        setPoNo={setPoNo}
+
+                      />
+                    </>
+                  }
+                  {
+                    userRole === "DEFAULT ADMIN" &&
+                    <Buyer
+
+                      allData={allData}
+                      setForm={setForm}
+                      setId={setId}
+                      setPoNo={setPoNo}
+                    />
+                  }
+                </main>
+
+              </div>
 
 
-            }
-    </>                
-                       
-)
+      }
+    </>
+
+  )
 
 }
 
-                      
+

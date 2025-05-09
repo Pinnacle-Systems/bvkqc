@@ -1,4 +1,4 @@
-import {    DropdownWithSearch, Modal } from "../../../Inputs"
+import { DropdownWithSearch, Modal } from "../../../Inputs"
 import { useEffect, useState } from "react";
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
@@ -12,240 +12,240 @@ import ArtDesignFormreport from "./ArtDesignReport";
 import { useAttachOrderMutation } from "../../../redux/uniformService/OrderService";
 
 
-export default function VendorForm({singleData ,setForm,poItems,setPoItems,
-                                       setActive,setIsSave,id,setEmailId}){
+export default function VendorForm({ singleData, setForm, poItems, setPoItems,
+  setActive, setIsSave, id, setEmailId }) {
 
-         const [attach] = useAttachOrderMutation();
-         const [fileName, setFileName] = useState([]);
+  const [attach] = useAttachOrderMutation();
+  const [fileName, setFileName] = useState([]);
 
-         const [formReport, setFormReport] = useState(false);
-         const [searchValue, setSearchValue] = useState("");
-         const { branchId, finYearId, userId } = getCommonParams()
-   
-
-
-     
-    
-
-        const {data: Partydata} = useGetPartyQuery({params:{branchId, finYearId, userId}});
-        const {data: percentage} = useGetPercentageQuery({params:{branchId, finYearId, userId}});
-
-        let excessQty =  percentage?.data?.filter(item  =>  item?.active   === true)
-        let  partyOptions = Partydata?.data?.filter(item  => item?.partyType  ===   "VENDOR")
-        let data = singleData?.data
-      
-console.log(data,"data")
-        
-        
-
-
-   useEffect(() => {
-        if (poItems.length >= 5) return
-        setPoItems(prev => {
-            let newArray = Array.from({ length: 5  - prev.length }, i => {
-                return { excessQty: "", qty: 0.00,orderQty:0.00 }
-            })
-            return [...prev, ...newArray]
-        }
-        )
-    }, [poItems])
-
- 
-       const saveData = async (data, text = "uploaded") => {
-           
-           try {
-             
-       
-             
-            console.log(data,"data")
-               const formData = new FormData();
-               for (let key in data) {
-                console.log(key,"key")
-
-                if (key === 'fileName') {
-
-                  formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
-                  data[key].forEach(option => {
-                    if (option?.filePath instanceof File) {
-                      formData.append('images', option.filePath);
-                    }
-                  });
-                } else {
-                  formData.append(key, data[key]);
-                }
-              }
-             
-               console.log(formData,"formData")
-               const response = await attach({body: formData ,id }).unwrap();
-               console.log("Upload response?.data?.id:", response?.data?.id);
-
-
-              //  toast.success(`${text} Successfully`);
-               console.log("Upload Response:", response);
-       
-       
-       
-           } catch (error) {
-               console.error("Error during Export and Upload:", error);
-               toast.error("Something went wrong!");
-           }
-       };
-       
-        
-    
+  const [formReport, setFormReport] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const { branchId, finYearId, userId } = getCommonParams()
 
 
 
-      const handleQtyChange = (field,index, value,orderQty) => {
-        setPoItems((prev) => {
-        let newItem=structuredClone(prev)
-        newItem[index][field]=value
-        if (field === 'excessQty' && index === 0 ) { 
-          for (let i = 0; i < newItem.length; i++) {
-            if(newItem[i].orderQty  > 0) {
-              newItem[i]['excessQty'] = value;
-              const percentage = parseFloat((newItem[i].orderQty * value) / 100);
-              newItem[i]['qty'] = parseFloat(newItem[i].orderQty) + percentage;
-            }
-  
-          }
-        } 
-        if(field === 'excessQty'){
-     
-          let qty = "qty"
-          let percentage=parseFloat((orderQty * value) / 100)
-          newItem[index][qty]=(parseFloat(orderQty) + percentage);
-        }
-        return newItem
-      });
+
+
+
+  const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
+  const { data: percentage } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
+
+  let excessQty = percentage?.data?.filter(item => item?.active === true)
+  let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
+  let data = singleData?.data
+
+
+
+
+
+
+  useEffect(() => {
+    if (poItems.length >= 5) return
+    setPoItems(prev => {
+      let newArray = Array.from({ length: 5 - prev.length }, i => {
+        return { excessQty: "", qty: 0.00, orderQty: 0.00 }
+      })
+      return [...prev, ...newArray]
     }
-      
-       console.log(poItems,"poItems");
-         
-       console.log(data,"data");
+    )
+  }, [poItems])
 
-       function handleInputChange(value, index, field) {
-           const newBlend = structuredClone(fileName);
-           newBlend[index][field] = value;
-           setFileName(newBlend);
-       };
-    
-    return(
-        <>
+
+  const saveData = async (data, text = "uploaded") => {
+
+    try {
+
+
+
+      console.log(data, "data")
+      const formData = new FormData();
+      for (let key in data) {
+        console.log(key, "key")
+
+        if (key === 'fileName') {
+
+          formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
+          data[key].forEach(option => {
+            if (option?.filePath instanceof File) {
+              formData.append('images', option.filePath);
+            }
+          });
+        } else {
+          formData.append(key, data[key]);
+        }
+      }
+
+      console.log(formData, "formData")
+      const response = await attach({ body: formData, id }).unwrap();
+      console.log("Upload response?.data?.id:", response?.data?.id);
+
+
+      //  toast.success(`${text} Successfully`);
+      console.log("Upload Response:", response);
+
+
+
+    } catch (error) {
+      console.error("Error during Export and Upload:", error);
+      toast.error("Something went wrong!");
+    }
+  };
+
+
+
+
+
+
+  const handleQtyChange = (field, index, value, orderQty) => {
+    setPoItems((prev) => {
+      let newItem = structuredClone(prev)
+      newItem[index][field] = value
+      if (field === 'excessQty' && index === 0) {
+        for (let i = 0; i < newItem.length; i++) {
+          if (newItem[i].orderQty > 0) {
+            newItem[i]['excessQty'] = value;
+            const percentage = parseFloat((newItem[i].orderQty * value) / 100);
+            newItem[i]['qty'] = parseFloat(newItem[i].orderQty) + percentage;
+          }
+
+        }
+      }
+      if (field === 'excessQty') {
+
+        let qty = "qty"
+        let percentage = parseFloat((orderQty * value) / 100)
+        newItem[index][qty] = (parseFloat(orderQty) + percentage);
+      }
+      return newItem
+    });
+  }
+
+  console.log(poItems, "poItems");
+
+  console.log(data, "data");
+
+  function handleInputChange(value, index, field) {
+    const newBlend = structuredClone(fileName);
+    newBlend[index][field] = value;
+    setFileName(newBlend);
+  };
+
+  return (
+    <>
       <FormHeaderNew
-      model={"Order"}
-      />   
-                   <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
-                     <ArtDesignFormreport
-                         // heading={MODEL}
-                       
-                         tableWidth="100%"
-                         // data={allData?.data}
-                         // onClick={(id) => {
-                         // setId(id);
-                         // setFormReport(false);
-                         // }
-                         // }
-                         setFileName={setFileName}
-                         fileName={fileName}
-                         searchValue={searchValue}
-                         setSearchValue={setSearchValue}
-                     />
-                     </Modal> 
-    <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto">
-
-
-  <div className="grid grid-cols-7 gap-4 border border-gray-300 pb-3 p-2 rounded h-[15%]"  >
-
-  <div className="flex flex-col ">
-    <label className="text-xs font-semibold text-gray-600">Po Number</label>
-    <input
-      type="text"
-      className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-      value={data?.docId}
-    />
-  </div>
-  <div className="flex flex-col ">
-    <label className="text-xs font-semibold text-gray-600">Po Date</label>
-    <input
-      type="text"
-      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-
-      value={getDateFromDateTime(data?.orderdate)}
-
-    />
-  </div>
-  <div className="flex flex-col ">
-    <label className="text-xs font-semibold text-gray-600">Customer</label>
-    <input
-      type="text"
-      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-      value={ "MAX"}
-    />
-  </div>
-
-  <div className="flex flex-col col-span-3 ">
-    <label className="text-xs font-semibold text-gray-600">Manufacture</label>
-    <input
-      type="text"
-      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-      value={data?.manufacture || ""}
+        model={"Order"}
       />
+      <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
+        <ArtDesignFormreport
+          // heading={MODEL}
 
-  </div>
-   
-  <div>
-        <button
-        className=""
-        onClick={() =>  setFormReport(true)}
-        >View Art Design</button>
-    </div>
+          tableWidth="100%"
+          // data={allData?.data}
+          // onClick={(id) => {
+          // setId(id);
+          // setFormReport(false);
+          // }
+          // }
+          setFileName={setFileName}
+          fileName={fileName}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+        />
+      </Modal>
+      <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto">
 
-</div>
 
-     
+        <div className="grid grid-cols-7 gap-4 border border-gray-300 pb-3 p-2 rounded h-[15%]"  >
 
-  <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto "> 
-  <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
-    <thead className="bg-gray-200 text-gray-700 ">
-      <tr className="p-2">
-        <th className="w-[50px] p-2">S No</th>
-        <th className="w-[120px] p-2">Department</th>   
-        <th className="w-[150px]">Class-SubClass</th>    
-        <th className="w-[120px]">ItemCode</th>     
-        <th className="w-[120px]">BarCode</th>    
-        <th className="w-[120px]">SeasonSupplierCode</th> 
-        <th className="w-[120px]">StyleCodeGroup</th>     
-        <th className="w-[150px]">SizeDesc</th> 
-         <th className="w-[50px]">Size</th>  
-        <th className="w-[90px]">Color</th>    
-        <th className="w-[50px]">MRP</th>   
-        <th className="w-[50px]">OrderQty</th> 
-        {/* <th className="w-[50px]">Excess %</th> */}
-        <th className="w-[50px]">Qty</th>
-      </tr>
-    </thead>
-  
-      <tbody className="">
-          {(poItems || []).map((item, index) => (
-            <tr key={index} className=" table-row ">
-              <td className="border border-gray-300 text-center p-2">{index + 1}</td>
-              <td className="border border-gray-300 text-left ">{item?.department}</td>
-              <td className="border border-gray-300 text-left ">{item?.class}</td>
+          <div className="flex flex-col ">
+            <label className="text-xs font-semibold text-gray-600">Po Number</label>
+            <input
+              type="text"
+              className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
+              value={data?.docId}
+            />
+          </div>
+          <div className="flex flex-col ">
+            <label className="text-xs font-semibold text-gray-600">Po Date</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
 
-              <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
-              <td className="border border-gray-300 text-left ">{item?.barCode}</td>
-    
-              <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
-              <td className="border border-gray-300 text-left ">{item?.styleCode    }</td>
-              <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
+              value={getDateFromDateTime(data?.orderdate)}
 
-              <td className="border border-gray-300 text-center ">{item?.size}</td>
-              <td className="border border-gray-300 text-center ">{item?.color}</td>
+            />
+          </div>
+          <div className="flex flex-col ">
+            <label className="text-xs font-semibold text-gray-600">Customer</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={"MAX"}
+            />
+          </div>
 
-              <td className="border border-gray-300 text-right ">{item?.mrp}</td>
-              <td className="border border-gray-300 text-right ">{item?.orderQty ||  ""}</td>
-              {/* <td className="border border-gray-300 w-16">
+          <div className="flex flex-col col-span-3 ">
+            <label className="text-xs font-semibold text-gray-600">Manufacture</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+              value={data?.manufacture || ""}
+            />
+
+          </div>
+
+          <div>
+            <button
+              className=""
+              onClick={() => setFormReport(true)}
+            >View Art Design</button>
+          </div>
+
+        </div>
+
+
+
+        <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto ">
+          <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
+            <thead className="bg-gray-200 text-gray-700 ">
+              <tr className="p-2">
+                <th className="w-[50px] p-2">S No</th>
+                <th className="w-[120px] p-2">Department</th>
+                <th className="w-[150px]">Class-SubClass</th>
+                <th className="w-[120px]">ItemCode</th>
+                <th className="w-[120px]">BarCode</th>
+                <th className="w-[120px]">SeasonSupplierCode</th>
+                <th className="w-[120px]">StyleCodeGroup</th>
+                <th className="w-[150px]">SizeDesc</th>
+                <th className="w-[50px]">Size</th>
+                <th className="w-[90px]">Color</th>
+                <th className="w-[50px]">MRP</th>
+                <th className="w-[50px]">OrderQty</th>
+                {/* <th className="w-[50px]">Excess %</th> */}
+                <th className="w-[50px]">Qty</th>
+              </tr>
+            </thead>
+
+            <tbody className="">
+              {(poItems || []).map((item, index) => (
+                <tr key={index} className=" table-row ">
+                  <td className="border border-gray-300 text-center p-2">{index + 1}</td>
+                  <td className="border border-gray-300 text-left ">{item?.department}</td>
+                  <td className="border border-gray-300 text-left ">{item?.class}</td>
+
+                  <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
+                  <td className="border border-gray-300 text-left ">{item?.barCode}</td>
+
+                  <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
+                  <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
+                  <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
+
+                  <td className="border border-gray-300 text-center ">{item?.size}</td>
+                  <td className="border border-gray-300 text-center ">{item?.color}</td>
+
+                  <td className="border border-gray-300 text-right ">{item?.mrp}</td>
+                  <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
+                  {/* <td className="border border-gray-300 w-16">
                   <input
                   type="number"
                   value={item?.excessQty }
@@ -254,94 +254,94 @@ console.log(data,"data")
                 />
             
                 </td> */}
-          
-              <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty  ||  ""  } </td>
 
-            </tr>
-          ))}
-            <tr className="border-2  border-gray-400 bg-gray-200 p-2">
-            <td className="border-b border-gray-300 text-center w-2"></td>
-            <td className="border-b border-gray-300 text-left w-32"></td>
-            <td className="border-b border-gray-300 text-left w-32"></td>
-            <td className="border-b border-gray-300 text-left w-32"></td>
-            <td className="border-b border-gray-300 text-left w-32 text-xl text-gray-800  font-extrabold">
-            Total
-            </td>
-            <td className="border-b border-gray-300 text-left w-32"></td>
-            <td className="border-b border-gray-300 text-left w-16"></td>
-            <td className="border-b border-gray-300 text-left w-52"></td>
-            <td className="border-b border-gray-300 text-left w-52"></td>
-            <td className="border-b border-gray-300 text-left w-52"></td>
+                  <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
 
-       
-          
-
-
-            <td className="border-b border-gray-300 text-right w-32"></td>
-            <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
-              {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) ||  ""}
-              </td>
-
-       
-            <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
-              {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
-    
-            </td>
-
-
-          </tr>
-
-      </tbody>
-
-
-    </table>
-    </div>
-  
-    
-  
-
-
-
-
-  <div className=" flex  justify-end  gap-3 mt-[50px]">
-   
-
-
-
-                        
-            <button
-                className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
-                onClick={() => {
-                  // setIsSave(true);
-                  saveData(fileName);
-                  // exportAndUploadExcel(data);
-                  setForm(false);
-                  setActive("Mail");
-                }}
-                >
-                Save & Send 
-            </button>
+                </tr>
+              ))}
+              <tr className="border-2  border-gray-400 bg-gray-200 p-2">
+                <td className="border-b border-gray-300 text-center w-2"></td>
+                <td className="border-b border-gray-300 text-left w-32"></td>
+                <td className="border-b border-gray-300 text-left w-32"></td>
+                <td className="border-b border-gray-300 text-left w-32"></td>
+                <td className="border-b border-gray-300 text-left w-32 text-xl text-gray-800  font-extrabold">
+                  Total
+                </td>
+                <td className="border-b border-gray-300 text-left w-32"></td>
+                <td className="border-b border-gray-300 text-left w-16"></td>
+                <td className="border-b border-gray-300 text-left w-52"></td>
+                <td className="border-b border-gray-300 text-left w-52"></td>
+                <td className="border-b border-gray-300 text-left w-52"></td>
 
 
 
 
 
-              
-  </div>
-    </div>
+                <td className="border-b border-gray-300 text-right w-32"></td>
+                <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
+                  {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) || ""}
+                </td>
+
+
+                <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
+                  {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+
+                </td>
+
+
+              </tr>
+
+            </tbody>
+
+
+          </table>
+        </div>
 
 
 
-               
-   
 
 
 
-        </>
-    )
+
+        <div className=" flex  justify-end  gap-3 mt-[50px]">
 
 
-    
-    
-    
+
+
+
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
+            onClick={() => {
+              // setIsSave(true);
+              saveData(fileName);
+              // exportAndUploadExcel(data);
+              setForm(false);
+              setActive("Mail");
+            }}
+          >
+            Save & Send
+          </button>
+
+
+
+
+
+
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+    </>
+  )
+
+
+
+
+
 };
