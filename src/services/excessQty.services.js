@@ -46,11 +46,11 @@ async function getSearch(req) {
 }
 
 async function create(body) {
-    const { name, companyId, pages, active } = await body
+    const { active,qty } = await body
    
     const data = await prisma.percentage.create({
         data: {
-            qty,
+            qty:qty ? parseInt(qty)  : null,
             active: active,
           
         },
@@ -59,7 +59,7 @@ async function create(body) {
 }
 
 async function update(id, body) {
-    const { name, companyId, pages, active } = await body
+    const { active,qty } = await body
     const dataFound = await prisma.percentage.findUnique({
         where: {
             id: parseInt(id)
@@ -71,7 +71,7 @@ async function update(id, body) {
             id: parseInt(id),
         },
         data: {
-            qty,
+            qty:qty ? parseInt(qty)  : null,
             active: active,
         },
     })

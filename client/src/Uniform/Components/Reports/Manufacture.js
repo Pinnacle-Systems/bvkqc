@@ -1,5 +1,5 @@
 import {    DropdownWithSearch } from "../../../Inputs"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
@@ -10,6 +10,7 @@ import { useGetPartyQuery, useUploadMutation } from "../../../redux/services/Par
 import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
+import { iteratee } from "lodash";
 
 
 export default function Manufactureform({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
@@ -27,14 +28,31 @@ export default function Manufactureform({singleData ,setForm,setMailform,vendor,
 
         const {data: Partydata} = useGetPartyQuery({params:{branchId, finYearId, userId}});
         const {data: percentage} = useGetPercentageQuery({params:{branchId, finYearId, userId}});
+        let excessQty =  percentage?.data?.[0]?.qty
 
-        let excessQty =  percentage?.data?.filter(item  =>  item?.active   === true)
         let  partyOptions = Partydata?.data?.filter(item  => item?.partyType  ===   "VENDOR")
         let data = singleData?.data
       
-console.log(data,"data")
-        
-        
+// useEffect(() => {
+//   field="excessQty"
+//   percentage?.map((item,index)  =>  {
+//     setPoItems((prev) => {
+//       let newItem=structuredClone(prev)
+//       newItem[index][field]=item?.qty
+//   })
+ 
+  
+// },[percentage])        
+useEffect(() => {
+  const field = "excessQty";
+  setPoItems((prev) => {
+    const newItems = structuredClone(prev);
+    percentage?.data?.forEach((item, index) => {
+      newItems[index][field] = item?.qty;
+    });
+    return newItems;
+  });
+}, [percentage]);
 
 
    useEffect(() => {
@@ -111,6 +129,10 @@ console.log(data,"data")
       const handleQtyChange = (field,index, value,orderQty) => {
         setPoItems((prev) => {
         let newItem=structuredClone(prev)
+      
+          newItem[index][field]=value
+
+     
         newItem[index][field]=value
         if (field === 'excessQty' && index === 0 ) { 
           for (let i = 0; i < newItem.length; i++) {
@@ -131,11 +153,15 @@ console.log(data,"data")
         return newItem
       });
     }
-      
+    // const [excessQty, setExcessQty] = useState("");
+    // useEffect(() => {
+    //   if (percentage?.data?.[0]?.qty !== undefined) {
+    //     setExcessQty(percentage.data[0].qty);
+    //   }
+    // }, [percentage]);
        console.log(poItems,"poItems");
          
        console.log(data,"data");
-
 
     
     return(
@@ -221,14 +247,14 @@ console.log(data,"data")
               <td className="border border-gray-300 text-right ">{item?.mrp}</td>
               <td className="border border-gray-300 text-right ">{item?.orderQty ||  ""}</td>
               <td className="border border-gray-300 w-16">
-                {/* {item?.orderQty   >  0   &&   excessQty?.map(item  =>    */}
                   <input
                   type="number"
-                  value={item?.excessQty }
+
+                  value={item?.excessQty}
                   onChange={(e) => handleQtyChange("excessQty" ,index, e.target.value,item?.orderQty)}
+                  onKeyDown={e => { if (e.key === "Delete")   { handleQtyChange("", index, "excessQty") }   }}
                   className="w-full p-1   rounded-md text-right focus:ring-blue-400"
                 />
-                {/* )} */}
             
             </td>
           

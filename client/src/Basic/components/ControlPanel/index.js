@@ -1,17 +1,21 @@
 import React, { useState } from 'react'
 import BranchIdSettings from './BranchIdSettings';
+import ExcessQty from './ExcessQty';
 
 const UserRoles = () => {
     const [activeNavBar, setActiveNavBar] = useState("Id Card Settings");
 
     const subMenus = [
         "Id Card Settings",
+        "Excess Qty"
     ]
 
     const getShowSubMenu = () => {
         switch (activeNavBar) {
             case "Id Card Settings":
                 return <BranchIdSettings />
+                case  "Excess Qty" :
+                    return <ExcessQty />
             default:
                 return ""
         }

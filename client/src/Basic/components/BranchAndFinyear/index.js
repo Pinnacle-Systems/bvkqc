@@ -55,7 +55,7 @@ const BranchAndFinYearForm = ({ setIsGlobalOpen }) => {
     useEffect(retrieveBranchData, [retrieveBranchData]);
 
     const navigate = useNavigate();
-
+    
     const onSubmit = () => {
         if (!(currentBranch && currentFinYear)) {
             toast.info("Select Branch and Fin. Year", { position: 'top-center' });
