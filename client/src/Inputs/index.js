@@ -476,11 +476,11 @@ export const Modal = ({ isOpen, onClose = null, children, widthClass }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center  justify-center overflow-auto bg-gray-800 bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center  justify-center overflow-auto bg-gray-800 bg-opacity-50 mb-5">
             <div className={`relative bg-white rounded-lg ${widthClass}`}>
                 {onClose ?
                     <button
-                        className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800 focus:outline-none "
+                        className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800 focus:outline-none mb-5"
                         onClick={onClose}
                     >
                         <svg

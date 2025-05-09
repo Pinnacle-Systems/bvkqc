@@ -57,7 +57,9 @@ console.log(fileName,"fileName")
                         type="text"
                         className="text-left rounded py-1 px-2 w-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
                         value={item?.gridUser}
-                        disabled={true}
+                        onChange={(e) =>
+                            handleInputChange(e.target.value, index, "user")
+                        }
 
                     />
                 </td>
@@ -65,7 +67,7 @@ console.log(fileName,"fileName")
                     <input
                         type="text"
                         className="text-left rounded py-1 px-2 w-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
-                        value={item?.log}
+                        value={item?.comments}
                         disabled={readOnly}
                         onChange={(e) =>
                             handleInputChange(e.target.value, index, "comments")

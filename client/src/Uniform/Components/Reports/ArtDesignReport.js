@@ -161,7 +161,7 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, dueDate, setFileName, 
     return (
         <>
             <div className="w-full grid grid-cols-1 mt-5  px-5">
-          <div className="grid grid-cols-1 gap-4 p-1">
+           <div className="grid grid-cols-1 gap-4 p-1">
             <table className="border border-gray-300 text-sm table-auto w-full">
               <thead className="bg-gray-300 border border-gray-400">
                 <tr>

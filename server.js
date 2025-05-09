@@ -22,7 +22,8 @@ import {
   po,
   sendMail,
   excessQty,
-  email, orderImport
+  email, orderImport,
+  controlPanel
 
 } from './src/routes/index.js';
 
@@ -92,6 +93,7 @@ app.use("/po", po);
 app.use("/email", email)
 app.use("/percentage", excessQty);
 app.use("/orderImport", orderImport);
+app.use("/controlPanel", controlPanel);
 
 
 app.get("/retreiveFile/:fileName", (req, res) => {

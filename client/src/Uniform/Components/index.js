@@ -41,6 +41,7 @@ export { default as ProcessDelivery } from './ProcessDelivery';
 export { default as ProductionDelivery } from './ProductionDelivery';
 export { default as ProductionReceipt } from './ProductionReceipt';
 export { default as Dispatched } from './Dispatched';
-export { default as GeneralPurchase } from "./PurchaseGeneral"
-export { default as OpeningStock } from "./RawMaterialOpeningStock"
-export  {default as MaxHomePage} from "./HomePage"
+export { default as GeneralPurchase } from "./PurchaseGeneral";
+export { default as OpeningStock } from "./RawMaterialOpeningStock";
+export  {default as MaxHomePage} from "./HomePage";
+export {default as MaxcontrolPanel} from "./ControlPanel"

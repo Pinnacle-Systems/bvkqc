@@ -166,6 +166,25 @@ async function getSearch(req) {
     return { statusCode: 0, data };
 }
 
+async function attach(req) {
+    const { id } = req.body
+    const {  fileName ,date,gridUser } = req.body
+    console.log(id,"id")
+
+    const data = await prisma.attachments.createMany({
+      
+        data: {
+            data: JSON.parse(comments || []).map(temp => ({
+                date: temp.date ? new Date(temp.date) : undefined,
+                log: temp.log ? temp.log : "",
+                gridUser: temp.gridUser ? temp.gridUser : "",
+                filePath: temp.filePath ? temp.filePath : undefined,
+            }))
+        }
+    }
+    )
+    return { statusCode: 0, data };
+}
 
 async function createOrderBillItems(tx, orderDetails, order) {
     const promises = orderDetails.map(async (item) => {
@@ -369,5 +388,6 @@ export {
     update,
     remove,
     upload,
+    attach,
     uploadBillProofImage
 }

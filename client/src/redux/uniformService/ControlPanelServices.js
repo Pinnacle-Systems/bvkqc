@@ -1,20 +1,20 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { EMAIL_API} from "../../Api";
+import { CONTROL_PANEL_API} from "../../Api";
 
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
-const EmailApi = createApi({
-  reducerPath: "Email",
+const countryMasterApi = createApi({
+  reducerPath: "controlPanel",
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
   }),
-  tagTypes: ["Email"],
+  tagTypes: ["controlPanel"],
   endpoints: (builder) => ({
-    getEmail: builder.query({
+    getcontrolPanel: builder.query({
       query: ({params, searchParams}) => {
         if(searchParams){
           return {
-            url: EMAIL_API +"/search/"+searchParams,
+            url: CONTROL_PANEL_API +"/search/"+searchParams,
             method: "GET",
             headers: {
               "Content-type": "application/json; charset=UTF-8",
@@ -23,7 +23,7 @@ const EmailApi = createApi({
           };
         }
         return {
-          url: EMAIL_API,
+          url: CONTROL_PANEL_API,
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -31,58 +31,57 @@ const EmailApi = createApi({
           params
         };
       },
-      providesTags: ["Email"],
+      providesTags: ["Countries"],
     }),
-    getEmailById: builder.query({
+    getcontrolPanelById: builder.query({
       query: (id) => {
         return {
-          url: `${EMAIL_API}/${id}`,
+          url: `${CONTROL_PANEL_API}/${id}`,
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
           },
         };
       },
-      providesTags: ["Email"],
+      providesTags: ["Countries"],
     }),
-    addEmail: builder.mutation({
+    addcontrolPanel: builder.mutation({
       query: (payload) => ({
-        url: EMAIL_API,
+        url: CONTROL_PANEL_API,
         method: "POST",
         body: payload,
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
       }),
-      invalidatesTags: ["Email"],
+      invalidatesTags: ["Countries"],
     }),
-    updateEmail: builder.mutation({
+    updatecontrolPanel: builder.mutation({
       query: (payload) => {
         const { id, ...body } = payload;
         return {
-          url: `${EMAIL_API}/${id}`,
+          url: `${CONTROL_PANEL_API}/${id}`,
           method: "PUT",
           body,
         };
       },
-      invalidatesTags: ["Email"],
+      invalidatesTags: ["Countries"],
     }),
-    deleteEmail: builder.mutation({
+    deletecontrolPanel: builder.mutation({
       query: (id) => ({
-        url: `${EMAIL_API}/${id}`,
+        url: `${CONTROL_PANEL_API}/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Email"],
+      invalidatesTags: ["Countries"],
     }),
   }),
 });
 
 export const {
-  useGetEmailQuery,
-  useGetEmailByIdQuery,
-  useAddEmailMutation,
-  useUpdateEmailMutation,
-  useDeleteEmailMutation,
-} = EmailApi;
-
-export default EmailApi;
+  useGetcontrolPanelQuery,
+  useGetcontrolPanelByIdQuery,
+  useAddcontrolPanelMutation,
+  useUpdatecontrolPanelMutation,
+  useDeletecontrolPanelMutation,
+} = countryMasterApi;
+export default countryMasterApi;

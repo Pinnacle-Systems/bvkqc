@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import { PERCENTAGE } from "../../Api";
+import { PERCENTAGE_API } from "../../Api";
 
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
@@ -15,7 +15,7 @@ const PercentageApi = createApi({
             query: ({ params, searchParams }) => {
                 if (searchParams) {
                     return {
-                        url: PERCENTAGE + "/search/" + searchParams,
+                        url: PERCENTAGE_API + "/search/" + searchParams,
                         method: "GET",
                         headers: {
                             "Content-type": "application/json; charset=UTF-8",
@@ -24,7 +24,7 @@ const PercentageApi = createApi({
                     };
                 }
                 return {
-                    url: PERCENTAGE,
+                    url: PERCENTAGE_API,
                     method: "GET",
                     headers: {
                         "Content-type": "application/json; charset=UTF-8",
@@ -37,7 +37,7 @@ const PercentageApi = createApi({
         getPercentageById: builder.query({
             query: (id) => {
                 return {
-                    url: `${PERCENTAGE}/${id}`,
+                    url: `${PERCENTAGE_API}/${id}`,
                     method: "GET",
                     headers: {
                         "Content-type": "application/json; charset=UTF-8",
@@ -49,7 +49,7 @@ const PercentageApi = createApi({
         getPercentageItemsById: builder.query({
             query: ({ id, prevProcessId, packingCategory, packingType }) => {
                 return {
-                    url: `${PERCENTAGE}/getOrderItems/${id}`,
+                    url: `${PERCENTAGE_API}/getOrderItems/${id}`,
                     method: "GET",
                     headers: {
                         "Content-type": "application/json; charset=UTF-8",
@@ -60,7 +60,7 @@ const PercentageApi = createApi({
         }),
         addPercentage: builder.mutation({
             query: (payload) => ({
-                url: PERCENTAGE,
+                url: PERCENTAGE_API,
                 method: "POST",
                 body: payload,
             }),
@@ -70,7 +70,7 @@ const PercentageApi = createApi({
             query: (payload) => {
               const { id, body } = payload;
               return {
-                url: `${PERCENTAGE}/upload/${id}`,
+                url: `${PERCENTAGE_API}/upload/${id}`,
                 method: "PATCH",
                 body,
               };
@@ -81,7 +81,7 @@ const PercentageApi = createApi({
             query: (payload) => {
                 const { id, ...body } = payload;
                 return {
-                    url: `${PERCENTAGE}/${id}`,
+                    url: `${PERCENTAGE_API}/${id}`,
                     method: "PUT",
                     body,
                 };
@@ -90,7 +90,7 @@ const PercentageApi = createApi({
         }),
         deletePercentage: builder.mutation({
             query: (id) => ({
-                url: `${PERCENTAGE}/${id}`,
+                url: `${PERCENTAGE_API}/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Percentage"],

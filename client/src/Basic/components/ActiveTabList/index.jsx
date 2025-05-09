@@ -27,7 +27,7 @@ import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
 import { AccessoryGroupMaster, AccessoryItemMaster, AccessoryMaster, CountsMaster, LossReasonMaster, ProcessMaster, SizeTemplateMaster, StyleMaster, YarnBlendMaster, YarnMaster, YarnTypeMaster } from "../../../Shocks";
 import ContentMaster from "../../../Shocks/ContentMaster";
 import secureLocalStorage from "react-secure-storage";
-import { MaxHomePage, Order } from "../../../Uniform/Components";
+import { MaxcontrolPanel, MaxHomePage, Order } from "../../../Uniform/Components";
 
 const ActiveTabList = () => {
   const openTabs = useSelector((state) => state.openTabs);
@@ -67,7 +67,8 @@ const ActiveTabList = () => {
     "SIZE TEMPLATE MASTER": <SizeTemplateMaster />,
     "DASHBOARD": <Dashboard />,
     "ORDER": <Order />,
-    "HOMEPAGE": <MaxHomePage />
+    "HOMEPAGE": <MaxHomePage />,
+    "MAX CONTROL PANEL" : <MaxcontrolPanel/>
 
 
 

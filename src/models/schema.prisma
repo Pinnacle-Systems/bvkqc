@@ -657,3 +657,8 @@ model Attachments {
   updatedById Int?
 }
 
+model controlPanel {
+  id          Int      @id @default(autoincrement())
+  name        String?
+  active      Boolean?
+}

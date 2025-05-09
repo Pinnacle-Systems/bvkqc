@@ -9,13 +9,13 @@ import { getCommonParams, getDateFromDateTime, renameFile } from "../../../Utils
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignFormreport from "./ArtDesignReport";
-import { useUploadMutation } from "../../../redux/uniformService/OrderService";
+import { useAttachOrderMutation } from "../../../redux/uniformService/OrderService";
 
 
-export default function VendorForm({singleData ,setForm,setMailform,vendor,setVendor,poItems,setPoItems,
-                                       setActive,setIsSave,saveData,id,setEmailId}){
+export default function VendorForm({singleData ,setForm,poItems,setPoItems,
+                                       setActive,setIsSave,id,setEmailId}){
 
-         const [upload] = useUploadMutation();
+         const [attach] = useAttachOrderMutation();
          const [fileName, setFileName] = useState([]);
 
          const [formReport, setFormReport] = useState(false);
@@ -51,48 +51,34 @@ console.log(data,"data")
     }, [poItems])
 
  
-       const exportAndUploadExcel = async (data, text = "uploaded") => {
+       const saveData = async (data, text = "uploaded") => {
            
            try {
-               const combinedData =data?.orderBillItems?.map((item, index) => ({
-                   SrNo: index + 1,
-                   PONumber: data.docId,
-                   OrderDate: getDateFromDateTime(data.orderdate),
-                   Department: item.department,
-                   Class: item.class,
-                   ItemCode: item.itemCode,
-                   BarCode: item.barCode,
-                   SeasonSupplierCode: item.supplierCode,
-                   StyleCode: item.styleCode,
-                   Size: item.size,
-                   sizeDescription: item.sizeDesc,
-                   Color: item.color,
-                   Mrp:item.mrp,
-                   OrderQty:item.orderQty,
-                   Product: item.product,
-                   excessQty:item.excessQty,
-                   Quantity: item.qty
-               }));
+             
        
-               const worksheet = XLSX.utils.json_to_sheet(combinedData);
-               const workbook = XLSX.utils.book_new();
-               XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-       
-               const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-               const excelBlob = new Blob(
-                   [excelBuffer],
-                   { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-               );
-       
-               const fileName = `Order_${Date.now()}.xlsx`;
-    
+             
+            console.log(data,"data")
                const formData = new FormData();
-               formData.append('file', excelBlob, fileName);
-               formData.append('id',id);
-               const response = await upload({body: formData ,id }).unwrap();
+               for (let key in data) {
+                console.log(key,"key")
+
+                if (key === 'fileName') {
+
+                  formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
+                  data[key].forEach(option => {
+                    if (option?.filePath instanceof File) {
+                      formData.append('images', option.filePath);
+                    }
+                  });
+                } else {
+                  formData.append(key, data[key]);
+                }
+              }
+             
+               console.log(formData,"formData")
+               const response = await attach({body: formData ,id }).unwrap();
                console.log("Upload response?.data?.id:", response?.data?.id);
 
-               setEmailId(response?.data?.id)
 
               //  toast.success(`${text} Successfully`);
                console.log("Upload Response:", response);
@@ -198,7 +184,7 @@ console.log(data,"data")
     />
   </div>
 
-  <div className="flex flex-col ">
+  <div className="flex flex-col col-span-3 ">
     <label className="text-xs font-semibold text-gray-600">Manufacture</label>
     <input
       type="text"
@@ -210,6 +196,7 @@ console.log(data,"data")
    
   <div>
         <button
+        className=""
         onClick={() =>  setFormReport(true)}
         >View Art Design</button>
     </div>
@@ -317,43 +304,25 @@ console.log(data,"data")
 
 
   <div className=" flex  justify-end  gap-3 mt-[50px]">
-    <div >
-    <input
-          title=" "
-          type="file"
-          onChange={(e) => {
-            console.log(e, "e");
-           handleInputChange(renameFile(e.target.files[0]), 1, "filePath") 
-          }}
-        />
-    </div>
-{/* ))} */}
+   
 
-      {/* <div>
-              <input
-                                title=" "
-                                type="file"
-                                // disabled={readOnly}
-                                onChange={(e) =>
-                                    e.target.files[0] ? handleInputChange(renameFile(e.target.files[0]), "filePath") : () => { }
-                                }
-                            />
-       </div> */}
+
+
                         
             <button
-              className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
-              onClick={() => {
-                // setIsSave(true);
-                // saveData();
-                // exportAndUploadExcel(data);
-                setForm(false);
-                setActive("Mail");
+                className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
+                onClick={() => {
+                  // setIsSave(true);
+                  saveData(fileName);
+                  // exportAndUploadExcel(data);
+                  setForm(false);
+                  setActive("Mail");
+                }}
+                >
+                Save & Send 
+            </button>
 
 
-              }}
-              >
-              Save & Send 
-                </button>
 
 
 

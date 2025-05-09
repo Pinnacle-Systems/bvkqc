@@ -25,7 +25,9 @@ export { default as po } from "./po.route.js"
 export { default as sendMail } from "./sendMail.route.js"
 export { default as excessQty } from "./excessQty.js"
 export { default as email } from "./email.route.js"
-export { default as orderImport } from "./orderImport.route.js"
+export { default as orderImport } from "./orderImport.route.js";
+export { default as controlPanel } from "./controlPanel.js"
+
 
 
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-import { get, getOne, getSearch, create, update, remove, uploadBillProofImage,upload } from '../controllers/orderEntry.controller.js';
+import { get, getOne, getSearch, create, update, remove, uploadBillProofImage,upload,attach } from '../controllers/orderEntry.controller.js';
 import multerUpload from '../utils/multerUpload.js';
 
 
@@ -19,6 +19,9 @@ router.get('/search/:searchKey', getSearch);
 router.put('/:id', update);
 
 router.post('/upload', multerUpload.single('file'), upload);
+
+router.post('/attach', multerUpload.single('file'), attach);
+
 
 
 router.delete('/:id', remove);
