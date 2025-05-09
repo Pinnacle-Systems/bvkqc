@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client'
 
-import { get as _get, getOne as _getOne, getSearch as _getSearch, create as _create, update as _update, remove as _remove, uploadBillProofImage as _uploadBillProofImage , upload as _upload , attach as _attach} from '../services/orderEntry.service.js';
+import { get as _get, getOne as _getOne, getSearch as _getSearch, create as _create, update as _update, remove as _remove, uploadBillProofImage as _uploadBillProofImage, upload as _upload, attach as _attach } from '../services/orderEntry.service.js';
 
 async function get(req, res, next) {
     try {
@@ -31,6 +31,7 @@ async function getSearch(req, res, next) {
 }
 
 async function create(req, res, next) {
+    // res.json(await _create(req.body));
     try {
         res.json(await _create(req.body));
         console.log(res.statusCode);
@@ -49,11 +50,12 @@ async function create(req, res, next) {
 }
 
 async function update(req, res, next) {
-   
+
     try {
+
         res.json(await _update(req.params.id, req.body));
         console.log(res.statusCode);
- 
+
     } catch (error) {
         console.error(`Error`, error.message);
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -90,7 +92,7 @@ async function uploadBillProofImage(req, res, next) {
 export async function upload(req, res, next) {
 
     try {
-    console.log("Hit")
+        console.log("Hit")
 
         res.json(await _upload(req));
         console.log(res.statusCode);
@@ -115,7 +117,7 @@ export async function upload(req, res, next) {
 export async function attach(req, res, next) {
 
     try {
-    console.log("Hit")
+        console.log("Hit")
 
         res.json(await _attach(req));
         console.log(res.statusCode);

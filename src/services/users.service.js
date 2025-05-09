@@ -72,10 +72,10 @@ async function get(req) {
     const { companyId, active, defaultRole } = req.query
     const data = await prisma.user.findMany({
         where: {
-            // role: {
-            //     companyId: companyId ? parseInt(companyId) : undefined,
-            //     defaultRole: defaultRole ? JSON.parse(defaultRole) : undefined
-            // },
+            role: {
+                companyId: companyId ? parseInt(companyId) : undefined,
+                defaultRole: defaultRole ? JSON.parse(defaultRole) : undefined
+            },
             active: active ? Boolean(active) : undefined,
         },
         include: {
@@ -135,7 +135,7 @@ async function getSearch(req) {
 }
 
 async function create(body) {
-    const { username, password, active, roleId, branches, employeeId,partyType,userType } = await body
+    const { username, password, active, roleId, branches, employeeId, partyType, userType } = await body
     const hashedPassword = await bcrypt.hash(password, 10);
     const data = await prisma.user.create({
         data: {
@@ -156,15 +156,15 @@ async function create(body) {
                 }
                 : undefined,
             active,
-            partyType : partyType ? partyType : null,
-            userType : userType ? userType : null,
+            partyType: partyType ? partyType : null,
+            userType: userType ? userType : null,
         }
     })
     return { statusCode: 0, data };
 }
 
 async function update(id, body) {
-    const { username, password, active, roleId, branches,partyType ,userType} = await body
+    const { username, password, active, roleId, branches, partyType, userType } = await body
     const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
     const dataFound = await prisma.user.findUnique({
         where: {
@@ -185,8 +185,8 @@ async function update(id, body) {
                 } : undefined
             },
             roleId: roleId ? parseInt(roleId) : undefined, active,
-            partyType : partyType ? partyType : null,
-            userType : userType ? userType : null,
+            partyType: partyType ? partyType : null,
+            userType: userType ? userType : null,
 
 
         }

@@ -37,8 +37,9 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
 
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
 
-  const userRole = singleuserData?.data?.userType
-  console.log(singleuserData, "userdatatata")
+  const userRole = singleuserData?.data?.userType || ""
+
+
 
   const { data: partyData } = useGetPartyQuery({ params: { branchId, finYearId } });
 
@@ -46,10 +47,6 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
   const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
-
-
-
-  console.log(userRole, "userRole");
 
 
   const syncFormWithDb = useCallback(
@@ -122,19 +119,7 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
   return (
 
 
-    <> {console.log(userRole, "userRoleuserRole")}
-
-      {/* { form === true   ? 
-              
-              <GeneralSummary  setForm={setForm} singleData={singleData}  poItems={poItems}  setPoItems={setPoItems}
-
-              vendor={vendor}  setVendor={setVendor}    setIsSave={setIsSave}  saveData={saveData}
-         
-              orderId={id}  setFileName={setFileName} setPoNo={setPoNo} poNo={poNo}    setActive={setActive}  
-             
-             id={id}   setEmailId={setEmailId}
-
-             />  */}
+    <>
 
 
       {
@@ -336,6 +321,9 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
                 
 
             </main> */}
+
+
+
 
                 <main className="p-2 space-y-6">
                   {

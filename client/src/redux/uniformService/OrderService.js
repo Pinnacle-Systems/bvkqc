@@ -68,18 +68,18 @@ const OrderApi = createApi({
         }),
         upload: builder.mutation({
             query: (payload) => {
-              const { body } = payload;
-              return {
-                url: `${ORDER_API}/upload`,
-                method: "POST",
-                body
-              };
+                const { body } = payload;
+                return {
+                    url: `${ORDER_API}/upload`,
+                    method: "POST",
+                    body
+                };
             },
             invalidatesTags: ["Order"],
-          }),
+        }),
         updateOrder: builder.mutation({
             query: (payload) => {
-                const { id, ...body } = payload;
+                const { id, body } = payload;
                 return {
                     url: `${ORDER_API}/${id}`,
                     method: "PUT",
@@ -97,15 +97,15 @@ const OrderApi = createApi({
         }),
         attachOrder: builder.mutation({
             query: (payload) => {
-              const { body } = payload;
-              return {
-                url: `${ORDER_API}/attach`,
-                method: "POST",
-                body
-              };
+                const { body } = payload;
+                return {
+                    url: `${ORDER_API}/attach`,
+                    method: "POST",
+                    body
+                };
             },
             invalidatesTags: ["Order"],
-          }),
+        }),
     }),
 });
 
