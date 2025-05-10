@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { handleMailSendWithMultipleAttachments } from "../../../Utils/helper";
+import { findFromList, handleMailSendWithMultipleAttachments } from "../../../Utils/helper";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import secureLocalStorage from "react-secure-storage";
 import { Button, Card, CardContent, Input } from "@mui/material";
@@ -27,7 +27,6 @@ export default function MailForm({currentId , emailId}) {
   const [files, setFiles] = useState([]);
   const [userId,setUserId] =  useState("")
    
-    console.log(setFiles,"setFiles")
 
     const id = currentId
     
@@ -66,12 +65,14 @@ export default function MailForm({currentId , emailId}) {
 
 
 const handleFileChange = (event) => {
-  const selectedFiles = Array.from(event.target.files);
+  const selectedFiles = Array.from(event.target.files).map(file => ({
+    filePath: file.name,
+  }));  setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
 };
 
     
- 
+ console.log(attachments,'attachments')
 
     
    
@@ -159,13 +160,13 @@ const handleFileChange = (event) => {
                                 Send
                                 </button>
                         </div>
-
+{/* 
                         <input
                             type="file"
                             multiple
                             onChange={(e) => handleFileChange(e)}
                             className="mb-4"
-                            />
+                            /> */}
 
                         </div>          
 
@@ -181,7 +182,7 @@ const handleFileChange = (event) => {
 
             <div className="border-b border-gray-400 w-64">
             <label>Vendor: </label>
-            {singleData?.data?.vendorName ?? 'N/A'}
+            {findFromList(singleData?.data?.vendorId, partyData?.data, "name")}
             <ul>
             {files.map((file, index) => (
             <li key={index}>{file.name}</li>

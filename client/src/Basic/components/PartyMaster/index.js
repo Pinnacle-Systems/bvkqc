@@ -126,7 +126,6 @@ console.log(projectForm,"projectForm")
             setName("");
             setImage("")
             setAliasName("");
-
             setDisplayName("");
             setAddress("");
             setTinNo("");
@@ -152,11 +151,13 @@ console.log(projectForm,"projectForm")
             setAccessoryItemList(([]))
             setPriceTemplateId("")
             setpartyType("")
+            setMailId("")
         } else {
             setReadOnly(true);
             setPanNo(data?.panNo || "");
             setName(data?.name || "");
-            
+             setMailId(data?.mailId)
+
             setAliasName(data?.aliasName || "");
             setImage(data?.image || "")
             setDisplayName(data?.displayName || "");
