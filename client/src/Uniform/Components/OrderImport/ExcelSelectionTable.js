@@ -81,26 +81,29 @@ const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
             </div>
             <button onClick={uploadFile}>Upload</button>
           </div>
-          <table className="w-full">
-            <thead className='bg-sky-400'>
-              <tr>
-                <th className="border border-gray-400 text-sm py-1">S.No</th>
-                {header.map((columnName, index) => (
-                  <th className="border border-gray-400 text-sm py-1 capitalize" key={index}>{convertSpaceToUnderScore(columnName)}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>{console.log(pres, "pressss")}
-              {pres?.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td className="border border-gray-400 text-sm py-1">{rowIndex + 1}</td>
-                  {header.map((columnName, columnIndex) => (
-                    <td className="border border-gray-400 text-xs py-1" key={columnIndex}>{row[convertSpaceToUnderScore(columnName)]}</td>
+          <div className="overflow-x-auto w-full">
+            <table className="min-w-full table-auto">
+              <thead className='bg-sky-200'>
+                <tr>
+                  <th className="border border-gray-400 text-sm py-1 ">S.No</th>
+                  {header.map((columnName, index) => (
+                    <th className="border border-gray-400 text-sm py-1 capitalize px-2" key={index}>{convertSpaceToUnderScore(columnName)}</th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {pres?.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    <td className="border border-gray-400 text-sm py-1">{rowIndex + 1}</td>
+                    {header.map((columnName, columnIndex) => (
+                      <td className="border border-gray-400 text-xs py-1 px-1" key={columnIndex}>{row[convertSpaceToUnderScore(columnName)]}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       </div>
     </div>
