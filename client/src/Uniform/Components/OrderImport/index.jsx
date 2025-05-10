@@ -97,7 +97,7 @@ export default function Form() {
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
     const data = {
-        branchId, id, userId, companyId
+        branchId, id, userId, companyId, finYearId
     }
 
 
