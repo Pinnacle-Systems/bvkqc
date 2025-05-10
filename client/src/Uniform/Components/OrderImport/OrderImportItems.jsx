@@ -22,12 +22,12 @@ const OrderImportItems = ({ orderImportItems }) => {
 
     ]
     return (
-        <div className="w-full">{console.log(orderImportItems, "orderImportItems", header, "header")}
+        <div className="w-full">
             <div className="w-full flex flex-col gap-5">
                 <div className="mt-3 flex flex-col justify-start items-start gap-10">
 
                     <table className="w-full">
-                        <thead className='bg-sky-400'>
+                        <thead className='bg-sky-200'>
                             <tr>
                                 <th className="border border-gray-400 text-sm py-1 w-12 ">S.No</th>
                                 {header.map((columnName, index) => (

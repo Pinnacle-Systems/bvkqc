@@ -16,9 +16,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   setActive, setIsSave, id, setEmailId }) {
 
 
-  console.log(singleData, "singggg")
+ 
 
-  console.log(id, "iddd")
+
 
   const [attach] = useAttachOrderMutation();
   const [attachments, setAttachments] = useState([]);
@@ -27,12 +27,12 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   const [searchValue, setSearchValue] = useState("");
   const { branchId, finYearId, userId } = getCommonParams()
 
-
+ console.log(singleData, "singleData")
 
   const [addData] = useAddOrderMutation();
-
-
   const [updateData] = useUpdateOrderMutation();
+
+
   const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
   const { data: percentage } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
@@ -85,9 +85,10 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         returnData = await callback(formData).unwrap();
       }
       if (returnData.statusCode === 0) {
-
-
+        console.log(returnData,"returnData")
         toast.success(text + "Successfully");
+
+
       } else {
         toast.error(returnData?.message);
       }
@@ -117,17 +118,18 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
 
-  console.log(attachments, "ATT")
 
   return (
     <>
       <FormHeaderNew
         model={"Order"}
       />
-      <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
+      <Modal isOpen={formReport} 
+      onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
+   
+      >
         <ArtDesignFormreport
-          // heading={MODEL}
-
+          setFormReport={setFormReport}
           tableWidth="100%"
           // data={allData?.data}
           // onClick={(id) => {
@@ -173,7 +175,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             />
           </div>
 
-          <div className="flex flex-col col-span-3 ">
+          <div className="flex flex-col col-span-2 ">
             <label className="text-xs font-semibold text-gray-600">Manufacture</label>
             <input
               type="text"
@@ -183,12 +185,18 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
           </div>
 
-          <div>
-            <button
-              className=""
-              onClick={() => setFormReport(true)}
-            >View Art Design</button>
-          </div>
+      
+     <div className="flex  mt-2">
+          <button
+            className="relative py-1  bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
+            onClick={() => setFormReport(true)}
+          >
+            <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
+            <span className="relative z-10"> Attch  Design</span>
+          </button>
+        </div>
+
+
 
         </div>
 
@@ -210,7 +218,6 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                 <th className="w-[90px]">Color</th>
                 <th className="w-[50px]">MRP</th>
                 <th className="w-[50px]">OrderQty</th>
-                {/* <th className="w-[50px]">Excess %</th> */}
                 <th className="w-[50px]">Qty</th>
               </tr>
             </thead>
@@ -228,23 +235,15 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
                   <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
                   <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
-
                   <td className="border border-gray-300 text-center ">{item?.size}</td>
+
                   <td className="border border-gray-300 text-center ">{item?.color}</td>
-
                   <td className="border border-gray-300 text-right ">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
-                  {/* <td className="border border-gray-300 w-16">
-                  <input
-                  type="number"
-                  value={item?.excessQty }
-                  onChange={(e) => handleQtyChange("excessQty" ,index, e.target.value,item?.orderQty)}
-                  className="w-full p-1   rounded-md text-right focus:ring-blue-400"
-                />
-            
-                </td> */}
 
+                  <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
                   <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+              
+
 
                 </tr>
               ))}
@@ -283,18 +282,20 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           </table>
         </div>
 
-        <div className=" flex  justify-end  gap-3 mt-[50px]">
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
-            onClick={() => {
-              saveData();
-              setForm(false);
-              setActive("Mail");
-            }}
-          >
-            Save & Send
-          </button>
-        </div>
+
+          <div className="flex justify-end gap-3 mt-[50px]">
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
+                onClick={() => {
+                  saveData();
+                  setForm(false);
+                  setActive("Mail");
+                }}
+              >
+                Save & Send
+              </button>
+          </div>
+
       </div>
     </>
   )

@@ -97,7 +97,7 @@ export default function Form() {
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
     const data = {
-        branchId, id, userId, companyId
+        branchId, id, userId, companyId, finYearId
     }
 
 
@@ -201,7 +201,7 @@ export default function Form() {
     return (
         <div
             onKeyDown={handleKeyDown}
-            className="md:items-start md:justify-items-center grid h-full bg-theme overflow-auto">
+            className="md:items-start md:justify-items-center grid h-full bg-theme w-full">
             <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[50%]"}>
                 <FormReport
                     heading={MODEL}
@@ -218,7 +218,7 @@ export default function Form() {
                 />
             </Modal>
 
-            <div className="flex flex-col frame w-full h-full">
+            <div className="flex flex-col frame w-full">
                 <FormHeader
                     onNew={onNew}
                     model={MODEL}
@@ -247,7 +247,7 @@ export default function Form() {
                                         </fieldset>
 
 
-                                        <fieldset className='frame rounded-tr-lg rounded-bl-lg rounded-br-lg my-1 w-full border border-gray-600 md:pb-5 flex flex-1 overflow-auto'>
+                                        <fieldset className='frame rounded-tr-lg rounded-bl-lg rounded-br-lg my-1 w-full border border-gray-600 md:pb-5 flex flex-1'>
                                             <legend className='sub-heading'>Import Details</legend>
                                             {id ?
                                                 <OrderImportItems orderImportItems={orderImportItems} />

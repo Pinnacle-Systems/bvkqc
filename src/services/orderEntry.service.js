@@ -76,6 +76,7 @@ async function get(req) {
                     contains: searchDocId
                 }
                 : undefined,
+              
 
         }
     });
@@ -149,6 +150,7 @@ async function getSearch(req) {
                     },
                 },
             ],
+           
         }
     })
     return { statusCode: 0, data: data };
@@ -196,15 +198,20 @@ async function createOrderBillItems(tx, orderDetails, order) {
         return await tx.orderDetails.create({
             data: {
                 orderId: parseInt(order.id) || null,
-                itemCode: item?.Itemcode ? item?.Itemcode.toString() : null,
-                barCode: item?.Barcode ? item.Barcode : null,
-                sizeDesc: item?.sizeDescription ? item.sizeDescription : null,
+                barCode: item?.barCode ? item?.barCode : null,
+                class: item?.class ? item?.class : null,
+                color: item?.color ? item?.color : null,
+                department: item?.department ? item?.department : null,
+                itemCode: item?.itemCode ? item?.itemCode.toString() : null,
+                mrp: item?.mrp ? parseInt(item.mrp) : null,
+                orderQty: item?.orderQty ? parseFloat(item?.orderQty) : null,
+                product: item?.product ? item?.product : null,
+                qty: item?.qty ? parseFloat(item.qty) : null,
                 size: item?.size ? item.size : null,
-                mrp: item?.MRP ? parseInt(item.MRP) : null,
-                orderQty: item?.orderQty ? parsefloat(item?.orderQty) : null,
-                qty: item?.qty ? parsefloat(item.qty) : null,
-                excessQty: item?.excessQty ? parsefloat(item?.excessQty) : null
-
+                sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
+                styleCode: item?.styleCode ? item?.styleCode : null,
+                supplierCode: item?.supplierCode ? item?.supplierCode : null,
+                excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null,
 
             }
         })
