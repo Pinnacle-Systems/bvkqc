@@ -96,7 +96,7 @@ model UserOnBranch {
   id       Int    @id @default(autoincrement())
   Branch   Branch @relation(fields: [branchId], references: [id])
   branchId Int
-  User     User   @relation(fields: [userId], references: [id],onDelete: Cascade)
+  User     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int
 }
 
@@ -384,6 +384,7 @@ model Party {
   isVendor          Boolean?    @default(false)
   partyType         String?
   BillEntry         BillEntry[]
+  mailId            String?
 }
 
 model Hsn {
@@ -640,6 +641,7 @@ model OrderImportItems {
   order_qty            String?
   po_number            String?
   class                String?
+  manufacturer_mail_id String?
 }
 
 model Attachments {

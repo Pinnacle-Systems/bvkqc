@@ -17,7 +17,7 @@ async function get(req) {
         },
         include: {
 
-             City: {
+            City: {
                 select: {
                     name: true,
                     state: true
@@ -44,7 +44,7 @@ async function getOne(id) {
                 }
             },
 
-           
+
         }
     })
     if (!data) return NoRecordFound("party");
@@ -94,9 +94,9 @@ export async function upload(req) {
 }
 
 async function create(body) {
-    const { name, code, aliasName, displayName, isSupplier, isBuyer, isClient, processDetails,
+    const { name, code, aliasName, displayName, isSupplier, isBuyer, isClient, processDetails, mailId,
         cityId, pincode, panNo, tinNo, cstNo, cstDate, isIgst, yarn, fabric,
-        cinNo, faxNo, website,partyType,
+        cinNo, faxNo, website, partyType,
         gstNo, currencyId, costCode, priceDetails, shippingAddress, contactDetails, accessoryGroup, accessoryItemList,
 
         companyId, active, userId } = await body
@@ -105,8 +105,8 @@ async function create(body) {
     data = await prisma.party.create(
         {
             data: {
-                name, code, aliasName, displayName, isSupplier, isBuyer, isIgst : isIgst ? isIgst : false
-                , isClient,
+                name, code, aliasName, displayName, isSupplier, isBuyer, isIgst: isIgst ? isIgst : false, mailId,
+                isClient,
                 cityId: cityId ? parseInt(cityId) : undefined, pincode: pincode ? pincode : undefined,
                 panNo, tinNo, cstNo, cstDate: cstDate ? new Date(cstDate) : undefined,
                 cinNo, faxNo, website,
@@ -114,8 +114,8 @@ async function create(body) {
                 createdById: userId ? parseInt(userId) : undefined,
                 companyId: parseInt(companyId), active, yarn, fabric,
                 accessoryGroup,
-                partyType : partyType ? partyType : null,
-                
+                partyType: partyType ? partyType : null,
+
 
             }
         }
@@ -128,7 +128,7 @@ async function create(body) {
 }
 
 async function update(id, body) {
-    const { name, code, aliasName, displayName, address, isSupplier, isBuyer, isClient, isIgst, processDetails,
+    const { name, code, aliasName, displayName, address, isSupplier, isBuyer, isClient, isIgst, processDetails, mailId,
         cityId, pincode, panNo, tinNo, cstNo, cstDate, yarn, fabric, accessoryGroup, accessoryItemList,
         cinNo, faxNo, email, website, shippingAddress, contactDetails, isContactOnly = false, partyType,
 
@@ -149,7 +149,7 @@ async function update(id, body) {
                     state: true
                 }
             },
-          
+
 
 
 
@@ -167,7 +167,7 @@ async function update(id, body) {
                     id: parseInt(id),
                 },
                 data: {
-                    name, code, aliasName, displayName, address, isSupplier, isBuyer,
+                    name, code, aliasName, displayName, address, isSupplier, isBuyer, mailId,
                     cityId: cityId ? parseInt(cityId) : undefined, pincode,
                     panNo, tinNo, cstNo, cstDate: cstDate ? new Date(cstDate) : undefined,
                     cinNo, faxNo, email, website, isIgst,
@@ -175,16 +175,16 @@ async function update(id, body) {
                     createdById: userId ? parseInt(userId) : undefined,
                     companyId: companyId ? parseInt(companyId) : undefined, active,
                     accessoryGroup,
-                    partyType : partyType ? partyType : null,
+                    partyType: partyType ? partyType : null,
 
-                
+
                 }
 
 
             })
 
 
-            
+
 
         })
 
@@ -198,7 +198,7 @@ async function update(id, body) {
                     id: parseInt(id),
                 },
                 data: {
-                    name, code, aliasName, displayName, address, isBuyer, isSupplier, isIgst : isIgst ? isIgst : false, isClient,
+                    name, code, aliasName, displayName, address, isBuyer, isSupplier, isIgst: isIgst ? isIgst : false, isClient, mailId,
                     cityId: cityId ? parseInt(cityId) : undefined, yarn, fabric,
                     pincode: pincode ? parseInt(pincode) : undefined,
                     panNo, tinNo, cstNo, cstDate: cstDate ? new Date(cstDate) : undefined,
@@ -207,7 +207,7 @@ async function update(id, body) {
                     createdById: userId ? parseInt(userId) : undefined,
                     companyId: companyId ? parseInt(companyId) : undefined, active,
                     accessoryGroup,
-                    partyType : partyType ? partyType : null,
+                    partyType: partyType ? partyType : null,
 
                 }
 

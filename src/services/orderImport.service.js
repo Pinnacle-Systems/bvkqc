@@ -275,7 +275,12 @@ async function create(req) {
 
 async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
+    const partyData = await prisma.party.findMany({
+        where: {
+            active: true,
+        },
 
+    });
 
 
     let orderImport = await prisma.orderImport.findUnique({
@@ -290,7 +295,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
         }
     })
 
-    console.log(orderImport?.orderImportItems, "importdata?.orderImportItems")
+
     console.log(orderImport, "importdata?")
 
     let date = new Date()
@@ -298,7 +303,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
     let isSave = false;
     let vendor;
     let ponumber = orderImport?.orderImportItems[0]?.po_number;
-    let orderDetails = orderImport?.orderImportItems?.map(val => {
+    let orderDetails = orderImport?.orderImportItems?.map(async (val) => {
         return {
             itemcode: val?.item_code,
             barCode: val?.ean_barcode,
@@ -314,6 +319,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
             product: val?.product ? val?.product : null,
             styleCode: val?.style_code_group ? val?.style_code_group : null,
             supplierCode: val?.season_supplier_code ? val?.season_supplier_code : null,
+            manufactureId: (await findFromList(val?.manufacturer_mail_id, partyData, "id"))
 
         }
     });
@@ -354,7 +360,8 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
                             sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
                             styleCode: item?.styleCode ? item?.styleCode : null,
                             supplierCode: item?.supplierCode ? item?.supplierCode : null,
-                            excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null
+                            excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null,
+                            manufactureId: item?.manufactureId ? parseInt(item?.manufactureId) : null
 
                         }))
                     }
@@ -362,6 +369,17 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
             }
         })
+}
+
+
+async function findFromList(id, list, property) {
+
+    if (!list) return ""
+    let data = list?.filter(j => j.active).find(i => parseInt(i.id) === parseInt(id))
+    if (!data) return ""
+    console.log(data[property], "data[property]")
+
+    return data[property]
 }
 
 
