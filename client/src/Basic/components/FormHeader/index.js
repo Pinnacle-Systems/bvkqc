@@ -79,78 +79,79 @@ const FormHeader = ({
         } else if (currentPagePermissions?.data[type]) {
           callback();
         } else {
-          toast.info(`No Permission to ${type}...!`, {
-            position: "top-center",
-          });
+          // toast.info(`No Permission to ${type}...!`, {
+          //   position: "top-center",
+          // });
+
+          callback();
         }
       } else {
-        toast.info(" Past Fin Year Only can view!", { position: "top-center" });
+
+        callback();
+        // toast.info(" Past Fin Year Only can view!", { position: "top-center" });
       }
     }
   };
   return (
     <>
 
-{isLoading || isFetching ? (
-        <div></div>
-      ) : (
-        <div className="md:flex md:items-center md:justify-between page-heading">
-          {model ? (
-            <div className="font-bold  heading text-center md:mx-10">
-              {model}
-            </div>
-          ) : (
-            <div></div>
-          )}
-          <div className="flex sub-heading">
-          {
-              viewReport  &&
-              <ViewButtton   onClick={viewReport}  />
-            }
-            {
-              projectOpen &&
-              <OpenProjectButton setNavigateProjectId={setNavigateProjectId} quotesData={quotesData} onClick={() => {
-                projectOpen()
-              }} />
-
-            }
-
-            <NewButton onClick={() => { hasPermission(onNew, "create") }} />
-            {setReadOnly &&
-              <EditButton
-                onClick={() => {
-                  hasPermission(setReadOnly, "edit");
-                  toast.info("You Can Edit The Datas...!", { position: "top-center" })
-                }}
-              />}
-
-            {
-              saveData && <SaveButton
-                onClick={saveData}
-              />
-            }
-            {
-              deleteData &&
-              <DeleteButton
-                onClick={() => {
-                  hasPermission(deleteData, "delete");
-                }}
-              />
-            }
-
-            {openReport && <SearchButton onClick={openReport} />}
-            {onPrint &&
-              <PrintButtonOnly onClick={onPrint}
-              />}
-            {onClose &&
-              <CloseButton onClick={onClose} />
-            }
-        
+      <div className="md:flex md:items-center md:justify-between page-heading">
+        {model ? (
+          <div className="font-bold  heading text-center md:mx-10">
+            {model}
           </div>
-        </div>
-      )}  
+        ) : (
+          <div></div>
+        )}
+        <div className="flex sub-heading">
+          {
+            viewReport &&
+            <ViewButtton onClick={viewReport} />
+          }
+          {
+            projectOpen &&
+            <OpenProjectButton setNavigateProjectId={setNavigateProjectId} quotesData={quotesData} onClick={() => {
+              projectOpen()
+            }} />
 
-  
+          }
+
+          <NewButton onClick={() => { hasPermission(onNew, "create") }} />
+          {setReadOnly &&
+            <EditButton
+              onClick={() => {
+                hasPermission(setReadOnly, "edit");
+                toast.info("You Can Edit The Datas...!", { position: "top-center" })
+              }}
+            />}
+
+          {
+            saveData && <SaveButton
+              onClick={saveData}
+            />
+          }
+          {
+            deleteData &&
+            <DeleteButton
+              onClick={() => {
+                hasPermission(deleteData, "delete");
+              }}
+            />
+          }
+
+          {openReport && <SearchButton onClick={openReport} />}
+          {onPrint &&
+            <PrintButtonOnly onClick={onPrint}
+            />}
+          {onClose &&
+            <CloseButton onClick={onClose} />
+          }
+
+        </div>
+      </div>
+
+
+
     </>
   );
 };
