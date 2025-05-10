@@ -1,37 +1,44 @@
 import { useCallback, useEffect, useState } from "react"
 import { useAddPercentageMutation, useGetPercentageByIdQuery, useGetPercentageQuery, useUpdatePercentageMutation } from "../../../redux/uniformService/Percentage";
 import { params } from "../../../Utils/helper";
-import { CheckBox, Modal, TextInput, ToggleButton } from "../../../Inputs";
-
-
-import { statusDropdown } from "../../../Utils/DropdownData";
-import toast from "react-hot-toast";
+import { CheckBox, Modal, MultiSelectDropdown, TextInput, ToggleButton } from "../../../Inputs";
 import Mastertable from "../MasterTable/Mastertable";
+import { MultiSelectPartytype, Party, statusDropdown } from "../../../Utils/DropdownData";
+import toast from "react-hot-toast";
 import MastersForm from "../MastersForm/MastersForm";
+import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
+import { multiSelectOption } from "../../../Utils/contructObject";
+import { useGetRolesQuery } from "../../../redux/services/RolesMasterService";
+import { useGetUserQuery } from "../../../redux/services/UsersMasterService";
 
 
 
-export default function ExcessQty(){
+export default function Approval(){
         const [id, setId] = useState("")
         const [form, setForm] = useState(false);
         
         const [active, setActive] = useState(true);
-        const [qty,setQty] =  useState("")
+        const [partytype,setPartyType] =  useState([])
+        const [role,setRole] =  useState([])
+        const [users,setUsers] =  useState([])
         const [readOnly, setReadOnly] = useState(false);
-        const [errors, setErrors] = useState({});
     
-    const { data: allData, isLoading, isFetching } = useGetPercentageQuery({ params });
+    // const { data: allData, isLoading, isFetching } = useGetPercentageQuery({ params });
+        const { data: roleData } = useGetRolesQuery({ params });
+        const { data:userData } = useGetUserQuery({ params });
+
     const { data: singleData, isFetching: isSingleFetching, isLoading: isSingleLoading } = useGetPercentageByIdQuery(id, { skip: !id });
 
     const [addData] = useAddPercentageMutation();
     const [updateData] =  useUpdatePercentageMutation();
 
+    console.log(partytype,role,"partytype")
 
      const syncFormWithDb = useCallback(
             (data) => {
                 if (id) {
                     setReadOnly(true);
-                    setQty(data?.qty)
+                    setPartyType(data?.qty)
                     setActive(data?.active)
                 }
             }, [id])
@@ -54,22 +61,20 @@ export default function ExcessQty(){
             }
         }
     
-              
 
     const validateOneActiveFinYear = (active) => {
         if (Boolean(active)) {
-              console.log(!allData.data.some((qty) => id === qty.id ? false : Boolean(qty.active)),"validateOneActiveFinYear")    
-            return !allData.data.some((qty) => id === qty.id ? false : Boolean(qty.active))
+            // return !allData.data.some((qty) => id === qty.id ? false : Boolean(qty.active))
         }
         return true
     }
     const data = {
         active,
-         id,qty
+         id,qty: partytype
     }
         const saveData = () => {
             console.log("hit")
-            if (!validateOneActiveFinYear(data?.active)) {
+            if (!validateOneActiveFinYear(data.active)) {
                 toast.error("Only one Fin year can be active...!", { position: "top-center" })
                 return
             }
@@ -87,7 +92,7 @@ export default function ExcessQty(){
             }
         }
 
-        const onNew = () => { setId(""); setReadOnly(false); setForm(true);setQty("") }
+        const onNew = () => { setId(""); setReadOnly(false); setForm(true);setPartyType([]) }
         const tableHeaders = ["S.NO", "qty",  "Status", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
         const tableDataNames = ["index+1", "dataObj.qty", 'dataObj.active ? ACTIVE : INACTIVE', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
     
@@ -95,32 +100,18 @@ export default function ExcessQty(){
             setId(id);
             setForm(true);
         }
+ const multiSelectOptio = (data, label, value) => {
+  const outputData = [];
+  for (let i of data) {
+    outputData.push({ label: i[label], value: i[value] });
+  }
+  return outputData;
+};
+
 
     return (
         <>
-            {/* <div className="container mx-auto col-span-2">
-                  <div className="p-8">
-                  <input
-                                type="text"
-                                className="border rounded px-4 py-2"
-                                value={qty}
-                                onChange={(e) =>  setQty(e.target.value)}
-                              />
-                              
-                <div className='mb-5'>
-                    <CheckBox name="Active" readOnly={readOnly} value={active} setValue={setActive} />
-                </div>
-                    <div className='flex p-2'>
-                      <button
-                      onClick={() =>  saveData() }
-                        type="button"
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                </div> */}
+          
                   <div>
                             <div className='w-full flex justify-between mb-2 items-center px-0.5'>
                                <h5 className='my-1'>Excess Qty</h5>
@@ -137,12 +128,13 @@ export default function ExcessQty(){
                                     // setOpenTable={setOpenTable}
                                     tableHeaders={tableHeaders}
                                     tableDataNames={tableDataNames}
-                                    data={allData?.data}
-                                    loading={
-                                        isLoading || isFetching
-                                    } />
+                                    // data={allData?.data}
+                                    // loading={
+                                    //     isLoading || isFetching
+                                    // } 
+                                    />
                             </div>
-                            {form === true && <Modal isOpen={form} form={form} widthClass={"w-[40%] h-[50%]"} onClose={() => { setForm(false); setErrors({}); }}>
+                            {form === true && <Modal isOpen={form} form={form} widthClass={"w-[80%] h-[70%]"} onClose={() => { setForm(false);  }}>
                                 <MastersForm
                                     onNew={onNew}
                                     onClose={() => {
@@ -156,20 +148,29 @@ export default function ExcessQty(){
                                     setReadOnly={setReadOnly}
                                     // deleteData={deleteData}
                                     readOnly={readOnly}
-                                    emptyErrors={() => setErrors({})}
+                                    // emptyErrors={() => setErrors({})}
                                 >
                                     <fieldset className=' rounded mt-2'>
-                                        <div className=''>
+                                        <div className='grid grid-cols-3'>
                                          
-                                        <div className='mb-5'>
-                                                <TextInput name="Qty"  value={qty} setValue={setQty} required={true} readOnly={readOnly} />
+                                          < div className='mb-5'>
+                                                <MultiSelectDropdown name="PartyType"  selected={partytype} setSelected={setPartyType} required={true} readOnly={readOnly} 
+                                                options={multiSelectOption(MultiSelectPartytype ? MultiSelectPartytype : [], "name", "value")}   />
                                             </div>
                 
                                             <div className='mb-5'>
-                                                <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
+                                             <MultiSelectDropdown name="Role"  selected={role} setSelected={setRole} required={true} readOnly={readOnly} 
+                                                options={multiSelectOption(roleData ? roleData?.data : [], "name", "id")}    />                                                   
                                             </div>
                 
-                                        </div>
+                                        
+                                              <div className='mb-5'>
+                                             <MultiSelectDropdown name="Users"  selected={users} setSelected={setUsers} required={true} readOnly={readOnly} 
+                                                options={multiSelectOption(userData ? userData?.data : [], "username", "id")}    />                                             
+                                              </div>
+                
+                                             </div>
+                                         
                                     </fieldset>
                                 </MastersForm>
                             </Modal>}

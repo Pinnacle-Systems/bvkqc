@@ -1,5 +1,5 @@
 import validator from 'validator';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MultiSelect } from "react-multi-select-component";
 import Select from 'react-dropdown-select';
 import { findFromList } from '../Utils/helper';
@@ -45,6 +45,7 @@ export const handleOnChangeforpassword = (event, setValue) => {
     });
 };
 export const MultiSelectDropdown = ({ name, selected, labelName, setSelected, options, readOnly = false, tabIndex = null, className = "", inputClass }) => {
+    console.log(options,"oiptiosn")
     return (
         <div className={`m-1  md:grid-cols-3 items-center z-0 md:my-0.5 md:py-3 data ${className}`}>
             <label className={`md:text-start flex ${labelName}`} >{name}</label>
@@ -58,6 +59,80 @@ export const MultiSelectDropdown = ({ name, selected, labelName, setSelected, op
         </div>
     );
 };
+
+// export const MultiSelectDropdown = ({ options, placeholder = "Select options" ,selected,setSelected,readOnly}) => {
+ 
+//   const [isOpen, setIsOpen] = useState(false);
+//   const dropdownRef = useRef(null);
+
+//   const toggleDropdown = () => setIsOpen(!isOpen);
+
+//   const handleOptionClick = (value) => {
+//     setSelected((prev) =>
+//       prev.includes(value)
+//         ? prev.filter((item) => item !== value)
+//         : [...prev, value]
+//     );
+//   };
+
+//   const handleClickOutside = (event) => {
+//     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+//       setIsOpen(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   const getLabelByValue = (value) =>
+//     options?.find((option) => option?.value === value)?.name || value;
+
+//   return (
+//     <div className="multiselect-container" ref={dropdownRef} style={{ position: "relative", width: "250px" }}>
+//       <div
+//         className="multiselect-display"
+//         onClick={toggleDropdown}
+//         style={{
+//           border: "1px solid #ccc",
+//           padding: "8px",
+//           cursor: "pointer",
+//           backgroundColor: "#fff"
+//         }}
+//       >
+//         {selected?.length > 0
+//           ? selected.map(getLabelByValue).join(", ")
+//           : placeholder}
+//       </div>
+//       {isOpen && (
+//         <div
+//           className="dropdown-options"
+//           style={{
+//             position: "absolute",
+//             border: "1px solid #ccc",
+//             backgroundColor: "#fff",
+//             width: "100%",
+//             maxHeight: "150px",
+//             overflowY: "auto",
+//             zIndex: 1000
+//           }}
+//         >
+//              <MultiSelect
+//                className={`focus:outline-none  border border-gray-500 rounded text-black  `}
+//                 options={options}
+//                  value={selected}
+//                               onChange={readOnly ? () => { } : setSelected}
+//                labelledBy="Select"
+//              />
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+
+
 
 // export const TextInput = ({ name, type, value, setValue, readOnly, className, inputClass, required = false, disabled = false, tabIndex = null, onBlur = null }) => {
 //     return (

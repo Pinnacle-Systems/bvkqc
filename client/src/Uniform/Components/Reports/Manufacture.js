@@ -27,8 +27,8 @@ export default function Manufactureform({singleData ,setForm,setMailform,vendor,
     
 
         const {data: Partydata} = useGetPartyQuery({params:{branchId, finYearId, userId}});
-        const {data: percentage} = useGetPercentageQuery({params:{branchId, finYearId, userId}});
-        let excessQty =  percentage?.data?.[0]?.qty
+        const {data: percentage,isLoading,isFetching} = useGetPercentageQuery({params:{branchId, finYearId, userId}});
+ 
 
         let  partyOptions = Partydata?.data?.filter(item  => item?.partyType  ===   "VENDOR")
         let data = singleData?.data
@@ -42,29 +42,37 @@ export default function Manufactureform({singleData ,setForm,setMailform,vendor,
 //   })
  
   
-// },[percentage])        
+// },[percentage])   
+console.log(id,"id")
+
+let percentageValue;     
 useEffect(() => {
-  const field = "excessQty";
-  setPoItems((prev) => {
-    const newItems = structuredClone(prev);
-    percentage?.data?.forEach((item, index) => {
-      newItems[index][field] = item?.qty;
-    });
-    return newItems;
-  });
-}, [percentage]);
+  if(percentage?.data?.length === 0 )  return;
+   percentageValue = percentage?.data?.find(i =>  i.active)?.qty
+    let newArray =  poItems?.map((item, index) => {
+        return{...item,excessQty:item?.orderQty ? percentageValue : ""} 
+      });
+      setPoItems(newArray)
+    }, [percentage,isLoading,isFetching,singleData,id]);
+  
+
+    
+
+    //  useEffect(() => {
+    //       if (poItems?.length >= 5) return
+    //       setPoItems(prev => {
+    //           let newArray = Array?.from({ length: 5  - prev.length }, i => {
+    //               return { excessQty: "", qty: 0.00,orderQty:0.00 }
+    //           })
+    //           return [...prev, ...newArray]
+    //       }
+    //       )
+    //   }, [poItems])
 
 
-   useEffect(() => {
-        if (poItems.length >= 5) return
-        setPoItems(prev => {
-            let newArray = Array.from({ length: 5  - prev.length }, i => {
-                return { excessQty: "", qty: 0.00,orderQty:0.00 }
-            })
-            return [...prev, ...newArray]
-        }
-        )
-    }, [poItems])
+
+
+
 
  
        const exportAndUploadExcel = async (data, text = "uploaded") => {
@@ -126,40 +134,54 @@ useEffect(() => {
 
 
 
-      const handleQtyChange = (field,index, value,orderQty) => {
-        setPoItems((prev) => {
-        let newItem=structuredClone(prev)
-      
-          newItem[index][field]=value
+      // const handleQtyChange = (field,index, value,orderQty) => {
+     
+      //   setPoItems((prev) => {
+      //   let newItem=structuredClone(prev)
 
-     
-        newItem[index][field]=value
-        if (field === 'excessQty' && index === 0 ) { 
-          for (let i = 0; i < newItem.length; i++) {
-            if(newItem[i].orderQty  > 0) {
-              newItem[i]['excessQty'] = value;
-              const percentage = parseFloat((newItem[i].orderQty * value) / 100);
-              newItem[i]['qty'] = parseFloat(newItem[i].orderQty) + percentage;
-            }
-  
-          }
-        } 
-        if(field === 'excessQty'){
-     
-          let qty = "qty"
-          let percentage=parseFloat((orderQty * value) / 100)
-          newItem[index][qty]=(parseFloat(orderQty) + percentage);
-        }
-        return newItem
-      });
+      //         //   if(percentageValue  > value ){
+      //         //     toast.error(`Maximum Excess Qty % Is ${percentageValue}`);
+      //         //     return false
+      //         //   }
+      //         //   else{
+              
+      //         if(field === 'excessQty'){
+      //              console.log(field,"field")
+      //             let qty = "qty"
+      //             let percentage=parseFloat((orderQty * value) / 100)
+      //             newItem[index][qty]=(parseFloat(orderQty) + percentage);
+      //           }
+               
+      //         }
+      //       else{
+      //               newItem[index][field]=value
+
+      //       }
+      //       return newItem;
+      //     });
+         
+      //   }
+
+     const handleQtyChange = (field, index, value, orderQty) => {
+  setPoItems((prev) => {
+    let newItems = structuredClone(prev);
+
+    if (field === 'excessQty') {
+          newItems[index]['excessQty'] = value;
+      const percentage = parseFloat((orderQty * value) / 100);
+      const updatedQty = parseFloat(orderQty) + percentage;
+
+      newItems[index]['qty'] = updatedQty;
+    } else {
+      newItems[index][field] = value;
     }
-    // const [excessQty, setExcessQty] = useState("");
-    // useEffect(() => {
-    //   if (percentage?.data?.[0]?.qty !== undefined) {
-    //     setExcessQty(percentage.data[0].qty);
-    //   }
-    // }, [percentage]);
-       console.log(poItems,"poItems");
+
+    return newItems;
+  });
+};
+
+
+
          
        console.log(data,"data");
 
@@ -282,13 +304,13 @@ useEffect(() => {
 
             <td className="border-b border-gray-300 text-right w-32"></td>
             <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
-              {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) ||  ""}
+              {poItems?.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) ||  ""}
               </td>
 
             <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
                </td>
             <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
-              {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+              {poItems?.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
     
             </td>
 

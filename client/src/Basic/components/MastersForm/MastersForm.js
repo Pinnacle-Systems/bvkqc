@@ -87,9 +87,10 @@ const MastersForm = ({
     } else {
       if (isCurrentFinYearActive()) {
         if (IsDefaultAdmin()) {
+          console.log("Hit Masterform")
           callback();
 
-        } else if (currentPagePermissions.data[type]) {
+        } else if (currentPagePermissions?.data[type]) {
           callback();
         } else {
           toast.error(`No Permission to ${type}...!`, {

@@ -244,7 +244,13 @@ export const PartyTypes = [
 
 
 export const Party = [
-    { show: "STANDARD USERS", value: "STANDARD USERS" },
+    { show: "STANDARD USERS", Party: "STANDARD USERS" },
     { show: "MANUFACTURE", value: "MANUFACTURE" },
     { show: "VENDOR", value: "VENDOR" },
+]
+
+
+export const  MultiSelectPartytype = [
+    { name: "STANDARD USERS", value: 1 },
+    { name: "MANUFACTURE", value: 2}
 ]

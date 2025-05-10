@@ -43,6 +43,7 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
   const { data: partyData } = useGetPartyQuery({ params: { branchId, finYearId } });
 
   const { data: allData } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
+  
   const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
@@ -69,8 +70,8 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
     syncFormWithDb(singleData?.data);
   }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
-  const excessQty = poItems.reduce((a, c) => a + parseFloat(c.excessQty || 0), 0);
-  const excessQtyAmount = poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0);
+  const excessQty = poItems?.reduce((a, c) => a + parseFloat(c?.excessQty || 0), 0);
+  const excessQtyAmount = poItems?.reduce((a, c) => a + parseFloat(c?.qty || 0), 0);
   const data = {
     id,
     branchId, userId,
@@ -169,7 +170,7 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
             />
             :
 
-            form === true && userRole === "DEFAULT ADMIN" ?
+            form === true  ?
 
               <BuyerForm
 
@@ -339,7 +340,7 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
 
                 <main className="p-2 space-y-6">
                   {
-                    userRole === "MANUFACTURE" &&
+                    userRole === "MANUFACTURE" ?
 
                     <>
                       <Manufacture
@@ -348,12 +349,12 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
                         setForm={setForm}
                         setId={setId}
                         setPoNo={setPoNo}
-
+                        partyData={partyData}
                       />
                     </>
-                  }
-                  {
-                    userRole === "VENDOR" &&
+              :  
+                  
+                    userRole === "VENDOR"  ?
 
                     <>
                       <Vendor
@@ -362,14 +363,14 @@ export default function Order({ setForm, form, setEmailId, setActive }) {
                         setForm={setForm}
                         setId={setId}
                         setPoNo={setPoNo}
-
+                        partyData={partyData}
                       />
                     </>
-                  }
-                  {
-                    userRole === "DEFAULT ADMIN" &&
+                
+                :
                     <Buyer
 
+                      partyData={partyData}
                       allData={allData}
                       setForm={setForm}
                       setId={setId}

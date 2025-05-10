@@ -1,8 +1,7 @@
 import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
 
 
-export default function Buyer({allData,setForm,setId,setPoNo,partyData}){
-    let data= partyData?.data
+export default function Buyer({allData, setForm, setId, setPoNo, partyData}){
         return (
             <>
                   <div className=" bg-white shadow rounded-lg">
@@ -41,8 +40,8 @@ export default function Buyer({allData,setForm,setId,setPoNo,partyData}){
                           <td className="p-2">{item?.docId}</td>
                           <td className="p-3">{getDateFromDateTime(item?.orderdate)}</td>
                           <th className="py-3 ">{getDateFromDateTime(item?.deliverydate)}</th>
-                          <td className="p-3">{findFromList(item.manufactureId,data, "name") ||  item?.manufactureId }</td>
-                          <td className="p-3">{findFromList(item.vendorId,data, "name") ||  item?.vendorId }  </td>
+                          <td className="p-3">{findFromList(item?.manufactureId,partyData?.data, "name") }</td>
+                          <td className="p-3">{findFromList(item?.vendorId,partyData?.data, "name")  }  </td>
                 
                 
                 

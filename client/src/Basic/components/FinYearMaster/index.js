@@ -34,6 +34,7 @@ export default function Form() {
     const [code, setCode] = useState();
     const childRecord = useRef(0);
     const [errors, setErrors] = useState({});
+   console.log(id,"id")    
 
    
 

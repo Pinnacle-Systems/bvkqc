@@ -32,9 +32,10 @@ export const dropDownListMergedObject = (data) => {
 }
 
 export const multiSelectOption = (data, label, value) => {
+    console.log(data, label, value,'data, label, value')
     const outputData = []
     for (let i of data) {
-        outputData.push({ label: i[label], value: i[value] })
+        outputData?.push({ label: i[label], value: i[value] })
     }
     return outputData
 }

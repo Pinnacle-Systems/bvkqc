@@ -90,10 +90,13 @@ async function get(req) {
         data = data.filter(item => item.vendorId === parseInt(partyId))
      }
      else if( userRole === "MANUFACTURE") {
-        data = data.filter(item => item.manufactureId === parseInt(partyId))
+        data = data?.filter(item => item.manufactureId === parseInt(partyId))
 
      }
-    
+    else(
+   data =  data?.filter(item => item.id)
+    )
+
     const totalCount = data.length
     if (pagination) {
         data = data.slice(((pageNumber - 1) * parseInt(dataPerPage)), pageNumber * dataPerPage)
