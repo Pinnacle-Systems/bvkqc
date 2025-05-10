@@ -16,10 +16,11 @@ router.get('/:id', getOne);
 
 router.get('/search/:searchKey', getSearch);
 
-// router.put('/:id', update);
-router.put('/:id', multerUploadForGrid.array('images'), update);
+// router.put('/:id', multerUploadForGrid.array('images'), update);
 
-router.post('/upload', multerUpload.single('file'), upload);
+router.put('/:id', multerUploadForGrid.array('file'), update);
+
+router.post('/upload', multerUploadForGrid.array('file'), upload);
 
 router.post('/attach', multerUpload.single('file'), attach);
 

@@ -92,7 +92,7 @@ async function uploadBillProofImage(req, res, next) {
 export async function upload(req, res, next) {
 
     try {
-        console.log("Hit")
+
 
         res.json(await _upload(req));
         console.log(res.statusCode);

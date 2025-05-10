@@ -93,9 +93,9 @@ async function get(req) {
     else if (userRole === "MANUFACTURE") {
         data = data?.filter(item => item.manufactureId === parseInt(partyId))
 
-     }
-    else(
-   data =  data?.filter(item => item.id)
+    }
+    else (
+        data = data?.filter(item => item.id)
     )
 
     const totalCount = data.length
@@ -159,12 +159,13 @@ async function getSearch(req) {
 async function upload(req) {
     const { id } = req.body
     const { isDelete } = req.body
+    console.log(req.files, 'req.file.filename');
 
 
     const data = await prisma.email.create({
 
         data: {
-            poExcelFileName: (isDelete && JSON.parse(isDelete)) ? "" : req.file.filename,
+            poExcelFileName: (isDelete && JSON.parse(isDelete)) ? "" : req.files[0].filename,
             orderId: id ? parseInt(id) : undefined,
         }
     }
@@ -197,15 +198,20 @@ async function createOrderBillItems(tx, orderDetails, order) {
         return await tx.orderDetails.create({
             data: {
                 orderId: parseInt(order.id) || null,
-                itemCode: item?.Itemcode ? item?.Itemcode.toString() : null,
-                barCode: item?.Barcode ? item.Barcode : null,
-                sizeDesc: item?.sizeDescription ? item.sizeDescription : null,
+                barCode: item?.barCode ? item?.barCode : null,
+                class: item?.class ? item?.class : null,
+                color: item?.color ? item?.color : null,
+                department: item?.department ? item?.department : null,
+                itemCode: item?.itemCode ? item?.itemCode.toString() : null,
+                mrp: item?.mrp ? parseInt(item.mrp) : null,
+                orderQty: item?.orderQty ? parseFloat(item?.orderQty) : null,
+                product: item?.product ? item?.product : null,
+                qty: item?.qty ? parseFloat(item.qty) : null,
                 size: item?.size ? item.size : null,
-                mrp: item?.MRP ? parseInt(item.MRP) : null,
-                orderQty: item?.orderQty ? parsefloat(item?.orderQty) : null,
-                qty: item?.qty ? parsefloat(item.qty) : null,
-                excessQty: item?.excessQty ? parsefloat(item?.excessQty) : null
-
+                sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
+                styleCode: item?.styleCode ? item?.styleCode : null,
+                supplierCode: item?.supplierCode ? item?.supplierCode : null,
+                excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null,
 
             }
         })
@@ -253,72 +259,70 @@ async function create(body) {
 }
 
 
-async function updateOrderBillItems(tx, orderBillItems, order) {
-    // let removedItems = order.OrderBillItems.filter(oldItem => {
-    //     let result = orderBillItems.find(newItem => newItem.id === oldItem.id)
-    //     if (result) return false
-    //     return true
-    // })
-    // let removedItemsId = removedItems.map(item => parseInt(item.id))
-    // await tx.orderBillItems.deleteMany({
-    //     where: {
-    //         id: {
-    //             in: removedItemsId
-    //         }
-    //     }
-    // })
+async function updateOrderBillItems(tx, orderDetails, order) {
+    if (!Array.isArray(orderDetails) || !order?.id) {
+        throw new Error('Invalid order or orderDetails data');
+    }
 
-    const promises = orderBillItems.map(async (item) => {
-        if (item?.id) {
-            return await tx.orderBillItems.update({
-                where: {
-                    id: parseInt(item.id)
-                },
-                data: {
-                    orderId: parseInt(order.id) || null,
-                    barCode: item?.barCode ? item?.barCode : null,
-                    class: item?.class ? item?.class : null,
-                    color: item?.color ? item?.color : null,
-                    department: item?.department ? item?.department : null,
-                    itemCode: item?.itemCode ? item?.itemCode.toString() : null,
-                    mrp: item?.mrp ? parseInt(item.mrp) : null,
-                    orderQty: item?.orderQty ? parseFloat(item?.orderQty) : null,
-                    product: item?.product ? item?.product : null,
-                    qty: item?.qty ? parseFloat(item.qty) : null,
-                    size: item?.size ? item.size : null,
-                    sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
-                    styleCode: item?.styleCode ? item?.styleCode : null,
-                    supplierCode: item?.supplierCode ? item?.supplierCode : null,
-                    excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null,
+    await tx.orderBillItems.deleteMany({
+        where: { orderId: parseInt(order.id) }
+    });
 
+    // Parse and clean orderDetails
+    const parsedOrderImportItems = orderDetails
+        .map((item) => {
+            // Handle valid JSON strings
+            if (typeof item === 'string' && item.trim().startsWith('{') && item.trim().endsWith('}')) {
+                try {
+                    return JSON.parse(item);
+                } catch (err) {
+                    console.error("Failed to parse item:", item, err);
+                    return null;
                 }
+            }
 
-            })
-        } else {
-            return await tx.orderBillItems.create({
-                data: {
-                    orderId: parseInt(order.id) || null,
+            // Already parsed objects (skip '[object Object]' strings)
+            if (typeof item === 'object' && item !== null) {
+                return item;
+            }
 
-                    barCode: item?.barCode ? item?.barCode : null,
-                    class: item?.class ? item?.class : null,
-                    color: item?.color ? item?.color : null,
-                    department: item?.department ? item?.department : null,
-                    itemCode: item?.itemCode ? item?.itemCode.toString() : null,
-                    mrp: item?.mrp ? parseInt(item.mrp) : null,
-                    orderQty: item?.orderQty ? parseFloat(item?.orderQty) : null,
-                    product: item?.product ? item?.product : null,
-                    qty: item?.qty ? parseFloat(item.qty) : null,
-                    size: item?.size ? item.size : null,
-                    sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
-                    styleCode: item?.styleCode ? item?.styleCode : null,
-                    supplierCode: item?.supplierCode ? item?.supplierCode : null,
-                    excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null,
-                }
-            })
-        }
-    })
-    return Promise.all(promises)
+            // Skip anything else
+            return null;
+        })
+        .filter(item => item !== null);
+
+    console.log(parsedOrderImportItems, 'parsedOrderImportItems');
+
+    // Create DB entries
+    const insertPromises = parsedOrderImportItems.map((item) => {
+        if (!item) return;
+
+        return tx.orderBillItems.create({
+            data: {
+                orderId: parseInt(order.id),
+                barCode: item.barCode,
+                class: item.class,
+                color: item.color,
+                department: item.department,
+                date: item.date ? new Date(item.date) : null,
+                itemCode: item.itemCode,
+                mrp: parseFloat(item.mrp),
+                orderQty: parseInt(item.orderQty),
+                product: item.product,
+                qty: parseInt(item.qty),
+                size: item.size,
+                sizeDesc: item.sizeDesc,
+                styleCode: item.styleCode,
+                supplierCode: item.supplierCode,
+                excessQty: parseFloat(item.excessQty)
+            }
+        });
+    });
+
+    return Promise.all(insertPromises);
 }
+
+
 
 async function update(id, body) {
     let data;
@@ -326,6 +330,9 @@ async function update(id, body) {
         excessQtyAmount, date, orderDetails, vendor,
         ponumber, isAttachments } = await body
 
+    console.log(branchId, userId, isSave, excessQty, attachments,
+        excessQtyAmount, date, orderDetails, vendor,
+        ponumber, isAttachments, '329');
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -339,6 +346,8 @@ async function update(id, body) {
 
 
     if (isAttachments) {
+        console.log("hit");
+
         await prisma.$transaction(async (tx) => {
             data = await tx.order.update({
                 where: {
@@ -378,28 +387,29 @@ async function update(id, body) {
             },
             data: {
                 branchId: parseInt(branchId),
-                isSave,
+                isSave: isSave ? JSON.parse(isSave) : false,
+
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
-                attachments: {
-                    deleteMany: {},
-                    createMany: attachments ? {
-                        data: JSON.parse(attachments || []).map(temp => ({
-                            date: temp.date ? new Date(temp.date) : undefined,
-                            log: temp.log ? temp.log : "",
-                            gridUser: temp.gridUser ? temp.gridUser : "",
-                            filePath: temp.filePath ? temp.filePath : undefined,
+                // attachments: {
+                //     deleteMany: {},
+                //     createMany: attachments ? {
+                //         data: attachments.map(temp => ({
+                //             date: temp.date ? new Date(temp.date) : undefined,
+                //             log: temp.log ? temp.log : "",
+                //             gridUser: temp.gridUser ? temp.gridUser : "",
+                //             filePath: temp.filePath ? temp.filePath : undefined,
 
-                        }))
-                    } : undefined
-                }
+                //         }))
+                //     } : undefined
+                // }
 
             },
-            include: {
-                orderBillItems: true
-            }
+
         })
+
+
         await updateOrderBillItems(tx, orderDetails, data)
     })
     return { statusCode: 0, data };

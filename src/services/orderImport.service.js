@@ -45,6 +45,41 @@ async function getNextDocId(branchId) {
 
 
 
+
+async function ordergetNextDocId(branchId, shortCode, startTime, endTime, isTaxBill) {
+    let lastObject = await prisma.order.findFirst({
+        where: {
+            // branchId: parseInt(branchId),
+            // isTaxBill: typeof (isTaxBill) === "undefined" ? undefined : JSON.parse(isTaxBill),
+            AND: [
+                {
+                    createdAt: {
+                        gte: startTime
+
+                    }
+                },
+                {
+                    createdAt: {
+                        lte: endTime
+                    }
+                }
+            ],
+        },
+        orderBy: {
+            id: 'desc'
+        }
+    });
+    const code = (typeof (isTaxBill) === "undefined" ? undefined : JSON.parse(isTaxBill)) ? "ORD" : "ORD";
+    const branchObj = await getTableRecordWithId(branchId, "branch")
+    let newDocId = `${branchObj.branchCode}/${shortCode}/${code}/1`
+    if (lastObject) {
+        newDocId = `${branchObj.branchCode}/${shortCode}/${code}/${parseInt(lastObject.docId.split("/").at(-1)) + 1}`
+    }
+
+    return newDocId
+}
+
+
 const xprisma = prisma.$extends({
     result: {
         orderImport: {
@@ -69,13 +104,7 @@ async function get(req) {
     let newDocId = await getNextDocId(branchId)
     let data = await xprisma.orderImport.findMany({
         where: {
-            docId: searchDocId ? { contains: searchDocId } : undefined,
-
-            // Party: searchSupplierName ? { name: { contains: searchSupplierName } } : undefined,
-
-            // Order: searchOrderId ? { docId: { contains: searchOrderId } } : undefined,
-
-            // orderId: orderId ? parseInt(orderId) : undefined,
+            docId: searchDocId ? { contains: searchDocId } : undefined
         },
 
     });
@@ -116,8 +145,6 @@ async function createAdditionalImportData(tx, additionalImportData, orderImportI
         await tx.additionalImportData.create({
             data: {
                 orderImportId: parseInt(orderImportId),
-                // sizeId: item.sizeId ? parseInt(item.sizeId) : undefined,
-                // bottomSizeId: item?.bottomSizeId ? parseInt(item?.bottomSizeId) : undefined,
                 bottomColorId: item?.colorId ? parseInt(item?.colorId) : undefined,
                 colorId: item?.colorId ? parseInt(item?.colorId) : undefined,
                 itemId: item?.itemId ? parseInt(item?.itemId) : undefined,
@@ -209,25 +236,16 @@ async function createOrderImportItems(additionalImportData) {
 
 async function create(req) {
 
-    const { userId, branchId, partyId, companyId, orderId } = await req.body
+    const { userId, branchId, partyId, companyId, orderId, finYearId } = await req.body
 
     let docId = await getNextDocId(branchId);
     let data;
-
-
-
     let file = new Uint8Array(req.file.buffer)
     let workbook = read(file, { type: "array" });
     var sheet_name_list = workbook.SheetNames;
     const importedData = utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
     let headerNames = importedData;
-
-
     const orderImportItems = convertToImportFormat(importedData, headerNames);
-
-
-
-
     await prisma.$transaction(async (tx) => {
         data = await tx.orderImport.create(
             {
@@ -246,9 +264,149 @@ async function create(req) {
             }
         )
     })
+
+    await createOrder(data, finYearId, branchId, userId, companyId)
+
     return { statusCode: 0, data: orderImportItems };
 
 }
+
+
+
+async function createOrder(importdata, finYearId, branchId, userId, companyId) {
+
+    const partyData = await prisma.party.findMany({
+        where: {
+            active: true,
+        },
+
+    });
+
+
+    let orderImport = await prisma.orderImport.findUnique({
+        where: {
+            id: parseInt(importdata?.id)
+        },
+        include: {
+
+            orderImportItems: true,
+
+
+        }
+    })
+
+
+    console.log(orderImport, "importdata?")
+
+    let date = new Date()
+
+    let isSave = false;
+    let vendor;
+    let ponumber = orderImport?.orderImportItems[0]?.po_number;
+    let orderDetails = orderImport?.orderImportItems?.map(async (val) => {
+        return {
+            itemcode: val?.item_code,
+            barCode: val?.ean_barcode,
+            sizeDesc: val?.size_desc,
+            size: val?.code,
+            mrp: val?.mrp,
+            orderQty: val?.order_qty,
+            qty: val?.qty,
+            class: val?.class,
+            color: val?.colour,
+            department: val?.department ? val?.department : null,
+            itemCode: val?.item_code ? val?.item_code : null,
+            product: val?.product ? val?.product : null,
+            styleCode: val?.style_code_group ? val?.style_code_group : null,
+            supplierCode: val?.season_supplier_code ? val?.season_supplier_code : null,
+            manufactureId: (await findFromList(val?.manufacturer_mail_id, partyData, "id"))
+
+        }
+    });
+
+    // importdata?.orderImportItems?.forEach(el => {
+    //     ponumber = el.po_number;
+    // });
+
+
+    let finYearDate = await getFinYearStartTimeEndTime(finYearId);
+    const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startTime, finYearDate?.endTime) : "";
+    let newDocId = finYearDate ? (await ordergetNextDocId(branchId, shortCode, finYearDate?.startTime, finYearDate?.endTime)) : "";
+
+
+    let data = await prisma.order.create(
+        {
+            data: {
+                docId: newDocId,
+                branchId: parseInt(branchId),
+                createdById: parseInt(userId),
+                orderdate: date ? new Date(date) : null,
+                poNumber: ponumber ? ponumber : null,
+                isSave,
+                vendorId: vendor ? parseInt(vendor) : null,
+                orderBillItems: orderDetails ? {
+                    createMany: {
+                        data: orderDetails?.map(item => ({
+                            barCode: item?.barCode ? item?.barCode : null,
+                            class: item?.class ? item?.class : null,
+                            color: item?.color ? item?.color : null,
+                            department: item?.department ? item?.department : null,
+                            itemCode: item?.itemCode ? item?.itemCode.toString() : null,
+                            mrp: item?.mrp ? parseInt(item.mrp) : null,
+                            orderQty: item?.orderQty ? parseFloat(item?.orderQty) : null,
+                            product: item?.product ? item?.product : null,
+                            qty: item?.qty ? parseFloat(item.qty) : null,
+                            size: item?.size ? item.size : null,
+                            sizeDesc: item?.sizeDesc ? item.sizeDesc : null,
+                            styleCode: item?.styleCode ? item?.styleCode : null,
+                            supplierCode: item?.supplierCode ? item?.supplierCode : null,
+                            excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null,
+                            manufactureId: item?.manufactureId ? parseInt(item?.manufactureId) : null
+
+                        }))
+                    }
+                } : undefined,
+
+            }
+        })
+}
+
+
+async function findFromList(id, list, property) {
+
+    if (!list) return ""
+    let data = list?.filter(j => j.active).find(i => parseInt(i.id) === parseInt(id))
+    if (!data) return ""
+    console.log(data[property], "data[property]")
+
+    return data[property]
+}
+
+
+
+// async function createOrderBillItems(orderDetails, order) {
+//     const promises = orderDetails.map(async (item) => {
+//         return await tx.orderDetails.create({
+//             data: {
+//                 orderId: parseInt(order.id) || null,
+//                 itemCode: item?.Itemcode ? item?.Itemcode.toString() : null,
+//                 barCode: item?.Barcode ? item.Barcode : null,
+//                 sizeDesc: item?.sizeDescription ? item.sizeDescription : null,
+//                 size: item?.size ? item.size : null,
+//                 mrp: item?.MRP ? parseInt(item.MRP) : null,
+//                 orderQty: item?.orderQty ? parsefloat(item?.orderQty) : null,
+//                 qty: item?.qty ? parsefloat(item.qty) : null,
+//                 excessQty: item?.excessQty ? parsefloat(item?.excessQty) : null
+
+
+//             }
+//         })
+//     }
+//     )
+//     return Promise.all(promises)
+// }
+
+
 
 
 

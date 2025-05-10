@@ -19,6 +19,7 @@ const OrderImportItems = ({ orderImportItems }) => {
         "qty",
         "order_qty",
         "po_number",
+        "manufacturer_mail_id"
 
     ]
     return (

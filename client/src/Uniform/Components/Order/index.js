@@ -44,7 +44,7 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
   const { data: partyData } = useGetPartyQuery({ params: { branchId, finYearId } });
 
   const { data: allData } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
-  
+
   const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
@@ -81,23 +81,64 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
   }
 
   const handleSubmitCustom = async (callback, data, text) => {
-    try {
-      let returnData = await callback(data).unwrap();
-      if (returnData.statusCode === 0) {
-        setId(returnData?.data?.id)
-        toast.success(text + "Successfully");
-        dispatch({
-          type: `partyMaster/invalidateTags`,
-          payload: ['Party'],
-        });
-      } else {
-        toast.error(returnData?.message)
-      }
-    } catch (error) {
-      console.log(error)
-    }
 
-  }
+    try {
+      const formData = new FormData();
+      for (let key in data) {
+        if (key === "orderDetails") {
+          data[key].forEach(item =>
+            formData.append(key, JSON.stringify(item))
+          );
+        }
+        if (key === 'attachments') {
+          formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
+          data[key].forEach(option => {
+            if (option?.filePath instanceof File) {
+              formData.append('images', option.filePath);
+            }
+          });
+        } else {
+          formData.append(key, data[key]);
+        }
+      }
+      console.log(formData, 'formData104');
+
+      let returnData;
+      if (text === "Updated") {
+        returnData = await callback({ id, body: formData }).unwrap();
+      } else {
+        returnData = await callback(formData).unwrap();
+      }
+      if (returnData.statusCode === 0) {
+
+
+        toast.success(text + "Successfully");
+      } else {
+        toast.error(returnData?.message);
+      }
+
+    } catch (error) {
+      console.log("handle", error);
+    }
+  };
+  // const handleSubmitCustom = async (callback, data, text) => {
+  //   try {
+  //     let returnData = await callback(data).unwrap();
+  //     if (returnData.statusCode === 0) {
+  //       setId(returnData?.data?.id)
+  //       toast.success(text + "Successfully");
+  //       dispatch({
+  //         type: `partyMaster/invalidateTags`,
+  //         payload: ['Party'],
+  //       });
+  //     } else {
+  //       toast.error(returnData?.message)
+  //     }
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+
+  // }
 
   const saveData = () => {
 
@@ -116,6 +157,7 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
 
   }
 
+  console.log(poItems, 'poItems');
 
   return (
 
@@ -155,7 +197,7 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
             />
             :
 
-            form === true  ?
+            form === true ?
 
               <BuyerForm
 
@@ -330,40 +372,40 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
                   {
                     userRole === "MANUFACTURE" ?
 
-                    <>
-                      <Manufacture
+                      <>
+                        <Manufacture
 
-                        allData={allData}
-                        setForm={setForm}
-                        setId={setId}
-                        setPoNo={setPoNo}
-                        partyData={partyData}
-                      />
-                    </>
-              :  
-                  
-                    userRole === "VENDOR"  ?
+                          allData={allData}
+                          setForm={setForm}
+                          setId={setId}
+                          setPoNo={setPoNo}
+                          partyData={partyData}
+                        />
+                      </>
+                      :
 
-                    <>
-                      <Vendor
+                      userRole === "VENDOR" ?
 
-                        allData={allData}
-                        setForm={setForm}
-                        setId={setId}
-                        setPoNo={setPoNo}
-                        partyData={partyData}
-                      />
-                    </>
-                
-                :
-                    <Buyer
+                        <>
+                          <Vendor
 
-                      partyData={partyData}
-                      allData={allData}
-                      setForm={setForm}
-                      setId={setId}
-                      setPoNo={setPoNo}
-                    />
+                            allData={allData}
+                            setForm={setForm}
+                            setId={setId}
+                            setPoNo={setPoNo}
+                            partyData={partyData}
+                          />
+                        </>
+
+                        :
+                        <Buyer
+
+                          partyData={partyData}
+                          allData={allData}
+                          setForm={setForm}
+                          setId={setId}
+                          setPoNo={setPoNo}
+                        />
                   }
                 </main>
 
