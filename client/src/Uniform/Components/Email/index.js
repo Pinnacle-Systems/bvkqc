@@ -199,11 +199,11 @@ export default function MailForm({fileName,singleData,emailId}) {
                             {Emaildata?.data?.order?.vendor}                
                         </div>   
                         <div className="flex items-center gap-2 text-sm text-gray-700">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
-            <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
-        </svg>
-        <span>{Emaildata?.data?.poExcelFileName}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
+                    <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
+                </svg>
+                <span>{Emaildata?.data?.poExcelFileName}</span>
     </div>
 
     <button

@@ -30,10 +30,10 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                 key={index}
                 className="hover:bg-gray-100 transition duration-150"
             >
-                <td className="py-0.5 px-3 border border-gray-400">
+                <td className="py-0.5 px-3 w-10 border border-gray-400">
                     {index + 1}
                 </td>
-                <td className="py-0.5 px-3 border border-gray-400">
+                <td className="py-0.5 px-3 w-32 border border-gray-400">
                     <input
                         type="date"
                         disabled={readOnly}
@@ -46,7 +46,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                         }
                     />
                 </td>
-                <td className="py-0.5 px-3 border border-gray-400">
+                <td className="py-0.5 px-3  w-32 border border-gray-400">
                     <input
                         type="text"
                         className="text-left rounded py-1 px-2 w-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
@@ -69,7 +69,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                     />
                 </td>
 
-                <td className="py-0.5 px-3 border border-gray-400">
+                <td className="py-0.5 px-3  w-20 border border-gray-400">
                     <div className='flex gap-2'>
                         {(!readOnly && !item.filePath) &&
                             <input
@@ -93,16 +93,14 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                                 }
                             </>
                         }
-                        {/* {item.filePath &&
-                            <img src={((item?.filePath) instanceof File) ? URL.createObjectURL(item.filePath) : getImageUrlPath(item.filePath)} alt="" width={'100px'} height={'100px'} />
-                        } */}
+                 
 
 
                     </div>
                 </td>
 
                 {!readOnly &&
-                    <td className="py-0.5 px-3 border border-gray-400 text-center">
+                    <td className="py-0.5 px-3  w-10 border border-gray-400 text-center ">
                         <button
                             type='button'
                             onClick={() => deleteRow(index)}
