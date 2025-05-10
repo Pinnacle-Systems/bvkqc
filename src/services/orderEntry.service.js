@@ -125,7 +125,7 @@ async function getOne(req) {
         include: {
             orderBillItems: true,
             attachments: true,
-
+           
         }
     });
 

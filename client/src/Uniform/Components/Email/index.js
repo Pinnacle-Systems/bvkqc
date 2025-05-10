@@ -175,51 +175,46 @@ const handleFileChange = (event) => {
 
 
             <div className="flex flex-col mt-5 p-5 gap-4">
-            <div className="border-b border-gray-400 w-64">
-            <label>Po Number: </label>
-            {singleData?.data?.docId}
-            </div>
+                          <div className="border-b border-gray-400 w-64">
+                          <label>Po Number: </label>
+                          {singleData?.data?.docId}
+                          </div>
 
-            <div className="border-b border-gray-400 w-64">
-            <label>Vendor: </label>
-            {findFromList(singleData?.data?.vendorId, partyData?.data, "name")}
-            <ul>
-            {files.map((file, index) => (
-            <li key={index}>{file.name}</li>
-            ))}
-            </ul>
-            </div>
+                          <div className="border-b border-gray-400 w-64">
+                          <label>Vendor: </label>
+                                {singleData?.data?.Party?.name}
+                          </div>
 
             <div className="flex flex-col mt-5 p-5 gap-4">
 
 
             <div className="flex flex-col gap-2 text-sm text-gray-700">
-            {attachments?.map((item, index) => {
-            const fileName = item.filePath?.split('/').pop();
+                    {attachments?.map((item, index) => {
+                 const fileName = item.filePath?.split('/').pop();
 
-            return (
-            <div key={index} className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
-            <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
-            </svg>
+               return (
+                            <div key={index} className="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
+                            <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
+                            </svg>
 
-            <span>{fileName}</span>
+                            <span>{fileName}</span>
 
-            <button
-            onClick={async () => {
-            const response = await fetch(getImageUrlPath(item.filePath));
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
-            }}
-            className="text-blue-600 underline"
+                            <button
+                            onClick={async () => {
+                            const response = await fetch(getImageUrlPath(item.filePath));
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = fileName;
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            window.URL.revokeObjectURL(url);
+                            }}
+                       className="text-blue-600 underline"
             >
             Download
             </button>
