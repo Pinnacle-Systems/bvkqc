@@ -96,7 +96,7 @@ model UserOnBranch {
   id       Int    @id @default(autoincrement())
   Branch   Branch @relation(fields: [branchId], references: [id])
   branchId Int
-  User     User   @relation(fields: [userId], references: [id],onDelete: Cascade)
+  User     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int
 }
 
