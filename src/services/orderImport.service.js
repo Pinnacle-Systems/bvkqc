@@ -283,6 +283,9 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
     });
 
 
+    console.log(partyData, "partyyyy")
+
+
     let orderImport = await prisma.orderImport.findUnique({
         where: {
             id: parseInt(importdata?.id)
@@ -296,13 +299,17 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
     })
 
 
-    console.log(orderImport, "importdata?")
+
 
     let date = new Date()
 
     let isSave = false;
     let vendor;
     let ponumber = orderImport?.orderImportItems[0]?.po_number;
+    let manufactureId = await findFromList(parseInt(orderImport?.orderImportItems[0]?.manufacturer_mail_id), partyData, "id")
+
+    console.log(manufactureId, "manufactureId")
+
     let orderDetails = orderImport?.orderImportItems?.map(async (val) => {
         return {
             itemcode: val?.item_code,
@@ -318,9 +325,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
             itemCode: val?.item_code ? val?.item_code : null,
             product: val?.product ? val?.product : null,
             styleCode: val?.style_code_group ? val?.style_code_group : null,
-            supplierCode: val?.season_supplier_code ? val?.season_supplier_code : null,
-            manufactureId: (await findFromList(val?.manufacturer_mail_id, partyData, "id"))
-
+            supplierCode: val?.season_supplier_code ? val?.season_supplier_code : null
         }
     });
 
@@ -344,6 +349,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
                 poNumber: ponumber ? ponumber : null,
                 isSave,
                 vendorId: vendor ? parseInt(vendor) : null,
+                manufactureId: manufactureId ? parseInt(manufactureId) : null,
                 orderBillItems: orderDetails ? {
                     createMany: {
                         data: orderDetails?.map(item => ({
@@ -361,7 +367,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
                             styleCode: item?.styleCode ? item?.styleCode : null,
                             supplierCode: item?.supplierCode ? item?.supplierCode : null,
                             excessQty: item?.excessQty ? parseFloat(item?.excessQty) : null,
-                            manufactureId: item?.manufactureId ? parseInt(item?.manufactureId) : null
+
 
                         }))
                     }
@@ -379,7 +385,7 @@ async function findFromList(id, list, property) {
     if (!data) return ""
     console.log(data[property], "data[property]")
 
-    return data[property]
+    return (data[property])
 }
 
 
