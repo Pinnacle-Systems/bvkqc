@@ -12,6 +12,7 @@ import { useGetOrderByIdQuery, useUploadMutation } from "../../../redux/uniformS
 import { useGetEmailByIdQuery, useGetEmailQuery } from "../../../redux/uniformService/Email.Services";
 import { getImageUrlPath } from "../../../Constants";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
+import { LongDropdownInput } from "../../../Inputs";
 
 
 
@@ -29,7 +30,7 @@ export default function MailForm({ currentId, emailId }) {
   const [filename, setfileName] = useState('')
   const [files, setFiles] = useState([]);
   const [userId, setUserId] = useState("")
-
+  const [approvalSts, setApproveSts] = useState("")
 
   const id = currentId
 
@@ -154,15 +155,7 @@ export default function MailForm({ currentId, emailId }) {
 
 
           </div>
-          <div className="mt-auto flex justify-end w-full">
-            <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"
-              onClick={() => {
-                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files);
-              }}
-            >
-              Send
-            </button>
-          </div>
+
           {user === null ? <input
             type="file"
             multiple
@@ -170,7 +163,15 @@ export default function MailForm({ currentId, emailId }) {
             className="mb-4"
           /> : ''}
 
-
+          <div className="mt-auto flex justify-end w-full">
+            <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"
+              onClick={() => {
+                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts);
+              }}
+            >
+              Send
+            </button>
+          </div>
         </div>
 
 
@@ -192,7 +193,20 @@ export default function MailForm({ currentId, emailId }) {
               ))}
             </ul>
           </div>
-
+          <div>
+            <select
+              className='px-1 py-1 border rounded'
+              value={approvalSts}
+              onChange={(e) =>
+                setApproveSts(e.target.value)
+              }
+            >
+              <option value=''>Select status</option>
+              <option value='approve'>Approve</option>
+              <option value='reject'>Reject</option>
+              <option value='hold'>Hold</option>
+            </select>
+          </div>
           <div className="flex flex-col mt-5 p-5 gap-4">
 
 
@@ -243,13 +257,6 @@ export default function MailForm({ currentId, emailId }) {
 
       </div>
     </>
-
-
-
-
-
-
-
 
 
   );
