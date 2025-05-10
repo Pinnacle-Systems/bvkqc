@@ -51,7 +51,7 @@ export default function Form() {
     const [isIgst, setGstNo] = useState(true);
     const [costCode, setCostCode] = useState("");
     const [contactMobile, setContactMobile] = useState('');
-
+    const [mailId,setMailId] = useState("")
     const [partyType, setpartyType] = useState("");
 
     const [cstDate, setCstDate] = useState("");
@@ -200,14 +200,14 @@ console.log(projectForm,"projectForm")
         faxNo, email, website, contactPersonName, isIgst, currencyId: currency, costCode, contactMobile,
         active, isSupplier, isClient, accessoryGroup, companyId, shippingAddress, contactDetails,
         accessoryItemList,partyType ,
-        id, userId, priceTemplateId, image
+        id, userId, priceTemplateId, image,mailId
     }
 
     const { data: processList, isLoading: isProcessLoading, isFetching: isProcessFetching } = useGetProcessMasterQuery({ params });
 
     const validateData = (data) => {
 
-        if (data.name ) {
+        if (data.name &&  data.mailId   &&  data.partyType ) {
             return true;
             // && data.joiningDate && data.fatherName && data.dob && data.gender && data.maritalStatus && data.bloodGroup &&
             //     data.panNo && data.email && data.mobile && data.degree && data.specialization &&
@@ -530,19 +530,31 @@ console.log(projectForm,"projectForm")
                                     />
                                     </div>
                                 </div>
-                                {/* PartyType Dropdown */}
-                                <div className="w-full mb-4">
-                                    <DropdownInput 
-                                    readOnly={readOnly} 
-                                    name="PartyType" 
-                                    value={partyType} 
-                                    setValue={setpartyType}
-                                    options={PartyTypes} 
-                                    />
-                                </div>
+                                   <div className="flex flex-wrap justify-between w-full mb-4 gap-1">
+                                        <div className="w-[48%] mb-3">
+                                            <TextInput 
+                                                name="Email" 
+                                                width="w-full" 
+                                                type="text" 
+                                                value={mailId} 
+                                                setValue={setMailId} 
+                                                required={true} 
+                                                readOnly={readOnly} 
+                                                disabled={(childRecord.current > 0)} 
+                                            />
+                                            </div>
+                                        <div className="w-[48%] mb-4">
+                                            <DropdownInput 
+                                            readOnly={readOnly} 
+                                            name="PartyType" 
+                                            value={partyType} 
+                                            setValue={setpartyType}
+                                            options={PartyTypes} 
+                                            />
+                                        </div>
+                                        </div>
                                 </div>
 
-                                {/* Right side - Image Upload */}
                                 <div className="w-full md:w-auto flex justify-center items-start">
                                 <BrowseSingleImage 
                                     picture={image} 

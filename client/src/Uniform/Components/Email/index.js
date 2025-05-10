@@ -8,40 +8,44 @@ import { AttachFile } from "@mui/icons-material";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { toast } from 'react-toastify'; 
-import { useUploadMutation } from "../../../redux/uniformService/OrderService";
+import { useGetOrderByIdQuery, useUploadMutation } from "../../../redux/uniformService/OrderService";
 import { useGetEmailByIdQuery, useGetEmailQuery } from "../../../redux/uniformService/Email.Services";
 import { getImageUrlPath } from "../../../Constants";
+import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 
 
 
 
-export default function MailForm({fileName,singleData,emailId}) {
+export default function MailForm({currentId , emailId}) {
        
-  
-
  
-  const [toEmail, setToEmail] = useState("");
+  const [toEmail, setToEmail] = useState("max@gmail.com");
   const [subject, setSubject] = useState('');
   const [Message,setMessage] =  useState("")
-  const [excelData, setExcelData] = useState([]);
-    const [filename,setfileName]  = useState('')
-    const [files, setFiles] = useState([]);
+  const [attachments, setattachments] = useState([]);
+  const [filename,setfileName]  = useState('')
+  const [files, setFiles] = useState([]);
+  const [userId,setUserId] =  useState("")
+   
+    console.log(setFiles,"setFiles")
 
+    const id = currentId
+    
 
-    const FromEmailAddress =  singleData?.data?.email;
+    const { data: singleData ,  isLoading , isFetching } = useGetOrderByIdQuery( id , { skip: !id });
+    const { data: partyData } = useGetPartyByIdQuery(userId , { skip: !userId } );
+     const FromEmailAddress =  partyData?.data?.email;
     const passskey  = singleData?.data?.passKey;
 
-
-    const id = emailId
-
-    const {data: Emaildata} = useGetEmailByIdQuery( id ,  {skip:!emailId} );
-
-
     useEffect(()  =>  {
-        setfileName(Emaildata?.data?.poExcelFileName)
+        setattachments(singleData?.data?.attachments)
+        setUserId(singleData?.data?.vendorId)
+    },[singleData, isLoading , isFetching])
 
-    },[Emaildata])
-    
+
+         const handleRemove = (indexToRemove) => {
+    setattachments((prev) => prev.filter((_, i) => i !== indexToRemove));
+  };
 
     const [ccList, setCcList] = useState([""]);
     const handleCcChange = (index, value) => {
@@ -60,34 +64,14 @@ export default function MailForm({fileName,singleData,emailId}) {
       };
 
 
-      const handleViewExcel = async () => {
-        console.log(fileName,"fileName")
 
-        try {
-            const fileUrl = `http://localhost:3000/uploads/1745991676117Order_1745991676045.xlsx`;
-            const response = await fetch(fileUrl);
-            const blob = await response.blob();
-            const arrayBuffer = await blob.arrayBuffer();
+const handleFileChange = (event) => {
+  const selectedFiles = Array.from(event.target.files);
+  setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+};
 
-            const data = new Uint8Array(arrayBuffer);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-            setExcelData(jsonData);
-            console.log(excelData,'excelData')
-        } catch (error) {
-            console.error("Error reading Excel file", error);
-        }
-    };
-
-    const handleFileChange = (event) => {
-      const selectedFiles = Array.from(event.target.files); // Convert FileList to array
-      setFiles(selectedFiles);
-    };
     
-    
+ 
 
     
    
@@ -95,7 +79,7 @@ export default function MailForm({fileName,singleData,emailId}) {
  
   return (
                 
-                   <>
+                 <>
                     <div  className="grid grid-cols-2">
                         <div  className="flex flex-col" >
                          <div className=" p-3 rounded mb-4 h-[90%] w-full">
@@ -189,27 +173,41 @@ export default function MailForm({fileName,singleData,emailId}) {
              
 
 
-                    <div className="flex flex-col mt-5 p-5 gap-4">
-                        <div className="border-b border-gray-400 w-64">
-                            <label htmlFor="">Po Number :  </label>
-                            {Emaildata?.data?.order?.docId}                
-                        </div>
-                        <div className="border-b border-gray-400 w-64">
-                            <label htmlFor="">Vendor :  </label>
-                            {Emaildata?.data?.order?.vendor}                
-                        </div>   
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
-                    <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
-                </svg>
-                <span>{Emaildata?.data?.poExcelFileName}</span>
-    </div>
+            <div className="flex flex-col mt-5 p-5 gap-4">
+            <div className="border-b border-gray-400 w-64">
+            <label>Po Number: </label>
+            {singleData?.data?.docId}
+            </div>
 
-    <button
-        onClick={async () => {
-            const fileName = Emaildata?.data?.poExcelFileName;
-            const response = await fetch(getImageUrlPath(fileName));
+            <div className="border-b border-gray-400 w-64">
+            <label>Vendor: </label>
+            {singleData?.data?.vendorName ?? 'N/A'}
+            <ul>
+            {files.map((file, index) => (
+            <li key={index}>{file.name}</li>
+            ))}
+            </ul>
+            </div>
+
+            <div className="flex flex-col mt-5 p-5 gap-4">
+
+
+            <div className="flex flex-col gap-2 text-sm text-gray-700">
+            {attachments?.map((item, index) => {
+            const fileName = item.filePath?.split('/').pop();
+
+            return (
+            <div key={index} className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
+            <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
+            </svg>
+
+            <span>{fileName}</span>
+
+            <button
+            onClick={async () => {
+            const response = await fetch(getImageUrlPath(item.filePath));
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -219,13 +217,28 @@ export default function MailForm({fileName,singleData,emailId}) {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
-        }}
-        className="text-blue-600 underline text-sm w-fit"
-    >
-        Download Excel
-    </button>
-                    </div>
-                </div>
+            }}
+            className="text-blue-600 underline"
+            >
+            Download
+            </button>
+            <button
+            onClick={() => handleRemove(index)}
+            className="text-red-500 underline text-sm"
+            >Remove</button>
+
+
+            </div>
+            );
+            })}
+            </div>
+            </div>
+
+            </div>
+
+                    
+                   </div>
+                 </>     
                    
                       
                             
@@ -234,7 +247,6 @@ export default function MailForm({fileName,singleData,emailId}) {
 
 
 
-                     </>     
                     
   );
 }   

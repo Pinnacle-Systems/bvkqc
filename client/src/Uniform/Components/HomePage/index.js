@@ -27,6 +27,7 @@ export default function Form() {
   const [form, setForm] = useState(false)
   const [mailForm, setMailform] = useState(false)
   const [emailId, setEmailId] = useState("")
+  const [currentId,setCurrentId] = useState("")
   const getButtonStyle = (name) => ({
     backgroundColor: active === name ? "#E9D5FF" : "transparent",
     borderRadius: "8px",
@@ -126,11 +127,11 @@ export default function Form() {
           <div>
 
             {active === "home" && <HomePage />}
-            {active === "Mail" && <MailForm emailId={emailId} />}
+            {active === "Mail" && <MailForm emailId={emailId}  currentId={currentId} />}
             {active === "Activity" && <Activity />}
             {active === "More" && <OrderImport />}
             {active === "order" && isOpen ? <Order setisOpen={setisOpen} setEmailId={setEmailId}
-              setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} /> : <></>}
+              setActive={setActive} setForm={setForm} form={form} setMailform={setMailform}  setCurrentId={setCurrentId} /> : <></>}
 
           </div>
 

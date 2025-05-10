@@ -10,17 +10,17 @@ import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignFormreport from "./ArtDesignReport";
 import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
+import MailForm from "../Email";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, setIsSave, id, setEmailId }) {
+  setActive, setIsSave, id, setCurrentId }) {
 
 
  
 
 
 
-  const [attach] = useAttachOrderMutation();
   const [attachments, setAttachments] = useState([]);
 
   const [formReport, setFormReport] = useState(false);
@@ -59,6 +59,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   useEffect(() => {
     if (!id) return
     setAttachments(singleData?.data?.attachments)
+    setCurrentId(singleData?.data?.id)
   }, [id, singleData])
 
 
@@ -290,6 +291,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   saveData();
                   setForm(false);
                   setActive("Mail");
+           
                 }}
               >
                 Save & Send
