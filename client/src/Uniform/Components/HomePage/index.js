@@ -21,19 +21,26 @@ import { OrderImport } from "..";
 
 
 export default function Form() {
+  const user = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userType"
+  );
+  console.log(user, 'user');
 
-  const [active, setActive] = useState("home");
+  const [active, setActive] = useState(user === null ? "order" : "home");
+
   const [isOpen, setisOpen] = useState(false)
   const [form, setForm] = useState(false)
   const [mailForm, setMailform] = useState(false)
   const [emailId, setEmailId] = useState("")
-  const [currentId,setCurrentId] = useState("")
+  const [currentId, setCurrentId] = useState("")
   const getButtonStyle = (name) => ({
     backgroundColor: active === name ? "#E9D5FF" : "transparent",
     borderRadius: "8px",
     Padding: "2px"
-
   });
+
+
+
 
 
 
@@ -127,11 +134,11 @@ export default function Form() {
           <div>
 
             {active === "home" && <HomePage />}
-            {active === "Mail" && <MailForm emailId={emailId}  currentId={currentId} />}
+            {active === "Mail" && <MailForm emailId={emailId} currentId={currentId} />}
             {active === "Activity" && <Activity />}
             {active === "More" && <OrderImport />}
-            {active === "order" && isOpen ? <Order setisOpen={setisOpen} setEmailId={setEmailId}
-              setActive={setActive} setForm={setForm} form={form} setMailform={setMailform}  setCurrentId={setCurrentId} /> : <></>}
+            {active === "order" && <Order setisOpen={setisOpen} setEmailId={setEmailId}
+              setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId} />}
 
           </div>
 

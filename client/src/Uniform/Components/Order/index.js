@@ -205,7 +205,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
                 vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
-                orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
+                orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
                 id={id} setEmailId={setEmailId}
               />

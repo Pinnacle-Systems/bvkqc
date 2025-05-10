@@ -17,7 +17,7 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
 const Login = () => {
 
-  
+
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState('');
@@ -39,7 +39,7 @@ const Login = () => {
     if (!password) {
       errors.password = "Password is required";
     }
-  
+
 
     return errors;
   };
@@ -57,7 +57,7 @@ const Login = () => {
         data: data,
       }).then(
         (result) => {
-          console.log(result,"result")
+          console.log(result, "result")
           if (result.status === 200) {
             if (result.data.statusCode === 0) {
               sessionStorage.setItem("sessionId", generateSessionId());
@@ -69,6 +69,12 @@ const Login = () => {
                 secureLocalStorage.setItem(
                   sessionStorage.getItem("sessionId") + "username",
                   result.data.userInfo.username
+                );
+                console.log(result.data.userInfo, ' result.data.userInfo')
+
+                secureLocalStorage.setItem(
+                  sessionStorage.getItem("sessionId") + "userType",
+                  result.data.userInfo.userType
                 );
                 secureLocalStorage.setItem(
                   sessionStorage.getItem("sessionId") + "partyId",
@@ -168,13 +174,13 @@ const Login = () => {
       <div className="flex flex-row w-screen h-screen bg-beige">
         {/* Left Section */}
         <div className="flex justify-center items-center w-1/2 bg-[--main-color]">
-      
+
           {/* <div> */}
           {/* <div className="text-9xl font-bold ">max</div> */}
-        
-            <img className="rounded-lg" width={450}
-                  src={logo} 
-                  alt="" />
+
+          <img className="rounded-lg" width={450}
+            src={logo}
+            alt="" />
           {/* </div> */}
         </div>
 
