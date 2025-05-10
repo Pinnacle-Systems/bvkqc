@@ -18,7 +18,10 @@ import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService
 
 export default function MailForm({ currentId, emailId }) {
 
-
+  const user = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userType"
+  );
+  console.log(user, 'user');
   const [toEmail, setToEmail] = useState("max@gmail.com");
   const [subject, setSubject] = useState('');
   const [Message, setMessage] = useState("")
@@ -160,13 +163,13 @@ export default function MailForm({ currentId, emailId }) {
               Send
             </button>
           </div>
-          {/* 
-          <input
+          {user === null ? <input
             type="file"
             multiple
             onChange={(e) => handleFileChange(e)}
             className="mb-4"
-          /> */}
+          /> : ''}
+
 
         </div>
 
