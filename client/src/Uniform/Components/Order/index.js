@@ -176,7 +176,7 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-            id={id} setEmailId={setEmailId}
+            id={id} setEmailId={setEmailId}   setCurrentId={setCurrentId}
           />
 
 

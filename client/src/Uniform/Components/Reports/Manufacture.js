@@ -15,7 +15,7 @@ import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, setMailform, vendor, setVendor, poItems, setPoItems,
-  setActive, setIsSave, saveData, id, setEmailId }) {
+  setActive, saveData, id, setEmailId , setCurrentId }) {
 
   const [upload] = useUploadMutation();
 
@@ -56,6 +56,10 @@ export default function Manufactureform({ singleData, setForm, setMailform, vend
     setPoItems(newArray)
   }, [percentage, isLoading, isFetching, singleData, id]);
 
+ useEffect(() => {
+    if (!id) return
+    setCurrentId(singleData?.data?.id)
+  }, [id, singleData])
 
 
 

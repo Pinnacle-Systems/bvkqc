@@ -125,7 +125,11 @@ async function getOne(req) {
         include: {
             orderBillItems: true,
             attachments: true,
-           
+            Party:{
+                select:{
+                    name:true
+                }
+            }
         }
     });
 

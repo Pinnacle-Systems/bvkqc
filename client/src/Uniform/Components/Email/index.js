@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { findFromList, handleMailSendWithMultipleAttachments } from "../../../Utils/helper";
+import { findFromList, getCommonParams, handleMailSendWithMultipleAttachments } from "../../../Utils/helper";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import secureLocalStorage from "react-secure-storage";
 import { Button, Card, CardContent, Input } from "@mui/material";
@@ -19,7 +19,7 @@ import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService
 export default function MailForm({currentId , emailId}) {
        
  
-  const [toEmail, setToEmail] = useState("max@gmail.com");
+  const [toEmail, setToEmail] = useState("");
   const [subject, setSubject] = useState('');
   const [Message,setMessage] =  useState("")
   const [attachments, setattachments] = useState([]);
@@ -29,9 +29,9 @@ export default function MailForm({currentId , emailId}) {
    
 
     const id = currentId
+  
     
-
-    const { data: singleData ,  isLoading , isFetching } = useGetOrderByIdQuery( id , { skip: !id });
+      const { data: singleData ,  isLoading , isFetching } = useGetOrderByIdQuery( id , { skip: !id });
     const { data: partyData } = useGetPartyByIdQuery(userId , { skip: !userId } );
      const FromEmailAddress =  partyData?.data?.email;
     const passskey  = singleData?.data?.passKey;
@@ -154,7 +154,7 @@ const handleFileChange = (event) => {
                          <div className="mt-auto flex justify-end w-full">
                                 <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded" 
                                         onClick={() => {
-                                         handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename,files);
+                                         handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename,attachments);
                                         }}
                                     >
                                 Send
@@ -175,13 +175,13 @@ const handleFileChange = (event) => {
 
 
             <div className="flex flex-col mt-5 p-5 gap-4">
-                          <div className="border-b border-gray-400 w-64">
-                          <label>Po Number: </label>
+                          <div className=" w-full">
+                          <label  className="text-md" >Po Number: </label>
                           {singleData?.data?.docId}
                           </div>
 
-                          <div className="border-b border-gray-400 w-64">
-                          <label>Vendor: </label>
+                          <div className="w-full">
+                          <label  className="text-md" >Vendor: </label>
                                 {singleData?.data?.Party?.name}
                           </div>
 

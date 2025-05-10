@@ -418,20 +418,23 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 export function handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename,files) {
   
-
+  let receivedFiles=files?.map(j=>{return{fileName:j.filePath}})
+console.log(receivedFiles,"receivedFiles")
   let mailAddress = "selvamanib986@gmail.com"
   let form = new FormData();
+  
 
-  for (let i = 0; i < files.length; i++) {
-    form.append('file[]', files[i]); 
-  }
+    // file should be a File object from an input[type="file"]
+    form.append('file', receivedFiles); // append all under same key 'file'
+  
+
   form.append("FromAddresss",FromEmailAddress );
   form.append("ToAddresss",toEmail );
   form.append("subject", subject);
   form.append("passskey", passskey);
   form.append("fileName", filename);
   form.append("message",Message)
-
+  form.append("files",files)
 
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {

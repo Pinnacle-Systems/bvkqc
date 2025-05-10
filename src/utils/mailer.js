@@ -116,87 +116,77 @@ const __dirname = dirname(__filename);
 
 let MAIL_SETTINGS= {};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 export async function sendMailWithAttachmentWithMultipleFiles(req) {
-console.log(req?.body,"bodyy")
+
+  console.log(req.body,"req")
 
   MAIL_SETTINGS = {
-        service: 'gmail',
-        auth: {
-            user: "iridescentcosting@gmail.com",
-            // req?.body?.FromAddresss,
-            pass:   "qowiqsbixattwtmw"  
-            //  req?.body?.passskey
-      
-      }
-    }
-    
-    const transporter = createTransport(MAIL_SETTINGS);
-    
-      
-     
-      let FromAddresss = req?.body?.FromAddresss
-      let ToAddress = req?.body?.ToAddresss
-      let subject = req?.body?.subject;
-      let ccAddress;
-      let message  =  req?.body?.message;
-    let fileName=req.body.fileName
+  service: 'gmail',
+  auth: {
+      user: "iridescentcosting@gmail.com",
+      // req?.body?.FromAddresss,
+      pass:   "qowiqsbixattwtmw"  
+      //  req?.body?.passskey
+
+  }
+  }
+
+  const transporter = createTransport(MAIL_SETTINGS);
 
 
+
+  let FromAddresss = req?.body?.FromAddresss
+  let ToAddress = req?.body?.ToAddresss
+  let subject = req?.body?.subject;
+  let ccAddress;
+  let message  =  req?.body?.message;
+  let fileName=req.body.fileName
+
+
+  try {
+  const files = req?.body?.file
+
+  const attachments = [
+  {
+  filename: `${files?.fileName}`,
+  path: `./uploads/${files.fileName}`,
+  contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  }
+  ]
+  console.log(files,"files")
+  files.forEach(file => {
   
 
- 
- 
-  try {
-    const files = req.body;
-
-    const attachments = [
+    attachments.push(
       {
-        filename: `${files?.fileName}`,
-        path: `./uploads/${files.fileName}`,
+        filename: `${file?.fileName}`,
+         path: `./uploads/${file.fileName}`,
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      }
-    ]
-    // files.forEach(file => {
-    //   let reportnumber = file?.fileName.split("-")
+      },
+    )
+  })
 
-    //   attachments.push(
-    //     {
-    //       filename: `${file?.fileName}`,
-    //       content: file.buffer
-    //     },
-    //   )
-    // })
 
-   
-    let info = await transporter.sendMail({
-            from: MAIL_SETTINGS.auth.user,
-            to: ToAddress,
-            cc: ccAddress,
-            subject: subject,
-            attachments,
-            html: `${message}
-                 <img src="cid:logo" alt="PNG Image" />`
-          });
-          return   { success: true, message: " send email with multiple Files ", info };;
-        } catch (error) {
-          console.error("Error sending mail:", error);
-      
-        }
+  let info = await transporter.sendMail({
+      from: MAIL_SETTINGS.auth.user,
+      to: ToAddress,
+      cc: ccAddress,
+      subject: subject,
+      attachments,
+      html: `${message}
+            <img src="cid:logo" alt="PNG Image" />`
+    });
+    return   { success: true, message: " send email with multiple Files ", info };;
+  } catch (error) {
+    console.error("Error sending mail:", error);
 
-}
+  }
+
+  }
+
+
+
+
 
 
 
