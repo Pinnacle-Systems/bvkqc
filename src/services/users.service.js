@@ -245,7 +245,7 @@ async function verifyOtp(req) {
 
 
 async function remove(id) {
-    console.log(id, "idd")
+    console.log(id,"id")
 
     const data = await prisma.user.delete({
         where: {
