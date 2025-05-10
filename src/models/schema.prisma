@@ -385,6 +385,7 @@ model Party {
   partyType         String?
   BillEntry         BillEntry[]
   mailId            String?
+  order             order[]
 }
 
 model Hsn {
@@ -508,35 +509,37 @@ enum PaymentMode {
 }
 
 model order {
-  id             Int              @id @default(autoincrement())
-  Branch         Branch?          @relation(fields: [branchId], references: [id])
-  branchId       Int?
-  createdAt      DateTime?        @default(now())
-  updatedAt      DateTime?        @updatedAt
-  createdBy      User?            @relation("createdBy", fields: [createdById], references: [id])
-  createdById    Int?
-  updatedBy      User?            @relation("updatedBy", fields: [updatedById], references: [id])
-  updatedById    Int?
-  docId          String?
-  orderdate      DateTime?
-  poNumber       String?
-  isDeleted      Boolean          @default(false)
-  User           User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int?
-  isApproval     Boolean          @default(false)
-  buyerGmail     String?
-  manufactureId  Int?
-  vendorId       Int?
-  excelFineName  String?
-  isSave         Boolean?
-  excessQty      Float?
-  netAmount      Float?
-  manufacture    String?
-  vendor         String?
-  deliverydate   DateTime?
-  Email          Email[]
-  orderBillItems orderBillItems[]
-  attachments    Attachments[]
+  id                 Int              @id @default(autoincrement())
+  Branch             Branch?          @relation(fields: [branchId], references: [id])
+  branchId           Int?
+  createdAt          DateTime?        @default(now())
+  updatedAt          DateTime?        @updatedAt
+  createdBy          User?            @relation("createdBy", fields: [createdById], references: [id])
+  createdById        Int?
+  updatedBy          User?            @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById        Int?
+  docId              String?
+  orderdate          DateTime?
+  poNumber           String?
+  isDeleted          Boolean          @default(false)
+  User               User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             Int?
+  isApproval         Boolean          @default(false)
+  buyerGmail         String?
+  Party              Party?           @relation(fields: [manufactureId], references: [id])
+  manufactureId      Int?
+  vendorId           Int?
+  excelFineName      String?
+  isSave             Boolean?
+  excessQty          Float?
+  netAmount          Float?
+  manufacture        String?
+  vendor             String?
+  deliverydate       DateTime?
+  Email              Email[]
+  orderBillItems     orderBillItems[]
+  attachments        Attachments[]
+  manufacturerMailId String?
 }
 
 model orderBillItems {

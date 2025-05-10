@@ -246,6 +246,9 @@ async function create(req) {
     const importedData = utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
     let headerNames = importedData;
     const orderImportItems = convertToImportFormat(importedData, headerNames);
+
+    console.log(orderImportItems, "orderImportItems")
+
     await prisma.$transaction(async (tx) => {
         data = await tx.orderImport.create(
             {
