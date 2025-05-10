@@ -9,14 +9,19 @@ import { getCommonParams, getDateFromDateTime, renameFile } from "../../../Utils
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignFormreport from "./ArtDesignReport";
-import { useAttachOrderMutation } from "../../../redux/uniformService/OrderService";
+import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   setActive, setIsSave, id, setEmailId }) {
 
+
+  console.log(singleData, "singggg")
+
+  console.log(id, "iddd")
+
   const [attach] = useAttachOrderMutation();
-  const [fileName, setFileName] = useState([]);
+  const [attachments, setAttachments] = useState([]);
 
   const [formReport, setFormReport] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -24,20 +29,20 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
 
+  const [addData] = useAddOrderMutation();
 
 
-
+  const [updateData] = useUpdateOrderMutation();
   const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
   const { data: percentage } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
   let excessQty = percentage?.data?.filter(item => item?.active === true)
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
-  let data = singleData?.data
+  let orderData = singleData?.data
 
-
-
-
-
+  const data = {
+    attachments, isAttachments: true
+  };
 
   useEffect(() => {
     if (poItems.length >= 5) return
@@ -51,19 +56,17 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   }, [poItems])
 
 
-  const saveData = async (data, text = "uploaded") => {
+  useEffect(() => {
+    if (!id) return
+    setAttachments(singleData?.data?.attachments)
+  }, [id, singleData])
 
+
+  const handleSubmitCustom = async (callback, data, text) => {
     try {
-
-
-
-      console.log(data, "data")
       const formData = new FormData();
       for (let key in data) {
-        console.log(key, "key")
-
-        if (key === 'fileName') {
-
+        if (key === 'attachments') {
           formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
           data[key].forEach(option => {
             if (option?.filePath instanceof File) {
@@ -75,19 +78,35 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         }
       }
 
-      console.log(formData, "formData")
-      const response = await attach({ body: formData, id }).unwrap();
-      console.log("Upload response?.data?.id:", response?.data?.id);
+      let returnData;
+      if (text === "Updated") {
+        returnData = await callback({ id, body: formData }).unwrap();
+      } else {
+        returnData = await callback(formData).unwrap();
+      }
+      if (returnData.statusCode === 0) {
 
 
-      //  toast.success(`${text} Successfully`);
-      console.log("Upload Response:", response);
-
-
+        toast.success(text + "Successfully");
+      } else {
+        toast.error(returnData?.message);
+      }
 
     } catch (error) {
-      console.error("Error during Export and Upload:", error);
-      toast.error("Something went wrong!");
+      console.log("handle", error);
+    }
+  };
+
+
+  const saveData = () => {
+
+    if (!window.confirm("Are you sure save the details ...?")) {
+      return;
+    }
+    if (id) {
+      handleSubmitCustom(updateData, data, "Updated");
+    } else {
+      handleSubmitCustom(addData, data, "Added");
     }
   };
 
@@ -96,39 +115,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
 
-  const handleQtyChange = (field, index, value, orderQty) => {
-    setPoItems((prev) => {
-      let newItem = structuredClone(prev)
-      newItem[index][field] = value
-      if (field === 'excessQty' && index === 0) {
-        for (let i = 0; i < newItem.length; i++) {
-          if (newItem[i].orderQty > 0) {
-            newItem[i]['excessQty'] = value;
-            const percentage = parseFloat((newItem[i].orderQty * value) / 100);
-            newItem[i]['qty'] = parseFloat(newItem[i].orderQty) + percentage;
-          }
 
-        }
-      }
-      if (field === 'excessQty') {
 
-        let qty = "qty"
-        let percentage = parseFloat((orderQty * value) / 100)
-        newItem[index][qty] = (parseFloat(orderQty) + percentage);
-      }
-      return newItem
-    });
-  }
-
-  console.log(poItems, "poItems");
-
-  console.log(data, "data");
-
-  function handleInputChange(value, index, field) {
-    const newBlend = structuredClone(fileName);
-    newBlend[index][field] = value;
-    setFileName(newBlend);
-  };
+  console.log(attachments, "ATT")
 
   return (
     <>
@@ -146,8 +135,8 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           // setFormReport(false);
           // }
           // }
-          setFileName={setFileName}
-          fileName={fileName}
+          setAttachments={setAttachments}
+          attachments={attachments}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
@@ -162,7 +151,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             <input
               type="text"
               className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-              value={data?.docId}
+              value={orderData?.docId}
             />
           </div>
           <div className="flex flex-col ">
@@ -171,7 +160,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
 
-              value={getDateFromDateTime(data?.orderdate)}
+              value={getDateFromDateTime(orderData?.orderdate)}
 
             />
           </div>
@@ -189,7 +178,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-              value={data?.manufacture || ""}
+              value={orderData?.manufacture || ""}
             />
 
           </div>
@@ -290,53 +279,23 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
               </tr>
-
             </tbody>
-
-
           </table>
         </div>
 
-
-
-
-
-
-
         <div className=" flex  justify-end  gap-3 mt-[50px]">
-
-
-
-
-
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
             onClick={() => {
-              // setIsSave(true);
-              saveData(fileName);
-              // exportAndUploadExcel(data);
+              saveData();
               setForm(false);
               setActive("Mail");
             }}
           >
             Save & Send
           </button>
-
-
-
-
-
-
         </div>
       </div>
-
-
-
-
-
-
-
-
     </>
   )
 

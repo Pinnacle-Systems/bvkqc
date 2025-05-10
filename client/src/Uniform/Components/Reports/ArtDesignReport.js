@@ -11,7 +11,7 @@
 //                        {showEntries.map((option) => <option value={option.value} >{option.show}</option>)}
 //                      </select> */}
 //                    </div>
-           
+
 //                  </div>
 //                  <>
 //                    <div
@@ -51,7 +51,7 @@
 //                              />
 //                            </th>
 //                            <th
-           
+
 //                              className="border-2  top-0 stick-bg"
 //                            >
 //                              <label>Supplier</label><input
@@ -77,7 +77,7 @@
 //                                }}
 //                              />
 //                            </th>
-           
+
 //                            <th className="border-2  top-0 stick-bg">
 //                              <label>Due Date</label><input
 //                                type="text"
@@ -89,7 +89,7 @@
 //                                }}
 //                              />
 //                            </th>
-           
+
 //                          </tr>
 //                        </thead>
 //                        {isLoadingIndicator ?
@@ -148,50 +148,50 @@ import { getImageUrlPath } from '../../../helper';
 import { renameFile } from '../../../Utils/helper';
 import AttachementForm from './AttachmentForm';
 
-const ArtDesignReport = ({ item, index, readOnly, leadId, dueDate, setFileName, fileName, setDueDate }) => {
+const ArtDesignReport = ({ item, index, readOnly, leadId, dueDate, setAttachments, attachments, setDueDate }) => {
 
   const today = new Date();
 
 
-   
+
   function addNewComments() {
-    setFileName((prev) => [...prev, { log: "", date: today,filePath: "" }]);
+    setAttachments((prev) => [...prev, { log: "", date: today, filePath: "" }]);
     setDueDate(moment.utc(today).format("YYYY-MM-DD"));
   }
-    return (
-        <>
-            <div className="w-full grid grid-cols-1 mt-5  px-5">
-           <div className="grid grid-cols-1 gap-4 p-1">
-            <table className="border border-gray-300 text-sm table-auto w-full">
-              <thead className="bg-gray-300 border border-gray-400">
-                <tr>
-                  <th className="py-1 px-3 w-10 text-left border border-gray-400">S.No</th>
-                  <th className="py-1 px-3 w-32 text-left border border-gray-400">Date</th>
-                  <th className="py-1 px-3 w-32 text-left border border-gray-400">User</th>
-                  <th className="py-1 px-3 text-left border border-gray-400">Comments</th>
-                  <th className="py-1 px-3 text-left w-20 border border-gray-400">File</th>
+  return (
+    <>
+      <div className="w-full grid grid-cols-1 mt-5  px-5">
+        <div className="grid grid-cols-1 gap-4 p-1">
+          <table className="border border-gray-300 text-sm table-auto w-full">
+            <thead className="bg-gray-300 border border-gray-400">
+              <tr>
+                <th className="py-1 px-3 w-10 text-left border border-gray-400">S.No</th>
+                <th className="py-1 px-3 w-32 text-left border border-gray-400">Date</th>
+                <th className="py-1 px-3 w-32 text-left border border-gray-400">User</th>
+                <th className="py-1 px-3 text-left border border-gray-400">Comments</th>
+                <th className="py-1 px-3 text-left w-20 border border-gray-400">File</th>
 
-                  <th className="py-1 px-3 w-10 text-center">
-                    <button
-                      onClick={addNewComments}
-                      className="text-green-500 hover:text-green-700 transition duration-150"
-                    >
-                      {PLUS}
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="overflow-y-auto">
-                {(fileName ? fileName : []).map((item, index) => (
-                  <AttachementForm  key={index} item={item} index={index} readOnly={false}  setFileName={setFileName} fileName={fileName}  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+                <th className="py-1 px-3 w-10 text-center">
+                  <button
+                    onClick={addNewComments}
+                    className="text-green-500 hover:text-green-700 transition duration-150"
+                  >
+                    {PLUS}
+                  </button>
+                </th>
+              </tr>
+            </thead>{console.log(attachments, "attachments")}
+            <tbody className="overflow-y-auto">
+              {(attachments ? attachments : []).map((item, index) => (
+                <AttachementForm key={index} item={item} index={index} readOnly={false} setAttachments={setAttachments} attachments={attachments} />
+              ))}
+            </tbody>
+          </table>
         </div>
-        </>
-   
-    )
+      </div>
+    </>
+
+  )
 }
 
 export default ArtDesignReport

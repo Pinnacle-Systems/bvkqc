@@ -28,6 +28,7 @@ const BranchAndFinYearForm = ({ setIsGlobalOpen }) => {
     const retrieveFinYearData = useCallback(() => getData(FIN_YEAR_API, setFinYears, setLoading, { companyId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userCompanyId") }), []);
     useEffect(retrieveFinYearData, [retrieveFinYearData]);
 
+
     const retrieveBranchData = useCallback(() => {
         if (JSON.parse(secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "defaultAdmin"))) {
             getData(BRANCHES_API, setBranches, setLoading, {
@@ -55,7 +56,7 @@ const BranchAndFinYearForm = ({ setIsGlobalOpen }) => {
     useEffect(retrieveBranchData, [retrieveBranchData]);
 
     const navigate = useNavigate();
-    
+
     const onSubmit = () => {
         if (!(currentBranch && currentFinYear)) {
             toast.info("Select Branch and Fin. Year", { position: 'top-center' });
@@ -71,6 +72,9 @@ const BranchAndFinYearForm = ({ setIsGlobalOpen }) => {
     const isCurrentFinYearActive = () => {
         return finYears.find((finYr) => finYr.id === parseInt(currentFinYear)).active;
     }
+
+
+    console.log(finYears, "finYears", branches, "branches")
 
     return (
         <div className="flex flex-col items-center justify-center bg-gray-100 w-[400px] h-[280px]">
@@ -94,7 +98,7 @@ const BranchAndFinYearForm = ({ setIsGlobalOpen }) => {
                         <option value="" hidden>
                             Select Branch
                         </option>
-                        {dropDownListObject(branches, "branchName", "id").map((branch) => (
+                        {dropDownListObject(branches, "branchName", "id")?.map((branch) => (
                             <option key={branch.value} value={branch.value}>
                                 {branch.show}
                             </option>
@@ -118,7 +122,7 @@ const BranchAndFinYearForm = ({ setIsGlobalOpen }) => {
                         <option value="" hidden>
                             Select Financial Year
                         </option>
-                        {dropDownFinYear(finYears).map((finyear) => (
+                        {dropDownFinYear(finYears)?.map((finyear) => (
                             <option key={finyear.value} value={finyear.value}>
                                 {finyear.show}
                             </option>

@@ -2,15 +2,13 @@ import { getYearShortCode } from "./helper"
 
 export const dropDownListObject = (data, showKey, valueKey) => {
     const outputData = []
-    if (data?.length > 0) {
-        for (let i of data) {
-            outputData.push({ show: i[showKey], value: i[valueKey] })
-        }
-        return outputData
+
+    for (let i of data) {
+        outputData.push({ show: i[showKey], value: i[valueKey] })
     }
-    else {
-        return outputData
-    }
+    return outputData
+
+
 
 }
 
