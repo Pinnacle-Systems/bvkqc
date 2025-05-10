@@ -13,7 +13,7 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignFormreport from "./ArtDesignReport";
 
 export default function BuyerForm({ singleData, setForm, setMailform, vendor, setVendor, poItems, setPoItems,
-  setActive, setIsSave, saveData, id, setEmailId }) {
+  setActive, setIsSave, saveData, id, setEmailId, setCurrentId }) {
   console.log(singleData, 'singleData7');
   const [upload] = useUploadMutation();
 
@@ -43,6 +43,12 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
     )
   }, [poItems])
 
+
+  useEffect(() => {
+    if (!id) return
+
+    setCurrentId(singleData?.data?.id)
+  }, [id, singleData])
 
   const exportAndUploadExcel = async (data, text = "uploaded") => {
 
@@ -326,22 +332,16 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
         <div className=" flex  justify-end  gap-3 mt-[50px]">
 
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
+            className="bg-blue-600 hover:bg-blue-700 text-white  px-2  rounded-sm  "
             onClick={() => {
               // setIsSave(true);
-              saveData();
-              exportAndUploadExcel(data);
+              // saveData();
+              // exportAndUploadExcel(data);
               setForm(false);
               setActive("Mail");
-
-
             }}
-
-
-
-
           >
-            Save & Send
+            Send mail
           </button>
         </div>
       </div>

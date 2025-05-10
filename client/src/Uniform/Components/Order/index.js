@@ -16,7 +16,7 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useGetUserByIdQuery, useGetUserQuery } from "../../../redux/services/UsersMasterService";
 
 
-export default function Order({ setForm, form, setEmailId, setActive  , setCurrentId }) {
+export default function Order({ setForm, form, setEmailId, setActive, setCurrentId }) {
 
   const [id, setId] = useState("");
   const [fileName, setFileName] = useState("");
@@ -193,7 +193,7 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId}  setCurrentId={setCurrentId}
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
             />
             :
 
@@ -205,7 +205,7 @@ export default function Order({ setForm, form, setEmailId, setActive  , setCurre
 
                 vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
-                orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
+                orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
                 id={id} setEmailId={setEmailId}
               />
