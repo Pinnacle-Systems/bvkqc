@@ -286,8 +286,6 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
     });
 
 
-    console.log(partyData, "partyyyy")
-
 
     let orderImport = await prisma.orderImport.findUnique({
         where: {
@@ -309,11 +307,11 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
     let isSave = false;
     let vendor;
     let ponumber = orderImport?.orderImportItems[0]?.po_number;
-    let manufactureId = await findFromList(parseInt(orderImport?.orderImportItems[0]?.manufacturer_mail_id), partyData, "id")
+    let manufactureId = await findFromList(orderImport?.orderImportItems[0]?.manufacturer_mail_id, partyData)
 
-    console.log(manufactureId, "manufactureId")
 
-    let orderDetails = orderImport?.orderImportItems?.map(async (val) => {
+
+    let orderDetails = orderImport?.orderImportItems?.map((val) => {
         return {
             itemcode: val?.item_code,
             barCode: val?.ean_barcode,
@@ -383,12 +381,14 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 async function findFromList(id, list, property) {
 
+    console.log(list, "liiii")
+    console.log("jiii")
     if (!list) return ""
-    let data = list?.filter(j => j.active).find(i => parseInt(i.id) === parseInt(id))
-    if (!data) return ""
-    console.log(data[property], "data[property]")
+    let data = list?.find(i => i.mailId == id)?.id
 
-    return (data[property])
+    console.log(data, "datata")
+    return data
+
 }
 
 

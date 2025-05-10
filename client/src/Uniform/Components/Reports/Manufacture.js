@@ -44,7 +44,7 @@ export default function Manufactureform({ singleData, setForm, setMailform, vend
 
 
   // },[percentage])   
-  console.log(id, "id")
+
 
   let percentageValue;
   useEffect(() => {
