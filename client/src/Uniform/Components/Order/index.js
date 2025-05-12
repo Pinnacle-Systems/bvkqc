@@ -28,7 +28,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   const dispatch = useDispatch()
   const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
- 
+
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
@@ -83,7 +83,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     isApproved,
 
   }
-       
+
 
   const handleSubmitCustom = async (callback, data, text) => {
 
@@ -265,7 +265,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
                         :
                         <Buyer
-
+                          poSentForApproval={poSentForApproval}
                           partyData={partyData}
                           allData={allData}
                           setForm={setForm}

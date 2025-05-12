@@ -1,7 +1,9 @@
 import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
 
 
-export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
+export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poSentForApproval }) {
+  console.log();
+
   return (
     <>
       <div className=" bg-white shadow rounded-lg">
@@ -26,27 +28,26 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
 
             {(allData ? allData?.data : [])?.map((item, index) =>
 
+              <>
+
+                {/* {poSentForApproval ? */}
+                <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
+                  onClick={() => {
+                    setForm(true)
+                    setId(item?.id)
+                    setPoNo(item?.docId)
+                  }}
+                >
+                  <td className="p-1 ">{parseInt(index) + 1}</td>
+                  <td className="p-1">{item?.docId}</td>
+                  <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
+                  <th className="p-1 ">{getDateFromDateTime(item?.deliverydate)}</th>
+                  <td className="p-1">{findFromList(item?.manufactureId, partyData?.data, "name")}</td>
+                  <td className="p-1">{findFromList(item?.vendorId, partyData?.data, "name")}  </td>
 
 
 
-
-              <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
-                onClick={() => {
-                  setForm(true)
-                  setId(item?.id)
-                  setPoNo(item?.docId)
-                }}
-              >
-                <td className="p-1 ">{parseInt(index) + 1}</td>
-                <td className="p-1">{item?.docId}</td>
-                <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
-                <th className="p-1 ">{getDateFromDateTime(item?.deliverydate)}</th>
-                <td className="p-1">{findFromList(item?.manufactureId, partyData?.data, "name")}</td>
-                <td className="p-1">{findFromList(item?.vendorId, partyData?.data, "name")}  </td>
-
-
-
-                {/* <td className="p-1 items-end ">
+                  {/* <td className="p-1 items-end ">
                   {item?.isSave ? (
                     <span className="inline-flex  text-sm  bg-green-300 text-white-500  px-1 w-10 rounded">
                       Progress
@@ -57,24 +58,28 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
                     </span>
                   )}
                 </td> */}
-                <div>
-                  <select
-                    className='px-1 py-1 border rounded'
-                    value={item.isApproved}
-                    // onChange={(e) =>
-                    //   setIsApproved(e.target.value)
-                    // }
-                    disabled
-                  >
-                    <option value=''>Not Yet sent</option>
-                    <option value='approve'>Approve</option>
-                    <option value='reject'>Reject</option>
-                    <option value='hold'>Hold</option>
-                  </select>
-                </div>
+                  <div>
+                    <select
+                      className='px-1 py-1 border rounded'
+                      value={item.isApproved}
+                      // onChange={(e) =>
+                      //   setIsApproved(e.target.value)
+                      // }
+                      disabled
+                    >
+                      <option value=''>Not Yet sent</option>
+                      <option value='approve'>Approve</option>
+                      <option value='reject'>Reject</option>
+                      <option value='hold'>Hold</option>
+                    </select>
+                  </div>
 
 
-              </tr>
+                </tr>
+                {/* : ''
+                } */}
+              </>
+
 
             )}
 

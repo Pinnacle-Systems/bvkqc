@@ -24,7 +24,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
-  console.log(user, 'user');
+  console.log(poSentForApproval, 'poSentForApproval');
   const [toEmail, setToEmail] = useState("manojbharathi00@gmail.com");
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState("")

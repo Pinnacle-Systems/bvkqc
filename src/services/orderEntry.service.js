@@ -405,14 +405,22 @@ async function update(id, body) {
 
     if (mailTransaction) {
 
-        console.log("hiiii")
+        data = await prisma.order.update({
+            where: {
+                id: parseInt(orderId),
+            },
+            data: {
+                poSentForApproval: poSentForApproval ? Boolean(poSentForApproval) : undefined,
 
-        console.log(attachments, "attachments")
+            },
 
-        let data = await prisma.mailTransaction.create(
+        })
+
+
+        data = await prisma.mailTransaction.create(
             {
                 data: {
-                    poSentForApproval: poSentForApproval ? Boolean(poSentForApproval) : undefined,
+
                     orderId: parseInt(orderId),
 
                     createdById: parseInt(userId),
@@ -448,7 +456,7 @@ async function update(id, body) {
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
-                isApproved: isApproved ? JSON.parse(isApproved) : false,
+                isApproved: isApproved ?? undefined,
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {
