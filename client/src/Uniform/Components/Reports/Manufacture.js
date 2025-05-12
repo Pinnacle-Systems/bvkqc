@@ -310,7 +310,7 @@ if(parseFloat(value) > parseFloat(percentageValue)){
             onClick={() => {
               // setIsSave(true);
               saveData();
-              exportAndUploadExcel(data);
+              exportAndUploadExcel(data,poItems);
               setForm(false);
               setActive("Mail");
 
