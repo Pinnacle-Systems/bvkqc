@@ -10,10 +10,11 @@ import { useGetPartyQuery, useUploadMutation } from "../../../redux/services/Par
 import { findFromList, getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import ArtDesignFormreport from "./ArtDesignReport";
+import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+
 
 export default function BuyerForm({ singleData, setForm, setMailform, vendor, setVendor, poItems, setPoItems,
-  setActive, setIsSave, saveData, id, setEmailId, setCurrentId }) {
+  setActive, setIsSave, saveData, id, setEmailId, setCurrentId, isApproved, setIsApproved }) {
   console.log(singleData, 'singleData7');
   const [upload] = useUploadMutation();
 
@@ -152,7 +153,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
         model={"Order"}
       />
       <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
-        <ArtDesignFormreport
+        <ArtDesignReport
           // heading={MODEL}
 
           tableWidth="100%"
@@ -324,7 +325,20 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
 
 
-
+        <div>
+          <select
+            className='px-1 py-1 border rounded'
+            value={isApproved}
+            onChange={(e) =>
+              setIsApproved(e.target.value)
+            }
+          >
+            <option value=''>Select status</option>
+            <option value='approve'>Approve</option>
+            <option value='reject'>Reject</option>
+            <option value='hold'>Hold</option>
+          </select>
+        </div>
 
 
 
@@ -335,7 +349,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
             className="bg-blue-600 hover:bg-blue-700 text-white  px-2  rounded-sm  "
             onClick={() => {
               // setIsSave(true);
-              // saveData();
+              saveData();
               // exportAndUploadExcel(data);
               setForm(false);
               setActive("Mail");

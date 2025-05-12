@@ -416,7 +416,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts, ccList) {
+export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, ccList) {
   console.log(ccList, 'in helper function');
 
   let receivedFiles = files?.map(j => { return { fileName: j.filePath } })
