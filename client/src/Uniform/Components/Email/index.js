@@ -17,13 +17,13 @@ import { LongDropdownInput } from "../../../Inputs";
 
 
 
-export default function MailForm({ currentId, emailId }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, userName }) {
 
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
   console.log(user, 'user');
-  const [toEmail, setToEmail] = useState("");
+  const [toEmail, setToEmail] = useState("max@gmail.com");
   const [subject, setSubject] = useState('');
   const [Message, setMessage] = useState("")
   const [attachments, setattachments] = useState([]);
@@ -31,6 +31,8 @@ export default function MailForm({ currentId, emailId }) {
   const [files, setFiles] = useState([]);
   const [userId, setUserId] = useState("")
   const [approvalSts, setApproveSts] = useState("")
+
+
 
   const id = currentId
   const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
@@ -47,7 +49,12 @@ export default function MailForm({ currentId, emailId }) {
     setUserId(singleData?.data?.vendorId)
   }, [singleData, isLoading, isFetching, Emaildata])
 
-  console.log(singleData, 'singleData');
+  console.log(singleUserPartyData, 'singleUserPartyData');
+
+  // useEffect(() => {
+  //   setFromAddress
+  // }, [singleUserPartyData])
+
 
   const handleRemove = (indexToRemove) => {
     setattachments((prev) => prev.filter((_, i) => i !== indexToRemove));
@@ -154,12 +161,13 @@ export default function MailForm({ currentId, emailId }) {
 
           </div>
 
-          {user === null ? <input
-            type="file"
-            multiple
-            onChange={(e) => handleFileChange(e)}
-            className="mb-4"
-          /> : ''}
+          {userRole === "" ?
+            <input
+              type="file"
+              multiple
+              onChange={(e) => handleFileChange(e)}
+              className="mb-4"
+            /> : ''}
 
           <div className="mt-auto flex justify-end w-full">
             <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"

@@ -76,7 +76,7 @@ async function get(req) {
                     contains: searchDocId
                 }
                 : undefined,
-              
+
 
         }
     });
@@ -125,9 +125,9 @@ async function getOne(req) {
         include: {
             orderBillItems: true,
             attachments: true,
-            Party:{
-                select:{
-                    name:true
+            Party: {
+                select: {
+                    name: true
                 }
             }
         }
@@ -154,7 +154,7 @@ async function getSearch(req) {
                     },
                 },
             ],
-           
+
         }
     })
     return { statusCode: 0, data: data };
@@ -383,6 +383,38 @@ async function update(id, body) {
 
     }
 
+    if (isManufactureAttachments) {
+
+        await prisma.$transaction(async (tx) => {
+            data = await tx.order.update({
+                where: {
+                    id: parseInt(id),
+                },
+                data: {
+                    attachments: {
+                        deleteMany: {},
+                        createMany: attachments ? {
+                            data: JSON.parse(attachments || []).map(temp => ({
+                                date: temp.date ? new Date(temp.date) : undefined,
+                                log: temp.log ? temp.log : "",
+                                gridUser: temp.gridUser ? temp.gridUser : "",
+                                filePath: temp.filePath ? temp.filePath : undefined,
+
+                            }))
+                        } : undefined
+                    }
+
+                },
+                include: {
+                    orderBillItems: true
+                }
+            })
+
+        })
+
+        return { statusCode: 0, data };
+
+    }
 
     await prisma.$transaction(async (tx) => {
         data = await tx.order.update({

@@ -83,7 +83,7 @@ app.use("/employeeCategories", employeeCategories);
 app.use("/partyCategories", partyCategories);
 app.use("/party", party);
 app.use('/project', project),
-  app.use("/process", processMaster);
+app.use("/process", processMaster);
 app.use("/taxTemplate", taxTemplate);
 app.use("/taxTerm", taxTerm);
 app.use("/termsAndCondition", termsAndCondition);
