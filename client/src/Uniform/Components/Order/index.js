@@ -60,7 +60,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       setPoItems(data?.orderBillItems || []);
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
-
+      setIsApproved(data?.isApproved || '')
     },
     [id]
   );
