@@ -30,26 +30,26 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [Message, setMessage] = useState("")
   const [ccList, setCcList] = useState(['']);
   const [attachments, setattachments] = useState([]);
-  const [filename, setfileName] = useState('')
+  const [fileName, setfileName] = useState('')
   const [files, setFiles] = useState([]);
   const [userId, setUserId] = useState("")
   const [fromAddress, setFromAddress] = useState("")
   const [sendorName, setSendorName] = useState("")
-  const [reciverName, setReceiverName] = useState("")
+  const [receiverName, setReceiverName] = useState("")
   const [sendorId, setSendorId] = useState("")
-  const [reciverid, setReceiverId] = useState("")
+  const [receiverId, setReceiverId] = useState("")
   const dispatch = useDispatch()
   const [formReport, setFormReport] = useState(false)
   const [multiAttach, setmultiAttach] = useState([])
 
   const id = currentId
 
-  console.log(emailId, "emailId")
+
 
   const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
 
-  console.log(Emaildata, "Emaildata")
+
 
 
   const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
@@ -57,7 +57,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const FromEmailAddress = partyData?.data?.email;
   const passskey = SigleOrderdata?.data?.passKey;
 
-  console.log(partyData, "partyData")
+
 
   const [updateData] = useUpdateOrderMutation();
 
@@ -72,7 +72,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setReceiverId(SigleOrderdata?.data?.Vendor?.id)
   }, [SigleOrderdata, isLoading, isFetching, Emaildata])
 
-  console.log(singleUserPartyData, 'singleUserPartyData');
+  console.log(userId, attachments, fileName, receiverName, sendorName, receiverId);
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -93,7 +93,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
 
-  console.log(ccList, 'cclist');
 
   const removeCcField = (index) => {
     const updated = ccList.filter((_, i) => i !== index);
@@ -109,8 +108,10 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
   };
 
-
-  const data = { MailTransaction: true, fromAddress, sendorName, sendorId, toEmail, reciverName, reciverid, subject, Message, ccList, attachments, filename, userId }
+  const data = {
+    MailTransaction: true,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, Message, ccList, attachments, fileName, userId
+  }
 
 
   const handleSubmitCustom = async (callback, data, text) => {
@@ -261,12 +262,11 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
               <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
                 onClick={() => {
                   saveData()
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, ccList);
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, fileName, files, ccList);
                 }}
 
               >
-                {console.log(ccList, '171')
-                }
+
                 Send
               </button>
             </div>

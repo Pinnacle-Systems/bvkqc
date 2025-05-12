@@ -144,7 +144,7 @@ async function getOne(req) {
 
     let percentage = await findPercentageValue()
 
-    data["orderBillItems"] = data["orderBillItems"]?.map(val => { return { ...val, excessQty:val?.excessQty ? val?.excessQty: val?.orderQty ? percentage : "" } })
+    data["orderBillItems"] = data["orderBillItems"]?.map(val => { return { ...val, excessQty: val?.excessQty ? val?.excessQty : val?.orderQty ? percentage : "" } })
 
     return { statusCode: 0, data };
 }
@@ -353,13 +353,13 @@ async function updateOrderBillItems(tx, orderDetails, order) {
 
 async function update(id, body) {
     let data;
-    const { branchId, userId, isSave, excessQty, attachments,isManufactureAttachments,
+    const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor,
         ponumber, isAttachments, isApproved } = await body
 
     console.log(
-        orderDetails, 
-        );
+        orderDetails,
+    );
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -373,7 +373,7 @@ async function update(id, body) {
 
 
     if (isAttachments) {
-      
+
 
         await prisma.$transaction(async (tx) => {
             data = await tx.order.update({
@@ -409,7 +409,7 @@ async function update(id, body) {
     if (MailTransaction) {
 
         await prisma.$transaction(async (tx) => {
-            data = await tx.order.update({
+            data = await tx.MailTransaction.update({
                 where: {
                     id: parseInt(id),
                 },
