@@ -354,8 +354,9 @@ async function updateOrderBillItems(tx, orderDetails, order) {
 async function update(id, body) {
     let data;
     const { branchId, userId, isSave, excessQty, attachments,isManufactureAttachments,
-        excessQtyAmount, date, orderDetails, vendor,
+        excessQtyAmount, date, orderDetails, vendor,MailTransaction,
         ponumber, isAttachments, isApproved } = await body
+        console.log(typeof(isApproved,"isApproved"))
 
     console.log(
         orderDetails, 
@@ -450,7 +451,7 @@ async function update(id, body) {
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
-                isApproved: isApproved ? isApproved : false,
+                isApproved: isApproved ? JSON.parse(isApproved) : false,
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {

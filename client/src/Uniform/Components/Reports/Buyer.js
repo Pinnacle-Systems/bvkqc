@@ -22,6 +22,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
   const [formReport, setFormReport] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const { branchId, finYearId, userId } = getCommonParams()
+  const [attachments, setAttachments] = useState([]);
 
 
   const { data: partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
@@ -47,9 +48,10 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
   useEffect(() => {
     if (!id) return
-
+    setAttachments(singleData?.data?.attachments)
     setCurrentId(singleData?.data?.id)
   }, [id, singleData])
+
 
   const exportAndUploadExcel = async (data, text = "uploaded") => {
 
@@ -163,6 +165,8 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
           // setFormReport(false);
           // }
           // }
+          setAttachments={setAttachments}
+          attachments={attachments}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />

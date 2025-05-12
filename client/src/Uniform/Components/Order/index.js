@@ -27,7 +27,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   const [isSave, setIsSave] = useState(true)
   const dispatch = useDispatch()
   const { branchId, finYearId, userId } = getCommonParams()
-
+  const [isApproved, setIsApproved] = useState(false)
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
@@ -69,7 +69,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   const excessQty = poItems?.reduce((a, c) => a + parseFloat(c?.excessQty || 0), 0);
   const excessQtyAmount = poItems?.reduce((a, c) => a + parseFloat(c?.qty || 0), 0);
-  const [isApproved, setIsApproved] = useState(false)
+
   const data = {
     id,
     branchId, userId,
@@ -80,6 +80,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     isSave: true, excessQtyAmount,
     isApproved
   }
+       
 
   const handleSubmitCustom = async (callback, data, text) => {
 

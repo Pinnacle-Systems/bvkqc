@@ -49,7 +49,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
 
-  console.log(Emaildata, "Emaildata")
 
 
   const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
@@ -57,22 +56,29 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const FromEmailAddress = partyData?.data?.email;
   const passskey = SigleOrderdata?.data?.passKey;
 
-  console.log(partyData, "partyData")
 
   const [updateData] = useUpdateOrderMutation();
 
 
   useEffect(() => {
     setUserId(SigleOrderdata?.data?.vendorId)
-    setattachments(SigleOrderdata?.data?.attachments)
+    setattachments( emailId   ?   []  :  SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
     setReceiverName(SigleOrderdata?.data?.Vendor?.name)
     setSendorName(SigleOrderdata?.data?.Manufacture?.name)
     setSendorId(SigleOrderdata?.data?.Manufacture?.id)
     setReceiverId(SigleOrderdata?.data?.Vendor?.id)
-  }, [SigleOrderdata, isLoading, isFetching, Emaildata])
+  }, [SigleOrderdata, isLoading, isFetching])
 
-  console.log(singleUserPartyData, 'singleUserPartyData');
+useEffect(() => {
+    if (Emaildata?.data?.poExcelFileName) {
+        setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
+    }
+}, [Emaildata]);
+
+
+
+  console.log(attachments, 'attachments');
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -93,7 +99,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
 
-  console.log(ccList, 'cclist');
 
   const removeCcField = (index) => {
     const updated = ccList.filter((_, i) => i !== index);
@@ -298,16 +303,16 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
             <div className="flex flex-col gap-2 text-sm text-gray-700">
-              {attachments?.map((item, index) => {
-                const fileName = item.filePath?.split('/').pop();
-
+              {attachments?.map((item, index) => (
+                // const fileName = item.filePath?.split('/').pop();
+                
                 <div key={index} className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
                     <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
                   </svg>
 
-                  <span>{fileName}</span>
+                  <span>{item.filePath?.split('/').pop()}</span>
 
                   <button
                     onClick={async () => {
@@ -316,7 +321,8 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                       const url = window.URL.createObjectURL(blob);
                       const link = document.createElement('a');
                       link.href = url;
-                      link.download = fileName;
+                      // link.download = fileName;
+                           link.download = item.filePath?.split('/').pop();
                       document.body.appendChild(link);
                       link.click();
                       link.remove();
@@ -334,7 +340,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
                 </div>
 
-              })}
+              ))}
             </div>
           </div>
 
