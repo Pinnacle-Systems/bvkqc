@@ -15,7 +15,7 @@ import {
 } from '../../../redux/services/SalesBillService'
 
 import { getDateFromDateTime, isGridDatasValid } from '../../../Utils/helper';
-import { useGetPartyByIdQuery, useGetPartyQuery } from '../../../redux/services/PartyMasterService';
+import {  useGetPartyQuery } from '../../../redux/services/PartyMasterService';
 import PoBillItems from './PoBillItems';
 import Modal from "../../../UiComponents/Modal";
 import PurchaseBillFormReport from './PurchaseBillFormReport';

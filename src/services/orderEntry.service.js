@@ -76,9 +76,24 @@ async function get(req) {
                     contains: searchDocId
                 }
                 : undefined,
+               
 
-
+        },
+        include:{
+            mailTransaction : true,
+            Vendor:{
+                select :{
+                    name:true
+                }
+            },
+            Manufacture :{
+                select :{
+                    name:true
+                }
+            },
+            
         }
+
     });
 
 
@@ -105,6 +120,11 @@ async function get(req) {
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
     const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startDateStartTime, finYearDate?.endDateEndTime) : "";
     let newDocId = finYearDate ? (await getNextDocId(branchId, shortCode, finYearDate?.startDateStartTime, finYearDate?.endDateEndTime, isTaxBill)) : "";
+
+
+ 
+
+
     return { statusCode: 0, nextDocId: newDocId, data, totalCount };
 }
 

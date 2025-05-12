@@ -337,20 +337,40 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
         <div className="flex flex-col mt-5 p-5 gap-4">
-          <div className="border-b border-gray-400 w-64">
-            <label>Po Number: </label>
+          <div className="border-b border-gray-400 w-full">
+            <label className="font-medium text-gray-700">Po Number: </label>
             {SigleOrderdata?.data?.docId}
           </div>
 
-          <div className="border-b border-gray-400 w-64">
-            <label>Vendor: </label>
-            {SigleOrderdata?.data?.vendorName ?? 'N/A'}
-            <ul>
-              {files.map((file, index) => (
-                <li key={index}>{file.name}</li>
-              ))}
-            </ul>
+      <div className="border-b border-gray-400 w-full">
+        {userRole === "MANUFACTURE" && (
+          <div className="flex items-center space-x-2 py-1">
+            <label className="font-medium text-gray-700">Vendor:</label>
+            <span>{SigleOrderdata?.data?.Vendor?.name ?? 'N/A'}</span>
           </div>
+        )}
+          {userRole === "VENDOR" && (
+          <div className="flex items-center space-x-2 py-1 ">
+            <label className="font-medium text-gray-700">Vendor:</label>
+            <span>{SigleOrderdata?.data?.Manufacture?.name ?? 'N/A'}</span>
+          </div>
+        )}
+  {userRole === "" && (
+  <>
+    <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
+      <label className="font-medium text-gray-700">Manufacturer:</label>
+      <span>{SigleOrderdata?.data?.Manufacture?.name ?? 'N/A'}</span>
+    </div>
+    <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
+      <label className="font-medium text-gray-700">Vendor:</label>
+      <span>{SigleOrderdata?.data?.Vendor?.name ?? 'N/A'}</span>
+    </div>   
+  
+  </>
+)}
+
+    </div>
+
 
           <span>{Emaildata?.data?.poExcelFileName}</span>
           <div className="flex flex-col mt-5 p-5 gap-4">

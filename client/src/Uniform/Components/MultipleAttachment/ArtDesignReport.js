@@ -102,7 +102,6 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, setAtta
     </div>
   </div>
 
-  {/* Fixed "DONE" button */}
   <div className="h-[60px] flex items-center justify-end px-5">
     <button
       onClick={() => setFormReport(false)}
