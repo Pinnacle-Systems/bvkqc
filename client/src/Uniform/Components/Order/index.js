@@ -14,6 +14,7 @@ import VendorForm from "../Reports/Vendor";
 import BuyerForm from "../Reports/Buyer";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
+import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
 
 
 export default function Order({ setForm, form, setEmailId, setActive, setCurrentId }) {
@@ -39,7 +40,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   const userRole = singleuserData?.data?.userType || ""
 
-
+  // const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
   const { data: partyData } = useGetPartyQuery({ params: { branchId, finYearId } });
 
@@ -50,16 +51,15 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   const [updateData] = useUpdateOrderMutation();
 
 
+
+
   const syncFormWithDb = useCallback(
     (data) => {
-      if (!id) {
-        setPoItems([]);
-
-      } else {
+   
         setPoItems(data?.orderBillItems || []);
         setIsSave(data?.isSave)
         setVendor(data?.vendorId)
-      }
+      
     },
     [id]
   );
@@ -101,7 +101,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
           formData.append(key, data[key]);
         }
       }
-      console.log(formData, 'formData104');
+   
 
       let returnData;
       if (text === "Updated") {
@@ -121,24 +121,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       console.log("handle", error);
     }
   };
-  // const handleSubmitCustom = async (callback, data, text) => {
-  //   try {
-  //     let returnData = await callback(data).unwrap();
-  //     if (returnData.statusCode === 0) {
-  //       setId(returnData?.data?.id)
-  //       toast.success(text + "Successfully");
-  //       dispatch({
-  //         type: `partyMaster/invalidateTags`,
-  //         payload: ['Party'],
-  //       });
-  //     } else {
-  //       toast.error(returnData?.message)
-  //     }
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-
-  // }
+ 
 
   const saveData = () => {
 
@@ -157,14 +140,39 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   }
 
-  console.log(poItems, 'poItems');
+
+
+
+
+    // useEffect(() => {
+    //     if (poItems?.length >= 5) return
+    //     setPoItems(prev => {
+    //         let newArray = Array?.from({ length: 5  - prev.length }, i => {
+    //             return { excessQty: "", qty: 0.00,orderQty:0.00 }
+    //         })
+    //         return [...prev, ...newArray]
+    //     }
+    //     )
+    // }, [poItems])
+
+//  useEffect(() => {
+//     if (percentage?.data?.length === 0) return;
+    
+//    let percentageValue = percentage?.data?.find(i => i.active)?.qty
+// console.log(percentageValue,"percentageValue")
+
+//     let newArray = poItems?.map((item, index) => {
+//       return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
+//     });
+//     setPoItems(newArray)
+//   }, [percentage?.data, setPoItems,id]);
+
+
 
   return (
 
 
     <>
-
-
       {
         form === true && userRole === "MANUFACTURE" ?
 
@@ -218,154 +226,10 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
                 <FormHeaderNew model={"Order Report"} />
 
 
-                {/* <main className="p-2 space-y-6">
-
-              {   userRole ===  "VENDOR"   ||       userRole ===  "MANUFACTURE"  ?
-
-              <div className=" bg-white shadow rounded-lg">
-                <table className="min-w-full text-left overflow-x-auto" >
-                  <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
-                    <tr >
-                      <th className="py-3 px-6">S No</th>
-                      <th className="py-3 px-6">Po Number</th>
-                      <th className="py-3 px-6">Order date</th>
-                      <th className="py-3 px-6">Delivery date</th>
-                     { userRole ===  "MANUFACTURE"   &&      
-                      <th className="py-3 px-6">Vendor</th> }  
-                         
-                          { userRole ===  "VENDOR"   &&      
-                      <th className="py-3 px-6">Manufacture</th> } 
-                      
-                      <th className="py-3 px-6">Product</th>
-                      <th className="py-3 px-6">Approval Status</th>
-                    </tr>
-                  </thead>
-
-                  <tbody className="text-gray-700 text-xs">
-                
-
-
-                    
-                
-            {(allData ? allData?.data : [])?.map((item, index) =>
-
-
-
-
-                <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
-                          onClick={() =>{
-                          setForm(true)
-                          setId(item?.id)
-                          setPoNo(item?.docId) }}
-                >
-              <td className="p-2 font-semibold">{parseInt(index)  + 1}</td>
-              <td className="p-2">{item?.docId}</td>
-              <td className="p-3">{getDateFromDateTime(item?.orderdate)}</td>
-              <th className="py-3 px-6">{getDateFromDateTime(item?.deliverydate)}</th>
-              { userRole ===  "MANUFACTURE"   &&   
-              <td className="p-3">{findFromList(item.vendorId,partyData?.data, "name")}</td> }
-             <td className="p-3">{findFromList(item.manufactureId,partyData?.data, "name")   ||  item?.manufactureId   }</td>
-      
-              <td className="p-3">{item?.isApproval ===  1   ?  "TSHIRT AND SHORTS"  :   "TSHIRT AND SHORTS"} </td>
-
-
-
-              <td className="p-2 items-end ">
-                  {item?.isSave ? (
-                    <span className="inline-flex  text-sm font-semibold bg-green-300 text-white-500  px-1 w-20 rounded">
-                      Progress
-                    </span>
-                  ) : (
-                    <span className="inline-flex   text-sm font-semibold bg-red-300 text-white-500 px-1 w-20 rounded ">
-                      Pending
-                    </span>
-                  )}
-                </td>
-            
-     
-
-            </tr>
-
-          )}
-            
-                  </tbody>
-                </table>
-              </div>
-          
-
-
-     :
-
-          <div className=" bg-white shadow rounded-lg">
-            <table className="min-w-full text-left overflow-x-auto" >
-              <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
-                <tr >
-                  <th className="py-3 px-6">S No</th>
-                  <th className="py-3 px-6">Po Number</th>
-                  <th className="py-3 px-6">Orderdate</th>
-                  <th className="py-3 px-6">Delivery date</th>
-                  <th className="py-3 px-6">Manufacture</th>
-                  <th className="py-3 px-6">Vendor</th>
-                  <th className="py-3 px-6">Approval Status</th>
-                </tr>
-              </thead>
-
-              <tbody className="text-gray-700 text-xs">
             
 
 
-                
-            
-          {(allData ? allData?.data : [])?.map((item, index) =>
 
-
-
-
-
-            <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
-                      onClick={() =>{
-                      setForm(true)
-                      setId(item?.id)
-                      setPoNo(item?.docId) }}
-            >
-          <td className="p-2 font-semibold">{parseInt(index)  + 1}</td>
-          <td className="p-2">{item?.docId}</td>
-          <td className="p-3">{getDateFromDateTime(item?.orderdate)}</td>
-          <th className="py-3 ">{getDateFromDateTime(item?.deliverydate)}</th>
-          <td className="p-3">{findFromList(item?.manufactureId,partyData?.data, "name") ||  item?.manufactureId }</td>
-          <td className="p-3">{findFromList(item?.vendorId,partyData?.data, "name") ||  "Not yet Conformed"  }  </td>
-
-
-
-          <td className="p-2 items-end ">
-              {item?.isSave ? (
-                <span className="inline-flex  text-sm font-semibold bg-green-300 text-white-500  px-1 w-20 rounded">
-                  Progress
-                </span>
-              ) : (
-                <span className="inline-flex   text-sm font-semibold bg-red-300 text-white-500 px-1 w-20 rounded ">
-                  Pending
-                </span>
-              )}
-            </td>
-
-
-
-          </tr>
-
-          )}
-
-              </tbody>
-            </table>
-          </div>
-        
-                            
-      }
-
-
-                
-
-            </main> */}
 
 
 

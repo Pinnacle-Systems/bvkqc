@@ -118,7 +118,7 @@ async function getOne(req) {
     const salesReport = req.query.salesReport
 
 
-    const data = await prisma.order.findUnique({
+    let data = await prisma.order.findUnique({
         where: {
             id: parseInt(id)
         },
@@ -135,9 +135,23 @@ async function getOne(req) {
 
     if (!data) return NoRecordFound("Order Bill");
 
+    let percentage=await findPercentageValue()
 
+    data["orderBillItems"]=data["orderBillItems"]?.map(val=>{return{...val,excessQty: val?.orderQty ? percentage : ""}})
 
     return { statusCode: 0, data };
+}
+
+
+async function findPercentageValue(){
+     let data = await prisma.percentage.findMany({
+        where: {
+            active: true,
+        }
+    });
+
+     return data?.find(v=>v.active)?.qty
+    
 }
 
 async function getSearch(req) {
