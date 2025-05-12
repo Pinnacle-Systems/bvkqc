@@ -129,6 +129,11 @@ async function getOne(req) {
                 select: {
                     name: true
                 }
+            },
+            Vendor: {
+                select: {
+                    nameLtrue
+                }
             }
         }
     });

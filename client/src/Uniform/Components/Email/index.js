@@ -8,11 +8,12 @@ import { AttachFile } from "@mui/icons-material";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { toast } from 'react-toastify';
-import { useGetOrderByIdQuery, useUploadMutation } from "../../../redux/uniformService/OrderService";
+import { useGetOrderByIdQuery, useUpdateOrderMutation, useUploadMutation } from "../../../redux/uniformService/OrderService";
 import { useGetEmailByIdQuery, useGetEmailQuery } from "../../../redux/uniformService/Email.Services";
 import { getImageUrlPath } from "../../../Constants";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { LongDropdownInput } from "../../../Inputs";
+import { useDispatch } from "react-redux";
 
 
 
@@ -31,8 +32,8 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [files, setFiles] = useState([]);
   const [userId, setUserId] = useState("")
   const [approvalSts, setApproveSts] = useState("")
-
-
+  const [reciverName, setReceiverName] = useState("")
+  const dispatch = useDispatch()
 
   const id = currentId
   const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
@@ -43,17 +44,23 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const FromEmailAddress = partyData?.data?.email;
   const passskey = singleData?.data?.passKey;
 
+  console.log(partyData, "partyData")
+
+  const [updateData] = useUpdateOrderMutation();
+
+
   useEffect(() => {
     setattachments(singleData?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
     setUserId(singleData?.data?.vendorId)
+    setReceiverName()
   }, [singleData, isLoading, isFetching, Emaildata])
 
   console.log(singleUserPartyData, 'singleUserPartyData');
 
-  // useEffect(() => {
-  //   setFromAddress
-  // }, [singleUserPartyData])
+  useEffect(() => {
+    setFromAddress(singleUserPartyData?.data?.mailId)
+  }, [singleUserPartyData])
 
 
   const handleRemove = (indexToRemove) => {
@@ -85,7 +92,42 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
   };
 
+  const data = { fromAddress, userName, toEmail, subject, Message, attachments, filename, userId, reciverName }
 
+
+  const handleSubmitCustom = async (callback, data, text) => {
+    try {
+      let returnData = await callback(data).unwrap();
+      if (returnData.statusCode === 0) {
+        // setId(returnData?.data?.id)
+        toast.success(text + "Successfully");
+        dispatch({
+          type: `partyMaster/invalidateTags`,
+          payload: ['Party'],
+        });
+      } else {
+        toast.error(returnData?.message)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  const saveData = () => {
+
+    if (id) {
+
+      handleSubmitCustom(updateData, data, "Updated")
+
+    }
+    // else {
+
+    //   handleSubmitCustom(addData, data, "Added")
+
+    // }
+
+  }
 
 
 
@@ -176,6 +218,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
           <div className="mt-auto flex justify-end w-full">
             <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"
               onClick={() => {
+                saveData()
                 handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts);
               }}
             >
