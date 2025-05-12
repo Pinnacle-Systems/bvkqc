@@ -14,8 +14,9 @@ import { iteratee } from "lodash";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
-export default function Manufactureform({ singleData, setForm, setMailform, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId , setCurrentId }) {
+export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
+  setActive, saveData, id, setEmailId , setCurrentId 
+ }) {
 
   const [upload] = useUploadMutation();
 
@@ -46,15 +47,22 @@ export default function Manufactureform({ singleData, setForm, setMailform, vend
   // },[percentage])   
 
 
-  let percentageValue;
+ 
+console.log(percentage,"perrr");
+console.log(poItems,"perrr");
+
+
   useEffect(() => {
     if (percentage?.data?.length === 0) return;
-    percentageValue = percentage?.data?.find(i => i.active)?.qty
+   let percentageValue = percentage?.data?.find(i => i.active)?.qty
     let newArray = poItems?.map((item, index) => {
       return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
     });
     setPoItems(newArray)
   }, [percentage, isLoading, isFetching, singleData, id]);
+
+
+
 
  useEffect(() => {
     if (!id) return
@@ -186,11 +194,6 @@ export default function Manufactureform({ singleData, setForm, setMailform, vend
   };
 
 
-
-
-  console.log(data, "data");
-
-
   return (
     <>
       <FormHeaderNew
@@ -279,7 +282,7 @@ export default function Manufactureform({ singleData, setForm, setMailform, vend
 
                       value={item?.excessQty}
                       onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-                      onKeyDown={e => { if (e.key === "Delete") { handleQtyChange("", index, "excessQty") } }}
+                   
                       className="w-full p-1   rounded-md text-right focus:ring-blue-400"
                     />
 

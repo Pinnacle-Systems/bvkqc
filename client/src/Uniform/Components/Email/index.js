@@ -19,10 +19,15 @@ import { LongDropdownInput } from "../../../Inputs";
 
 export default function MailForm({ currentId, emailId }) {
 
-  const user = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userType"
-  );
-  console.log(user, 'user');
+ const  user =  secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userId")
+
+  const { data: singleuserData } = useGetUserByIdQuery(user, { skip: !user });
+
+
+  const userRole = singleuserData?.data?.userType || ""
+
+  console.log(userRole, 'userRole');
   const [toEmail, setToEmail] = useState("max@gmail.com");
   const [subject, setSubject] = useState('');
   const [Message, setMessage] = useState("")
@@ -158,7 +163,8 @@ export default function MailForm({ currentId, emailId }) {
 
           </div>
 
-          {user === null ? <input
+          {userRole === "" ? 
+          <input
             type="file"
             multiple
             onChange={(e) => handleFileChange(e)}

@@ -118,7 +118,8 @@ let MAIL_SETTINGS = {};
 
 export async function sendMailWithAttachmentWithMultipleFiles(req) {
 
-  console.log(req.body, "req")
+
+  console.log(req.body,"req")
 
   MAIL_SETTINGS = {
     service: 'gmail',

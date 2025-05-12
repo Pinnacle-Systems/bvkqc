@@ -13,7 +13,7 @@ import Manufactureform from "../Reports/Manufacture";
 import VendorForm from "../Reports/Vendor";
 import BuyerForm from "../Reports/Buyer";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { useGetUserByIdQuery, useGetUserQuery } from "../../../redux/services/UsersMasterService";
+import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 
 
 export default function Order({ setForm, form, setEmailId, setActive, setCurrentId }) {
@@ -176,7 +176,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-            id={id} setEmailId={setEmailId}   setCurrentId={setCurrentId}
+            id={id} setEmailId={setEmailId}   setCurrentId={setCurrentId}          
+
           />
 
 
@@ -193,7 +194,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}          
+
             />
             :
 
@@ -389,11 +391,12 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
                         <>
                           <Vendor
 
-                            allData={allData}
-                            setForm={setForm}
-                            setId={setId}
-                            setPoNo={setPoNo}
-                            partyData={partyData}
+                          allData={allData}
+                          setForm={setForm}
+                          setId={setId}
+                          setPoNo={setPoNo}
+                          partyData={partyData}
+
                           />
                         </>
 
