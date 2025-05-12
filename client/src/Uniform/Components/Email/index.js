@@ -24,10 +24,10 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
-  console.log(user, 'user');
+  console.log(poSentForApproval, 'poSentForApproval');
   const [toEmail, setToEmail] = useState("manojbharathi00@gmail.com");
   const [subject, setSubject] = useState('');
-  const [Message, setMessage] = useState("")
+  const [message, setMessage] = useState("")
   const [ccList, setCcList] = useState(['']);
   const [attachments, setattachments] = useState([]);
   const [fileName, setfileName] = useState('')
@@ -64,7 +64,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   useEffect(() => {
     setUserId(SigleOrderdata?.data?.vendorId)
-    setattachments( emailId   ?   []  :  SigleOrderdata?.data?.attachments)
+    setattachments(emailId ? [] : SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
     setReceiverName(SigleOrderdata?.data?.Vendor?.name)
     setSendorName(SigleOrderdata?.data?.Manufacture?.name)
@@ -72,15 +72,19 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setReceiverId(SigleOrderdata?.data?.Vendor?.id)
   }, [SigleOrderdata, isLoading, isFetching])
 
-useEffect(() => {
+  useEffect(() => {
     if (Emaildata?.data?.poExcelFileName) {
-        setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
+      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
     }
-}, [Emaildata]);
+  }, [Emaildata]);
 
 
 
-  console.log(userId, attachments, fileName, receiverName, sendorName, receiverId);
+  useEffect(() => {
+    if (Emaildata?.data?.poExcelFileName) {
+      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
+    }
+  }, [Emaildata]);
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -117,30 +121,31 @@ useEffect(() => {
   };
 
   const data = {
-    mailTransaction: true,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, Message, ccList, attachments, fileName, userId, poSentForApproval
+    mailTransaction: true, orderId: id,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
   console.log(poSentForApproval, 'poSentForApproval');
-
+  console.log("mailTransaction", id,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, ccList, attachments, fileName, userId);
 
   const handleSubmitCustom = async (callback, data, text) => {
 
     try {
       const formData = new FormData();
       for (let key in data) {
-        if (key === "attachments") {
-          data[key].forEach(item =>
-            formData.append(key, JSON.stringify(item))
-          );
+        // if (key === "attachments") {
+        //   data[key].forEach(item =>
+        //     formData.append(key, JSON.stringify(item))
+        //   );
+        // }
+        if (key === 'attachments') {
+          formData.append(key, JSON.stringify(data[key].map(i => ({ ...i }))));
+          // data[key].forEach(option => {
+          //   if (option?.filePath instanceof File) {
+          //     formData.append('images', option.filePath);
+          //   }
+          // });
         }
-        // if (key === 'attachments') {
-        //   formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
-        //   data[key].forEach(option => {
-        //     if (option?.filePath instanceof File) {
-        //       formData.append('images', option.filePath);
-        //     }
-        //   });
-        // } 
         else {
           formData.append(key, data[key]);
         }
@@ -286,7 +291,7 @@ useEffect(() => {
                 id="message"
                 rows="7"
                 placeholder="Write your message..."
-                name="Subject" value={Message} onChange={(e) => setMessage(e.target.value)}
+                name="Subject" value={message} onChange={(e) => setMessage(e.target.value)}
 
                 className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm"
               ></textarea>
@@ -316,7 +321,7 @@ useEffect(() => {
                 onClick={() => {
                   saveData()
                   setPoSentForApproval(true)
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, fileName, files, ccList);
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, files, ccList);
                 }}
 
               >
@@ -354,7 +359,7 @@ useEffect(() => {
             <div className="flex flex-col gap-2 text-sm text-gray-700">
               {attachments?.map((item, index) => (
                 // const fileName = item.filePath?.split('/').pop();
-                
+
                 <div key={index} className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
@@ -371,7 +376,7 @@ useEffect(() => {
                       const link = document.createElement('a');
                       link.href = url;
                       // link.download = fileName;
-                           link.download = item.filePath?.split('/').pop();
+                      link.download = item.filePath?.split('/').pop();
                       document.body.appendChild(link);
                       link.click();
                       link.remove();

@@ -416,7 +416,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, fileName, files, ccList) {
+export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, files, ccList) {
 
 
   let receivedFiles = files?.map(j => { return { fileName: j.filePath } })
@@ -433,7 +433,7 @@ export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail,
   form.append("subject", subject);
   form.append("passskey", passskey);
   form.append("fileName", fileName);
-  form.append("message", Message)
+  form.append("message", message)
   form.append("files", files)
   form.append("ccList", joinMails)
 

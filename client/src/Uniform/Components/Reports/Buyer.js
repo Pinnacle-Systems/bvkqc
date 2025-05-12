@@ -263,36 +263,39 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
             <tbody className="">
               {(poItems || []).map((item, index) => (
-                <tr key={index} className=" table-row ">
-                  <td className="border border-gray-300 text-center p-2">{index + 1}</td>
-                  <td className="border border-gray-300 text-left ">{item?.department}</td>
-                  <td className="border border-gray-300 text-left ">{item?.class}</td>
+                <>
 
-                  <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.barCode}</td>
+                  <tr key={index} className=" table-row ">
+                    <td className="border border-gray-300 text-center p-2">{index + 1}</td>
+                    <td className="border border-gray-300 text-left ">{item?.department}</td>
+                    <td className="border border-gray-300 text-left ">{item?.class}</td>
 
-                  <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
+                    <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
+                    <td className="border border-gray-300 text-left ">{item?.barCode}</td>
 
-                  <td className="border border-gray-300 text-center ">{item?.size}</td>
-                  <td className="border border-gray-300 text-center ">{item?.color}</td>
+                    <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
+                    <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
+                    <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
 
-                  <td className="border border-gray-300 text-right ">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
-                  {/* <td className="border border-gray-300 w-16">
-                  <input
-                  type="number"
-                  value={item?.excessQty }
-                  onChange={(e) => handleQtyChange("excessQty" ,index, e.target.value,item?.orderQty)}
-                  className="w-full p-1   rounded-md text-right focus:ring-blue-400"
-                />
-            
-            </td> */}
+                    <td className="border border-gray-300 text-center ">{item?.size}</td>
+                    <td className="border border-gray-300 text-center ">{item?.color}</td>
 
-                  <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+                    <td className="border border-gray-300 text-right ">{item?.mrp}</td>
+                    <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
+                    {/* <td className="border border-gray-300 w-16">
+                     <input
+                     type="number"
+                     value={item?.excessQty }
+                     onChange={(e) => handleQtyChange("excessQty" ,index, e.target.value,item?.orderQty)}
+                     className="w-full p-1   rounded-md text-right focus:ring-blue-400"
+                   />
+               
+               </td> */}
 
-                </tr>
+                    <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+
+                  </tr>
+                </>
               ))}
               <tr className="border-2  border-gray-400 bg-gray-200 p-2">
                 <td className="border-b border-gray-300 text-center w-2"></td>
