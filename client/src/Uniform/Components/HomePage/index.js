@@ -34,7 +34,7 @@ export default function Form() {
   const [emailId, setEmailId] = useState("")
   const [currentId, setCurrentId] = useState("")
   const [partyId, setPartyId] = useState("")
-
+  const [poSentForApproval, setPoSentForApproval] = useState(false)
 
 
   const userId = secureLocalStorage.getItem(
@@ -155,7 +155,8 @@ export default function Form() {
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
-
+              setPoSentForApproval={setPoSentForApproval}
+              poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
               singleUserPartyData={singleUserPartyData}
 

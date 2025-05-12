@@ -540,8 +540,9 @@ model order {
   excessQty          Float?
   netAmount          Float?
   deliverydate       DateTime?
-  isApproved         Boolean?
+  isApproved         String?
   isMailSent         Boolean?
+  poSentForApproval  Boolean?
   Email              Email[]
   orderBillItems     orderBillItems[]
   attachments        Attachments[]
@@ -655,21 +656,23 @@ model OrderImportItems {
 }
 
 model Attachments {
-  id          Int       @id @default(autoincrement())
-  order       order?    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  date        DateTime? @db.Date
-  orderId     Int?
-  gridUser    String?
-  fileName    String?
-  filePath    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  createdBy   User?     @relation("createdBy", fields: [createdById], references: [id])
-  createdById Int?
-  updatedBy   User?     @relation("updatedBy", fields: [updatedById], references: [id])
-  updatedById Int?
-  comments    String?   @db.LongText
-  log         String?   @db.LongText
+  id                  Int       @id @default(autoincrement())
+  order               order?    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  date                DateTime? @db.Date
+  orderId             Int?
+  gridUser            String?
+  fileName            String?
+  filePath            String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  createdBy           User?     @relation("createdBy", fields: [createdById], references: [id])
+  createdById         Int?
+  updatedBy           User?     @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById         Int?
+  comments            String?   @db.LongText
+  log                 String?   @db.LongText
+  isBuyerAttachments  Boolean?  @default(false)
+  isVendorAttachments Boolean?  @default(false)
 }
 
 model controlPanel {

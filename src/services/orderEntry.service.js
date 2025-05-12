@@ -265,7 +265,8 @@ async function create(body) {
                     poNumber: ponumber ? ponumber : null,
                     isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
-                    isApproved: isApproved ? Boolean(isApproved) : false,
+
+
 
                     attachments: {
                         createMany: attachments ? {
@@ -355,7 +356,7 @@ async function update(id, body) {
     let data;
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor,
-        ponumber, isAttachments, isApproved, mailTransaction } = await body
+        ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval } = await body
 
     console.log(
         orderDetails,
@@ -414,6 +415,7 @@ async function update(id, body) {
                     id: parseInt(id),
                 },
                 data: {
+                    poSentForApproval: poSentForApproval ? Boolean(poSentForApproval) : undefined,
                     attachments: {
                         deleteMany: {},
                         createMany: attachments ? {
@@ -450,7 +452,7 @@ async function update(id, body) {
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
-                isApproved: isApproved ? Boolean(isApproved) : false,
+                isApproved: isApproved ? isApproved : undefined,
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {

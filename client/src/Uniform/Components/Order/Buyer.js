@@ -57,13 +57,21 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
                     </span>
                   )}
                 </td> */}
-                <td className="p-3">
-                  {item?.isApproved && item.isSave
-                    ? 'Approved'
-                    : !item?.isApproved && item?.isSave
-                      ? 'Pending'
-                      : 'Not Yet Send'}
-                </td>
+                <div>
+                  <select
+                    className='px-1 py-1 border rounded'
+                    value={item.isApproved}
+                    // onChange={(e) =>
+                    //   setIsApproved(e.target.value)
+                    // }
+                    disabled
+                  >
+                    <option value=''>Not Yet sent</option>
+                    <option value='approve'>Approve</option>
+                    <option value='reject'>Reject</option>
+                    <option value='hold'>Hold</option>
+                  </select>
+                </div>
 
 
               </tr>
