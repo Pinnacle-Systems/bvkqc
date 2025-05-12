@@ -37,6 +37,7 @@ export default function Form() {
   const [partyId, setPartyId] = useState("")
   const [attachments, setattachments] = useState([]);
 
+  const [poSentForApproval, setPoSentForApproval] = useState(false)
 
 
   const userId = secureLocalStorage.getItem(
@@ -159,7 +160,8 @@ useEffect(() =>  {
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
-
+              setPoSentForApproval={setPoSentForApproval}
+              poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
               singleUserPartyData={singleUserPartyData}
 

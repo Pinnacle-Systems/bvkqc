@@ -14,7 +14,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function BuyerForm({ singleData, setForm, setMailform, vendor, setVendor, poItems, setPoItems,
-  setActive, setIsSave, saveData, id, setEmailId, setCurrentId, isApproved, setIsApproved }) {
+  setActive, setIsSave, saveData, id, setEmailId, setCurrentId, isApproved, setIsApproved, setPoSentForApproval }) {
   console.log(singleData, 'singleData7');
   const [upload] = useUploadMutation();
 
@@ -357,6 +357,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
               // exportAndUploadExcel(data);
               setForm(false);
               setActive("Mail");
+              setPoSentForApproval = (true)
             }}
           >
             Send mail

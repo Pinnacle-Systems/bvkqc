@@ -46,7 +46,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
 
 
 
-                <td className="p-1 items-end ">
+                {/* <td className="p-1 items-end ">
                   {item?.isSave ? (
                     <span className="inline-flex  text-sm  bg-green-300 text-white-500  px-1 w-10 rounded">
                       Progress
@@ -56,8 +56,22 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
                       Pending
                     </span>
                   )}
-                </td>
-
+                </td> */}
+                <div>
+                  <select
+                    className='px-1 py-1 border rounded'
+                    value={item.isApproved}
+                    // onChange={(e) =>
+                    //   setIsApproved(e.target.value)
+                    // }
+                    disabled
+                  >
+                    <option value=''>Not Yet sent</option>
+                    <option value='approve'>Approve</option>
+                    <option value='reject'>Reject</option>
+                    <option value='hold'>Hold</option>
+                  </select>
+                </div>
 
 
               </tr>

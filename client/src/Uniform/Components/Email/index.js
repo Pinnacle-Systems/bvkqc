@@ -19,7 +19,7 @@ import { useDispatch } from "react-redux";
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval }) {
 
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
@@ -30,23 +30,24 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [Message, setMessage] = useState("")
   const [ccList, setCcList] = useState(['']);
   const [attachments, setattachments] = useState([]);
-  const [filename, setfileName] = useState('')
+  const [fileName, setfileName] = useState('')
   const [files, setFiles] = useState([]);
   const [userId, setUserId] = useState("")
   const [fromAddress, setFromAddress] = useState("")
   const [sendorName, setSendorName] = useState("")
-  const [reciverName, setReceiverName] = useState("")
+  const [receiverName, setReceiverName] = useState("")
   const [sendorId, setSendorId] = useState("")
-  const [reciverid, setReceiverId] = useState("")
+  const [receiverId, setReceiverId] = useState("")
   const dispatch = useDispatch()
   const [formReport, setFormReport] = useState(false)
   const [multiAttach, setmultiAttach] = useState([])
 
   const id = currentId
 
-  console.log(emailId, "emailId")
+
 
   const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
+
 
 
 
@@ -55,6 +56,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const { data: partyData } = useGetPartyByIdQuery(userId, { skip: !userId });
   const FromEmailAddress = partyData?.data?.email;
   const passskey = SigleOrderdata?.data?.passKey;
+
 
 
   const [updateData] = useUpdateOrderMutation();
@@ -78,7 +80,7 @@ useEffect(() => {
 
 
 
-  console.log(attachments, 'attachments');
+  console.log(userId, attachments, fileName, receiverName, sendorName, receiverId);
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -114,33 +116,80 @@ useEffect(() => {
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
   };
 
-
-  const data = { MailTransaction: true, fromAddress, sendorName, sendorId, toEmail, reciverName, reciverid, subject, Message, ccList, attachments, filename, userId }
+  const data = {
+    mailTransaction: true,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, Message, ccList, attachments, fileName, userId, poSentForApproval
+  }
+  console.log(poSentForApproval, 'poSentForApproval');
 
 
   const handleSubmitCustom = async (callback, data, text) => {
-    try {
-      let returnData = await callback(data).unwrap();
-      if (returnData.statusCode === 0) {
-        // setId(returnData?.data?.id)
-        toast.success(text + "Successfully");
-        dispatch({
-          type: `partyMaster/invalidateTags`,
-          payload: ['Party'],
-        });
-      } else {
-        toast.error(returnData?.message)
-      }
-    } catch (error) {
-      console.log(error)
-    }
 
-  }
+    try {
+      const formData = new FormData();
+      for (let key in data) {
+        if (key === "attachments") {
+          data[key].forEach(item =>
+            formData.append(key, JSON.stringify(item))
+          );
+        }
+        // if (key === 'attachments') {
+        //   formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
+        //   data[key].forEach(option => {
+        //     if (option?.filePath instanceof File) {
+        //       formData.append('images', option.filePath);
+        //     }
+        //   });
+        // } 
+        else {
+          formData.append(key, data[key]);
+        }
+      }
+
+
+      let returnData;
+      if (text === "Updated") {
+        returnData = await callback({ id, body: formData }).unwrap();
+      } else {
+        returnData = await callback(formData).unwrap();
+      }
+      if (returnData.statusCode === 0) {
+
+
+        toast.success(text + "Successfully");
+      } else {
+        toast.error(returnData?.message);
+      }
+
+    } catch (error) {
+      console.log("handle", error);
+    }
+  };
+
+
+  // const handleSubmitCustom = async (callback, data, text) => {
+  //   try {
+  //     let returnData = await callback(data).unwrap();
+  //     if (returnData.statusCode === 0) {
+  //       // setId(returnData?.data?.id)
+  //       toast.success(text + "Successfully");
+  //       dispatch({
+  //         type: `partyMaster/invalidateTags`,
+  //         payload: ['Party'],
+  //       });
+  //     } else {
+  //       toast.error(returnData?.message)
+  //     }
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+
+  // }
 
   const saveData = () => {
 
     if (id) {
-
+      console.log(currentId, 'current');
       handleSubmitCustom(updateData, data, "Updated")
 
     }
@@ -266,12 +315,12 @@ useEffect(() => {
               <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
                 onClick={() => {
                   saveData()
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, ccList);
+                  setPoSentForApproval(true)
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, fileName, files, ccList);
                 }}
 
               >
-                {console.log(ccList, '171')
-                }
+
                 Send
               </button>
             </div>
