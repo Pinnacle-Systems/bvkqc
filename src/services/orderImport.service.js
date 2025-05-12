@@ -247,8 +247,6 @@ async function create(req) {
     let headerNames = importedData;
     const orderImportItems = convertToImportFormat(importedData, headerNames);
 
-    console.log(orderImportItems, "orderImportItems")
-
     await prisma.$transaction(async (tx) => {
         data = await tx.orderImport.create(
             {
@@ -292,10 +290,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
             id: parseInt(importdata?.id)
         },
         include: {
-
             orderImportItems: true,
-
-
         }
     })
 
@@ -303,12 +298,11 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 
     let date = new Date()
-
     let isSave = false;
     let vendor;
     let ponumber = orderImport?.orderImportItems[0]?.po_number;
     let manufactureId = await findFromList(orderImport?.orderImportItems[0]?.manufacturer_mail_id, partyData)
-
+    let isMailSent = false;
 
 
     let orderDetails = orderImport?.orderImportItems?.map((val) => {
@@ -348,7 +342,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
                 createdById: parseInt(userId),
                 orderdate: date ? new Date(date) : null,
                 poNumber: ponumber ? ponumber : null,
-                isSave,
+                isSave, isMailSent,
                 vendorId: vendor ? parseInt(vendor) : null,
                 manufactureId: manufactureId ? parseInt(manufactureId) : null,
                 orderBillItems: orderDetails ? {
@@ -380,43 +374,11 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 
 async function findFromList(id, list, property) {
-
-    console.log(list, "liiii")
-    console.log("jiii")
     if (!list) return ""
     let data = list?.find(i => i.mailId == id)?.id
-
-    console.log(data, "datata")
     return data
 
 }
-
-
-
-// async function createOrderBillItems(orderDetails, order) {
-//     const promises = orderDetails.map(async (item) => {
-//         return await tx.orderDetails.create({
-//             data: {
-//                 orderId: parseInt(order.id) || null,
-//                 itemCode: item?.Itemcode ? item?.Itemcode.toString() : null,
-//                 barCode: item?.Barcode ? item.Barcode : null,
-//                 sizeDesc: item?.sizeDescription ? item.sizeDescription : null,
-//                 size: item?.size ? item.size : null,
-//                 mrp: item?.MRP ? parseInt(item.MRP) : null,
-//                 orderQty: item?.orderQty ? parsefloat(item?.orderQty) : null,
-//                 qty: item?.qty ? parsefloat(item.qty) : null,
-//                 excessQty: item?.excessQty ? parsefloat(item?.excessQty) : null
-
-
-//             }
-//         })
-//     }
-//     )
-//     return Promise.all(promises)
-// }
-
-
-
 
 
 async function update(id, body) {

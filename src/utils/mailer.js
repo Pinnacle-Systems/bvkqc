@@ -119,7 +119,7 @@ let MAIL_SETTINGS = {};
 export async function sendMailWithAttachmentWithMultipleFiles(req) {
 
 
-  console.log(req.body,"req")
+  console.log(req.body, "req")
 
   MAIL_SETTINGS = {
     service: 'gmail',
@@ -146,9 +146,11 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
 
 
   try {
-    const files = req?.body?.file
+    const files = req?.body?.attachments
 
-    const attachments = [
+    console.log(files, "filesss")
+
+    let attachments = [
       {
         filename: `${fileName}`,
         path: `./uploads/${fileName}`,
@@ -156,17 +158,18 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
       }
     ]
 
-    // files.forEach(file => {
+    files.forEach(file => {
+
+      attachments.push(
+        {
+          filename: `${file}`,
+          path: `./uploads/${file}`,
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        },
+      )
+    })
 
 
-    //   attachments.push(
-    //     {
-    //       filename: `${file?.fileName}`,
-    //        path: `./uploads/${file.fileName}`,
-    //       contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    //     },
-    //   )
-    // })
 
 
     let info = await transporter.sendMail({
@@ -174,7 +177,7 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
       to: ToAddress,
       cc: ccAddress,
       subject: subject,
-      attachments,
+      attachments: attachments?.filter(val => val?.filename !== "undefined"),
       html: `${message}
             <img src="cid:logo" alt="PNG Image" />`
     });

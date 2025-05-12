@@ -80,11 +80,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
 
-  useEffect(() => {
-    if (Emaildata?.data?.poExcelFileName) {
-      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
-    }
-  }, [Emaildata]);
+
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -124,9 +120,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     mailTransaction: true, orderId: id,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
-  console.log(poSentForApproval, 'poSentForApproval');
-  console.log("mailTransaction", id,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, ccList, attachments, fileName, userId);
+
 
   const handleSubmitCustom = async (callback, data, text) => {
 
@@ -198,11 +192,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
       handleSubmitCustom(updateData, data, "Updated")
 
     }
-    // else {
 
-    //   handleSubmitCustom(addData, data, "Added")
-
-    // }
 
   }
 
@@ -316,12 +306,15 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                 </button>
               </div> : ''} */}
 
-            <div className=" flex justify-end w-full">
+
+
+
+            <div className=" flex justify-end w-full">{console.log(attachments, "attachments")}
               <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
                 onClick={() => {
                   saveData()
                   setPoSentForApproval(true)
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, files, ccList);
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
                 }}
 
               >
