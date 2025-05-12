@@ -250,7 +250,7 @@ async function create(body) {
     let data;
     const { branchId, id, userId, vendor, active, orderQty, noOfSet, isTaxBill,
         finYearId, Department, date, orderDetails, className, isSave, attachments,
-        seasonCode, styleCode, Product, Color, ponumber } = await body
+        seasonCode, styleCode, Product, Color, ponumber, isApproved } = await body
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
     const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startTime, finYearDate?.endTime) : "";
     let newDocId = finYearDate ? (await getNextDocId(branchId, shortCode, finYearDate?.startTime, finYearDate?.endTime, isTaxBill)) : "";
@@ -265,7 +265,7 @@ async function create(body) {
                     poNumber: ponumber ? ponumber : null,
                     isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
-                    isApproved: isApproved ? isApproved : false,
+                    isApproved: isApproved ? Boolean(isApproved) : false,
 
                     attachments: {
                         createMany: attachments ? {
@@ -355,7 +355,7 @@ async function update(id, body) {
     let data;
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor,
-        ponumber, isAttachments, isApproved } = await body
+        ponumber, isAttachments, isApproved, mailTransaction } = await body
 
     console.log(
         orderDetails,
@@ -406,7 +406,7 @@ async function update(id, body) {
 
     }
 
-    if (MailTransaction) {
+    if (mailTransaction) {
 
         await prisma.$transaction(async (tx) => {
             data = await tx.MailTransaction.update({
@@ -450,7 +450,7 @@ async function update(id, body) {
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
-                isApproved: isApproved ? isApproved : false,
+                isApproved: isApproved ? Boolean(isApproved) : false,
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {

@@ -46,7 +46,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
 
 
 
-                <td className="p-1 items-end ">
+                {/* <td className="p-1 items-end ">
                   {item?.isSave ? (
                     <span className="inline-flex  text-sm  bg-green-300 text-white-500  px-1 w-10 rounded">
                       Progress
@@ -56,8 +56,14 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData }) {
                       Pending
                     </span>
                   )}
+                </td> */}
+                <td className="p-3">
+                  {item?.isApproved && item.isSave
+                    ? 'Approved'
+                    : !item?.isApproved && item?.isSave
+                      ? 'Pending'
+                      : 'Not Yet Send'}
                 </td>
-
 
 
               </tr>
