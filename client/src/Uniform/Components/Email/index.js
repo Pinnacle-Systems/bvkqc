@@ -37,7 +37,13 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const dispatch = useDispatch()
 
   const id = currentId
+
+  console.log(emailId,"emailId")
+
   const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
+
+
+  console.log(Emaildata,"Emaildata")
 
 
   const { data: singleData, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });

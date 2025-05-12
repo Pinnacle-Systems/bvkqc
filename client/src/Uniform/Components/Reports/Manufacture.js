@@ -45,10 +45,10 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-  const exportAndUploadExcel = async (data, text = "uploaded") => {
+  const exportAndUploadExcel = async (data,poItemsData, text = "uploaded") => {
 
     try {
-      const combinedData = data?.orderBillItems?.map((item, index) => ({
+      const combinedData =poItemsData?.map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -79,18 +79,12 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
       );
 
       const fileName = `Order_${Date.now()}.xlsx`;
-
       const formData = new FormData();
       formData.append('file', excelBlob, fileName);
       formData.append('id', id);
       const response = await upload({ body: formData, id }).unwrap();
-      console.log("Upload response?.data?.id:", response?.data?.id);
-
       setEmailId(response?.data?.id)
-      
-
-
-
+    
     } catch (error) {
       console.error("Error during Export and Upload:", error);
       toast.error("Something went wrong!");
@@ -313,13 +307,7 @@ if(parseFloat(value) > parseFloat(percentageValue)){
               exportAndUploadExcel(data,poItems);
               setForm(false);
               setActive("Mail");
-
-
             }}
-
-
-
-
           >
             Save & Send
           </button>

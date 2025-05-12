@@ -18,7 +18,7 @@ async function get(req) {
 
 
 async function getOne(id) {
-    console.log(id,)
+    console.log(id,"mailidddd")
     const childRecord = await prisma.email.count({ where: { orderId: parseInt(id) } });
     const data = await prisma.email.findUnique({
         where: {
@@ -27,9 +27,7 @@ async function getOne(id) {
         include:{
             order:{
                 select:{
-                    docId:true,
-                    manufacture:true,
-                    vendor:true,
+                   
                     orderBillItems:true
                 }
             }
@@ -67,7 +65,8 @@ async function getSearch(req) {
 async function create(body) {
      const { id } = req.body
     const { isDelete } = req.body
-    console.log(id,"id")
+   
+
 
     const data = await prisma.email.create({
       
