@@ -225,10 +225,15 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
           </div>
 
-          <div>
+   
+          <div className="flex  mt-2">
             <button
+              className="relative py-1  bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
               onClick={() => setFormReport(true)}
-            >View Art Design</button>
+            >
+              <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
+              <span className="relative z-10"> View Art Design</span>
+            </button>
           </div>
 
         </div>
