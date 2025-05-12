@@ -33,6 +33,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [userId, setUserId] = useState("")
   const [approvalSts, setApproveSts] = useState("")
   const [reciverName, setReceiverName] = useState("")
+  const [fromAddress, setFromAddress] = useState("")
   const dispatch = useDispatch()
 
   const id = currentId
