@@ -144,11 +144,20 @@ async function getOne(req) {
 
     let percentage = await findPercentageValue()
 
-    data["orderBillItems"] = data["orderBillItems"]?.map(val => { return { ...val, excessQty: val?.excessQty ? val?.excessQty : val?.orderQty ? percentage : "" } })
+    data["orderBillItems"] = data["orderBillItems"]?.map((val) => {
+        return {
+            ...val, excessQty: val?.excessQty ? val?.excessQty : val?.orderQty ? percentage : "",
+            qty: getQty(val.excessQty, val?.orderQty)
+        }
+    })
 
     return { statusCode: 0, data };
 }
-
+function getQty(excessQty, orderQty) {
+    const percentage = parseFloat((orderQty * excessQty) / 100);
+    const updatedQty = parseFloat(orderQty) + percentage;
+    return updatedQty
+}
 
 async function findPercentageValue() {
     let data = await prisma.percentage.findMany({

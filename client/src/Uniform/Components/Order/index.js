@@ -176,7 +176,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   return (
 
-    //forms
+
     <>
       {
         form === true && userRole === "MANUFACTURE" ?
@@ -229,6 +229,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
               />
 
               :
+
+              //Order Report pages
               <div className="flex-1 flex flex-col">
 
                 <FormHeaderNew model={"Order Report"} />
