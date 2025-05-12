@@ -1,7 +1,8 @@
 import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
 
 
-export default function Manufacture({allData,setForm,setId,setPoNo,partyData}) {
+export default function Manufacture({ allData , setForm , setId , setPoNo , partyData ,  userRole
+}) {
     console.log(allData,"hit manufacture")
     return (
         <>

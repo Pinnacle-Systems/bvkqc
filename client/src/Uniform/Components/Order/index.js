@@ -176,7 +176,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-            id={id} setEmailId={setEmailId}   setCurrentId={setCurrentId}
+            id={id} setEmailId={setEmailId}   setCurrentId={setCurrentId}          
+
           />
 
 
@@ -193,7 +194,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}          
+
             />
             :
 
@@ -389,11 +391,12 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
                         <>
                           <Vendor
 
-                            allData={allData}
-                            setForm={setForm}
-                            setId={setId}
-                            setPoNo={setPoNo}
-                            partyData={partyData}
+                          allData={allData}
+                          setForm={setForm}
+                          setId={setId}
+                          setPoNo={setPoNo}
+                          partyData={partyData}
+
                           />
                         </>
 
