@@ -38,7 +38,8 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [reciverName, setReceiverName] = useState("")
   const [sendorId, setSendorId] = useState("")
   const [reciverid, setReceiverId] = useState("")
-  const dispatch = useDispatch()  const [formReport, setFormReport] = useState(false)
+  const dispatch = useDispatch()
+  const [formReport, setFormReport] = useState(false)
   const [multiAttach, setmultiAttach] = useState([])
 
   const id = currentId

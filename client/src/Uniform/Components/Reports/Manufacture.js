@@ -27,14 +27,6 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
-
-
-
-
-  const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
-  const { data: percentage, isLoading, isFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
-
-
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
 
@@ -45,14 +37,14 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     setCurrentId(singleData?.data?.id)
 
 
-  }, [id, singleData])
+  }, [id, singleData]);
 
 
 
-  const exportAndUploadExcel = async (data,poItemsData, text = "uploaded") => {
+  const exportAndUploadExcel = async (data, poItemsData, text = "uploaded") => {
 
     try {
-      const combinedData =poItemsData?.map((item, index) => ({
+      const combinedData = poItemsData?.map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
