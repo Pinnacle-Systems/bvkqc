@@ -7,6 +7,7 @@ import {
   Plus,
   UserCircle,
   Search,
+  ClipboardList,
 } from "lucide-react";
 import { HomePage } from "./homePage";
 import { Message } from "./Message";
@@ -20,6 +21,7 @@ import { OrderImport } from "..";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
+import EmailReport from "../Email/EmailReport";
 
 
 
@@ -118,7 +120,15 @@ useEffect(() =>  {
             </div>
             <span className="text-[10px] mt-1 text-purple-400">Mail</span>
           </button>
+        <button className="flex flex-col items-center"
+            onClick={() => setActive("Report")}
+          >
+            <div style={getButtonStyle("Report")}>
+              <ClipboardList className="h-10 w-6 text-purple-600" />
 
+            </div>
+            <span className="text-[10px] mt-1 text-purple-400">Report</span>
+          </button>
 
 
           <button className="flex flex-col items-center"
@@ -166,7 +176,7 @@ useEffect(() =>  {
               singleUserPartyData={singleUserPartyData}
 
             />}
-            {active === "Activity" && <Activity />}
+            {active === "Report" && <EmailReport  attachments={attachments}  />}
             {active === "More" && <OrderImport />}
             {active === "order" && <Order setEmailId={setEmailId}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}

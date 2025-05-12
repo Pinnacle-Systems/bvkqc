@@ -16,11 +16,6 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   setActive, setIsSave, id, setCurrentId, poSentForApproval, setPoSentForApproval }) {
 
-
-
-
-
-
   const [attachments, setAttachments] = useState([]);
 
   const [formReport, setFormReport] = useState(false);
@@ -63,6 +58,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   }, [id, singleData])
 
 
+
+  console.log(attachments, "attach")
+
   const handleSubmitCustom = async (callback, data, text) => {
     try {
       const formData = new FormData();
@@ -71,7 +69,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
           data[key].forEach(option => {
             if (option?.filePath instanceof File) {
-              formData.append('images', option.filePath);
+              formData.append('file', option.filePath);
             }
           });
         } else {
@@ -86,7 +84,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         returnData = await callback(formData).unwrap();
       }
       if (returnData.statusCode === 0) {
-        console.log(returnData, "returnData")
+
         toast.success(text + "Successfully");
 
 

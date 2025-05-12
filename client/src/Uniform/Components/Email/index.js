@@ -80,11 +80,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
 
-  useEffect(() => {
-    if (Emaildata?.data?.poExcelFileName) {
-      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
-    }
-  }, [Emaildata]);
+
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -124,9 +120,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     mailTransaction: true, orderId: id,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
-  console.log(poSentForApproval, 'poSentForApproval');
-  console.log("mailTransaction", id,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, ccList, attachments, fileName, userId);
+
 
   const handleSubmitCustom = async (callback, data, text) => {
 
@@ -198,11 +192,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
       handleSubmitCustom(updateData, data, "Updated")
 
     }
-    // else {
 
-    //   handleSubmitCustom(addData, data, "Added")
-
-    // }
 
   }
 
@@ -316,12 +306,15 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                 </button>
               </div> : ''} */}
 
-            <div className=" flex justify-end w-full">
+
+
+
+            <div className=" flex justify-end w-full">{console.log(attachments, "attachments")}
               <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
                 onClick={() => {
                   saveData()
                   setPoSentForApproval(true)
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, files, ccList);
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
                 }}
 
               >
@@ -337,20 +330,40 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
         <div className="flex flex-col mt-5 p-5 gap-4">
-          <div className="border-b border-gray-400 w-64">
-            <label>Po Number: </label>
+          <div className="border-b border-gray-400 w-full">
+            <label className="font-medium text-gray-700">Po Number: </label>
             {SigleOrderdata?.data?.docId}
           </div>
 
-          <div className="border-b border-gray-400 w-64">
-            <label>Vendor: </label>
-            {SigleOrderdata?.data?.vendorName ?? 'N/A'}
-            <ul>
-              {files.map((file, index) => (
-                <li key={index}>{file.name}</li>
-              ))}
-            </ul>
+      <div className="border-b border-gray-400 w-full">
+        {userRole === "MANUFACTURE" && (
+          <div className="flex items-center space-x-2 py-1">
+            <label className="font-medium text-gray-700">Vendor:</label>
+            <span>{SigleOrderdata?.data?.Vendor?.name ?? 'N/A'}</span>
           </div>
+        )}
+          {userRole === "VENDOR" && (
+          <div className="flex items-center space-x-2 py-1 ">
+            <label className="font-medium text-gray-700">Vendor:</label>
+            <span>{SigleOrderdata?.data?.Manufacture?.name ?? 'N/A'}</span>
+          </div>
+        )}
+  {userRole === "" && (
+  <>
+    <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
+      <label className="font-medium text-gray-700">Manufacturer:</label>
+      <span>{SigleOrderdata?.data?.Manufacture?.name ?? 'N/A'}</span>
+    </div>
+    <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
+      <label className="font-medium text-gray-700">Vendor:</label>
+      <span>{SigleOrderdata?.data?.Vendor?.name ?? 'N/A'}</span>
+    </div>   
+  
+  </>
+)}
+
+    </div>
+
 
           <span>{Emaildata?.data?.poExcelFileName}</span>
           <div className="flex flex-col mt-5 p-5 gap-4">

@@ -416,16 +416,22 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, files, ccList) {
+export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList) {
 
 
-  let receivedFiles = files?.map(j => { return { fileName: j.filePath } })
+  let receivedFiles = attachments?.map(j => { return { fileName: j.filePath } })
 
   let mailAddress = "selvamanib986@gmail.com"
   let form = new FormData();
 
   const ccMailIds = [...ccList]
   const joinMails = ccMailIds.join(', ')
+
+
+  for (let i = 0; i < receivedFiles.length; i++) {
+    form.append("attachments[]", receivedFiles[i]?.fileName); // use same key with []
+  }
+
   form.append('file', receivedFiles); // append all under same key 'file'
 
   form.append("FromAddresss", FromEmailAddress);
@@ -434,7 +440,7 @@ export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail,
   form.append("passskey", passskey);
   form.append("fileName", fileName);
   form.append("message", message)
-  form.append("files", files)
+  form.append("files", attachments)
   form.append("ccList", joinMails)
 
 
