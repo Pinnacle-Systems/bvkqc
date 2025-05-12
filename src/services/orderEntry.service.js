@@ -409,7 +409,7 @@ async function update(id, body) {
     if (mailTransaction) {
 
         await prisma.$transaction(async (tx) => {
-            data = await tx.order.update({
+            data = await tx.MailTransaction.update({
                 where: {
                     id: parseInt(id),
                 },
