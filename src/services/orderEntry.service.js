@@ -125,7 +125,12 @@ async function getOne(req) {
         include: {
             orderBillItems: true,
             attachments: true,
-            Party: {
+            Manufacture: {
+                select: {
+                    name: true
+                }
+            },
+            Vendor: {
                 select: {
                     name: true
                 }
@@ -135,23 +140,23 @@ async function getOne(req) {
 
     if (!data) return NoRecordFound("Order Bill");
 
-    let percentage=await findPercentageValue()
+    let percentage = await findPercentageValue()
 
-    data["orderBillItems"]=data["orderBillItems"]?.map(val=>{return{...val,excessQty: val?.orderQty ? percentage : ""}})
+    data["orderBillItems"] = data["orderBillItems"]?.map(val => { return { ...val, excessQty: val?.orderQty ? percentage : "" } })
 
     return { statusCode: 0, data };
 }
 
 
-async function findPercentageValue(){
-     let data = await prisma.percentage.findMany({
+async function findPercentageValue() {
+    let data = await prisma.percentage.findMany({
         where: {
             active: true,
         }
     });
 
-     return data?.find(v=>v.active)?.qty
-    
+    return data?.find(v => v.active)?.qty
+
 }
 
 async function getSearch(req) {

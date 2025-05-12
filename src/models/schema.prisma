@@ -387,7 +387,8 @@ model Party {
   partyType         String?
   BillEntry         BillEntry[]
   mailId            String?
-  order             order[]
+  Manufacture       order[]           @relation(name: "Manufacture")
+  Vendor            order[]           @relation(name: "Vendor")
   sender            MailTransaction[] @relation(name: "sender")
   receiver          MailTransaction[] @relation(name: "receiver")
 }
@@ -530,15 +531,14 @@ model order {
   userId             Int?
   isApproval         Boolean           @default(false)
   buyerGmail         String?
-  Party              Party?            @relation(fields: [manufactureId], references: [id])
+  Manufacture        Party?            @relation("Manufacture", fields: [manufactureId], references: [id])
   manufactureId      Int?
+  Vendor             Party?            @relation("Vendor", fields: [vendorId], references: [id])
   vendorId           Int?
   excelFineName      String?
   isSave             Boolean?
   excessQty          Float?
   netAmount          Float?
-  manufacture        String?
-  vendor             String?
   deliverydate       DateTime?
   Email              Email[]
   orderBillItems     orderBillItems[]
