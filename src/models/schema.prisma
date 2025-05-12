@@ -540,8 +540,8 @@ model order {
   excessQty          Float?
   netAmount          Float?
   deliverydate       DateTime?
-  isApproved         Boolean?          @default(false)
-  isMailSent         Boolean?          @default(false)
+  isApproved         Boolean?
+  isMailSent         Boolean?
   Email              Email[]
   orderBillItems     orderBillItems[]
   attachments        Attachments[]
