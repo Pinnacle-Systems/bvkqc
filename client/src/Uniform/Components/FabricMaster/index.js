@@ -1,287 +1,240 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
+import { handleMailSendWithMultipleAttachments } from "../../../Utils/helper";
+import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import secureLocalStorage from "react-secure-storage";
-import {
-    useGetFabricMasterQuery,
-    useGetFabricMasterByIdQuery,
-    useAddFabricMasterMutation,
-    useUpdateFabricMasterMutation,
-    useDeleteFabricMasterMutation,
-} from "../../../redux/uniformService/FabricMasterService";
-// import { useGetYarnBlendMasterQuery } from "../../../redux/uniformService/YarnBlendMasterServices";
-// import { useGetFabricTypeMasterQuery } from "../../../redux/uniformService/FabricTypeMasterServices";
-// import YarnBlendDetails from "../YarnMaster/YarnBlendDetails";
-import FormHeader from "../../../Basic/components/FormHeader";
-import FormReport from "../../../Basic/components/FormReportTemplate";
-import { toast } from "react-toastify";
-import { LongTextInput, DropdownInput, LongDisabledInput, CheckBox, TextInput } from "../../../Inputs";
-import ReportTemplate from "../../../Basic/components/ReportTemplate";
-import { dropDownListObject, } from '../../../Utils/contructObject';
-const MODEL = "Fabric Master";
+import { Button, Card, CardContent, Input } from "@mui/material";
+import { DELETE } from "../../../icons";
+import { AttachFile } from "@mui/icons-material";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import { toast } from 'react-toastify';
+import { useUploadMutation } from "../../../redux/uniformService/OrderService";
+import { useGetEmailByIdQuery, useGetEmailQuery } from "../../../redux/uniformService/Email.Services";
+import { getImageUrlPath } from "../../../Constants";
 
 
-export default function Form() {
-    const [form, setForm] = useState(false);
-    const [readOnly, setReadOnly] = useState(false);
-    const [name, setName] = useState("");
-    const [id, setId] = useState("");
-    const [aliasName, setAliasName] = useState("");
-    const [yarnBlendDetails, setYarnBlendDetails] = useState("");
-    const [fabricTypeId, setFabricTypeId] = useState("");
-    const [hsn, setHsn] = useState("");
-    const [active, setActive] = useState(true);
-    const [organic, setOrganic] = useState(false)
 
 
-    const [searchValue, setSearchValue] = useState("");
+export default function MailForm({ fileName, singleData, emailId }) {
 
-    const childRecord = useRef(0);
 
-    const companyId = secureLocalStorage.getItem(
-        sessionStorage.getItem("sessionId") + "userCompanyId"
-    )
-    const userId = secureLocalStorage.getItem(
-        sessionStorage.getItem("sessionId") + "userId"
-    )
-    const params = {
-        companyId
+
+
+    const [toEmail, setToEmail] = useState("");
+    const [subject, setSubject] = useState('');
+    const [Message, setMessage] = useState("")
+    const [excelData, setExcelData] = useState([]);
+    const [filename, setfileName] = useState('')
+    const [files, setFiles] = useState([]);
+
+
+    const FromEmailAddress = singleData?.data?.email;
+    const passskey = singleData?.data?.passKey;
+
+
+    const id = emailId
+
+    const { data: Emaildata } = useGetEmailByIdQuery(id, { skip: !emailId });
+
+
+    useEffect(() => {
+        setfileName(Emaildata?.data?.poExcelFileName)
+
+    }, [Emaildata])
+
+
+    const [ccList, setCcList] = useState([""]);
+    const handleCcChange = (index, value) => {
+        const updated = [...ccList];
+        updated[index] = value;
+        setCcList(updated);
     };
 
-    // const { data: YarnBlendList } =
-    //     useGetYarnBlendMasterQuery({ params });
+    const addCcField = () => {
+        setCcList([...ccList, ""]);
+    };
 
-    // const { data: FabricTypeList } =
-    //     useGetFabricTypeMasterQuery({ params });
-
-
-    const { data: allData, isLoading, isFetching } = useGetFabricMasterQuery({ params, searchParams: searchValue });
-
-
-    const {
-        data: singleData,
-        isFetching: isSingleFetching,
-        isLoading: isSingleLoading,
-    } = useGetFabricMasterByIdQuery(id, { skip: !id });
-
-    const [addData] = useAddFabricMasterMutation();
-    const [updateData] = useUpdateFabricMasterMutation();
-    const [removeData] = useDeleteFabricMasterMutation();
-
-    const syncFormWithDb = useCallback((data) => {
-        if (id) setReadOnly(true);
-        // setAliasName(data?.aliasName ? data?.aliasName : "");
-        // setYarnBlendDetails(data?.FabricOnYarnBlend ? data?.FabricOnYarnBlend : [{ yarnBlendId: "", percentage: "" }, { yarnBlendId: "", percentage: "" }, { yarnBlendId: "", percentage: "" }, { yarnBlendId: "", percentage: "" }]);
-        // setFabricTypeId(data?.fabricTypeId ? data?.fabricTypeId : "");
-        // setHsn(data?.hsn ? data?.hsn : "");
-        setName(data?.name ? data.name : "");
-        setActive(id ? (data?.active ? data.active : false) : true);
-        // setOrganic(data?.organic ? data.organic : false);
-    }, [id]);
-
-    useEffect(() => {
-        if (id) {
-            syncFormWithDb(singleData?.data);
-        } else {
-            syncFormWithDb(undefined);
-        }
-    }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
-
-    const data = {
-        name,
-
-        active,
-
-        companyId, id, userId
-    }
-
-    const validatePercentage = () => {
-        // const yarnBlendPercentage = yarnBlendDetails.filter(blend => blend.yarnBlendId).reduce((accumulator, currentValue) => {
-        //     return accumulator + parseInt(currentValue.percentage)
-        // }, 0);
-        // return yarnBlendPercentage === 100
-    }
-
-    function findName(arr, id) {
-        if (!arr) return ""
-        let data = arr.find(item => parseInt(item.id) === parseInt(id))
-        return data ? data.name : ""
-    }
-
-    const calculateYarnName = () => {
-        //     let fabricType = findName(FabricTypeList?.data, fabricTypeId)
-
-        //     let yarnBlend = yarnBlendDetails ?
-        //         yarnBlendDetails?.filter(blend => blend.yarnBlendId && blend.percentage).map(blend => `${parseInt(blend.percentage)}%${findName(YarnBlendList?.data, blend.yarnBlendId)}`).join(' ') : "";
-
-        //     if (!fabricType) return ""
-        //     return `( ${yarnBlend} )/ ${fabricType}`
-    }
-
-    useEffect(() => {
-        if (id) return
-        setAliasName(calculateYarnName())
-    }, [calculateYarnName()])
+    const removeCcField = (index) => {
+        const updated = ccList.filter((_, i) => i !== index);
+        setCcList(updated);
+    };
 
 
-    const validateData = (data) => {
-        return data?.name
-    }
+    const handleViewExcel = async () => {
+        console.log(fileName, "fileName")
 
-    const handleSubmitCustom = async (callback, data, text) => {
         try {
-            let returnData;
-            if (text == "Updated") {
-                returnData = await callback({ id, body: data }).unwrap();
-            } else {
-                returnData = await callback(data).unwrap();
-            }
-            setId(returnData.data.id)
-            toast.success(text + "Successfully");
+            const fileUrl = `http://localhost:3000/uploads/1745991676117Order_1745991676045.xlsx`;
+            const response = await fetch(fileUrl);
+            const blob = await response.blob();
+            const arrayBuffer = await blob.arrayBuffer();
+
+            const data = new Uint8Array(arrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            setExcelData(jsonData);
+            console.log(excelData, 'excelData')
         } catch (error) {
-            console.log("handle");
+            console.error("Error reading Excel file", error);
         }
     };
 
-
-    const saveData = () => {
-
-        if (!validateData(data)) {
-            toast.info("Please fill all required fields...!", { position: "top-center" })
-            return
-        }
-        // if (!validatePercentage()) {
-        //     toast.info("Yarn Blend equal to 100...!", { position: "top-center" })
-        //     return
-        // }
-        if (id) {
-            handleSubmitCustom(updateData, data, "Updated");
-        } else {
-            handleSubmitCustom(addData, data, "Added");
-        }
-    }
-
-    const deleteData = async () => {
-        if (id) {
-            if (!window.confirm("Are you sure to delete...?")) {
-                return;
-            }
-            try {
-                await removeData(id)
-                setId("");
-                onNew();
-                toast.success("Deleted Successfully");
-            } catch (error) {
-                toast.error("something went wrong");
-            }
-        }
+    const handleFileChange = (event) => {
+        const selectedFiles = Array.from(event.target.files); // Convert FileList to array
+        setFiles(selectedFiles);
     };
 
-    const handleKeyDown = (event) => {
-        let charCode = String.fromCharCode(event.which).toLowerCase();
-        if ((event.ctrlKey || event.metaKey) && charCode === "s") {
-            event.preventDefault();
-            saveData();
-        }
-    };
-
-    const onNew = () => {
-        setId("");
-        setForm(true);
-        setSearchValue("");
-        setReadOnly(false);
-        // syncFormWithDb(undefined)
-    };
-
-    function onDataClick(id) {
-        setId(id);
-        setForm(true);
-    }
-    const tableHeaders = ["Name", "Status"]
-    const tableDataNames = ['dataObj.name', 'dataObj.active ? ACTIVE : INACTIVE']
 
 
-    if (!form)
-        return (
-            <ReportTemplate
-                heading={MODEL}
-                tableHeaders={tableHeaders}
-                tableDataNames={tableDataNames}
-                loading={
-                    isLoading || isFetching
-                }
-                setForm={setForm}
-                data={allData?.data}
-                onClick={onDataClick}
-                onNew={onNew}
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
-            />
-        );
+
+
+
 
     return (
-        <div
-            onKeyDown={handleKeyDown}
-            className="md:items-start md:justify-items-center grid h-full bg-theme"
-        >
 
-            <div className="flex flex-col frame w-full h-full">
-                <FormHeader
-                    onNew={onNew}
-                    onClose={() => {
-                        setForm(false);
-                        setSearchValue("");
-                    }}
-                    model={MODEL}
-                    saveData={saveData}
-                    setReadOnly={setReadOnly}
-                    deleteData={deleteData}
+        <>
+            <div className="grid grid-cols-2">
+                <div className="flex flex-col" >
+                    <div className=" p-3 rounded mb-4 h-[90%] w-full">
+                        <div>
+                            <label className="block  text-black text-sm mb-1" htmlFor="to">To:</label>
+                            <input
+                                type="email"
+                                id="to"
+                                placeholder="recipient@example.com"
+                                name="username" value={toEmail} onChange={(e) => setToEmail(e.target.value)}
+                                className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm"
+                            />
 
-                />
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-x-2 overflow-clip">
-                    <div className="col-span-3 grid md:grid-cols-2 border overflow-auto">
-                        <div className='col-span-3 grid md:grid-cols-2 border overflow-auto'>
-                            <div className='mr-1 md:ml-2'>
-                                <fieldset className='frame my-1'>
-                                    <legend className='sub-heading'>Fabric Info</legend>
-                                    <div className='flex flex-col justify-start gap-3 flex-1'>
-                                        <div className="grid grid-cols-2">
-                                            <TextInput name="FabricName" type="text" value={name} setValue={setName} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
-
-                                            {/* <DropdownInput name="Fabric Type" options={dropDownListObject(id ? FabricTypeList.data : FabricTypeList.data.filter(item => item.active), "name", "id")} value={fabricTypeId} setValue={(value) => { setFabricTypeId(value); }} readOnly={readOnly} required={true} disabled={(childRecord.current > 0)} />
-                                            <CheckBox name="Organic" readOnly={readOnly} value={organic} setValue={setOrganic} /> */}
-                                            <CheckBox name="Active" readOnly={readOnly} value={active} setValue={setActive} />
-                                        </div>
-                                        {/* <YarnBlendDetails id={id} params={params} yarnBlend={yarnBlendDetails} setYarnBlend={setYarnBlendDetails} readOnly={readOnly} /> */}
-                                    </div>
-                                </fieldset>
-                                {/* <fieldset className='frame rounded-tr-lg rounded-bl-lg rounded-br-lg border border-gray-600 my-1 w-[650px] md:pb-5 flex'>
-                                    <legend className='sub-heading'>Fabric Details</legend>
-                                    <div className='flex flex-col justify-start gap-3 p-3 flex-1'>
-                                        <LongTextInput name="Fabric Name" readOnly className={'focus:outline-none cursor-not-allowed md:col-span-2 h-6 w-[610px] border border-gray-500 rounded'} type="text" value={calculateYarnName()} disabled={(childRecord.current > 0)} />
-                                        <div className="flex">
-                                            <LongTextInput name="Alias Name" className={'focus:outline-none md:col-span-2 h-6 w-[450px] border border-gray-500 rounded'} type="text" value={aliasName} setValue={setAliasName} readOnly={readOnly} required={true} disabled={(childRecord.current > 0)} />
-                                            <LongTextInput name="HSN Code" className={'focus:outline-none md:col-span-2 h-6 w-[150px] border border-gray-500 rounded'} type="text" value={hsn} setValue={setHsn} readOnly={readOnly} required={true} disabled={(childRecord.current > 0)} />
-                                        </div>
-                                    </div>
-                                </fieldset> */}
-                            </div>
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Cc:</label>
+                            {ccList.map((cc, index) => (
+                                <div key={index} className="flex items-center space-x-2 mt-1">
+                                    <input
+                                        type="email"
+                                        placeholder={`Cc recipient ${index + 1}`}
+                                        value={cc}
+                                        onChange={(e) => handleCcChange(index, e.target.value)}
+                                        className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm"
+                                    />
+                                    <button
+                                        onClick={() => removeCcField(index)}
+                                        className="text-red-500 hover:text-red-700"
+                                    >
+                                        🗑
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                onClick={addCcField}
+                                className="mt-2 text-sm text-blue-600 hover:underline"
+                            >
+                                + Add Cc
+                            </button>
+                        </div>
+
+                        <div className="">
+                            <label className="block  text-black text-sm mb-1" htmlFor="subject">Subject:</label>
+                            <input
+                                type="text"
+                                id="subject"
+                                placeholder="Subject"
+                                name="Subject" value={subject} onChange={(e) => setSubject(e.target.value)}
+                                className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm"
+
+                            />
+                        </div>
+
+                        <div className="">
+                            <label className="block  text-black text-sm mb-1" htmlFor="message">Messag</label>
+                            <textarea
+                                id="message"
+                                rows="7"
+                                placeholder="Write your message..."
+                                name="Subject" value={Message} onChange={(e) => setMessage(e.target.value)}
+
+                                className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm"
+                            ></textarea>
+                        </div>
+
+
+
+
                     </div>
-                    <div className="frame overflow-x-hidden">
-                        <FormReport
-                            searchValue={searchValue}
-                            setSearchValue={setSearchValue}
-                            setId={setId}
-                            tableHeaders={tableHeaders}
-                            tableDataNames={tableDataNames}
-                            data={allData?.data}
-                            loading={
-                                isLoading || isFetching
-                            }
-                        />
+                    <div className="mt-auto flex justify-end w-full">
+                        <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"
+                            onClick={() => {
+                                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files);
+                            }}
+                        >
+                            Send
+                        </button>
                     </div>
+
+                    <input
+                        type="file"
+                        multiple
+                        onChange={(e) => handleFileChange(e)}
+                        className="mb-4"
+                    />
+
+                </div>
+
+
+
+
+
+                <div className="flex flex-col mt-5 p-5 gap-4">
+                    <div className="border-b border-gray-400 w-64">
+                        <label htmlFor="">Po Number :  </label>
+                        {Emaildata?.data?.order?.docId}
+                    </div>
+                    <div className="border-b border-gray-400 w-64">
+                        <label htmlFor="">Vendor :  </label>
+                        {Emaildata?.data?.order?.vendor}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
+                            <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
+                        </svg>
+                        <span>{Emaildata?.data?.poExcelFileName}</span>
+                    </div>
+
+                    <button
+                        onClick={async () => {
+                            const fileName = Emaildata?.data?.poExcelFileName;
+                            const response = await fetch(getImageUrlPath(fileName));
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = fileName;
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            window.URL.revokeObjectURL(url);
+                        }}
+                        className="text-blue-600 underline text-sm w-fit"
+                    >
+                        Download Excel
+                    </button>
                 </div>
             </div>
 
-        </div>
+
+
+
+
+
+
+
+        </>
+
     );
-}
+}   

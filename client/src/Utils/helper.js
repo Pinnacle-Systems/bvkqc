@@ -193,7 +193,7 @@ export function findFromList(id, list, property) {
   if (!list) return ""
   let data = list?.filter(j => j.active).find(i => parseInt(i.id) === parseInt(id))
   if (!data) return ""
-  console.log(data[property],"data[property]")
+  console.log(data[property], "data[property]")
 
   return data[property]
 }
@@ -346,33 +346,33 @@ export function renameFile(originalFile) {
     type: originalFile.type,
     lastModified: originalFile.lastModified,
   });
-  console.log(file,"file")
+  console.log(file, "file")
   return file;
 }
 
 
-export async function classListData(data){
+export async function classListData(data) {
   let classData = data;
   const order = { "PLAYSCHOOL": 0, "PRE-KG": 1, "LKG": 2, "UKG": 3 };
 
   classData.sort((a, b) => {
-      const extractParts = (className) => {
-          let match = className.match(/^([A-Za-z]+)-?(\d*)([A-Za-z]*)$/);
-          if (!match) return [Infinity, "", ""]; 
-  
-          let [_, prefix, num, suffix] = match;
-          num = num ? parseInt(num, 10) : (order[prefix] !== undefined ? order[prefix] : Infinity);
-          
-          return [order[prefix] !== undefined ? order[prefix] : num, num, suffix];
-      };
-  
-      let [orderA, numA, suffixA] = extractParts(a.name);
-      let [orderB, numB, suffixB] = extractParts(b.name);
-  
-      if (orderA !== orderB) return orderA - orderB;
-      if (numA !== numB) return numA - numB;
-      return suffixA.localeCompare(suffixB);
-    });
+    const extractParts = (className) => {
+      let match = className.match(/^([A-Za-z]+)-?(\d*)([A-Za-z]*)$/);
+      if (!match) return [Infinity, "", ""];
+
+      let [_, prefix, num, suffix] = match;
+      num = num ? parseInt(num, 10) : (order[prefix] !== undefined ? order[prefix] : Infinity);
+
+      return [order[prefix] !== undefined ? order[prefix] : num, num, suffix];
+    };
+
+    let [orderA, numA, suffixA] = extractParts(a.name);
+    let [orderB, numB, suffixB] = extractParts(b.name);
+
+    if (orderA !== orderB) return orderA - orderB;
+    if (numA !== numB) return numA - numB;
+    return suffixA.localeCompare(suffixB);
+  });
 }
 
 
@@ -380,7 +380,7 @@ export async function classListData(data){
 
 export function handleMailSend(blob, mailAddress, subject, fileName, logo, heading) {
 
- 
+
   const path = require('path');
 
   let blobData = new Blob([blob], { type: 'application/pdf' });
@@ -405,7 +405,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
   });
 
 
-  console.log(form,"formmmmm")
+  console.log(form, "formmmmm")
 
 }
 
@@ -416,25 +416,25 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-export function handleMailSendWithMultipleAttachments(FromEmailAddress,toEmail,passskey,subject,Message,filename,files) {
-  
-  let receivedFiles=files?.map(j=>{return{fileName:j.filePath}})
-console.log(receivedFiles,"receivedFiles")
+export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files) {
+
+  let receivedFiles = files?.map(j => { return { fileName: j.filePath } })
+  console.log(filename, "receivedFiles")
   let mailAddress = "selvamanib986@gmail.com"
   let form = new FormData();
-  
 
-    // file should be a File object from an input[type="file"]
-    form.append('file', receivedFiles); // append all under same key 'file'
-  
 
-  form.append("FromAddresss",FromEmailAddress );
-  form.append("ToAddresss",toEmail );
+  // file should be a File object from an input[type="file"]
+  form.append('file', receivedFiles); // append all under same key 'file'
+
+
+  form.append("FromAddresss", FromEmailAddress);
+  form.append("ToAddresss", toEmail);
   form.append("subject", subject);
   form.append("passskey", passskey);
   form.append("fileName", filename);
-  form.append("message",Message)
-  form.append("files",files)
+  form.append("message", Message)
+  form.append("files", files)
 
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
@@ -442,7 +442,7 @@ console.log(receivedFiles,"receivedFiles")
     body: form
   }).then(res => {
     toast.success("Mail Send SuccessFully");
-  }).catch(err => { 
+  }).catch(err => {
     toast.error("Please Resend !")
   });
 }

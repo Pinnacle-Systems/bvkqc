@@ -33,6 +33,7 @@ export default function MailForm({ currentId, emailId }) {
   const [approvalSts, setApproveSts] = useState("")
 
   const id = currentId
+  const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
 
   const { data: singleData, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
@@ -42,9 +43,11 @@ export default function MailForm({ currentId, emailId }) {
 
   useEffect(() => {
     setattachments(singleData?.data?.attachments)
+    setfileName(Emaildata?.data?.poExcelFileName)
     setUserId(singleData?.data?.vendorId)
-  }, [singleData, isLoading, isFetching])
+  }, [singleData, isLoading, isFetching, Emaildata])
 
+  console.log(singleData, 'singleData');
 
   const handleRemove = (indexToRemove) => {
     setattachments((prev) => prev.filter((_, i) => i !== indexToRemove));
@@ -76,7 +79,6 @@ export default function MailForm({ currentId, emailId }) {
   };
 
 
-  console.log(attachments, 'attachments')
 
 
 
@@ -207,6 +209,7 @@ export default function MailForm({ currentId, emailId }) {
               <option value='hold'>Hold</option>
             </select>
           </div>
+          <span>{Emaildata?.data?.poExcelFileName}</span>
           <div className="flex flex-col mt-5 p-5 gap-4">
 
 
@@ -214,40 +217,39 @@ export default function MailForm({ currentId, emailId }) {
               {attachments?.map((item, index) => {
                 const fileName = item.filePath?.split('/').pop();
 
-                return (
-                  <div key={index} className="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
-                      <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
-                    </svg>
+                <div key={index} className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
+                    <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
+                  </svg>
 
-                    <span>{fileName}</span>
+                  <span>{fileName}</span>
 
-                    <button
-                      onClick={async () => {
-                        const response = await fetch(getImageUrlPath(item.filePath));
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = fileName;
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-                        window.URL.revokeObjectURL(url);
-                      }}
-                      className="text-blue-600 underline"
-                    >
-                      Download
-                    </button>
-                    <button
-                      onClick={() => handleRemove(index)}
-                      className="text-red-500 underline text-sm"
-                    >Remove</button>
+                  <button
+                    onClick={async () => {
+                      const response = await fetch(getImageUrlPath(item.filePath));
+                      const blob = await response.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = fileName;
+                      document.body.appendChild(link);
+                      link.click();
+                      link.remove();
+                      window.URL.revokeObjectURL(url);
+                    }}
+                    className="text-blue-600 underline"
+                  >
+                    Download
+                  </button>
+                  <button
+                    onClick={() => handleRemove(index)}
+                    className="text-red-500 underline text-sm"
+                  >Remove</button>
 
 
-                  </div>
-                );
+                </div>
+
               })}
             </div>
           </div>
