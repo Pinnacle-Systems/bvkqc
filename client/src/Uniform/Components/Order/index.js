@@ -69,6 +69,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   const excessQty = poItems?.reduce((a, c) => a + parseFloat(c?.excessQty || 0), 0);
   const excessQtyAmount = poItems?.reduce((a, c) => a + parseFloat(c?.qty || 0), 0);
+  const [isApproved, setIsApproved] = useState(false)
   const data = {
     id,
     branchId, userId,
@@ -76,8 +77,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     finYearId,
     vendor,
     excessQty,
-    isSave: true, excessQtyAmount
-
+    isSave: true, excessQtyAmount,
+    isApproved
   }
 
   const handleSubmitCustom = async (callback, data, text) => {
@@ -184,7 +185,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-            id={id} setEmailId={setEmailId}   setCurrentId={setCurrentId}          
+            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
           />
 
@@ -202,7 +203,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}          
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
             />
             :
@@ -217,7 +218,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
-                id={id} setEmailId={setEmailId}
+                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved}
               />
 
               :
@@ -255,11 +256,11 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
                         <>
                           <Vendor
 
-                          allData={allData}
-                          setForm={setForm}
-                          setId={setId}
-                          setPoNo={setPoNo}
-                          partyData={partyData}
+                            allData={allData}
+                            setForm={setForm}
+                            setId={setId}
+                            setPoNo={setPoNo}
+                            partyData={partyData}
 
                           />
                         </>

@@ -15,31 +15,35 @@ import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId , setCurrentId 
- }) {
+  setActive, saveData, id, setEmailId, setCurrentId
+}) {
 
   const [upload] = useUploadMutation();
 
   const { branchId, finYearId, userId } = getCommonParams()
 
   const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
- 
-
-    const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
-  
 
 
-  
+  const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
+
+
+
+
+
+  const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
+  const { data: percentage, isLoading, isFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
+
 
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
 
- 
 
- useEffect(() => {
+
+  useEffect(() => {
     if (!id) return
     setCurrentId(singleData?.data?.id)
-  
+
 
   }, [id, singleData])
 
@@ -84,7 +88,10 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
       formData.append('id', id);
       const response = await upload({ body: formData, id }).unwrap();
       setEmailId(response?.data?.id)
-    
+
+
+
+
     } catch (error) {
       console.error("Error during Export and Upload:", error);
       toast.error("Something went wrong!");
@@ -95,7 +102,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   const handleQtyChange = (field, index, value, orderQty) => {
 
-let percentageValue = percentage?.data?.find(i => i.active)?.qty
+    let percentageValue = percentage?.data?.find(i => i.active)?.qty
 
 
     setPoItems((prev) => {
@@ -103,10 +110,10 @@ let percentageValue = percentage?.data?.find(i => i.active)?.qty
 
       if (field === 'excessQty') {
 
-if(parseFloat(value) > parseFloat(percentageValue)){
-   toast.error("Excess Qty is Too High");
-   return  newItems
-}
+        if (parseFloat(value) > parseFloat(percentageValue)) {
+          toast.error("Excess Qty is Too High");
+          return newItems
+        }
 
         newItems[index]['excessQty'] = value;
         const percentage = parseFloat((orderQty * value) / 100);
@@ -210,7 +217,7 @@ if(parseFloat(value) > parseFloat(percentageValue)){
 
                       value={item?.excessQty}
                       onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-                   
+
                       className="w-full p-1   rounded-md text-right focus:ring-blue-400"
                     />
 
@@ -304,7 +311,7 @@ if(parseFloat(value) > parseFloat(percentageValue)){
             onClick={() => {
               // setIsSave(true);
               saveData();
-              exportAndUploadExcel(data,poItems);
+              exportAndUploadExcel(data, poItems);
               setForm(false);
               setActive("Mail");
             }}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { findFromList, getCommonParams, handleMailSendWithMultipleAttachments } from "../../../Utils/helper";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import secureLocalStorage from "react-secure-storage";
-import { Button, Card, CardContent, Input } from "@mui/material";
+import { Button, Card, CardContent, Input, Modal } from "@mui/material";
 import { DELETE } from "../../../icons";
 import { AttachFile } from "@mui/icons-material";
 import * as XLSX from 'xlsx';
@@ -13,6 +13,7 @@ import { useGetEmailByIdQuery, useGetEmailQuery } from "../../../redux/uniformSe
 import { getImageUrlPath } from "../../../Constants";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { LongDropdownInput } from "../../../Inputs";
+import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 import { useDispatch } from "react-redux";
 
 
@@ -24,17 +25,17 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     sessionStorage.getItem("sessionId") + "userType"
   );
   console.log(user, 'user');
-  const [toEmail, setToEmail] = useState("max@gmail.com");
+  const [toEmail, setToEmail] = useState("manojbharathi00@gmail.com");
   const [subject, setSubject] = useState('');
   const [Message, setMessage] = useState("")
   const [attachments, setattachments] = useState([]);
   const [filename, setfileName] = useState('')
   const [files, setFiles] = useState([]);
   const [userId, setUserId] = useState("")
-  const [approvalSts, setApproveSts] = useState("")
   const [reciverName, setReceiverName] = useState("")
   const [fromAddress, setFromAddress] = useState("")
-  const dispatch = useDispatch()
+  const dispatch = useDispatch()  const [formReport, setFormReport] = useState(false)
+  const [multiAttach, setmultiAttach] = useState([])
 
   const id = currentId
 
@@ -146,6 +147,24 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
     <>
       <div className="grid grid-cols-2">
+        <Modal isOpen={formReport}
+          onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
+
+        >
+          <ArtDesignReport
+            setFormReport={setFormReport}
+            tableWidth="100%"
+            // data={allData?.data}
+            // onClick={(id) => {
+            // setId(id);
+            // setFormReport(false);
+            // }
+            // }
+            setAttachments={setattachments}
+            attachments={attachments}
+
+          />
+        </Modal>
         <div className="flex flex-col" >
           <div className=" p-1 rounded mb-4 h-[90%] w-full">
             <div>
@@ -216,26 +235,33 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
           </div>
 
-          {userRole === "" ?
-            <input
-              type="file"
-              multiple
-              onChange={(e) => handleFileChange(e)}
-              className="mb-4"
-            /> : ''}
+          <div className="flex w-full items-center">
+            {/* {userRole === "" ?
 
-          <div className="mt-auto flex justify-end w-full">
-            <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"
-              onClick={() => {
-                saveData()
-                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts, ccList);
-              }}
 
-            >
-              {console.log(ccList, '171')
-              }
-              Send
-            </button>
+              <div className=" p-1">
+                <button
+                  className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
+                  onClick={() => setFormReport(true)}
+                >
+                  <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
+                  <span className="relative z-10"> Attach  Design</span>
+                </button>
+              </div> : ''} */}
+
+            <div className=" flex justify-end w-full">
+              <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
+                onClick={() => {
+                  saveData()
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, ccList);
+                }}
+
+              >
+                {console.log(ccList, '171')
+                }
+                Send
+              </button>
+            </div>
           </div>
         </div>
 
@@ -258,20 +284,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
               ))}
             </ul>
           </div>
-          <div>
-            <select
-              className='px-1 py-1 border rounded'
-              value={approvalSts}
-              onChange={(e) =>
-                setApproveSts(e.target.value)
-              }
-            >
-              <option value=''>Select status</option>
-              <option value='approve'>Approve</option>
-              <option value='reject'>Reject</option>
-              <option value='hold'>Hold</option>
-            </select>
-          </div>
+
           <span>{Emaildata?.data?.poExcelFileName}</span>
           <div className="flex flex-col mt-5 p-5 gap-4">
 
