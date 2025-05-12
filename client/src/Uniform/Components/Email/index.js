@@ -20,7 +20,7 @@ import { LongDropdownInput } from "../../../Inputs";
 export default function MailForm({ currentId, emailId }) {
 
   const user = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userType"
+    sessionStorage.getItem("sessionId") + "userRole"
   );
   console.log(user, 'user');
   const [toEmail, setToEmail] = useState("max@gmail.com");

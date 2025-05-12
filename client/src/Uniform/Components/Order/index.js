@@ -13,7 +13,7 @@ import Manufactureform from "../Reports/Manufacture";
 import VendorForm from "../Reports/Vendor";
 import BuyerForm from "../Reports/Buyer";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { useGetUserByIdQuery, useGetUserQuery } from "../../../redux/services/UsersMasterService";
+import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 
 
 export default function Order({ setForm, form, setEmailId, setActive, setCurrentId }) {
