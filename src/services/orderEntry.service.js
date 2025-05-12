@@ -184,7 +184,7 @@ async function getSearch(req) {
 async function upload(req) {
     const { id } = req.body
     const { isDelete } = req.body
-    console.log(req.files, 'req.file.filename');
+
 
 
     const data = await prisma.email.create({
@@ -307,18 +307,16 @@ async function updateOrderBillItems(tx, orderDetails, order) {
                     return null;
                 }
             }
-
-            // Already parsed objects (skip '[object Object]' strings)
             if (typeof item === 'object' && item !== null) {
                 return item;
             }
-
-            // Skip anything else
             return null;
         })
         .filter(item => item !== null);
 
-    console.log(parsedOrderImportItems, 'parsedOrderImportItems');
+
+
+
 
     // Create DB entries
     const insertPromises = parsedOrderImportItems.map((item) => {
@@ -354,12 +352,11 @@ async function updateOrderBillItems(tx, orderDetails, order) {
 async function update(id, body) {
     let data;
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
-        excessQtyAmount, date, orderDetails, vendor,
-        ponumber, isAttachments, isApproved, mailTransaction } = await body
+        excessQtyAmount, date, orderDetails, vendor, orderId, cc,
+        ponumber, isAttachments, isApproved, mailTransaction, fromAddress, sendorName, sendorId, toEmail,
+        receiverName, receiverId, subject, message, ccList, fileName } = await body
 
-    console.log(
-        orderDetails,
-    );
+
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -368,9 +365,6 @@ async function update(id, body) {
     })
 
     if (!dataFound) return NoRecordFound("orderBill");
-
-
-
 
     if (isAttachments) {
 
@@ -408,32 +402,32 @@ async function update(id, body) {
 
     if (mailTransaction) {
 
-        await prisma.$transaction(async (tx) => {
-            data = await tx.MailTransaction.update({
-                where: {
-                    id: parseInt(id),
-                },
+        console.log("hiiii")
+
+        console.log(attachments, "attachments")
+
+        let data = await prisma.mailTransaction.create(
+            {
                 data: {
-                    attachments: {
-                        deleteMany: {},
+                    orderId: parseInt(orderId),
+
+                    createdById: parseInt(userId),
+                    date: new Date(), cc,
+                    from: fromAddress, senderName: sendorName,
+                    receiverName, to: receiverName,
+                    receiverId: receiverId ? parseInt(receiverId) : null, subject, messages: message,
+                    senderId: parseInt(sendorId),
+                    mailTransAttachments: {
                         createMany: attachments ? {
                             data: JSON.parse(attachments || []).map(temp => ({
-                                date: temp.date ? new Date(temp.date) : undefined,
-                                log: temp.log ? temp.log : "",
-                                gridUser: temp.gridUser ? temp.gridUser : "",
-                                filePath: temp.filePath ? temp.filePath : undefined,
+                                fileName: temp.filePath ? temp.filePath : undefined,
 
                             }))
                         } : undefined
                     }
 
-                },
-                include: {
-                    orderBillItems: true
                 }
             })
-
-        })
 
         return { statusCode: 0, data };
 

@@ -27,7 +27,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   console.log(user, 'user');
   const [toEmail, setToEmail] = useState("manojbharathi00@gmail.com");
   const [subject, setSubject] = useState('');
-  const [Message, setMessage] = useState("")
+  const [message, setMessage] = useState("")
   const [ccList, setCcList] = useState(['']);
   const [attachments, setattachments] = useState([]);
   const [fileName, setfileName] = useState('')
@@ -72,7 +72,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setReceiverId(SigleOrderdata?.data?.Vendor?.id)
   }, [SigleOrderdata, isLoading, isFetching, Emaildata])
 
-  console.log(userId, attachments, fileName, receiverName, sendorName, receiverId);
+
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -109,30 +109,31 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
   const data = {
-    mailTransaction: true,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, Message, ccList, attachments, fileName, userId
+    mailTransaction: true, orderId: id,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId
   }
 
-
+  console.log("mailTransaction", id,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, ccList, attachments, fileName, userId);
 
   const handleSubmitCustom = async (callback, data, text) => {
 
     try {
       const formData = new FormData();
       for (let key in data) {
-        if (key === "attachments") {
-          data[key].forEach(item =>
-            formData.append(key, JSON.stringify(item))
-          );
+        // if (key === "attachments") {
+        //   data[key].forEach(item =>
+        //     formData.append(key, JSON.stringify(item))
+        //   );
+        // }
+        if (key === 'attachments') {
+          formData.append(key, JSON.stringify(data[key].map(i => ({ ...i }))));
+          // data[key].forEach(option => {
+          //   if (option?.filePath instanceof File) {
+          //     formData.append('images', option.filePath);
+          //   }
+          // });
         }
-        // if (key === 'attachments') {
-        //   formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
-        //   data[key].forEach(option => {
-        //     if (option?.filePath instanceof File) {
-        //       formData.append('images', option.filePath);
-        //     }
-        //   });
-        // } 
         else {
           formData.append(key, data[key]);
         }
@@ -278,7 +279,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                 id="message"
                 rows="7"
                 placeholder="Write your message..."
-                name="Subject" value={Message} onChange={(e) => setMessage(e.target.value)}
+                name="Subject" value={message} onChange={(e) => setMessage(e.target.value)}
 
                 className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm"
               ></textarea>
@@ -307,7 +308,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
               <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
                 onClick={() => {
                   saveData()
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, fileName, files, ccList);
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, files, ccList);
                 }}
 
               >
