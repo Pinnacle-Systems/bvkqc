@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 const MailContents = {
-          proforma: `
+  proforma: `
             <div
           
             style="max-width: 90%; margin: auto; margin-top: 15px "
@@ -108,28 +108,28 @@ const MailContents = {
 
             </div>
 
-              `,  
+              `,
 }
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-let MAIL_SETTINGS= {};
+let MAIL_SETTINGS = {};
 
 export async function sendMailWithAttachmentWithMultipleFiles(req) {
 
 
-  console.log(req.body,"req")
+  console.log(req.body, "req")
 
   MAIL_SETTINGS = {
-  service: 'gmail',
-  auth: {
+    service: 'gmail',
+    auth: {
       user: "iridescentcosting@gmail.com",
       // req?.body?.FromAddresss,
-      pass:   "qowiqsbixattwtmw"  
+      pass: "qowiqsbixattwtmw"
       //  req?.body?.passskey
 
-  }
+    }
   }
 
   const transporter = createTransport(MAIL_SETTINGS);
@@ -140,35 +140,35 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
   let ToAddress = req?.body?.ToAddresss
   let subject = req?.body?.subject;
   let ccAddress;
-  let message  =  req?.body?.message;
-  let fileName=req.body.fileName
+  let message = req?.body?.message;
+  let fileName = req.body.fileName
 
 
   try {
-  const files = req?.body?.file
+    const files = req?.body?.file
 
-  const attachments = [
-  {
-  filename: `${files?.fileName}`,
-  path: `./uploads/${files.fileName}`,
-  contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  }
-  ]
-  console.log(files,"files")
-  files.forEach(file => {
-  
-
-    attachments.push(
+    const attachments = [
       {
-        filename: `${file?.fileName}`,
-         path: `./uploads/${file.fileName}`,
+        filename: `${fileName}`,
+        path: `./uploads/${fileName}`,
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      },
-    )
-  })
+      }
+    ]
+    console.log(files, "files")
+    // files.forEach(file => {
 
 
-  let info = await transporter.sendMail({
+    //   attachments.push(
+    //     {
+    //       filename: `${file?.fileName}`,
+    //        path: `./uploads/${file.fileName}`,
+    //       contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    //     },
+    //   )
+    // })
+
+
+    let info = await transporter.sendMail({
       from: MAIL_SETTINGS.auth.user,
       to: ToAddress,
       cc: ccAddress,
@@ -177,13 +177,13 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
       html: `${message}
             <img src="cid:logo" alt="PNG Image" />`
     });
-    return   { success: true, message: " send email with multiple Files ", info };;
+    return { success: true, message: " send email with multiple Files ", info };;
   } catch (error) {
     console.error("Error sending mail:", error);
 
   }
 
-  }
+}
 
 
 
@@ -217,14 +217,14 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
 //         // req?.body?.FromAddresss,
 //         pass:   "qowiqsbixattwtmw"  
 //         //  req?.body?.passskey
-  
+
 //   }
 // }
 //     console.log(MAIL_SETTINGS,'MAIL_SETTINGS')
 // const transporter = createTransport(MAIL_SETTINGS);
 
-  
- 
+
+
 //   let FromAddresss = req?.body?.FromAddresss
 //   let ToAddress = req?.body?.ToAddresss
 //   let subject = req?.body?.subject;
@@ -267,7 +267,7 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
 //       from: MAIL_SETTINGS.auth.user,
 //       to: ToAddress,
 //       cc: ccAddress,
-      
+
 //       subject: subject,
 //       // attachments,
 //       html: `${message}
@@ -350,16 +350,16 @@ export async function sendMailWithAttachment(req) {
       cc: ccAddress,
       subject: req.body.subject,
 
-    //   attachments: [
-    //     {
-    //       filename: `${req.body.fileName}.${"pdf"}`,
-    //       content: req?.file?.buffer,
-    //     }, {
-    //       filename: "logo.png",
-    //       path: "./src/assets/srgmaillogo.png",
-    //       cid: "logo"
-    //     }
-    //   ],
+      //   attachments: [
+      //     {
+      //       filename: `${req.body.fileName}.${"pdf"}`,
+      //       content: req?.file?.buffer,
+      //     }, {
+      //       filename: "logo.png",
+      //       path: "./src/assets/srgmaillogo.png",
+      //       cid: "logo"
+      //     }
+      //   ],
 
       html: `${content}
            <img src="cid:logo" alt="PNG Image" />`
