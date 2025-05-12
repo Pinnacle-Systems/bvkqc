@@ -20,11 +20,11 @@ import { useDispatch } from "react-redux";
 
 export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, userName }) {
 
-
-
-
-  const [fromAddress, setFromAddress] = useState("")
-  const [toEmail, setToEmail] = useState("");
+  const user = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userType"
+  );
+  console.log(user, 'user');
+  const [toEmail, setToEmail] = useState("max@gmail.com");
   const [subject, setSubject] = useState('');
   const [Message, setMessage] = useState("")
   const [attachments, setattachments] = useState([]);
@@ -66,17 +66,18 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const handleRemove = (indexToRemove) => {
     setattachments((prev) => prev.filter((_, i) => i !== indexToRemove));
   };
-
-  const [ccList, setCcList] = useState([""]);
+  const addCcField = () => {
+    setCcList([...ccList, ""]);
+  };
+  const [ccList, setCcList] = useState(['']);
   const handleCcChange = (index, value) => {
     const updated = [...ccList];
     updated[index] = value;
     setCcList(updated);
   };
 
-  const addCcField = () => {
-    setCcList([...ccList, ""]);
-  };
+
+  console.log(ccList, 'cclist');
 
   const removeCcField = (index) => {
     const updated = ccList.filter((_, i) => i !== index);
@@ -91,6 +92,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
   };
+
 
   const data = { fromAddress, userName, toEmail, subject, Message, attachments, filename, userId, reciverName }
 
@@ -219,9 +221,12 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
             <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"
               onClick={() => {
                 saveData()
-                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts);
+                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts, ccList);
               }}
+
             >
+              {console.log(ccList, '171')
+              }
               Send
             </button>
           </div>
