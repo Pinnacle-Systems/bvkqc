@@ -1,4 +1,4 @@
-import React, { useState, } from "react";
+import React, { useEffect, useState, } from "react";
 import {
   Home,
   MessageCircle,
@@ -17,6 +17,8 @@ import secureLocalStorage from "react-secure-storage";
 import Order from "../Order";
 import MailForm from "../Email";
 import { OrderImport } from "..";
+import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
+import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 
 
 
@@ -24,15 +26,33 @@ export default function Form() {
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
-  console.log(user, 'user');
 
   const [active, setActive] = useState(user === null ? "order" : "home");
-
   const [isOpen, setisOpen] = useState(false)
   const [form, setForm] = useState(false)
   const [mailForm, setMailform] = useState(false)
   const [emailId, setEmailId] = useState("")
   const [currentId, setCurrentId] = useState("")
+  const [userName, setUserName] = useState("")
+  const [partyId, setPartyId] = useState("")
+
+
+  const userId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userId")
+
+  const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
+  const userRole = singleuserData?.data?.userType || ""
+  const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !userId });
+
+  useEffect(() => {
+    setUserName(singleuserData?.data?.username)
+    setPartyId(singleuserData?.data?.partyType)
+  }, [singleUserPartyData])
+
+
+
+
+
   const getButtonStyle = (name) => ({
     backgroundColor: active === name ? "#E9D5FF" : "transparent",
     borderRadius: "8px",
@@ -134,10 +154,15 @@ export default function Form() {
           <div>
 
             {active === "home" && <HomePage />}
-            {active === "Mail" && <MailForm emailId={emailId} currentId={currentId} />}
+            {active === "Mail" && <MailForm
+
+              emailId={emailId} currentId={currentId} userRole={userRole}
+              singleUserPartyData={singleUserPartyData} userName={userName}
+
+            />}
             {active === "Activity" && <Activity />}
             {active === "More" && <OrderImport />}
-            {active === "order" && <Order  setEmailId={setEmailId}
+            {active === "order" && <Order setEmailId={setEmailId}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId} />}
 
           </div>
