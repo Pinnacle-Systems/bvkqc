@@ -37,6 +37,7 @@ export default function Form() {
   const [partyId, setPartyId] = useState("")
 
 
+
   const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId")
 
@@ -46,6 +47,7 @@ export default function Form() {
 
   useEffect(() => {
     setUserName(singleuserData?.data?.username)
+
     setPartyId(singleuserData?.data?.partyType)
   }, [singleUserPartyData])
 
@@ -163,7 +165,9 @@ export default function Form() {
             {active === "Activity" && <Activity />}
             {active === "More" && <OrderImport />}
             {active === "order" && <Order setEmailId={setEmailId}
-              setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId} />}
+              setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
+
+            />}
 
           </div>
 

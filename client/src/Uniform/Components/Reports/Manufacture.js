@@ -21,6 +21,16 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   const [upload] = useUploadMutation();
 
   const { branchId, finYearId, userId } = getCommonParams()
+
+  const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
+
+
+  const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
+
+
+
+
+
   const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
   const { data: percentage, isLoading, isFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
@@ -28,56 +38,14 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
 
-  // useEffect(() => {
-  //   field="excessQty"
-  //   percentage?.map((item,index)  =>  {
-  //     setPoItems((prev) => {
-  //       let newItem=structuredClone(prev)
-  //       newItem[index][field]=item?.qty
-  //   })
-
-
-  // },[percentage])   
-
-
-
-  console.log(percentage, "perrr");
-  console.log(poItems, "perrr");
-
-
-  useEffect(() => {
-    if (percentage?.data?.length === 0) return;
-    let percentageValue = percentage?.data?.find(i => i.active)?.qty
-    let newArray = poItems?.map((item, index) => {
-      return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
-    });
-    setPoItems(newArray)
-  }, [percentage, isLoading, isFetching, singleData, id]);
-
-
 
 
   useEffect(() => {
     if (!id) return
     setCurrentId(singleData?.data?.id)
+
+
   }, [id, singleData])
-
-
-
-  //  useEffect(() => {
-  //       if (poItems?.length >= 5) return
-  //       setPoItems(prev => {
-  //           let newArray = Array?.from({ length: 5  - prev.length }, i => {
-  //               return { excessQty: "", qty: 0.00,orderQty:0.00 }
-  //           })
-  //           return [...prev, ...newArray]
-  //       }
-  //       )
-  //   }, [poItems])
-
-
-
-
 
 
 
@@ -124,8 +92,6 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
       setEmailId(response?.data?.id)
 
-      //  toast.success(`${text} Successfully`);
-      console.log("Upload Response:", response);
 
 
 
@@ -137,42 +103,21 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-
-
-
-  // const handleQtyChange = (field,index, value,orderQty) => {
-
-  //   setPoItems((prev) => {
-  //   let newItem=structuredClone(prev)
-
-  //         //   if(percentageValue  > value ){
-  //         //     toast.error(`Maximum Excess Qty % Is ${percentageValue}`);
-  //         //     return false
-  //         //   }
-  //         //   else{
-
-  //         if(field === 'excessQty'){
-  //              console.log(field,"field")
-  //             let qty = "qty"
-  //             let percentage=parseFloat((orderQty * value) / 100)
-  //             newItem[index][qty]=(parseFloat(orderQty) + percentage);
-  //           }
-
-  //         }
-  //       else{
-  //               newItem[index][field]=value
-
-  //       }
-  //       return newItem;
-  //     });
-
-  //   }
-
   const handleQtyChange = (field, index, value, orderQty) => {
+
+    let percentageValue = percentage?.data?.find(i => i.active)?.qty
+
+
     setPoItems((prev) => {
       let newItems = structuredClone(prev);
 
       if (field === 'excessQty') {
+
+        if (parseFloat(value) > parseFloat(percentageValue)) {
+          toast.error("Excess Qty is Too High");
+          return newItems
+        }
+
         newItems[index]['excessQty'] = value;
         const percentage = parseFloat((orderQty * value) / 100);
         const updatedQty = parseFloat(orderQty) + percentage;
@@ -369,7 +314,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             onClick={() => {
               // setIsSave(true);
               saveData();
-              exportAndUploadExcel(data);
+              exportAndUploadExcel(data, poItems);
               setForm(false);
               setActive("Mail");
 
