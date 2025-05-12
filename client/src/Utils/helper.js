@@ -416,17 +416,17 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files) {
+export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts, ccList) {
+  console.log(ccList, 'in helper function');
 
   let receivedFiles = files?.map(j => { return { fileName: j.filePath } })
-  console.log(filename, "receivedFiles")
+
   let mailAddress = "selvamanib986@gmail.com"
   let form = new FormData();
 
-
-  // file should be a File object from an input[type="file"]
+  const ccMailIds = [...ccList]
+  const joinMails = ccMailIds.join(', ')
   form.append('file', receivedFiles); // append all under same key 'file'
-
 
   form.append("FromAddresss", FromEmailAddress);
   form.append("ToAddresss", toEmail);
@@ -435,6 +435,7 @@ export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail,
   form.append("fileName", filename);
   form.append("message", Message)
   form.append("files", files)
+  form.append("ccList", joinMails)
 
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {

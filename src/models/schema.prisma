@@ -161,6 +161,8 @@ model User {
   OrderImportUpdateBy         OrderImport[]        @relation(name: "updatedBy")
   Attachments                 Attachments[]        @relation(name: "createdBy")
   AttachmentsUpdatedBy        Attachments[]        @relation(name: "updatedBy")
+  MailTransaction             MailTransaction[]    @relation(name: "createdBy")
+  MailTransactionUpdatedBy    MailTransaction[]    @relation(name: "updatedBy")
 }
 
 model Employee {
@@ -341,51 +343,53 @@ model Currency {
 }
 
 model Party {
-  id                Int         @id @default(autoincrement())
+  id                Int               @id @default(autoincrement())
   name              String
   code              String?
   aliasName         String?
   displayName       String?
   address           String?
-  image             Bytes?      @db.LongBlob
-  City              City?       @relation(fields: [cityId], references: [id])
+  image             Bytes?            @db.LongBlob
+  City              City?             @relation(fields: [cityId], references: [id])
   cityId            Int?
   pincode           Int?
   panNo             String?
   tinNo             String?
   cstNo             String?
-  cstDate           DateTime?   @db.Date
+  cstDate           DateTime?         @db.Date
   cinNo             String?
   faxNo             String?
   email             String?
   website           String?
   contactPersonName String?
   gstNo             String?
-  Currency          Currency?   @relation(fields: [currencyId], references: [id])
+  Currency          Currency?         @relation(fields: [currencyId], references: [id])
   currencyId        Int?
   costCode          String?
-  active            Boolean?    @default(true)
-  contactMobile     BigInt?     @default(0)
-  Company           Company?    @relation(fields: [companyId], references: [id])
+  active            Boolean?          @default(true)
+  contactMobile     BigInt?           @default(0)
+  Company           Company?          @relation(fields: [companyId], references: [id])
   companyId         Int?
-  yarn              Boolean?    @default(false)
-  fabric            Boolean?    @default(false)
-  accessoryGroup    Boolean?    @default(false)
-  createdAt         DateTime?   @default(now())
-  updatedAt         DateTime?   @updatedAt
-  createdBy         User?       @relation("createdBy", fields: [createdById], references: [id])
+  yarn              Boolean?          @default(false)
+  fabric            Boolean?          @default(false)
+  accessoryGroup    Boolean?          @default(false)
+  createdAt         DateTime?         @default(now())
+  updatedAt         DateTime?         @updatedAt
+  createdBy         User?             @relation("createdBy", fields: [createdById], references: [id])
   createdById       Int?
-  updatedBy         User?       @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedBy         User?             @relation("updatedBy", fields: [updatedById], references: [id])
   updatedById       Int?
   priceTemplateId   Int?
-  isSupplier        Boolean?    @default(false)
-  isClient          Boolean?    @default(false)
-  isIgst            Boolean?    @default(false)
-  isVendor          Boolean?    @default(false)
+  isSupplier        Boolean?          @default(false)
+  isClient          Boolean?          @default(false)
+  isIgst            Boolean?          @default(false)
+  isVendor          Boolean?          @default(false)
   partyType         String?
   BillEntry         BillEntry[]
   mailId            String?
   order             order[]
+  sender            MailTransaction[] @relation(name: "sender")
+  receiver          MailTransaction[] @relation(name: "receiver")
 }
 
 model Hsn {
@@ -509,24 +513,24 @@ enum PaymentMode {
 }
 
 model order {
-  id                 Int              @id @default(autoincrement())
-  Branch             Branch?          @relation(fields: [branchId], references: [id])
+  id                 Int               @id @default(autoincrement())
+  Branch             Branch?           @relation(fields: [branchId], references: [id])
   branchId           Int?
-  createdAt          DateTime?        @default(now())
-  updatedAt          DateTime?        @updatedAt
-  createdBy          User?            @relation("createdBy", fields: [createdById], references: [id])
+  createdAt          DateTime?         @default(now())
+  updatedAt          DateTime?         @updatedAt
+  createdBy          User?             @relation("createdBy", fields: [createdById], references: [id])
   createdById        Int?
-  updatedBy          User?            @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedBy          User?             @relation("updatedBy", fields: [updatedById], references: [id])
   updatedById        Int?
   docId              String?
   orderdate          DateTime?
   poNumber           String?
-  isDeleted          Boolean          @default(false)
-  User               User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isDeleted          Boolean           @default(false)
+  User               User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId             Int?
-  isApproval         Boolean          @default(false)
+  isApproval         Boolean           @default(false)
   buyerGmail         String?
-  Party              Party?           @relation(fields: [manufactureId], references: [id])
+  Party              Party?            @relation(fields: [manufactureId], references: [id])
   manufactureId      Int?
   vendorId           Int?
   excelFineName      String?
@@ -540,6 +544,7 @@ model order {
   orderBillItems     orderBillItems[]
   attachments        Attachments[]
   manufacturerMailId String?
+  mailTransaction    MailTransaction[]
 }
 
 model orderBillItems {
@@ -669,4 +674,38 @@ model controlPanel {
   id     Int      @id @default(autoincrement())
   name   String?
   active Boolean?
+}
+
+model MailTransaction {
+  id                   Int                    @id @default(autoincrement())
+  order                order?                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  date                 DateTime?              @db.Date
+  orderId              Int?
+  senderName           String?
+  receiverName         String?
+  sender               Party?                 @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId             Int?
+  receiver             Party?                 @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId           Int?
+  from                 String?                @db.LongText
+  to                   String?                @db.LongText
+  cc                   String?                @db.LongText
+  subject              String?                @db.LongText
+  messages             String?                @db.LongText
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  createdBy            User?                  @relation("createdBy", fields: [createdById], references: [id])
+  createdById          Int?
+  updatedBy            User?                  @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById          Int?
+  mailTransAttachments MailTransAttachments[]
+}
+
+model MailTransAttachments {
+  id                Int              @id @default(autoincrement())
+  MailTransaction   MailTransaction? @relation(fields: [mailTransactionId], references: [id], onDelete: Cascade)
+  date              DateTime?        @db.Date
+  mailTransactionId Int?
+  fileName          String?
+  filePath          String?
 }
