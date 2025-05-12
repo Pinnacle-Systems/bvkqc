@@ -8,16 +8,16 @@ import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime, renameFile } from "../../../Utils/helper";
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import ArtDesignFormreport from "./ArtDesignReport";
 import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
 import MailForm from "../Email";
+import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   setActive, setIsSave, id, setCurrentId }) {
 
 
- 
+
 
 
 
@@ -27,7 +27,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   const [searchValue, setSearchValue] = useState("");
   const { branchId, finYearId, userId } = getCommonParams()
 
- console.log(singleData, "singleData")
+  console.log(singleData, "singleData")
 
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
@@ -86,7 +86,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         returnData = await callback(formData).unwrap();
       }
       if (returnData.statusCode === 0) {
-        console.log(returnData,"returnData")
+        console.log(returnData, "returnData")
         toast.success(text + "Successfully");
 
 
@@ -125,11 +125,10 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
       <FormHeaderNew
         model={"Order"}
       />
-      <Modal isOpen={formReport} 
-      onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
-   
+      <Modal isOpen={formReport}
+        onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
       >
-        <ArtDesignFormreport
+        <ArtDesignReport
           setFormReport={setFormReport}
           tableWidth="100%"
           // data={allData?.data}
@@ -186,16 +185,16 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
           </div>
 
-      
-     <div className="flex  mt-2">
-          <button
-            className="relative py-1  bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
-            onClick={() => setFormReport(true)}
-          >
-            <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
-            <span className="relative z-10"> Attch  Design</span>
-          </button>
-        </div>
+
+          <div className="flex  mt-2">
+            <button
+              className="relative py-1  bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
+              onClick={() => setFormReport(true)}
+            >
+              <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
+              <span className="relative z-10"> Attach  Design</span>
+            </button>
+          </div>
 
 
 
@@ -243,7 +242,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
                   <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
                   <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
-              
+
 
 
                 </tr>
@@ -284,19 +283,19 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         </div>
 
 
-          <div className="flex justify-end gap-3 mt-[50px]">
-              <button
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-                onClick={() => {
-                  saveData();
-                  setForm(false);
-                  setActive("Mail");
-           
-                }}
-              >
-                Save & Send
-              </button>
-          </div>
+        <div className="flex justify-end gap-3 mt-[50px]">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
+            onClick={() => {
+              saveData();
+              setForm(false);
+              setActive("Mail");
+
+            }}
+          >
+            Save & Send
+          </button>
+        </div>
 
       </div>
     </>

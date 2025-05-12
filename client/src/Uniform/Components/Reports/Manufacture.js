@@ -15,19 +15,12 @@ import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId , setCurrentId 
- }) {
+  setActive, saveData, id, setEmailId, setCurrentId
+}) {
 
   const [upload] = useUploadMutation();
 
   const { branchId, finYearId, userId } = getCommonParams()
-
-
-
-
-
-
-
   const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
   const { data: percentage, isLoading, isFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
@@ -47,14 +40,14 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   // },[percentage])   
 
 
- 
-console.log(percentage,"perrr");
-console.log(poItems,"perrr");
+
+  console.log(percentage, "perrr");
+  console.log(poItems, "perrr");
 
 
   useEffect(() => {
     if (percentage?.data?.length === 0) return;
-   let percentageValue = percentage?.data?.find(i => i.active)?.qty
+    let percentageValue = percentage?.data?.find(i => i.active)?.qty
     let newArray = poItems?.map((item, index) => {
       return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
     });
@@ -64,7 +57,7 @@ console.log(poItems,"perrr");
 
 
 
- useEffect(() => {
+  useEffect(() => {
     if (!id) return
     setCurrentId(singleData?.data?.id)
   }, [id, singleData])
@@ -282,7 +275,7 @@ console.log(poItems,"perrr");
 
                       value={item?.excessQty}
                       onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-                   
+
                       className="w-full p-1   rounded-md text-right focus:ring-blue-400"
                     />
 
