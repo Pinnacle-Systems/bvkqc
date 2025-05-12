@@ -19,6 +19,7 @@ import MailForm from "../Email";
 import { OrderImport } from "..";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
+import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
 
 
 
@@ -32,9 +33,11 @@ export default function Form() {
   const [form, setForm] = useState(false)
   const [mailForm, setMailform] = useState(false)
   const [emailId, setEmailId] = useState("")
-  const [currentId, setCurrentId] = useState("")
+  const [currentId, setCurrentId] = useState("")   // current id is a  Order Id
   const [partyId, setPartyId] = useState("")
+  const [attachments, setattachments] = useState([]);
 
+  const [poSentForApproval, setPoSentForApproval] = useState(false)
 
 
   const userId = secureLocalStorage.getItem(
@@ -43,13 +46,15 @@ export default function Form() {
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
   const userRole = singleuserData?.data?.userType || ""
   const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !userId });
+  const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(currentId, { skip: !currentId });
 
   useEffect(() => {
-
     setPartyId(singleuserData?.data?.partyType)
   }, [singleUserPartyData])
 
-
+useEffect(() =>  {
+  setattachments(SigleOrderdata?.data?.attachments)
+},[SigleOrderdata])
 
 
 
@@ -155,7 +160,8 @@ export default function Form() {
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
-
+              setPoSentForApproval={setPoSentForApproval}
+              poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
               singleUserPartyData={singleUserPartyData}
 

@@ -26,8 +26,9 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   const [vendor, setVendor] = useState('')
   const [isSave, setIsSave] = useState(true)
   const dispatch = useDispatch()
+  const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
-
+ 
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
@@ -55,11 +56,11 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   const syncFormWithDb = useCallback(
     (data) => {
-   
-        setPoItems(data?.orderBillItems || []);
-        setIsSave(data?.isSave)
-        setVendor(data?.vendorId)
-      
+
+      setPoItems(data?.orderBillItems || []);
+      setIsSave(data?.isSave)
+      setVendor(data?.vendorId)
+      setIsApproved(data?.isApproved || '')
     },
     [id]
   );
@@ -69,7 +70,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   const excessQty = poItems?.reduce((a, c) => a + parseFloat(c?.excessQty || 0), 0);
   const excessQtyAmount = poItems?.reduce((a, c) => a + parseFloat(c?.qty || 0), 0);
-  const [isApproved, setIsApproved] = useState(false)
+
+  const [isApproved, setIsApproved] = useState('')
   const data = {
     id,
     branchId, userId,
@@ -78,8 +80,10 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     vendor,
     excessQty,
     isSave: true, excessQtyAmount,
-    isApproved
+    isApproved,
+
   }
+       
 
   const handleSubmitCustom = async (callback, data, text) => {
 
@@ -102,7 +106,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
           formData.append(key, data[key]);
         }
       }
-   
+
 
       let returnData;
       if (text === "Updated") {
@@ -122,7 +126,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       console.log("handle", error);
     }
   };
- 
+
 
   const saveData = () => {
 
@@ -145,34 +149,34 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
 
 
-    // useEffect(() => {
-    //     if (poItems?.length >= 5) return
-    //     setPoItems(prev => {
-    //         let newArray = Array?.from({ length: 5  - prev.length }, i => {
-    //             return { excessQty: "", qty: 0.00,orderQty:0.00 }
-    //         })
-    //         return [...prev, ...newArray]
-    //     }
-    //     )
-    // }, [poItems])
+  // useEffect(() => {
+  //     if (poItems?.length >= 5) return
+  //     setPoItems(prev => {
+  //         let newArray = Array?.from({ length: 5  - prev.length }, i => {
+  //             return { excessQty: "", qty: 0.00,orderQty:0.00 }
+  //         })
+  //         return [...prev, ...newArray]
+  //     }
+  //     )
+  // }, [poItems])
 
-//  useEffect(() => {
-//     if (percentage?.data?.length === 0) return;
-    
-//    let percentageValue = percentage?.data?.find(i => i.active)?.qty
-// console.log(percentageValue,"percentageValue")
+  //  useEffect(() => {
+  //     if (percentage?.data?.length === 0) return;
 
-//     let newArray = poItems?.map((item, index) => {
-//       return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
-//     });
-//     setPoItems(newArray)
-//   }, [percentage?.data, setPoItems,id]);
+  //    let percentageValue = percentage?.data?.find(i => i.active)?.qty
+  // console.log(percentageValue,"percentageValue")
+
+  //     let newArray = poItems?.map((item, index) => {
+  //       return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
+  //     });
+  //     setPoItems(newArray)
+  //   }, [percentage?.data, setPoItems,id]);
 
 
 
   return (
 
-
+    //forms
     <>
       {
         form === true && userRole === "MANUFACTURE" ?
@@ -204,6 +208,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
               id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+              poSentForApproval={poSentForApproval}
+              setPoSentForApproval={setPoSentForApproval}
 
             />
             :
@@ -219,20 +225,13 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
                 id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved}
+
               />
 
               :
               <div className="flex-1 flex flex-col">
 
                 <FormHeaderNew model={"Order Report"} />
-
-
-            
-
-
-
-
-
 
 
                 <main className="p-2 space-y-6">
@@ -255,7 +254,6 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
                         <>
                           <Vendor
-
                             allData={allData}
                             setForm={setForm}
                             setId={setId}

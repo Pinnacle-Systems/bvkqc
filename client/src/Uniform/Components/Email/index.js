@@ -19,7 +19,7 @@ import { useDispatch } from "react-redux";
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval }) {
 
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
@@ -64,15 +64,27 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   useEffect(() => {
     setUserId(SigleOrderdata?.data?.vendorId)
-    setattachments(SigleOrderdata?.data?.attachments)
+    setattachments(emailId ? [] : SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
     setReceiverName(SigleOrderdata?.data?.Vendor?.name)
     setSendorName(SigleOrderdata?.data?.Manufacture?.name)
     setSendorId(SigleOrderdata?.data?.Manufacture?.id)
     setReceiverId(SigleOrderdata?.data?.Vendor?.id)
-  }, [SigleOrderdata, isLoading, isFetching, Emaildata])
+  }, [SigleOrderdata, isLoading, isFetching])
+
+  useEffect(() => {
+    if (Emaildata?.data?.poExcelFileName) {
+      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
+    }
+  }, [Emaildata]);
 
 
+
+  useEffect(() => {
+    if (Emaildata?.data?.poExcelFileName) {
+      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
+    }
+  }, [Emaildata]);
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -110,9 +122,9 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   const data = {
     mailTransaction: true, orderId: id,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
-
+  console.log(poSentForApproval, 'poSentForApproval');
   console.log("mailTransaction", id,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, ccList, attachments, fileName, userId);
 
@@ -182,7 +194,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const saveData = () => {
 
     if (id) {
-
+      console.log(currentId, 'current');
       handleSubmitCustom(updateData, data, "Updated")
 
     }
@@ -308,6 +320,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
               <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
                 onClick={() => {
                   saveData()
+                  setPoSentForApproval(true)
                   handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, files, ccList);
                 }}
 
@@ -344,8 +357,8 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
             <div className="flex flex-col gap-2 text-sm text-gray-700">
-              {attachments?.map((item, index) => {
-                const fileName = item.filePath?.split('/').pop();
+              {attachments?.map((item, index) => (
+                // const fileName = item.filePath?.split('/').pop();
 
                 <div key={index} className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
@@ -353,7 +366,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                     <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
                   </svg>
 
-                  <span>{fileName}</span>
+                  <span>{item.filePath?.split('/').pop()}</span>
 
                   <button
                     onClick={async () => {
@@ -362,7 +375,8 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                       const url = window.URL.createObjectURL(blob);
                       const link = document.createElement('a');
                       link.href = url;
-                      link.download = fileName;
+                      // link.download = fileName;
+                      link.download = item.filePath?.split('/').pop();
                       document.body.appendChild(link);
                       link.click();
                       link.remove();
@@ -380,7 +394,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
                 </div>
 
-              })}
+              ))}
             </div>
           </div>
 

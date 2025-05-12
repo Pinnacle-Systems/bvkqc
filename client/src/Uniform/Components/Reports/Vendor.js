@@ -14,7 +14,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, setIsSave, id, setCurrentId }) {
+  setActive, setIsSave, id, setCurrentId, poSentForApproval, setPoSentForApproval }) {
 
 
 
@@ -41,7 +41,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   let orderData = singleData?.data
 
   const data = {
-    attachments, isAttachments: true
+    attachments, isAttachments: true, poSentForApproval
   };
 
   useEffect(() => {
