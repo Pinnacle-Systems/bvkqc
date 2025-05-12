@@ -33,7 +33,6 @@ export default function Form() {
   const [mailForm, setMailform] = useState(false)
   const [emailId, setEmailId] = useState("")
   const [currentId, setCurrentId] = useState("")
-  const [userName, setUserName] = useState("")
   const [partyId, setPartyId] = useState("")
 
 
@@ -46,7 +45,6 @@ export default function Form() {
   const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !userId });
 
   useEffect(() => {
-    setUserName(singleuserData?.data?.username)
 
     setPartyId(singleuserData?.data?.partyType)
   }, [singleUserPartyData])
@@ -159,7 +157,7 @@ export default function Form() {
             {active === "Mail" && <MailForm
 
               emailId={emailId} currentId={currentId} userRole={userRole}
-              singleUserPartyData={singleUserPartyData} userName={userName}
+              singleUserPartyData={singleUserPartyData}
 
             />}
             {active === "Activity" && <Activity />}

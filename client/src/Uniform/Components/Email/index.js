@@ -18,7 +18,7 @@ import { useDispatch } from "react-redux";
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, userName }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData }) {
 
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
@@ -27,23 +27,27 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [toEmail, setToEmail] = useState("max@gmail.com");
   const [subject, setSubject] = useState('');
   const [Message, setMessage] = useState("")
+  const [ccList, setCcList] = useState(['']);
   const [attachments, setattachments] = useState([]);
   const [filename, setfileName] = useState('')
   const [files, setFiles] = useState([]);
   const [userId, setUserId] = useState("")
   const [approvalSts, setApproveSts] = useState("")
-  const [reciverName, setReceiverName] = useState("")
   const [fromAddress, setFromAddress] = useState("")
+  const [sendorName, setSendorName] = useState("")
+  const [reciverName, setReceiverName] = useState("")
+  const [sendorId, setSendorId] = useState("")
+  const [reciverid, setReceiverId] = useState("")
   const dispatch = useDispatch()
 
   const id = currentId
   const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
 
-  const { data: singleData, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
+  const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
   const { data: partyData } = useGetPartyByIdQuery(userId, { skip: !userId });
   const FromEmailAddress = partyData?.data?.email;
-  const passskey = singleData?.data?.passKey;
+  const passskey = SigleOrderdata?.data?.passKey;
 
   console.log(partyData, "partyData")
 
@@ -51,11 +55,14 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
   useEffect(() => {
-    setattachments(singleData?.data?.attachments)
+    setUserId(SigleOrderdata?.data?.vendorId)
+    setattachments(SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
-    setUserId(singleData?.data?.vendorId)
-    setReceiverName()
-  }, [singleData, isLoading, isFetching, Emaildata])
+    setReceiverName(SigleOrderdata?.data?.Vendor?.name)
+    setSendorName(SigleOrderdata?.data?.Manufacture?.name)
+    setSendorId(SigleOrderdata?.data?.Manufacture?.id)
+    setReceiverId(SigleOrderdata?.data?.Vendor?.id)
+  }, [SigleOrderdata, isLoading, isFetching, Emaildata])
 
   console.log(singleUserPartyData, 'singleUserPartyData');
 
@@ -70,7 +77,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const addCcField = () => {
     setCcList([...ccList, ""]);
   };
-  const [ccList, setCcList] = useState(['']);
+
   const handleCcChange = (index, value) => {
     const updated = [...ccList];
     updated[index] = value;
@@ -95,7 +102,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
 
-  const data = { fromAddress, userName, toEmail, subject, Message, attachments, filename, userId, reciverName }
+  const data = { MailTransaction: true, fromAddress, sendorName, sendorId, toEmail, reciverName, reciverid, subject, Message, ccList, attachments, filename, userId }
 
 
   const handleSubmitCustom = async (callback, data, text) => {
@@ -240,12 +247,12 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
         <div className="flex flex-col mt-5 p-5 gap-4">
           <div className="border-b border-gray-400 w-64">
             <label>Po Number: </label>
-            {singleData?.data?.docId}
+            {SigleOrderdata?.data?.docId}
           </div>
 
           <div className="border-b border-gray-400 w-64">
             <label>Vendor: </label>
-            {singleData?.data?.vendorName ?? 'N/A'}
+            {SigleOrderdata?.data?.vendorName ?? 'N/A'}
             <ul>
               {files.map((file, index) => (
                 <li key={index}>{file.name}</li>

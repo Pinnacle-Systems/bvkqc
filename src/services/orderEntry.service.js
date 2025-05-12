@@ -127,11 +127,13 @@ async function getOne(req) {
             attachments: true,
             Manufacture: {
                 select: {
+                    id: true,
                     name: true
                 }
             },
             Vendor: {
                 select: {
+                    id: true,
                     name: true
                 }
             }
@@ -263,6 +265,8 @@ async function create(body) {
                     poNumber: ponumber ? ponumber : null,
                     isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
+                    isApproved: isApproved ? isApproved : false,
+
                     attachments: {
                         createMany: attachments ? {
                             data: JSON.parse(attachments || []).map(temp => ({
@@ -351,7 +355,7 @@ async function update(id, body) {
     let data;
     const { branchId, userId, isSave, excessQty, attachments,
         excessQtyAmount, date, orderDetails, vendor,
-        ponumber, isAttachments } = await body
+        ponumber, isAttachments, isApproved } = await body
 
     console.log(branchId, userId, isSave, excessQty, attachments,
         excessQtyAmount, date, orderDetails, vendor,
@@ -402,7 +406,7 @@ async function update(id, body) {
 
     }
 
-    if (isManufactureAttachments) {
+    if (MailTransaction) {
 
         await prisma.$transaction(async (tx) => {
             data = await tx.order.update({
@@ -443,10 +447,10 @@ async function update(id, body) {
             data: {
                 branchId: parseInt(branchId),
                 isSave: isSave ? JSON.parse(isSave) : false,
-
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
+                isApproved: isApproved ? isApproved : false,
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {
