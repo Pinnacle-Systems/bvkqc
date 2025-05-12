@@ -23,7 +23,7 @@ export default function MailForm({ currentId, emailId }) {
     sessionStorage.getItem("sessionId") + "userType"
   );
   console.log(user, 'user');
-  const [toEmail, setToEmail] = useState("max@gmail.com");
+  const [toEmail, setToEmail] = useState("");
   const [subject, setSubject] = useState('');
   const [Message, setMessage] = useState("")
   const [attachments, setattachments] = useState([]);
@@ -52,17 +52,18 @@ export default function MailForm({ currentId, emailId }) {
   const handleRemove = (indexToRemove) => {
     setattachments((prev) => prev.filter((_, i) => i !== indexToRemove));
   };
-
-  const [ccList, setCcList] = useState([""]);
+  const addCcField = () => {
+    setCcList([...ccList, ""]);
+  };
+  const [ccList, setCcList] = useState(['']);
   const handleCcChange = (index, value) => {
     const updated = [...ccList];
     updated[index] = value;
     setCcList(updated);
   };
 
-  const addCcField = () => {
-    setCcList([...ccList, ""]);
-  };
+
+  console.log(ccList, 'cclist');
 
   const removeCcField = (index) => {
     const updated = ccList.filter((_, i) => i !== index);
@@ -77,11 +78,6 @@ export default function MailForm({ currentId, emailId }) {
     })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
   };
-
-
-
-
-
 
 
   return (
@@ -168,9 +164,12 @@ export default function MailForm({ currentId, emailId }) {
           <div className="mt-auto flex justify-end w-full">
             <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded"
               onClick={() => {
-                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts);
+                handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, Message, filename, files, approvalSts, ccList);
               }}
+
             >
+              {console.log(ccList, '171')
+              }
               Send
             </button>
           </div>

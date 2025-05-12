@@ -123,9 +123,9 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
   MAIL_SETTINGS = {
     service: 'gmail',
     auth: {
-      user: "iridescentcosting@gmail.com",
+      user: "pinnacle.systems.ps@gmail.com",
       // req?.body?.FromAddresss,
-      pass: "qowiqsbixattwtmw"
+      pass: "cfim ylyo teby zdia"
       //  req?.body?.passskey
 
     }
@@ -133,12 +133,13 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
 
   const transporter = createTransport(MAIL_SETTINGS);
 
+  console.log(req.body.ccList, 'cc');
 
 
   let FromAddresss = req?.body?.FromAddresss
   let ToAddress = req?.body?.ToAddresss
   let subject = req?.body?.subject;
-  let ccAddress;
+  let ccAddress = req.body.ccList;
   let message = req?.body?.message;
   let fileName = req.body.fileName
 
@@ -153,7 +154,7 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       }
     ]
-    console.log(files, "files")
+
     // files.forEach(file => {
 
 
