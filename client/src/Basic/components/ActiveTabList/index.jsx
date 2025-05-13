@@ -84,7 +84,7 @@ const ActiveTabList = () => {
     sessionStorage.getItem("sessionId") + "userId"
   )
   return (
-    <div className="relative   p-2">
+    <div className="relative   pt-12">
       <div className="flex justify-between">
         <div className="flex gap-2">
           {(currentShowingTabs)?.map((tab, index) => (
