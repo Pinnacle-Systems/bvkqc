@@ -225,7 +225,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
                   </td>
 
-                  <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+                  <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""}</td>
 
                 </tr>
               ))}
@@ -280,18 +280,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           </div>
 
           <div className="flex flex-col ">
-            {/* <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
-            <input
-              type="date"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={getDateFromDateTime(data?.deliverydate)
-              }
-              onChange={(e) => setDeliverydate(e.target.value)}
-
-            /> */}
+ 
 
             <div className='mt-4 w-[48%]'>
-              <DateInputNew value={
+              <DateInputNew 
+              value={
                 deliverydate
               } setValue={setDeliverydate} />
             </div>
