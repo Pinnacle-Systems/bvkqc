@@ -40,7 +40,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                 <td className="p-2">{item?.docId}</td>
                 <td className="p-3">{getDateFromDateTime(item?.orderdate)}</td>
                 <th className="py-3 px-6">{getDateFromDateTime(item?.deliverydate)}</th>
-                <td className="p-3">{item?.Manufacture.name}</td>
+                <td className="p-3">{item?.Manufacture?.name}</td>
 
                 <td className="p-2 items-end ">
                   {!item?.isApproved ? (

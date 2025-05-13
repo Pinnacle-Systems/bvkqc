@@ -151,7 +151,7 @@ export const TextInput = ({ name, type, value, setValue, readOnly, className, re
 
     return (
         <>
-            <div className="group input-group  text-sm">
+            <div className="group input-group  text-md">
                 <label htmlFor="title" className="input-label group-hover:text-blue-600  font-weight: 100  ">
                     <span className="flex items-center gap-2  font-weight: 100">
                         {required ? <RequiredLabel name={name} /> : `${name}`}
@@ -161,7 +161,7 @@ export const TextInput = ({ name, type, value, setValue, readOnly, className, re
                     id={name}
                     variant="standard"
                     name={`${name}`}
-                    className={`input-base field-text p-0.5 rounded border border-gray-500 font-weight: 100  w-32`}
+                    className={`input-base field-text p-0.5 rounded border border-gray-500 font-weight: 100  w-${width}`}
                     // placeholder={`${name}`}
 
                     sx={{
@@ -276,12 +276,12 @@ export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, o
         setValue(e.target.value);
     }
     return (
-        <div className='input-group items-center md:my-1 md:px-1 data '>
-            <label className={`md:text-start flex  text-xs ${className}`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
+        <div className='input-group items-center md:my-1 md:px-1 data text-xs'>
+            <label className={`md:text-start flex  text-xs font-weight: 100 mb-2 ${className}`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
             <select
                 onBlur={onBlur}
                 autoFocus={autoFocus} tabIndex={tabIndex ? tabIndex : undefined} defaultValue={defaultValue} id='dd'
-                required={required} name="name" className={`input-field  md:col-span-2 col-span-1   border-b border-black w-${width}px`}
+                required={required} name="name" className={`text-xs  md:col-span-2 col-span-1   border-b border-black w-${width}`}
                 value={value} onChange={(e) => { beforeChange(); handleOnChange(e); }} disabled={readOnly}>
                 <option value="" hidden={!clear}>Select</option>
                 {options?.map((option, index) => <option key={index} value={option.value} >
@@ -384,7 +384,18 @@ export const DateInput = ({ name, value, setValue, readOnly, required = false, t
         <div className='   grid-cols-1 md:grid-cols-3 items-center md:my-1 md:px-1  w-32'>
             {/* <label htmlFor="id" className={`md:text-start flex   input-label ${inputHead} group-hover:text-blue-600`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label> */}
             <input tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={disabled} required={required}
-                className={`focus:outline-none md:col-span-2 border-b border-b-gray-500 text-xs p-0.5  w-32 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
+                className={`focus:outline-none md:col-span-2 border-b border-b-gray-500 text-xs p-0.5   w-32 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
+        </div>
+    )
+}
+export const DateInputNew = ({ name, value, setValue, readOnly, required = false, type = "date", disabled = false, tabIndex = null, inputClass, inputHead }) => {
+    console.log(value, 'value');
+
+    return (
+        <div className='   grid-cols-1 md:grid-cols-3 items-center md:my-1 md:px-1  w-32'>
+            {/* <label htmlFor="id" className={`md:text-start flex   input-label ${inputHead} group-hover:text-blue-600`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label> */}
+            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={disabled} required={required}
+                className={`focus:outline-none md:col-span-2 border border-gray-400 text-xs p-0.5  rounded-md w-32 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
         </div>
     )
 }
@@ -405,8 +416,8 @@ export const CheckBox = ({ name, value, setValue, readOnly = false, className, r
     }
     console.log("value", value)
     return (
-        <div className='items-center md:my-1 md:px-1 data  '>
-            <label htmlFor="id" className={`md:text-start items-center ${className}`}>
+        <div className='items-center md:my-1 md:px-1 data text-xs '>
+            <label htmlFor="id" className={`md:text-start items-center ${className}  text-xs`}>
                 <input tabIndex={tabIndex ? tabIndex : undefined} type="checkbox" required={required} className='mx-2 py-2' checked={value} onChange={(e) => { handleOnChange(e); }} disabled={readOnly} />
                 {name}
             </label>

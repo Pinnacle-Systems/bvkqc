@@ -478,7 +478,7 @@ console.log(projectForm,"projectForm")
 
                                 <fieldset className="mb-4">
                                     <div className={`my-2 ${readOnly ? "pointer-events-none" : ""}`}>
-                                    <div className="flex flex-wrap items-center gap-6">
+                                    <div className="flex flex-wrap items-center gap-1">
                                         <CheckBox 
                                         name="Is Supplier" 
                                         style={{ fontWeight: 'bold' }} 
@@ -502,7 +502,7 @@ console.log(projectForm,"projectForm")
                                     </div>
                                 </fieldset>
                                   <div className="flex flex-wrap justify-between w-full mb-4 gap-1">
-                                    <div className="w-[48%] mb-3">
+                                    <div className="w-full mb-3">
                                     <TextInput 
                                         name="Party Name" 
                                         width="w-full" 
@@ -518,7 +518,7 @@ console.log(projectForm,"projectForm")
                                         }}
                                     />
                                     </div>
-                                    <div className="w-[48%] mb-3">
+                                    <div className="w-full mb-3">
                                     <TextInput 
                                         name="Alias Name" 
                                         width="w-full" 
@@ -532,7 +532,7 @@ console.log(projectForm,"projectForm")
                                     </div>
                                 </div>
                                    <div className="flex flex-wrap justify-between w-full mb-4 gap-1">
-                                        <div className="w-[48%] mb-3">
+                                        <div className="w-full mb-3">
                                             <TextInput 
                                                 name="Email" 
                                                 width="w-full" 
@@ -544,13 +544,14 @@ console.log(projectForm,"projectForm")
                                                 disabled={(childRecord.current > 0)} 
                                             />
                                             </div>
-                                        <div className="w-[48%] mb-4">
+                                        <div className="w-full mb-4">
                                             <DropdownInput 
                                             readOnly={readOnly} 
                                             name="PartyType" 
                                             value={partyType} 
                                             setValue={setpartyType}
                                             options={PartyTypes} 
+                                            width={"96"}
                                             />
                                         </div>
                                         </div>
@@ -607,7 +608,8 @@ console.log(projectForm,"projectForm")
                                                 <DateInput name="CST Date" width={'w-[150px]'} value={cstDate} setValue={setCstDate} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                             <div className="mb-2  w-[48%]">
-                                                <DropdownInput name="City/State Name" options={dropDownListMergedObject(id ? cityList?.data : cityList?.data?.filter(item => item.active), "name", "id")} value={city} setValue={setCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <DropdownInput name="City/State Name"  width={"72"}
+                                                 options={dropDownListMergedObject(id ? cityList?.data : cityList?.data?.filter(item => item.active), "name", "id")} value={city} setValue={setCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap justify-between">
