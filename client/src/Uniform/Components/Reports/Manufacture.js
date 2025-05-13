@@ -1,4 +1,4 @@
-import { DateInput, DropdownWithSearch } from "../../../Inputs"
+import { DateInput, DateInputNew, DropdownWithSearch } from "../../../Inputs"
 import { useEffect, useState } from "react";
 
 import { saveAs } from 'file-saver';
@@ -105,13 +105,13 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
       if (field === 'excessQty') {
 
         if (parseFloat(value) > parseFloat(percentageValue)) {
-          toast.error("Excess Qty is Too High");
+          toast.error("Excess % is Too High");
           return newItems
         }
 
         newItems[index]['excessQty'] = value;
         const percentage = parseFloat((orderQty * value) / 100);
-        const updatedQty = parseFloat(orderQty) + percentage;
+        const updatedQty =  Math.round(orderQty + percentage); 
 
         newItems[index]['qty'] = updatedQty;
       } else {
@@ -158,6 +158,14 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={"MAX"}
+            />
+          </div>
+              <div className="flex flex-col col-span-2 ">
+            <label className="text-xs font-semibold text-gray-600">Manufacture</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+             value={data?.Manufacture?.name}
             />
           </div>
 
@@ -272,7 +280,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           </div>
 
           <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
+            {/* <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
             <input
               type="date"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -280,13 +288,13 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               }
               onChange={(e) => setDeliverydate(e.target.value)}
 
-            />
+            /> */}
 
-            {/* <div className='mb-3 w-[48%]'>
-              <DateInput value={
+            <div className='mt-4 w-[48%]'>
+              <DateInputNew value={
                 deliverydate
               } setValue={setDeliverydate} />
-            </div> */}
+            </div>
           </div>
         </div>
 

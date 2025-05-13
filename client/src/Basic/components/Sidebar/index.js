@@ -145,12 +145,15 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
 
   return (
     <>
-      <div onClick={() => {
+      <div
+            
+
+      onClick={() => {
         if (isOpen && isMainDropdownOpen) {
           setIsOpen(false);
           setIsMainDropdownOpen(false)
         }
-        setIsOpen(!isOpen)
+          setIsOpen(!isOpen)
       }
       }
         className='fixed z-[99] top-[16.5%]  bg-gray-600 opacity-50 px-0 h-[10%] flex items-center rounded-end cursor-pointer'
@@ -215,7 +218,6 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
         </ul>
 
       </div>
-
     </>
   )
 }

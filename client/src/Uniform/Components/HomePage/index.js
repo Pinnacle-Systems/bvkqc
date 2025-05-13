@@ -77,8 +77,10 @@ export default function Form() {
 
 
     <>
+  <div  className="h-[90vh]">
 
-      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3" >
+ 
+      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3 " >
 
         <aside className="w-[4%] flex flex-col items-center py-4 space-y-6   h-full   ">
 
@@ -191,21 +193,21 @@ export default function Form() {
 
       </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+ </div>
 
     </>
+
+
+
+
+
+
+
+
+
+
+
+
   )
 
 }
