@@ -66,7 +66,7 @@ const Home = () => {
         
       userRole  === "MANUFACTURE"  ||     userRole  === "VENDOR"   ? 
         <>
-          <div className="h-screen">
+          <div className="h-[100vh]">
 
           <Header profile={profile} setProfile={setProfile} />
 
@@ -88,7 +88,7 @@ const Home = () => {
           : 
 
        (
-          <div className="h-screen">
+          <div className="h-[100vh]">
 
             <Header profile={profile} setProfile={setProfile} />
 
