@@ -45,7 +45,7 @@ export const handleOnChangeforpassword = (event, setValue) => {
     });
 };
 export const MultiSelectDropdown = ({ name, selected, labelName, setSelected, options, readOnly = false, tabIndex = null, className = "", inputClass }) => {
-    console.log(options,"oiptiosn")
+    console.log(options, "oiptiosn")
     return (
         <div className={`m-1  md:grid-cols-3 items-center z-0 md:my-0.5 md:py-3 data ${className}`}>
             <label className={`md:text-start flex ${labelName}`} >{name}</label>
@@ -61,7 +61,7 @@ export const MultiSelectDropdown = ({ name, selected, labelName, setSelected, op
 };
 
 // export const MultiSelectDropdown = ({ options, placeholder = "Select options" ,selected,setSelected,readOnly}) => {
- 
+
 //   const [isOpen, setIsOpen] = useState(false);
 //   const dropdownRef = useRef(null);
 
@@ -238,7 +238,7 @@ export const SpecialInput = ({ name, type, value, className = "", textClassName 
     return (
         <div className={`flex flex-col  md:my-0.5 md:px-1  font-size:16.5px ${className}  gap-4 border-b border-b-gray-500 w-32 `}>
             <label className={`md:text-start flex ${className}  group-hover:text-blue-600  w-32`}>{name}</label>
-            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} className={` ${textClassName}   focus:outline-none md:col-span-1  group-hover:text-blue-600  text-xs  w-32`} value={value}  />
+            <input tabIndex={tabIndex ? tabIndex : undefined} type={type} className={` ${textClassName}   focus:outline-none md:col-span-1  group-hover:text-blue-600  text-xs  w-32`} value={value} />
         </div>
     )
 }
@@ -271,7 +271,7 @@ export const TextArea = ({ name, value, setValue, readOnly, required = false, di
     )
 }
 
-export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, options, value, setValue, defaultValue, className, readOnly, required = false, disabled = false, clear = false, tabIndex = null, autoFocus = false ,width = '32'}) => {
+export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, options, value, setValue, defaultValue, className, readOnly, required = false, disabled = false, clear = false, tabIndex = null, autoFocus = false, width = '32' }) => {
     const handleOnChange = (e) => {
         setValue(e.target.value);
     }
@@ -293,11 +293,11 @@ export const DropdownInput = ({ name, beforeChange = () => { }, onBlur = null, o
 }
 
 
-export const DropdownInputForm = ({ name, beforeChange = () => { }, onBlur = null, options, value, setValue, defaultValue, className, readOnly, required = false, disabled = false, clear = false, tabIndex = null, autoFocus = false ,width = '32'}) => {
+export const DropdownInputForm = ({ name, beforeChange = () => { }, onBlur = null, options, value, setValue, defaultValue, className, readOnly, required = false, disabled = false, clear = false, tabIndex = null, autoFocus = false, width = '32' }) => {
     const handleOnChange = (e) => {
         setValue(e.target.value);
     }
-   console.log(width,"width")
+    console.log(width, "width")
     return (
         <div className='input-group items-center md:my-1 md:px-1 data '>
             <label className={`md:text-start flex  text-xs ${className}`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
@@ -378,9 +378,11 @@ const RequiredLabel = ({ name }) => <p>{`${name}`}<span className="text-red-500"
 
 
 export const DateInput = ({ name, value, setValue, readOnly, required = false, type = "date", disabled = false, tabIndex = null, inputClass, inputHead }) => {
+    console.log(value, 'value');
+
     return (
         <div className='   grid-cols-1 md:grid-cols-3 items-center md:my-1 md:px-1  w-32'>
-            <label htmlFor="id" className={`md:text-start flex   input-label ${inputHead} group-hover:text-blue-600`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
+            {/* <label htmlFor="id" className={`md:text-start flex   input-label ${inputHead} group-hover:text-blue-600`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label> */}
             <input tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={disabled} required={required}
                 className={`focus:outline-none md:col-span-2 border-b border-b-gray-500 text-xs p-0.5  w-32 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
         </div>
@@ -432,22 +434,22 @@ export const validatePincode = (data) => {
     return data.toString().length === 6;
 }
 
-export const DropdownWithSearch = ({ className, options, value, setValue, readOnly, onCreateNew = null,optionName,  masterName = "", }) => {
-    console.log(value === "create_new_Vendor",typeof(value),value,"value")
+export const DropdownWithSearch = ({ className, options, value, setValue, readOnly, onCreateNew = null, optionName, masterName = "", }) => {
+    console.log(value === "create_new_Vendor", typeof (value), value, "value")
 
     const dispatch = useDispatch();
 
     function handleChange(e) {
         if (e.target.value === "create_new_Vendor") {
-            dispatch(push({ name: "PARTY MASTER",projectForm: true ,projectId :true}));
+            dispatch(push({ name: "PARTY MASTER", projectForm: true, projectId: true }));
 
         }
-        else{
+        else {
             setValue(e.target.value)
         }
-            
-      }
-      
+
+    }
+
 
     const [currentIndex, setCurrentIndex] = useState("");
     useEffect(() => setCurrentIndex(new Date()), [])
@@ -474,10 +476,10 @@ export const DropdownWithSearch = ({ className, options, value, setValue, readOn
                 ev.preventDefault()
             }
         });
-     
-    
-        
-  
+
+
+
+
         return () => {
             dropDownElement.removeEventListener('keydown', () => { });
         };
@@ -520,30 +522,30 @@ export const DropdownWithSearch = ({ className, options, value, setValue, readOn
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
                 disabled={readOnly}
                 value={value || ""}
-                onChange={(e) =>  {
+                onChange={(e) => {
                     // setValue(e.target.value)
                     handleChange(e)
                 }}
             >
                 {!value && <option value="">Select  {optionName}</option>}
                 {masterName !== "" && (
-                            <option
-                                value="create_new_Vendor"
-                                className="text-blue-600 font-semibold"
-                            >
-                                + Create New Vendor
-                            </option>
-        )}
+                    <option
+                        value="create_new_Vendor"
+                        className="text-blue-600 font-semibold"
+                    >
+                        + Create New Vendor
+                    </option>
+                )}
                 {(options || []).map((option) => (
                     <option key={option.id} value={option.id} classname>
                         {option.name}
                     </option>
                 ))}
-       
+
             </select>
         </div>
     );
-    
+
 }
 
 
