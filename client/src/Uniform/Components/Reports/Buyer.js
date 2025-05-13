@@ -318,12 +318,12 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
                   <td className="border border-gray-300 text-right w-32"></td>
                   <td className="border border-gray-200 text-right w-32 text-lg  text-gray-800 font-bold ">
-                    {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) || ""}
+                    {poItems.reduce((a, c) => a + parseInt(c.orderQty || 0), 0) || ""}
                   </td>
 
 
                   <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
-                    {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+                    {poItems.reduce((a, c) => a + parseInt(c.qty || 0), 0) || ""}
 
                   </td>
 

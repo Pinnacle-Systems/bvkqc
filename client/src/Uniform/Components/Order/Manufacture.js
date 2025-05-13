@@ -10,13 +10,13 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
         <table className="min-w-full text-left overflow-x-auto" >
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
-              <th className="py-3 px-6">S No</th>
-              {/* <th className="py-3 px-6">Buyer PO</th> */}
-              <th className="py-3 px-6">PO Number </th>
-              <th className="py-3 px-6">Order date</th>
-              <th className="py-3 px-6">Vendor</th>
-              <th className="py-3 px-6">Product</th>
-              <th className="py-3 px-6">Approval Status</th>
+              <th className="py-1 px-1">S No</th>
+              <th className="py-1 px-1">PO Number </th>
+              <th className="py-1 px-1">Order date</th>
+              <th className="py-1 px-1">Vendor</th>
+              <th className="py-1 px-1">Product</th>
+              <th className="py-1 px-1">Approval Status</th>
+              <th className="py-1 px-1">PO Status</th>
 
 
             </tr>
@@ -40,14 +40,14 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                   setPoNo(item?.docId)
                 }}
               >
-                <td className="p-2 font-semibold">{parseInt(index) + 1}</td>
-                {/* <th className="py-3 px-6">{item?.poNumber}</th> */}
-                <td className="p-2">{item?.docId}</td>
-                <td className="p-3">{getDateFromDateTime(item?.orderdate)}</td>
+                <td className="p-1 font-semibold">{parseInt(index) + 1}</td>
+                {/* <th className="py-1 px-6">{item?.poNumber}</th> */}
+                <td className="p-1">{item?.docId}</td>
+                <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
 
-                <td className="p-3">{item?.Vendor?.name}</td>
-                <td className="p-3">{item?.isApproval === 1 ? "TSHIRT AND SHORTS" : "TSHIRT AND SHORTS"} </td>
-                <td className="p-2 items-end ">
+                <td className="p-1">{item?.Vendor?.name}</td>
+                <td className="p-1">{item?.isApproval === 1 ? "TSHIRT AND SHORTS" : "TSHIRT AND SHORTS"} </td>
+                <td className="p-1 items-end ">
                   {!item?.isApproved ? (
                     <span className="inline-flex  text-sm font-semibold bg-green-300 text-white-500  px-1 w-20 rounded">
                       Progress

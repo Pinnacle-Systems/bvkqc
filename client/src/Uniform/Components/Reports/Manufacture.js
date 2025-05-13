@@ -111,7 +111,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
         newItems[index]['excessQty'] = value;
         const percentage = parseFloat((orderQty * value) / 100);
-        const updatedQty =  Math.round(orderQty + percentage); 
+        const updatedQty = Math.round(orderQty + percentage);
 
         newItems[index]['qty'] = updatedQty;
       } else {
@@ -129,16 +129,16 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         model={"Order"}
       />
 
-      <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto">
+      <div className="flex flex-col w-full bg-white p-1 h-full overflow-auto">
 
 
-        <div className="grid grid-cols-7 gap-4 border border-gray-300 pb-3 p-2 rounded h-[15%]"  >
+        <div className="grid grid-cols-7 gap-4 border border-gray-300  p-1 rounded h-[15%]"  >
 
           <div className="flex flex-col ">
             <label className="text-xs font-semibold text-gray-600">Po Number</label>
             <input
               type="text"
-              className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
+              className="border-2  rounded-md px-2  text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
               value={data?.docId}
             />
           </div>
@@ -146,7 +146,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             <label className="text-xs font-semibold text-gray-600">Po Date</label>
             <input
               type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border border-gray-300 rounded-md px-2  text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
 
               value={getDateFromDateTime(data?.orderdate)}
 
@@ -156,16 +156,16 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             <label className="text-xs font-semibold text-gray-600">Customer</label>
             <input
               type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border border-gray-300 rounded-md px-2  text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={"MAX"}
             />
           </div>
-              <div className="flex flex-col col-span-2 ">
+          <div className="flex flex-col col-span-2 ">
             <label className="text-xs font-semibold text-gray-600">Manufacture</label>
             <input
               type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-             value={data?.Manufacture?.name}
+              className="border border-gray-300 rounded-md px-2  text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={data?.Manufacture?.name}
             />
           </div>
 
@@ -173,12 +173,12 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-        <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto ">
+        <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
             <thead className="bg-gray-200 text-gray-700 ">
-              <tr className="p-2">
-                <th className="w-[50px] p-2">S No</th>
-                <th className="w-[120px] p-2">Department</th>
+              <tr className="p-1">
+                <th className="w-[50px] p-1">S No</th>
+                <th className="w-[120px] p-1">Department</th>
                 <th className="w-[150px]">Class-SubClass</th>
                 <th className="w-[120px]">ItemCode</th>
                 <th className="w-[120px]">BarCode</th>
@@ -197,7 +197,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             <tbody className="">
               {(poItems || []).map((item, index) => (
                 <tr key={index} className=" table-row ">
-                  <td className="border border-gray-300 text-center p-2">{index + 1}</td>
+                  <td className="border border-gray-300 text-center p-1">{index + 1}</td>
                   <td className="border border-gray-300 text-left ">{item?.department}</td>
                   <td className="border border-gray-300 text-left ">{item?.class}</td>
 
@@ -225,11 +225,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
                   </td>
 
-                  <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+                  <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
 
                 </tr>
               ))}
-              <tr className="border-2  border-gray-400 bg-gray-200 p-2">
+              <tr className="border-2  border-gray-400 bg-gray-200 p-1">
                 <td className="border-b border-gray-300 text-center w-2"></td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
@@ -249,13 +249,13 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
                 <td className="border-b border-gray-300 text-right w-32"></td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
-                  {poItems?.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) || ""}
+                  {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
 
                 <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
                 </td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
-                  {poItems?.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+                  {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
 
                 </td>
 
@@ -272,7 +272,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-        <div className=" w-full flex gap-4 border border-gray-300  p-2  h-[14%]">
+        <div className=" w-full flex gap-4 border border-gray-300  p-1  h-[14%]">
           <div className="flex flex-col w-72 ">
             <label className="text-xs font-semibold text-gray-600">Tag vendor</label>
 
