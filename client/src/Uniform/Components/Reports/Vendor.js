@@ -286,8 +286,8 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
             onClick={() => {
               saveData();
-              setForm(false);
-              setActive("Mail");
+              // setForm(false);
+              // setActive("Mail");
 
             }}
           >

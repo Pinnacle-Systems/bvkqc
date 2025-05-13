@@ -19,12 +19,11 @@ import { useDispatch } from "react-redux";
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval ,  setActive }) {
 
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
-  console.log(poSentForApproval, 'poSentForApproval');
   const [toEmail, setToEmail] = useState("manojbharathi00@gmail.com");
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState("")
@@ -38,31 +37,40 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [receiverName, setReceiverName] = useState("")
   const [sendorId, setSendorId] = useState("")
   const [receiverId, setReceiverId] = useState("")
-  const dispatch = useDispatch()
   const [formReport, setFormReport] = useState(false)
-  const [multiAttach, setmultiAttach] = useState([])
+  const [poNumber, setPoNumber] = useState()
 
   const id = currentId
 
 
+  const  SyncformwithDb = () =>  {
+    setToEmail("");
+    setSubject("");
+    setMessage("");
+    setCcList([]);
+    setattachments([]);
+    setfileName("");
+    setFromAddress('');
+    setSendorName("");
+    setReceiverName("");
+  }
 
-  const { data: Emaildata } = useGetEmailByIdQuery(emailId, { skip: !emailId });
+
+  const { data: Emaildata ,    isLoading : isEmailLoading   , isFetching : isEmailFetching } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
 
-
-
-
-  const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
+  const { data: SigleOrderdata , isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
   const { data: partyData } = useGetPartyByIdQuery(userId, { skip: !userId });
   const FromEmailAddress = partyData?.data?.email;
   const passskey = SigleOrderdata?.data?.passKey;
-
-
-
+  
   const [updateData] = useUpdateOrderMutation();
 
 
+
+
   useEffect(() => {
+    setPoNumber(SigleOrderdata?.data?.docId)
     setUserId(SigleOrderdata?.data?.vendorId)
     setattachments(emailId ? [] : SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
@@ -76,7 +84,11 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     if (Emaildata?.data?.poExcelFileName) {
       setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
     }
-  }, [Emaildata]);
+  }, [Emaildata , isEmailLoading , isEmailFetching]);
+
+
+
+
 
 
 
@@ -166,24 +178,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
 
-  // const handleSubmitCustom = async (callback, data, text) => {
-  //   try {
-  //     let returnData = await callback(data).unwrap();
-  //     if (returnData.statusCode === 0) {
-  //       // setId(returnData?.data?.id)
-  //       toast.success(text + "Successfully");
-  //       dispatch({
-  //         type: `partyMaster/invalidateTags`,
-  //         payload: ['Party'],
-  //       });
-  //     } else {
-  //       toast.error(returnData?.message)
-  //     }
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
 
-  // }
 
   const saveData = () => {
 
@@ -195,7 +190,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
   }
-
 
 
 
@@ -293,28 +287,26 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
           </div>
 
           <div className="flex w-full items-center">
-            {/* {userRole === "" ?
+         <button className="relative px-1 text-[14px] bg-gradient-to-r   text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
+                onClick={() => {
+                  setActive("order")
+                }}
 
+              >
 
-              <div className=" p-1">
-                <button
-                  className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
-                  onClick={() => setFormReport(true)}
-                >
-                  <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
-                  <span className="relative z-10"> Attach  Design</span>
-                </button>
-              </div> : ''} */}
+                Back
+              </button>
 
 
 
 
-            <div className=" flex justify-end w-full">{console.log(attachments, "attachments")}
+            <div className=" flex justify-end w-full">
               <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
                 onClick={() => {
                   saveData()
                   setPoSentForApproval(true)
                   handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
+                  SyncformwithDb()
                 }}
 
               >
@@ -332,31 +324,31 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
         <div className="flex flex-col mt-5 p-5 gap-4">
           <div className="border-b border-gray-400 w-full">
             <label className="font-medium text-gray-700">Po Number: </label>
-            {SigleOrderdata?.data?.docId}
+            {poNumber}
           </div>
 
       <div className="border-b border-gray-400 w-full">
         {userRole === "MANUFACTURE" && (
           <div className="flex items-center space-x-2 py-1">
             <label className="font-medium text-gray-700">Vendor:</label>
-            <span>{SigleOrderdata?.data?.Vendor?.name ?? 'N/A'}</span>
+            <span>{receiverName}</span>
           </div>
         )}
           {userRole === "VENDOR" && (
           <div className="flex items-center space-x-2 py-1 ">
-            <label className="font-medium text-gray-700">Vendor:</label>
-            <span>{SigleOrderdata?.data?.Manufacture?.name ?? 'N/A'}</span>
+            <label className="font-medium text-gray-700">manufacture:</label>
+            <span>{sendorName}</span>
           </div>
         )}
   {userRole === "" && (
   <>
     <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
       <label className="font-medium text-gray-700">Manufacturer:</label>
-      <span>{SigleOrderdata?.data?.Manufacture?.name ?? 'N/A'}</span>
+      <span>{sendorName}</span>
     </div>
     <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
       <label className="font-medium text-gray-700">Vendor:</label>
-      <span>{SigleOrderdata?.data?.Vendor?.name ?? 'N/A'}</span>
+      <span>{receiverName}</span>
     </div>   
   
   </>
