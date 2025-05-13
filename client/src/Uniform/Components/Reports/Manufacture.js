@@ -8,16 +8,12 @@ import { toast } from "react-toastify";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
-import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { iteratee } from "lodash";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId,
-  deliverydate
-  , setDeliverydate
+  setActive, saveData, id, setEmailId, setCurrentId, deliverydate, setDeliverydate
 }) {
 
 
@@ -62,7 +58,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         Mrp: item.mrp,
         OrderQty: item.orderQty,
         Product: item.product,
-        excessQty: item.excessQty,
+        excessPercentage: item.excessQty,
         Quantity: item.qty
       }));
 
@@ -122,6 +118,17 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     });
   };
 
+
+  useEffect(() => {
+    if (poItems?.length >= 7) return
+    setPoItems(prev => {
+      let newArray = Array.from({ length: 7 - prev.length }, () => {
+        return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
+      })
+      return [...prev, ...newArray]
+    }
+    )
+  }, [setPoItems, poItems])
 
   return (
     <>
@@ -280,20 +287,14 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           </div>
 
           <div className="flex flex-col ">
-            {/* <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
-            <input
-              type="date"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={getDateFromDateTime(data?.deliverydate)
-              }
-              onChange={(e) => setDeliverydate(e.target.value)}
 
-            /> */}
 
-            <div className='mt-4 w-[48%]'>
-              <DateInputNew value={
-                deliverydate
-              } setValue={setDeliverydate} />
+            <div className=' w-[48%]'>
+              <DateInputNew
+                name={"Delivery Date"}
+                value={
+                  deliverydate
+                } setValue={setDeliverydate} />
             </div>
           </div>
         </div>

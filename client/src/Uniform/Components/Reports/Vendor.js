@@ -39,17 +39,17 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
     attachments, isAttachments: true, poSentForApproval
   };
 
-  useEffect(() => {
-    if (poItems.length >= 5) return
-    setPoItems(prev => {
-      let newArray = Array.from({ length: 5 - prev.length }, i => {
-        return { excessQty: "", qty: 0.00, orderQty: 0.00 }
-      })
-      return [...prev, ...newArray]
-    }
-    )
-  }, [poItems])
 
+    useEffect(() => {
+        if (poItems?.length >= 7) return
+        setPoItems(prev => {
+            let newArray = Array.from({ length: 7 - prev.length }, () => {
+                return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
+            })
+            return [...prev, ...newArray]
+        }
+        )
+    }, [setPoItems, poItems])
 
   useEffect(() => {
     if (!id) return
@@ -200,7 +200,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
 
-        <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto ">
+        <div className="w-full mt-5 mb-3 h-[300px] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
             <thead className="bg-gray-200 text-gray-700 ">
               <tr className="p-2">
