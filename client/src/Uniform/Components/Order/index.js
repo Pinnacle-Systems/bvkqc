@@ -24,6 +24,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   const [poItems, setPoItems] = useState([]);
   const [poNo, setPoNo] = useState(null)
   const [vendor, setVendor] = useState('')
+  const [deliverydate, setDeliverydate] = useState('')
   const [isSave, setIsSave] = useState(true)
   const dispatch = useDispatch()
   const [poSentForApproval, setPoSentForApproval] = useState(false)
@@ -60,6 +61,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       setPoItems(data?.orderBillItems || []);
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
+      setDeliverydate(data?.deliverydate || null)
       setIsApproved(data?.isApproved || '')
     },
     [id]
@@ -81,7 +83,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     excessQty,
     isSave: true, excessQtyAmount,
     isApproved,
-
+    deliverydate
   }
 
 
@@ -178,7 +180,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   return (
 
-    //forms
+
     <>
       {
         form === true && userRole === "MANUFACTURE" ?
@@ -192,6 +194,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
             id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+
+            deliveryDate={deliverydate} setDeliverydate={setDeliverydate}
 
           />
 
@@ -231,6 +235,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
               />
 
               :
+
+              //Order Report pages
               <div className="flex-1 flex flex-col">
 
                 <FormHeaderNew model={"Order Report"} />

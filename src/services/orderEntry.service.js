@@ -76,22 +76,22 @@ async function get(req) {
                     contains: searchDocId
                 }
                 : undefined,
-               
+
 
         },
-        include:{
-            mailTransaction : true,
-            Vendor:{
-                select :{
-                    name:true
+        include: {
+            mailTransaction: true,
+            Vendor: {
+                select: {
+                    name: true
                 }
             },
-            Manufacture :{
-                select :{
-                    name:true
+            Manufacture: {
+                select: {
+                    name: true
                 }
             },
-            
+
         }
 
     });
@@ -122,7 +122,7 @@ async function get(req) {
     let newDocId = finYearDate ? (await getNextDocId(branchId, shortCode, finYearDate?.startDateStartTime, finYearDate?.endDateEndTime, isTaxBill)) : "";
 
 
- 
+
 
 
     return { statusCode: 0, nextDocId: newDocId, data, totalCount };
@@ -164,11 +164,20 @@ async function getOne(req) {
 
     let percentage = await findPercentageValue()
 
-    data["orderBillItems"] = data["orderBillItems"]?.map(val => { return { ...val, excessQty: val?.excessQty ? val?.excessQty : val?.orderQty ? percentage : "" } })
+    data["orderBillItems"] = data["orderBillItems"]?.map((val) => {
+        return {
+            ...val, excessQty: val?.excessQty ? val?.excessQty : val?.orderQty ? percentage : "",
+            qty: getQty(val.excessQty, val?.orderQty)
+        }
+    })
 
     return { statusCode: 0, data };
 }
-
+function getQty(excessQty, orderQty) {
+    const percentage = parseFloat((orderQty * excessQty) / 100);
+    const updatedQty = parseFloat(orderQty) + percentage;
+    return updatedQty
+}
 
 async function findPercentageValue() {
     let data = await prisma.percentage.findMany({
@@ -377,7 +386,7 @@ async function update(id, body) {
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor, orderId, cc,
         ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval, fromAddress, sendorName, sendorId, toEmail,
-        receiverName, receiverId, subject, message, ccList, fileName } = await body
+        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate } = await body
 
 
 
@@ -477,6 +486,7 @@ async function update(id, body) {
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
                 isApproved: isApproved ?? undefined,
+                deliveryDate: deliveryDate ?? undefined
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {

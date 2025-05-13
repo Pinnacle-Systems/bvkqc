@@ -374,6 +374,8 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 
 async function findFromList(id, list, property) {
+    console.log(list, 'list');
+
     if (!list) return ""
     let data = list?.find(i => i.mailId == id)?.id
     return data
