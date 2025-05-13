@@ -173,7 +173,8 @@ useEffect(() =>  {
               setPoSentForApproval={setPoSentForApproval}
               poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
-              singleUserPartyData={singleUserPartyData}
+              singleUserPartyData={singleUserPartyData} 
+                setActive={setActive}
 
             />}
             {active === "Report" && <EmailReport  attachments={attachments}  />}

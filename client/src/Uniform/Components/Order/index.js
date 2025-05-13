@@ -133,6 +133,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
     }
+        setForm(false);
+        setActive("Mail");
     if (id) {
 
       handleSubmitCustom(updateData, data, "Updated")

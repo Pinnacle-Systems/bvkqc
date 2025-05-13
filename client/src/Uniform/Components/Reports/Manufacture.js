@@ -304,8 +304,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               // setIsSave(true);
               saveData();
               exportAndUploadExcel(data, poItems);
-              setForm(false);
-              setActive("Mail");
+              // setForm(false);
+              // setActive("Mail");
             }}
           >
             Save & Send
