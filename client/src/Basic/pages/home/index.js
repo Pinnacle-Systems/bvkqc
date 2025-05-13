@@ -88,7 +88,7 @@ const Home = () => {
             :
 
             (
-              <div className="h-[100vh] mt-5">
+              <div className="h-[100vh] ">
 
                 <Header profile={profile} setProfile={setProfile} />
 

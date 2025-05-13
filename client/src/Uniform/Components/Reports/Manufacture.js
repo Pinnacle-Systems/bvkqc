@@ -8,16 +8,12 @@ import { toast } from "react-toastify";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
-import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { iteratee } from "lodash";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
-export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId,
-  deliverydate
-  , setDeliverydate
+export default function Manufactureform({  singleData,  setForm,  vendor,  setVendor,  poItems,  setPoItems,
+   setActive,  saveData,  id,  setEmailId,  setCurrentId,  deliverydate  ,  setDeliverydate
 }) {
 
 
@@ -62,7 +58,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         Mrp: item.mrp,
         OrderQty: item.orderQty,
         Product: item.product,
-        excessQty: item.excessQty,
+        excessPercentage: item.excessQty,
         Quantity: item.qty
       }));
 
@@ -123,6 +119,17 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   };
 
 
+    useEffect(() => {
+        if (poItems?.length >= 7) return
+        setPoItems(prev => {
+            let newArray = Array.from({ length: 7 - prev.length }, () => {
+                return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
+            })
+            return [...prev, ...newArray]
+        }
+        )
+    }, [setPoItems, poItems])
+
   return (
     <>
       <FormHeaderNew
@@ -173,7 +180,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-        <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto ">
+        <div className="w-full mt-5 mb-3 h-[300px] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
             <thead className="bg-gray-200 text-gray-700 ">
               <tr className="p-2">
@@ -282,8 +289,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           <div className="flex flex-col ">
  
 
-            <div className='mt-4 w-[48%]'>
+            <div className=' w-[48%]'>
               <DateInputNew 
+              name={"Delivery Date"}
               value={
                 deliverydate
               } setValue={setDeliverydate} />
