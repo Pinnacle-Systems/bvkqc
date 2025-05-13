@@ -68,7 +68,7 @@ const ActiveTabList = () => {
     "DASHBOARD": <Dashboard />,
     "ORDER": <Order />,
     "HOMEPAGE": <MaxHomePage />,
-    "MAX CONTROL PANEL" : <MaxcontrolPanel/>
+    "MAX CONTROL PANEL": <MaxcontrolPanel />
 
 
 

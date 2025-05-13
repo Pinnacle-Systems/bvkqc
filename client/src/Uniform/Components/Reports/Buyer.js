@@ -16,8 +16,8 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 export default function BuyerForm({ singleData, setForm, setMailform, vendor, setVendor, poItems, setPoItems,
   setActive, setIsSave, saveData, id, setEmailId, setCurrentId, isApproved, setIsApproved, setPoSentForApproval }) {
   console.log(singleData, 'singleData7');
-  
-  
+
+
   const [upload] = useUploadMutation();
   const [formReport, setFormReport] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -171,118 +171,119 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
           setSearchValue={setSearchValue}
         />
       </Modal>
-      <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto ">
+      <div className="flex flex-col w-full p-1 h-full overflow-auto justify-between items-end">
+
+        <div>
+          <div className="flex flex-wrap gap-4 border border-gray-300 pb-3 p-2 rounded item-center"  >
+
+            <div className="flex flex-col ">
+              <label className="text-xs font-semibold text-gray-600">Po Number</label>
+              <input
+                type="text"
+                className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
+                value={data?.docId}
+              />
+            </div>
+            <div className="flex flex-col ">
+              <label className="text-xs font-semibold text-gray-600">Po Date</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+
+                value={getDateFromDateTime(data?.orderdate)}
+
+              />
+            </div>
 
 
-        <div className="grid grid-cols-8 gap-4 border border-gray-300 pb-3 p-2 rounded h-[15%]"  >
+            <div className="flex flex-col ">
+              <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={getDateFromDateTime(data?.deliverydate)}
 
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Number</label>
-            <input
-              type="text"
-              className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-              value={data?.docId}
-            />
-          </div>
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Date</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+            <div className="col-span-2 flex flex-col">
+              <label className="text-xs font-semibold text-gray-600">Manufacture</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                value={findFromList(data?.manufactureId, partydata?.data, "name")}
+              />
 
-              value={getDateFromDateTime(data?.orderdate)}
+            </div>
 
-            />
-          </div>
+            <div className="col-span-2 flex flex-col">
+              <label className="text-xs font-semibold text-gray-600">Vendor</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                value={findFromList(data?.vendorId, partydata?.data, "name")}
+              />
+
+            </div>
 
 
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={getDateFromDateTime(data?.deliverydate)}
+            <div className="flex pt-4">
+              <button
+                className="relative  h-6 px-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white
+                rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
+                onClick={() => setFormReport(true)}
+              >
+                <span className="absolute  bg-white opacity-10 "></span>
+                <span className="relative z-10 text-[12px]"> View Art Design</span>
+              </button>
+            </div>
 
-            />
-          </div>
-          <div className="col-span-2 ">
-            <label className="text-xs font-semibold text-gray-600">Manufacture</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-              value={findFromList(data?.manufactureId, partydata?.data, "name")}
-            />
-
-          </div>
-
-          <div className="col-span-2 ">
-            <label className="text-xs font-semibold text-gray-600">Vendor</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-              value={findFromList(data?.vendorId, partydata?.data, "name")}
-            />
-
-          </div>
-
-   
-          <div className="flex  mt-2">
-            <button
-              className="relative py-1  bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
-              onClick={() => setFormReport(true)}
-            >
-              <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
-              <span className="relative z-10"> View Art Design</span>
-            </button>
-          </div>
-
-        </div>
+          </div >
 
 
 
-        <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto ">
-          <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
-            <thead className="bg-gray-200 text-gray-700 ">
-              <tr className="p-2">
-                <th className="w-[50px] p-2">S No</th>
-                <th className="w-[120px] p-2">Department</th>
-                <th className="w-[150px]">Class-SubClass</th>
-                <th className="w-[120px]">ItemCode</th>
-                <th className="w-[120px]">BarCode</th>
-                <th className="w-[120px]">SeasonSupplierCode</th>
-                <th className="w-[120px]">StyleCodeGroup</th>
-                <th className="w-[150px]">SizeDesc</th>
-                <th className="w-[50px]">Size</th>
-                <th className="w-[90px]">Color</th>
-                <th className="w-[50px]">MRP</th>
-                <th className="w-[50px]">OrderQty</th>
-                {/* <th className="w-[50px]">Excess %</th> */}
-                <th className="w-[50px]">Qty</th>
-              </tr>
-            </thead>
+          <div className="w-full   overflow-x-auto h-[100%]">
+            <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
+              <thead className="bg-gray-200 text-gray-700 ">
+                <tr className="p-2">
+                  <th className=" text-[11px] w-[50px] ">S No</th>
+                  <th className=" text-[11px] w-[120px] ">Department</th>
+                  <th className=" text-[11px] w-[150px]">Class-SubClass</th>
+                  <th className=" text-[11px] w-[120px]">ItemCode</th>
+                  <th className=" text-[11px] w-[120px]">BarCode</th>
+                  <th className=" text-[11px] w-[120px]">SeasonSupplierCode</th>
+                  <th className=" text-[11px] w-[120px]">StyleCodeGroup</th>
+                  <th className=" text-[11px] w-[150px]">SizeDesc</th>
+                  <th className=" text-[11px] w-[50px]">Size</th>
+                  <th className=" text-[11px] w-[90px]">Color</th>
+                  <th className=" text-[11px] w-[50px]">MRP</th>
+                  <th className=" text-[11px] w-[50px]">OrderQty</th>
+                  {/* <th className=" text-[11px] w-[50px]">Excess %</th> */}
+                  <th className=" text-[11px] w-[50px]">Qty</th>
+                </tr>
+              </thead>
 
-            <tbody className="">
-              {(poItems || []).map((item, index) => (
-                <>
+              <tbody className="">
+                {(poItems || []).map((item, index) => (
+                  <>
 
-                  <tr key={index} className=" table-row ">
-                    <td className="border border-gray-300 text-center p-2">{index + 1}</td>
-                    <td className="border border-gray-300 text-left ">{item?.department}</td>
-                    <td className="border border-gray-300 text-left ">{item?.class}</td>
+                    <tr key={index} className=" ">
+                      <td className="border border-gray-300 text-[12px] p-1 text-center ">{index + 1}</td>
+                      <td className="border border-gray-300 text-[12px] text-left ">{item?.department}</td>
+                      <td className="border border-gray-300 text-[12px] text-left ">{item?.class}</td>
 
-                    <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
-                    <td className="border border-gray-300 text-left ">{item?.barCode}</td>
+                      <td className="border border-gray-300 text-[12px] text-left " >{item?.itemCode}</td>
+                      <td className="border border-gray-300 text-[12px] text-left ">{item?.barCode}</td>
 
-                    <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
-                    <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
-                    <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
+                      <td className="border border-gray-300 text-[12px] text-left ">{item?.supplierCode}</td>
+                      <td className="border border-gray-300 text-[12px] text-left ">{item?.styleCode}</td>
+                      <td className="border border-gray-300 text-[12px] text-left ">{item?.sizeDesc}</td>
 
-                    <td className="border border-gray-300 text-center ">{item?.size}</td>
-                    <td className="border border-gray-300 text-center ">{item?.color}</td>
+                      <td className="border border-gray-300 text-[12px] text-center ">{item?.size}</td>
+                      <td className="border border-gray-300 text-[12px] text-center ">{item?.color}</td>
 
-                    <td className="border border-gray-300 text-right ">{item?.mrp}</td>
-                    <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
-                    {/* <td className="border border-gray-300 w-16">
+                      <td className="border border-gray-300 text-[12px] text-right ">{item?.mrp}</td>
+                      <td className="border border-gray-300 text-[12px] text-right ">{item?.orderQty || ""}</td>
+                      {/* <td className="border border-gray-300 w-16">
                      <input
                      type="number"
                      value={item?.excessQty }
@@ -292,73 +293,77 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
                
                </td> */}
 
-                    <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+                      <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
 
-                  </tr>
-                </>
-              ))}
-              <tr className="border-2  border-gray-400 bg-gray-200 p-2">
-                <td className="border-b border-gray-300 text-center w-2"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32 text-xl text-gray-800  font-extrabold">
-                  Total
-                </td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-16"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-
-
+                    </tr>
+                  </>
+                ))}
+                <tr className="border  border-gray-200 bg-gray-200 p-2">
+                  <td className="border border-gray-300 text-center w-2"></td>
+                  <td className="border border-gray-300 text-left w-32"></td>
+                  <td className="border border-gray-300 text-left w-32"></td>
+                  <td className="border border-gray-300 text-left w-32"></td>
+                  <td className="border  text-left w-32 text-xl text-gray-800  font-extrabold">
+                    Total
+                  </td>
+                  <td className="border border-gray-300 text-left w-32"></td>
+                  <td className="border border-gray-300 text-left w-16"></td>
+                  <td className="border border-gray-300 text-left w-52"></td>
+                  <td className="border border-gray-300 text-left w-52"></td>
+                  <td className="border border-gray-300 text-left w-52"></td>
 
 
 
-                <td className="border-b border-gray-300 text-right w-32"></td>
-                <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
-                  {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) || ""}
-                </td>
 
 
-                <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
-                  {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
-
-                </td>
-
-
-              </tr>
-
-            </tbody>
+                  <td className="border border-gray-300 text-right w-32"></td>
+                  <td className="border border-gray-200 text-right w-32 text-lg  text-gray-800 font-bold ">
+                    {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) || ""}
+                  </td>
 
 
-          </table>
+                  <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
+                    {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+
+                  </td>
+
+
+                </tr>
+
+              </tbody>
+
+
+            </table>
+          </div>
         </div>
 
 
 
-        <div>
-          <select
-            className='px-1 py-1 border rounded'
-            value={isApproved}
-            onChange={(e) =>
-              setIsApproved(e.target.value)
-            }
-          >
-            <option value=''>Select status</option>
-            <option value='approve'>Approve</option>
-            <option value='reject'>Reject</option>
-            <option value='hold'>Hold</option>
-          </select>
-        </div>
+        <div className=" w-full flex justify-between pt-60">
+
+          <div className=" w-18 flex flex-col ">
+            <label className="text-xs font-semibold text-gray-600">Approval status</label>
+            <select
+              className='px-1 py-1 border rounded text-xs '
+              value={isApproved}
+              onChange={(e) =>
+                setIsApproved(e.target.value)
+              }
+            >
+              <option value=''>Select status</option>
+              <option value='approve'>Approve</option>
+              <option value='reject'>Reject</option>
+              <option value='hold'>Hold</option>
+            </select>
+
+          </div>
 
 
 
 
-        <div className=" flex  justify-end  gap-3 mt-[50px]">
 
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white  px-2  rounded-sm  "
+            className="bg-blue-600 hover:bg-blue-700 text-white   px-2  h-8 rounded-sm  "
             onClick={() => {
               // setIsSave(true);
               saveData();
@@ -370,8 +375,10 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
           >
             Send mail
           </button>
+
         </div>
-      </div>
+
+      </div >
 
 
 

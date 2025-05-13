@@ -54,9 +54,9 @@ export default function Form() {
     setPartyId(singleuserData?.data?.partyType)
   }, [singleUserPartyData])
 
-useEffect(() =>  {
-  setattachments(SigleOrderdata?.data?.attachments)
-},[SigleOrderdata])
+  useEffect(() => {
+    setattachments(SigleOrderdata?.data?.attachments)
+  }, [SigleOrderdata])
 
 
 
@@ -120,7 +120,7 @@ useEffect(() =>  {
             </div>
             <span className="text-[10px] mt-1 text-purple-400">Mail</span>
           </button>
-        <button className="flex flex-col items-center"
+          <button className="flex flex-col items-center"
             onClick={() => setActive("Report")}
           >
             <div style={getButtonStyle("Report")}>
@@ -166,18 +166,18 @@ useEffect(() =>  {
         <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[50%] ">
 
 
-          <div>
+          <div className=" ">
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
               setPoSentForApproval={setPoSentForApproval}
               poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
-              singleUserPartyData={singleUserPartyData} 
-                setActive={setActive}
+              singleUserPartyData={singleUserPartyData}
+              setActive={setActive}
 
             />}
-            {active === "Report" && <EmailReport  attachments={attachments}  />}
+            {active === "Report" && <EmailReport attachments={attachments} />}
             {active === "More" && <OrderImport />}
             {active === "order" && <Order setEmailId={setEmailId}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}

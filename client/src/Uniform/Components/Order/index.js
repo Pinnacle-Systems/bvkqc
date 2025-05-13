@@ -1,6 +1,6 @@
 import { useAddOrderMutation, useGetOrderByIdQuery, useGetOrderQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
 import secureLocalStorage from "react-secure-storage";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import GeneralSummary from "./GeneralSummary";
 import { getCommonParams } from "../../../Utils/helper";
 import { toast } from "react-toastify";
@@ -135,8 +135,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
     }
-        setForm(false);
-        setActive("Mail");
+    setForm(false);
+    setActive("Mail");
     if (id) {
 
       handleSubmitCustom(updateData, data, "Updated")
@@ -180,8 +180,8 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
   return (
 
-
-    <>
+    //forms
+    <React.Fragment >
       {
         form === true && userRole === "MANUFACTURE" ?
 
@@ -287,7 +287,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
 
       }
-    </>
+    </React.Fragment >
 
   )
 
