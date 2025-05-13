@@ -40,20 +40,20 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                 <td className="p-2">{item?.docId}</td>
                 <td className="p-3">{getDateFromDateTime(item?.orderdate)}</td>
                 <th className="py-3 px-6">{getDateFromDateTime(item?.deliverydate)}</th>
-                <td className="p-3">{findFromList(item.manufactureId, partyData?.data, "name")}</td>
+                <td className="p-3">{item?.Manufacture.name}</td>
 
                 <td className="p-2 items-end ">
-                  {item?.isSave ? (
+                  {!item?.isApproved ? (
                     <span className="inline-flex  text-sm font-semibold bg-green-300 text-white-500  px-1 w-20 rounded">
                       Progress
                     </span>
                   ) : (
                     <span className="inline-flex   text-sm font-semibold bg-red-300 text-white-500 px-1 w-20 rounded ">
-                      Pending
+
+                      {item?.isApproved}
                     </span>
                   )}
                 </td>
-
 
 
 
