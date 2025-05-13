@@ -63,7 +63,7 @@ export default function Form() {
   const getButtonStyle = (name) => ({
     backgroundColor: active === name ? "#E9D5FF" : "transparent",
     borderRadius: "8px",
-    Padding: "2px"
+    Padding: "4px"
   });
 
 
@@ -79,93 +79,97 @@ export default function Form() {
     <>
 
 
- 
+
       <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3" >
 
-        <aside className="w-[4%] flex flex-col items-center py-4 space-y-6   h-full   ">
+        <div className="flex flex-col ">
+          <aside className=" flex flex-col items-center py-4 h-full   ">
+            <footer className=" flex flex-col items-center ml-1">
+              {active === "order" && form === true || mailForm === true ?
+                <div className="flex flex-col">
+                  <button
+                    onClick={() => {
+                      setForm(false)
+                      setMailform(false)
+                      setActive("order")
+                    }}
+                    style={getButtonStyle("order")}
+                  >
+                    <svg class="w-5 h-7 text-gray-500 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                      viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <span className="text-[10px]   text-purple-400">Back</span>
+                </div>
+                : <></>
+              }
+            </footer>
 
-          <button className="flex flex-col items-center "
-            onClick={() => setActive("home")}
-
-
-          >
-            <div style={getButtonStyle("home")}   >
-              <Home className="h-10 w-6 text-purple-600" />
-
-            </div>
-            <span className="text-[10px] mt-1  text-purple-400">Home</span>
-          </button>
-
-          <button className="flex flex-col items-center "
-            onClick={() => {
-              setActive("order")
-              setisOpen(true)
-            }}
-
-
-          >
-            <div style={getButtonStyle("order")}   >
-              <RiOrderPlayFill className="h-10 w-6 text-purple-600" />
-
-            </div>
-            <span className="text-[10px] mt-1  text-purple-400">Order</span>
-          </button>
+            <button className="flex flex-col items-center "
+              onClick={() => setActive("home")}
 
 
+            >
+              <div style={getButtonStyle("home")}   >
+                <Home className="h-10 w-6 text-purple-600" />
 
-          <button className="flex flex-col items-center"
-            onClick={() => setActive("Mail")}
-          >
-            <div style={getButtonStyle("Mail")}>
-              <MessageCircle className="h-10 w-6 text-purple-600" />
+              </div>
+              <span className="text-[10px] mt-1   text-purple-400">Home</span>
+            </button>
 
-            </div>
-            <span className="text-[10px] mt-1 text-purple-400">Mail</span>
-          </button>
-          <button className="flex flex-col items-center"
-            onClick={() => setActive("Report")}
-          >
-            <div style={getButtonStyle("Report")}>
-              <ClipboardList className="h-10 w-6 text-purple-600" />
-
-            </div>
-            <span className="text-[10px] mt-1 text-purple-400">Report</span>
-          </button>
+            <button className="flex flex-col items-center "
+              onClick={() => {
+                setActive("order")
+                setisOpen(true)
+              }}
 
 
-          <button className="flex flex-col items-center"
-            onClick={() => setActive("More")}
-          >
-            <div style={getButtonStyle("More")}>
-              <MoreHorizontal className="h-10 w-7 text-purple-600 " />
+            >
+              <div style={getButtonStyle("order")}   >
+                <RiOrderPlayFill className="h-10 w-6 text-purple-600" />
 
-            </div>
-            <span className="text-[10px] mt-1 text-purple-400">OrderImport</span>
-          </button>
+              </div>
+              <span className="text-[10px] mt-1  text-purple-400">Order</span>
+            </button>
 
 
-        </aside>
-        <footer className="">
-          {active === "order" && form === true || mailForm === true ?
-            <div className="ml-5 p-1">
-              <button
-                onClick={() => {
-                  setForm(false)
-                  setMailform(false)
-                  setActive("order")
-                }}
-                style={getButtonStyle("order")}
-              >
-                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                  viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            </div>
-            : <></>
-          }
-        </footer>
-        <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[50%] ">
+
+            <button className="flex flex-col items-center"
+              onClick={() => setActive("Mail")}
+            >
+              <div style={getButtonStyle("Mail")}>
+                <MessageCircle className="h-10 w-6 text-purple-600" />
+
+              </div>
+              <span className="text-[10px] mt-1 text-purple-400">Mail</span>
+            </button>
+            <button className="flex flex-col items-center"
+              onClick={() => setActive("Report")}
+            >
+              <div style={getButtonStyle("Report")}>
+                <ClipboardList className="h-10 w-6 text-purple-600" />
+
+              </div>
+              <span className="text-[10px] mt-1 text-purple-400">Report</span>
+            </button>
+
+
+            <button className="flex flex-col items-center"
+              onClick={() => setActive("More")}
+            >
+              <div style={getButtonStyle("More")}>
+                <MoreHorizontal className="h-10 w-7 text-purple-600 " />
+
+              </div>
+              <span className="text-[10px] mt-1 text-purple-400">OrderImport</span>
+            </button>
+
+
+          </aside>
+
+        </div>
+        <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
 
 
           <div className=" ">
@@ -193,7 +197,7 @@ export default function Form() {
 
       </div>
 
- 
+
 
 
 
