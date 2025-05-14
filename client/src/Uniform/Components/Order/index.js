@@ -26,7 +26,8 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
   const [poItems, setPoItems] = useState([]);
   const [poNo, setPoNo] = useState(null)
   const [vendor, setVendor] = useState('')
-  const [deliveryDate, setDeliveryDate] = useState('')
+  const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
+
   const [isSave, setIsSave] = useState(true)
   const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
@@ -62,7 +63,7 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
       setPoItems(data?.orderBillItems || []);
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
-      setDeliveryDate(getDateFromDateTime(data?.deliverydate) || null)
+      setDeliveryDate(data?.deliverydate ? moment(data?.deliverydate).format('YYYY-MM-DD') : null)
       setIsApproved(data?.isApproved || '')
     },
     [id]
@@ -120,13 +121,13 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
       if (returnData.statusCode === 0) {
 
 
-        toast.success(text + "Successfully",{
-        autoClose: 1000 
-      });
+        toast.success(text + "Successfully", {
+          autoClose: 1000
+        });
       } else {
-        toast.error(returnData?.message,{
-        autoClose: 1000 
-      });
+        toast.error(returnData?.message, {
+          autoClose: 1000
+        });
       }
 
     } catch (error) {
@@ -140,11 +141,11 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
     }
-    if(isMailForm){
-    setForm(false);
-    setActive("Mail");
+    if (isMailForm) {
+      setForm(false);
+      setActive("Mail");
     }
-   
+
     if (id) {
 
       handleSubmitCustom(updateData, data, "Updated")

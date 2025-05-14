@@ -16,6 +16,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   setActive, saveData, id, setEmailId , setCurrentId , deliveryDate , setDeliveryDate ,form  , active
 }) {
 
+  console.log(deliveryDate,"deliveryDate")
 
   const [upload] = useUploadMutation();
 
@@ -28,7 +29,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
-  const isMailForm  =  true
+  const isMailForm = true
   const model = "Po Number"
 
 
@@ -40,9 +41,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
   const exportAndUploadExcel = async (data, poItemsData, text = "uploaded") => {
-    console.log(poItemsData,"")
+    console.log(poItemsData, "")
     try {
-      const combinedData = poItemsData?.filter(item => item?.orderQty != null  ||   item?.orderQty != "" ).map((item, index) => ({
+      const combinedData = poItemsData?.filter(item => item?.orderQty != null || item?.orderQty != "").map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -84,8 +85,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
     } catch (error) {
       console.error("Error during Export and Upload:", error);
-      toast.error("Something went wrong!",{
-        autoClose: 1000 
+      toast.error("Something went wrong!", {
+        autoClose: 1000
       });
     }
   };
@@ -103,9 +104,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
       if (field === 'excessQty') {
 
         if (parseInt(value) > parseInt(percentageValue)) {
-          toast.error("Excess % is Too High",{
-        autoClose: 1000 
-      });
+          toast.error("Excess % is Too High", {
+            autoClose: 1000
+          });
           return newItems
         }
 
@@ -213,18 +214,27 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                 <label className="text-xs font-semibold ">Tag vendor</label>
                 <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
 
-                </div>
-              
-      
-     
+          </div>
+
+
+
+          <div className=''>
+
+            <DateInputNew
+              name={"Delivery Date"}
+              value={deliveryDate}
+
+              setValue={setDeliveryDate} />
+          </div>
+
         </div >
 
 
-     
-     
-         
-     
-     
+
+
+
+
+
 
 
 
@@ -327,23 +337,23 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-   
+
 
 
         <div className=" flex  justify-end gap-3">
-        
-            {/* <button
-              className="bg-[#303AB2] hover:bg-[#303AB2] text-white px-1  rounded-sm "
-              onClick={() => {
-             
-                saveData()
 
-              }}
-            >
-              Save
-            </button>
-         
-        
+          {/* <button
+            className="bg-[#303AB2] hover:bg-[#303AB2] text-white px-1  rounded-sm "
+            onClick={() => {
+
+              saveData()
+
+            }}
+          >
+            Save
+          </button>
+
+
           <button
           
             className="bg-[#303AB2] hover:bg-[#303AB2] text-white  p-0  rounded-sm  "

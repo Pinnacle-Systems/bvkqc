@@ -68,9 +68,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                       disabled
                     >
                       <option value=''>Not Yet sent</option>
-                      <option value='approve'>Approve</option>
-                      <option value='reject'>Reject</option>
-                      <option value='hold'>Hold</option>
+                      <option value='Approve'>Approve</option>
+                      <option value='Reject'>Reject</option>
+                      <option value='Hold'>Hold</option>
                     </select>
                   </div>
 

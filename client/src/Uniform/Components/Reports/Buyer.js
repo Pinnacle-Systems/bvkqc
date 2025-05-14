@@ -13,7 +13,7 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
-export default function BuyerForm({ singleData,  poItems, setPoItems,
+export default function BuyerForm({ singleData, poItems, setPoItems,
   setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, setPoSentForApproval,  form  , active }) {
   console.log(singleData, 'singleData7');
 
@@ -28,7 +28,7 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
 
 
   let data = singleData?.data
-  const isMailForm  =  true
+  const isMailForm = true
   const model = "Po Number"
 
 
@@ -85,7 +85,10 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
 
   return (
     <>
-
+      <FormHeaderNew
+        model={"Po Number"}
+         poNumber={data?.docId}
+      />
       <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
         <ArtDesignReport
 
@@ -140,6 +143,14 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
         <div>
           <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
 
+            {/* <div className="flex flex-col ">
+              <label className="text-xs font-semibold ">Po Number</label>
+              <input
+                type="text"
+                className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
+                value={data?.docId}
+              />
+            </div> */}
                   <div className="col-span-2 flex flex-col">
               <label className="text-xs font-semibold ">Manufacture</label>
               <input
@@ -159,7 +170,7 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
 
               />
             </div>
-      <div className="col-span-2 flex flex-col">
+            <div className="col-span-2 flex flex-col">
               <label className="text-xs font-semibold ">Vendor</label>
               <input
                 type="text"
@@ -179,7 +190,7 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
 
               />
             </div>
-        
+
 
          
 
@@ -326,7 +337,7 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
             className="bg-blue-600 hover:bg-blue-700 text-white   px-2  h-6 rounded-sm  text-[12px]"
             onClick={() => {
               // setIsSave(true);
-                saveData(isMailForm);
+              saveData(isMailForm);
               // exportAndUploadExcel(data);
               // setForm(false);
               // setActive("Mail");
