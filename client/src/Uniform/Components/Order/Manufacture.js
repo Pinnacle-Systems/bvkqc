@@ -2,7 +2,12 @@ import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
 
 
 export default function Manufacture({ allData, setForm, setId, setPoNo }) {
+  const poStages = [
+    { name: "Created", completed: true },
+    { name: "Sent to Supplier", completed: false },
+    { name: "Approved", completed: true },
 
+  ];
   return (
     <>
 
@@ -56,6 +61,30 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                       {item?.isApproved}
                     </span>
                   )}
+                </td>
+                <td>
+                  <td>
+                    <div className="flex text-white text-xs font-medium">
+
+                      <div
+                        key={index}
+                        className={`flex items-center px-3 py-1 relative ${item.isSave ? 'bg-green-500' : 'bg-gray-400'
+                          } ${index !== poStages.length - 1 ? 'mr-2' : ''}
+        after:content-[''] after:absolute after:right-[-10px] after:top-0 after:w-0 after:h-0 after:border-y-[16px] after:border-y-transparent 
+        after:border-l-[10px] ${index !== poStages.length - 1
+                            ? item.isSave
+                              ? 'after:border-l-green-500'
+                              : 'after:border-l-gray-400'
+                            : 'after:hidden'
+                          }`}
+                        style={{ clipPath: index === 0 ? 'polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)' : 'polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%)' }}
+                      >
+                        {item.isSave}
+                      </div>
+
+                    </div>
+                  </td>
+
                 </td>
 
               </tr>

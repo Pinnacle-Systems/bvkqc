@@ -16,7 +16,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate
 }) {
 
-  console.log(deliveryDate,"deliveryDate")
+  console.log(deliveryDate, "deliveryDate")
 
   const [upload] = useUploadMutation();
 
@@ -29,7 +29,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
-  const isMailForm  =  true
+  const isMailForm = true
 
 
 
@@ -41,9 +41,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
   const exportAndUploadExcel = async (data, poItemsData, text = "uploaded") => {
-    console.log(poItemsData,"")
+    console.log(poItemsData, "")
     try {
-      const combinedData = poItemsData?.filter(item => item?.orderQty != null  ||   item?.orderQty != "" ).map((item, index) => ({
+      const combinedData = poItemsData?.filter(item => item?.orderQty != null || item?.orderQty != "").map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -85,8 +85,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
     } catch (error) {
       console.error("Error during Export and Upload:", error);
-      toast.error("Something went wrong!",{
-        autoClose: 1000 
+      toast.error("Something went wrong!", {
+        autoClose: 1000
       });
     }
   };
@@ -104,9 +104,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
       if (field === 'excessQty') {
 
         if (parseInt(value) > parseInt(percentageValue)) {
-          toast.error("Excess % is Too High",{
-        autoClose: 1000 
-      });
+          toast.error("Excess % is Too High", {
+            autoClose: 1000
+          });
           return newItems
         }
 
@@ -138,68 +138,68 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   return (
     <>
       <FormHeaderNew
-         model={"Po Number"}
-         poNumber={data?.docId}
+        model={"Po Number"}
+        poNumber={data?.docId}
       />
 
       <div className="flex flex-col w-full bg-white p-1 h-full overflow-auto">
 
 
-      <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
-                  <div className="flex flex-col ">
-                    <label className="text-xs font-semibold">Customer</label>
-                    <input
-                    type="text"
-                    className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    value={"MAX"}
-                    />
-                 </div>
-           
-                  <div className="col-span-2 flex flex-col">
-                   <label className="text-xs font-semibold ">Manufacture</label>
-                   <input
-                     type="text"
-                     className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-                      value={data?.Manufacture?.name}
-                   />
-     
-                 </div>
-                 <div className="flex flex-col ">
-                   <label className="text-xs font-semibold ">Po Date</label>
-                   <input
-                     type="text"
-                     className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-     
-                     value={getDateFromDateTime(data?.orderdate)}
-     
-                   />
-                 </div>
-     
-                <div className="flex flex-col w-72 ">
-                <label className="text-xs font-semibold ">Tag vendor</label>
-                <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
+        <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
+          <div className="flex flex-col ">
+            <label className="text-xs font-semibold">Customer</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={"MAX"}
+            />
+          </div>
 
-                </div>
-              
-            
-     
-            <div className=''>
-              {   deliveryDate}
-              <DateInput
-                name={"Delivery Date"}
-                value={ deliveryDate }
+          <div className="col-span-2 flex flex-col">
+            <label className="text-xs font-semibold ">Manufacture</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+              value={data?.Manufacture?.name}
+            />
 
-             setValue={setDeliveryDate} />
-            </div>
-     
+          </div>
+          <div className="flex flex-col ">
+            <label className="text-xs font-semibold ">Po Date</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+
+              value={getDateFromDateTime(data?.orderdate)}
+
+            />
+          </div>
+
+          <div className="flex flex-col  ">
+            <label className="text-xs font-semibold ">Tag vendor</label>
+            <DropdownWithSearch className={" text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
+
+          </div>
+
+
+
+          <div className=''>
+
+            <DateInputNew
+              name={"Delivery Date"}
+              value={deliveryDate}
+
+              setValue={setDeliveryDate} />
+          </div>
+
         </div >
 
 
-     
-     
-         
-     
-     
+
+
+
+
+
 
 
 
@@ -302,23 +302,23 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-   
+
 
 
         <div className=" flex  justify-end gap-3">
-        
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
-              onClick={() => {
-             
-                saveData()
 
-              }}
-            >
-              Save
-            </button>
-         
-        
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
+            onClick={() => {
+
+              saveData()
+
+            }}
+          >
+            Save
+          </button>
+
+
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
             onClick={() => {

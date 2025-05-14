@@ -396,14 +396,14 @@ export const DateInputNew = ({ name, value, setValue, readOnly, required = false
     //     if (!year || !month || !day) return dateStr; 
     //     return `${year}-${month}-${day}`;
     // };
-    
+
     // const formattedValue = formatDateForInput(value);
 
     return (
-        <div className='   grid-cols-1 md:grid-cols-3 items-center md:my-1 md:px-1  w-32'>
+        <div className='   grid-cols-1 md:grid-cols-3 items-center  md:px-1  w-32'>
             <label htmlFor="id" className={`md:text-start flex  text-xs ${inputHead} font-semibold group-hover:text-blue-600`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
             <input tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={disabled} required={required}
-                className={`focus:outline-none md:col-span-2 border border-gray-400 text-xs p-0.5  rounded-md w-32 ${inputClass}`} id='id'       value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
+                className={`focus:outline-none md:col-span-2 border border-gray-400 text-xs p-0.5  rounded-md w-32 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
         </div>
     )
 }
@@ -454,7 +454,7 @@ export const validatePincode = (data) => {
 }
 
 export const DropdownWithSearch = ({ className, options, value, setValue, readOnly, onCreateNew = null, optionName, masterName = "", }) => {
-    console.log(options,"options")
+    console.log(options, "options")
 
     const dispatch = useDispatch();
 
@@ -504,9 +504,9 @@ export const DropdownWithSearch = ({ className, options, value, setValue, readOn
         };
     }, [currentIndex]);
 
-   
+
     return (
-        <div id={`dropdown${currentIndex}`} className={`${className} px-2 py-1`}>
+        <div id={`dropdown${currentIndex}`} className={`${className} px-2`}>
             <select
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
                 disabled={readOnly}
