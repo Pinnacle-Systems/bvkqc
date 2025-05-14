@@ -146,7 +146,16 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
   console.log(poItems, "poItems");
 
   console.log(data, "data");
-
+  useEffect(() => {
+    if (poItems?.length >= 10) return
+    setPoItems(prev => {
+      let newArray = Array.from({ length: 10 - prev.length }, () => {
+        return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
+      })
+      return [...prev, ...newArray]
+    }
+    )
+  }, [setPoItems, poItems])
 
 
   return (
@@ -171,13 +180,13 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
           setSearchValue={setSearchValue}
         />
       </Modal>
-      <div className="flex flex-col w-full p-1 h-full overflow-auto justify-between items-end">
+      <div className="flex flex-col w-full p-1 h-full overflow-auto justify-between item-end bg-white gap-4">
 
         <div>
-          <div className="flex flex-wrap gap-4 border border-gray-300 pb-3 p-2 rounded item-center"  >
+          <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
 
             <div className="flex flex-col ">
-              <label className="text-xs font-semibold text-gray-600">Po Number</label>
+              <label className="text-xs font-semibold ">Po Number</label>
               <input
                 type="text"
                 className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
@@ -185,7 +194,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
               />
             </div>
             <div className="flex flex-col ">
-              <label className="text-xs font-semibold text-gray-600">Po Date</label>
+              <label className="text-xs font-semibold ">Po Date</label>
               <input
                 type="text"
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -197,7 +206,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
 
             <div className="flex flex-col ">
-              <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
+              <label className="text-xs font-semibold ">Delivery Date</label>
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -206,7 +215,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
               />
             </div>
             <div className="col-span-2 flex flex-col">
-              <label className="text-xs font-semibold text-gray-600">Manufacture</label>
+              <label className="text-xs font-semibold ">Manufacture</label>
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
@@ -216,7 +225,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
             </div>
 
             <div className="col-span-2 flex flex-col">
-              <label className="text-xs font-semibold text-gray-600">Vendor</label>
+              <label className="text-xs font-semibold ">Vendor</label>
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
@@ -241,24 +250,24 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
 
 
-          <div className="w-full   overflow-x-auto h-[100%]">
+          <div className="w-full   overflow-x-auto h-[100%] pt-2">
             <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
               <thead className="bg-gray-200 text-gray-700 ">
                 <tr className="p-2">
-                  <th className=" text-[11px] w-[50px] ">S No</th>
-                  <th className=" text-[11px] w-[120px] ">Department</th>
-                  <th className=" text-[11px] w-[150px]">Class-SubClass</th>
-                  <th className=" text-[11px] w-[120px]">ItemCode</th>
-                  <th className=" text-[11px] w-[120px]">BarCode</th>
-                  <th className=" text-[11px] w-[120px]">SeasonSupplierCode</th>
-                  <th className=" text-[11px] w-[120px]">StyleCodeGroup</th>
-                  <th className=" text-[11px] w-[150px]">SizeDesc</th>
-                  <th className=" text-[11px] w-[50px]">Size</th>
-                  <th className=" text-[11px] w-[90px]">Color</th>
-                  <th className=" text-[11px] w-[50px]">MRP</th>
-                  <th className=" text-[11px] w-[50px]">OrderQty</th>
-                  {/* <th className=" text-[11px] w-[50px]">Excess %</th> */}
-                  <th className=" text-[11px] w-[50px]">Qty</th>
+                  <th className=" text-[13px] w-[50px] p-1">S No</th>
+                  <th className=" text-[13px] w-[120px] ">Department</th>
+                  <th className=" text-[13px] w-[150px]">Class-SubClass</th>
+                  <th className=" text-[13px] w-[120px]">ItemCode</th>
+                  <th className=" text-[13px] w-[120px]">BarCode</th>
+                  <th className=" text-[13px] w-[120px]">SeasonSupplierCode</th>
+                  <th className=" text-[13px] w-[120px]">StyleCodeGroup</th>
+                  <th className=" text-[13px] w-[150px]">SizeDesc</th>
+                  <th className=" text-[13px] w-[50px]">Size</th>
+                  <th className=" text-[13px] w-[90px]">Color</th>
+                  <th className=" text-[13px] w-[50px]">MRP</th>
+                  <th className=" text-[13px] w-[50px]">OrderQty</th>
+                  {/* <th className=" text-[13px] w-[50px]">Excess %</th> */}
+                  <th className=" text-[13px] w-[50px]">Qty</th>
                 </tr>
               </thead>
 
@@ -339,12 +348,12 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
 
 
-        <div className=" w-full flex justify-between pt-60">
+        <div className=" w-full flex justify-between">
 
           <div className=" w-18 flex flex-col ">
             <label className="text-xs font-semibold text-gray-600">Approval status</label>
             <select
-              className='px-1 py-1 border rounded text-xs '
+              className='px-1  border border-gray-300 rounded text-xs '
               value={isApproved}
               onChange={(e) =>
                 setIsApproved(e.target.value)
@@ -363,7 +372,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
 
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white   px-2  h-8 rounded-sm  "
+            className="bg-blue-600 hover:bg-blue-700 text-white   px-2  h-6 rounded-sm  text-[12px]"
             onClick={() => {
               // setIsSave(true);
               saveData();

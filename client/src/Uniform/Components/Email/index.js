@@ -4,7 +4,7 @@ import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService"
 import secureLocalStorage from "react-secure-storage";
 import { Button, Card, CardContent, Input, Modal } from "@mui/material";
 import { DELETE } from "../../../icons";
-import { AttachFile } from "@mui/icons-material";
+import { ArrowBack, AttachFile } from "@mui/icons-material";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { toast } from 'react-toastify';
@@ -15,11 +15,12 @@ import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService
 import { LongDropdownInput } from "../../../Inputs";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 import { useDispatch } from "react-redux";
+import { Backpack, DeleteIcon, Send } from "lucide-react";
 
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval ,  setActive }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive }) {
 
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
@@ -43,7 +44,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const id = currentId
 
 
-  const  SyncformwithDb = () =>  {
+  const SyncformwithDb = () => {
     setToEmail("");
     setSubject("");
     setMessage("");
@@ -56,14 +57,14 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   }
 
 
-  const { data: Emaildata ,    isLoading : isEmailLoading   , isFetching : isEmailFetching } = useGetEmailByIdQuery(emailId, { skip: !emailId });
+  const { data: Emaildata, isLoading: isEmailLoading, isFetching: isEmailFetching } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
 
-  const { data: SigleOrderdata , isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
+  const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(id, { skip: !id });
   const { data: partyData } = useGetPartyByIdQuery(userId, { skip: !userId });
   const FromEmailAddress = partyData?.data?.email;
   const passskey = SigleOrderdata?.data?.passKey;
-  
+
   const [updateData] = useUpdateOrderMutation();
 
 
@@ -85,7 +86,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     if (Emaildata?.data?.poExcelFileName) {
       setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
     }
-  }, [Emaildata , isEmailLoading , isEmailFetching]);
+  }, [Emaildata, isEmailLoading, isEmailFetching]);
 
 
 
@@ -198,7 +199,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   return (
 
     <>
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 h-[78vh] ">
         <Modal isOpen={formReport}
           onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
 
@@ -218,21 +219,27 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
           />
         </Modal>
         <div className="flex flex-col" >
-          <div className=" p-1 rounded mb-4 h-[90%] w-full">
+          <div className=" p-1 rounded mb-4 h-[90%] w-full px-2">
             <div>
-              <label className="block  text-black text-sm mb-1" htmlFor="to">To:</label>
+              <label className="block  text-black  mb-1" htmlFor="to">To:</label>
               <input
                 type="email"
                 id="to"
                 placeholder="recipient@example.com"
                 name="username" value={toEmail} onChange={(e) => setToEmail(e.target.value)}
-                className="w-full border border-gray-300 px-3 py-1 rounded shadow-sm"
+                className="border border-gray-300 rounded px-2 text-[14px] py-1 w-[90%]"
               />
 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Cc:</label>
+              <label className="block text-[14px] font-medium text-gray-700 mt-1">Cc:</label>
+              <button
+                onClick={addCcField}
+                className="mt-1 text-[14px] text-blue-600 hover:underline "
+              >
+                + Add Cc
+              </button>
               {ccList.map((cc, index) => (
                 <div key={index} className="flex items-center space-x-2 mt-1">
                   <input
@@ -240,45 +247,40 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                     placeholder={`Cc recipient ${index + 1}`}
                     value={cc}
                     onChange={(e) => handleCcChange(index, e.target.value)}
-                    className="w-full border border-gray-300 px-3 py-1 rounded shadow-sm"
+                    className=" border border-gray-300 px-3 py-1 text-sm p-1 rounded shadow-sm w-[90%]"
                   />
                   <button
                     onClick={() => removeCcField(index)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-white bg-red-500 items-center justify-center text-[25px]  rounded"
                   >
-                    🗑
+                    <DeleteIcon />
                   </button>
                 </div>
               ))}
-              <button
-                onClick={addCcField}
-                className="mt-1 text-sm text-blue-600 hover:underline"
-              >
-                + Add Cc
-              </button>
+
             </div>
 
-            <div className="">
-              <label className="block  text-black text-sm mb-1" htmlFor="subject">Subject:</label>
+            <div className="mt-1">
+              <label className="block  text-black text-[14px] mb-1" htmlFor="subject">Subject:</label>
               <input
                 type="text"
                 id="subject"
                 placeholder="Subject"
                 name="Subject" value={subject} onChange={(e) => setSubject(e.target.value)}
-                className="w-full border border-gray-300 px-3 py-1 rounded shadow-sm"
+                className="w-[90%] border border-gray-300 px-3 py-1 rounded shadow-sm "
 
               />
             </div>
 
-            <div className="">
-              <label className="block  text-black text-sm mb-1" htmlFor="message">Message:</label>
+            <div className="mt-1">
+              <label className="block  text-black text-[14px] mb-1" htmlFor="message">Message:</label>
               <textarea
                 id="message"
                 rows="7"
                 placeholder="Write your message..."
                 name="Subject" value={message} onChange={(e) => setMessage(e.target.value)}
 
-                className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm"
+                className="w-[90%] border border-gray-300 px-3 py- text-[14px] rounded shadow-sm "
               ></textarea>
             </div>
 
@@ -287,35 +289,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
           </div>
 
-          <div className="flex w-full items-center">
-         <button className="relative px-1 text-[14px] bg-gradient-to-r   text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
-                onClick={() => {
-                  setActive("order")
-                }}
 
-              >
-
-                Back
-              </button>
-
-
-
-
-            <div className=" flex justify-end w-full">
-              <button className="relative px-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
-                onClick={() => {
-                  saveData()
-                  setPoSentForApproval(true)
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
-                  SyncformwithDb()
-                }}
-
-              >
-
-                Send
-              </button>
-            </div>
-          </div>
         </div>
 
 
@@ -325,54 +299,57 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
         <div className="flex flex-col mt-5 p-5 gap-4">
           <div className="border-b border-gray-400 w-full">
             <label className="font-medium text-gray-700">Po Number: </label>
-            {poNumber}
+
+            <span className="text-xs">{poNumber}</span>
           </div>
 
-      <div className="border-b border-gray-400 w-full">
-        {userRole === "MANUFACTURE" && (
-          <div className="flex items-center space-x-2 py-1">
-            <label className="font-medium text-gray-700">Vendor:</label>
-            <span>{receiverName}</span>
+          <div className="border-b border-gray-400 w-full">
+            {userRole === "MANUFACTURE" && (
+              <div className="flex items-center space-x-2 py-1">
+                <label className="font-medium text-gray-700">Vendor:</label>
+                <span className="text-xs">{receiverName}</span>
+              </div>
+            )}
+            {userRole === "VENDOR" && (
+              <div className="flex items-center space-x-2 py-1 ">
+                <label className="font-medium text-gray-700">manufacture:</label>
+                <span className="text-xs">{sendorName}</span>
+              </div>
+            )}
+            {userRole === "" && (
+              <>
+                <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
+                  <label className="font-medium text-gray-700">Manufacturer:</label>
+                  <span className="text-xs">{sendorName}</span>
+                </div>
+                <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
+                  <label className="font-medium text-gray-700">Vendor:</label>
+                  <span className="text-xs">{receiverName}</span>
+                </div>
+
+              </>
+            )}
+
           </div>
-        )}
-          {userRole === "VENDOR" && (
-          <div className="flex items-center space-x-2 py-1 ">
-            <label className="font-medium text-gray-700">manufacture:</label>
-            <span>{sendorName}</span>
-          </div>
-        )}
-  {userRole === "" && (
-  <>
-    <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
-      <label className="font-medium text-gray-700">Manufacturer:</label>
-      <span>{sendorName}</span>
-    </div>
-    <div className="flex items-center space-x-2 py-1 border-b border-gray-400">
-      <label className="font-medium text-gray-700">Vendor:</label>
-      <span>{receiverName}</span>
-    </div>   
-  
-  </>
-)}
-
-    </div>
 
 
-          <span>{Emaildata?.data?.poExcelFileName}</span>
-          <div className="flex flex-col mt-5 p-5 gap-4">
+
+          <div className="flex flex-col mt-5 gap-4">
 
 
-            <div className="flex flex-col gap-2 text-sm text-gray-700">
+            <div className="flex flex-col gap-2 text-[14px] text-gray-700 border border-gray-400">
+              <label className="font-medium text-gray-700">Attachments:</label>
               {attachments?.map((item, index) => (
                 // const fileName = item.filePath?.split('/').pop();
 
-                <div key={index} className="flex items-center gap-2">
+                <div key={index} className="flex items-center gap-2 p-3">
+                  <label className="font-medium text-gray-700">{index + 1}:</label>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h5v-2H4V5h12v3h2V5a2 2 0 00-2-2H4z" />
                     <path d="M14 11v2h-3v3h-2v-3H6v-2h3V8h2v3h3z" />
                   </svg>
 
-                  <span>{item.filePath?.split('/').pop()}</span>
+                  <span className="text-xs">{item.filePath?.split('/').pop()}</span>
 
                   <button
                     onClick={async () => {
@@ -406,7 +383,33 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
         </div>
 
+      </div>
+      <div className="flex justify-between">
+        <div className="flex w-full items-center">
+          <button className=" px-1 p-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden flex w-18 items-center "
+            onClick={() => {
+              setActive("order")
+            }}
 
+          >
+            <ArrowBack />
+            Back
+          </button>
+        </div>
+        <div className="  ">
+          <button className=" px-1 p-1 text-[14px] bg-gradient-to-r from-blue-800 to-red-600  text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden flex w-18 items-center "
+            onClick={() => {
+              saveData()
+              setPoSentForApproval(true)
+              handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
+              SyncformwithDb()
+            }}
+
+          >
+            Send  <Send />
+
+          </button>
+        </div>
       </div>
     </>
 
