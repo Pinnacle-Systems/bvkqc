@@ -4,8 +4,32 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
   const stageDefinitions = [
     { key: "isSave", label: "Created", color: "bg-blue-500" },
     { key: "poSentForApproval", label: "Sent to Supplier", color: "bg-orange-500" },
-    { key: "isApproved" },
+    { key: "isApproved" }, // Dynamic
   ];
+  const getStageColor = (stageKey, item) => {
+    switch (stageKey) {
+      case "isApproved":
+        switch (item?.isApproved) {
+          case "Reject":
+            return "bg-red-500";
+          case "Hold":
+            return "bg-yellow-500";
+          case "Approved":
+            return "bg-green-500";
+          default:
+            return "bg-gray-300";
+        }
+
+      case "poSentForApproval":
+        return item?.poSentForApproval ? "bg-yellow-400" : "bg-yellow-200";
+
+      case "isSave":
+        return item?.isSave ? "bg-blue-500" : "bg-gray-300";
+
+      default:
+        return "bg-gray-300";
+    }
+  };
 
   return (
     <div className="bg-white shadow rounded-lg">
@@ -27,6 +51,16 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
               .filter((stage) => item?.[stage.key])
               .reverse();
 
+            const approvalStatus = item?.isApproved || "In Progress";
+
+            const approvalColor = approvalStatus === "Approved"
+              ? "bg-green-500 text-white"
+              : approvalStatus === "Rejected"
+                ? "bg-red-500 text-white"
+                : approvalStatus === "Hold"
+                  ? "bg-yellow-500 text-black"
+                  : "bg-gray-300 text-black";
+
             return (
               <tr
                 key={item?.id}
@@ -43,33 +77,16 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{item?.Vendor?.name}</td>
                 <td className="p-1">{getDateFromDateTime(item?.deliverydate)}</td>
                 <td className="p-1">
-                  <span
-                    className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${item?.isApproved === "Approved"
-                      ? "bg-green-500 text-white"
-                      : item?.isApproved === "Rejected"
-                        ? "bg-red-500 text-white"
-                        : item?.isApproved === "Hold"
-                          ? "bg-yellow-500 text-black"
-                          : "bg-gray-300 text-black"
-                      }`}
-                  >
-                    {item?.isApproved || "In Progress"}
+                  <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
+                    {approvalStatus}
                   </span>
                 </td>
                 <td className="p-1">
                   <div className="flex flex-row-reverse items-center overflow-x-auto">
                     {completedStages.map((stage, i) => {
-                      const label =
-                        stage.key === "isApproved" ? item?.isApproved : stage.label;
+                      const label = stage.key === "isApproved" ? approvalStatus : stage.label;
+                      const color = getStageColor(stage.key, item);
 
-                      const color =
-                        stage.key === "isApproved"
-                          ? item?.isApproved === "Rejected"
-                            ? "bg-red-500"
-                            : item?.isApproved === "Hold"
-                              ? "bg-yellow-500"
-                              : "bg-green-500"
-                          : stage.color;
 
                       return (
                         <div
