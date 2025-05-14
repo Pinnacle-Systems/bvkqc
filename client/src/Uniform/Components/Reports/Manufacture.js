@@ -28,7 +28,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
-
+  const isMailForm  =  true
 
 
 
@@ -40,9 +40,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
   const exportAndUploadExcel = async (data, poItemsData, text = "uploaded") => {
-
     try {
-      const combinedData = poItemsData?.map((item, index) => ({
+      const combinedData = poItemsData?.filter(item => item?.orderQty != null).map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -84,7 +83,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
     } catch (error) {
       console.error("Error during Export and Upload:", error);
-      toast.error("Something went wrong!");
+      toast.error("Something went wrong!",{
+        autoClose: 1000 
+      });
     }
   };
 
@@ -100,13 +101,15 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
       if (field === 'excessQty') {
 
-        if (parseFloat(value) > parseFloat(percentageValue)) {
-          toast.error("Excess % is Too High");
+        if (parseInt(value) > parseInt(percentageValue)) {
+          toast.error("Excess % is Too High",{
+        autoClose: 1000 
+      });
           return newItems
         }
 
         newItems[index]['excessQty'] = value;
-        const percentage = parseFloat((orderQty * value) / 100);
+        const percentage = parseInt((orderQty * value) / 100);
         const updatedQty = Math.round(orderQty + percentage);
 
         newItems[index]['qty'] = updatedQty;
@@ -301,27 +304,24 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
         <div className=" flex  justify-end  gap-3 mt-[50px]">
-          {!data?.isSave ?
+        
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
               onClick={() => {
-                // setIsSave(true)
-                setForm(false);
-                setActive("order")
+             
                 saveData()
 
               }}
             >
               Save
             </button>
-            :
-            <></>
-          }
+         
+        
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
             onClick={() => {
               // setIsSave(true);
-              saveData();
+              saveData(isMailForm);
               exportAndUploadExcel(data, poItems);
               // setForm(false);
               // setActive("Mail");

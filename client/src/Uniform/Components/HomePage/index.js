@@ -12,7 +12,6 @@ import {
 import { HomePage } from "./homePage";
 import { Message } from "./Message";
 import { Activity } from "./Activity";
-import { More } from "./More";
 import { RiOrderPlayFill } from "react-icons/ri";
 import secureLocalStorage from "react-secure-storage";
 import Order from "../Order";
@@ -67,12 +66,7 @@ export default function Form() {
   });
 
 
-
-
-
-
-
-  return (
+ return (
 
 
 

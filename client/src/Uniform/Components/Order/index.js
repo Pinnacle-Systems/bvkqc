@@ -15,18 +15,19 @@ import BuyerForm from "../Reports/Buyer";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
+import moment from 'moment';
 
 
 export default function Order({ setForm, form, setEmailId, setActive, setCurrentId }) {
 
   const [id, setId] = useState("");
+
   const [fileName, setFileName] = useState("");
   const [poItems, setPoItems] = useState([]);
   const [poNo, setPoNo] = useState(null)
   const [vendor, setVendor] = useState('')
   const [deliverydate, setDeliverydate] = useState('')
   const [isSave, setIsSave] = useState(true)
-  const dispatch = useDispatch()
   const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
 
@@ -61,7 +62,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       setPoItems(data?.orderBillItems || []);
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
-      setDeliverydate(data?.deliverydate || null)
+      setDeliverydate(moment.utc(data?.deliverydate).format("YYYY-MM-DD") || null)
       setIsApproved(data?.isApproved || '')
     },
     [id]
@@ -119,9 +120,13 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       if (returnData.statusCode === 0) {
 
 
-        toast.success(text + "Successfully");
+        toast.success(text + "Successfully",{
+        autoClose: 1000 
+      });
       } else {
-        toast.error(returnData?.message);
+        toast.error(returnData?.message,{
+        autoClose: 1000 
+      });
       }
 
     } catch (error) {
@@ -130,13 +135,16 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   };
 
 
-  const saveData = () => {
+  const saveData = (isMailForm) => {
 
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
     }
+    if(isMailForm){
     setForm(false);
     setActive("Mail");
+    }
+   
     if (id) {
 
       handleSubmitCustom(updateData, data, "Updated")
@@ -195,7 +203,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
             id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
-            deliveryDate={deliverydate} setDeliverydate={setDeliverydate}
+            deliverydate={deliverydate} setDeliverydate={setDeliverydate}
 
           />
 

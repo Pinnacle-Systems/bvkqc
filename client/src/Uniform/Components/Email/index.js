@@ -71,6 +71,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   useEffect(() => {
     setPoNumber(SigleOrderdata?.data?.docId)
+    setSubject(SigleOrderdata?.data?.docId)
     setUserId(SigleOrderdata?.data?.vendorId)
     setattachments(emailId ? [] : SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
