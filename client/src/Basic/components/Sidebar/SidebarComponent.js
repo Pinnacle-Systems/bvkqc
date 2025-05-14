@@ -123,24 +123,12 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
     }
 
 
-useEffect(() => {
-    function handleClickOutside(event) {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setIsMainDropdownOpen(false); 
-      }
-    }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [ref]);
 
 
     return (
         <div
-            className="fixed top-[16.5%] left-[87px] z-50"  ref={ref}
+            className="fixed top-[16.5%] left-[87px] z-50"  
         >
 
             {isMainDropdownOpen === true ? <div onClick={() => setIsMainDropdownOpen(false)} className="bg-gray-600 opacity-40 fixed top-0 left-0 right-0 bottom-0 -z-10 "

@@ -13,10 +13,9 @@ import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate
+  setActive, saveData, id, setEmailId , setCurrentId , deliveryDate , setDeliveryDate ,form  , active
 }) {
 
-  console.log(deliveryDate,"deliveryDate")
 
   const [upload] = useUploadMutation();
 
@@ -30,7 +29,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
   const isMailForm  =  true
-
+  const model = "Po Number"
 
 
   useEffect(() => {
@@ -137,15 +136,50 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   return (
     <>
-      <FormHeaderNew
-         model={"Po Number"}
-         poNumber={data?.docId}
-      />
+      <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
+      <div className="text-md font-semibold">
+        <span className="">{model} : </span>&nbsp;
+        <span className="text-[#303AB2]">{data?.docId}</span>
+      </div>
+
+
+  {active === "order" && form === true && (
+    <div className="flex items-center space-x-1">
+
+            <button
+            onClick={() => {
+            setForm(false);
+            setActive("order");
+            }}
+            className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+            >
+            <svg
+            className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            >
+            <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+            />
+            </svg>
+            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+            Back
+            </span>
+            </button>
+
+    </div>
+  )}
+    </div>
+
 
       <div className="flex flex-col w-full bg-white p-1 h-full overflow-auto">
 
 
-      <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
+         <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
                   <div className="flex flex-col ">
                     <label className="text-xs font-semibold">Customer</label>
                     <input
@@ -163,7 +197,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                       value={data?.Manufacture?.name}
                    />
      
-                 </div>
+             </div>
                  <div className="flex flex-col ">
                    <label className="text-xs font-semibold ">Po Date</label>
                    <input
@@ -181,16 +215,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
                 </div>
               
-            
-     
-            <div className=''>
-              {   deliveryDate}
-              <DateInput
-                name={"Delivery Date"}
-                value={ deliveryDate }
-
-             setValue={setDeliveryDate} />
-            </div>
+      
      
         </div >
 
@@ -307,8 +332,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
         <div className=" flex  justify-end gap-3">
         
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
+            {/* <button
+              className="bg-[#303AB2] hover:bg-[#303AB2] text-white px-1  rounded-sm "
               onClick={() => {
              
                 saveData()
@@ -320,7 +345,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
          
         
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
+          
+            className="bg-[#303AB2] hover:bg-[#303AB2] text-white  p-0  rounded-sm  "
             onClick={() => {
               // setIsSave(true);
               saveData(isMailForm);
@@ -330,7 +356,51 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             }}
           >
             Save & Send
-          </button>
+          </button> */}
+
+      
+<button
+  onClick={() => {
+    saveData();
+  }}
+  className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+>
+  <svg
+    className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+  <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+    Save
+  </span>
+</button>
+
+
+<button
+  onClick={() => {
+    saveData(isMailForm);
+    exportAndUploadExcel(data, poItems);
+  }}
+  className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+>
+  <svg
+    className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+  </svg>
+  <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+    Save & Send
+  </span>
+</button>
+
         </div>
       </div>
 

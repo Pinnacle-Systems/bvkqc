@@ -18,7 +18,7 @@ import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage"
 import moment from 'moment';
 
 
-export default function Order({ setForm, form, setEmailId, setActive, setCurrentId }) {
+export default function Order({ setForm, form, setEmailId, active ,  setActive, setCurrentId }) {
 
   const [id, setId] = useState("");
 
@@ -159,30 +159,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
 
 
-
-
-  // useEffect(() => {
-  //     if (poItems?.length >= 5) return
-  //     setPoItems(prev => {
-  //         let newArray = Array?.from({ length: 5  - prev.length }, i => {
-  //             return { excessQty: "", qty: 0.00,orderQty:0.00 }
-  //         })
-  //         return [...prev, ...newArray]
-  //     }
-  //     )
-  // }, [poItems])
-
-  //  useEffect(() => {
-  //     if (percentage?.data?.length === 0) return;
-
-  //    let percentageValue = percentage?.data?.find(i => i.active)?.qty
-  // console.log(percentageValue,"percentageValue")
-
-  //     let newArray = poItems?.map((item, index) => {
-  //       return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
-  //     });
-  //     setPoItems(newArray)
-  //   }, [percentage?.data, setPoItems,id]);
+  console.log( active,"active",form,"form")
 
 
 
@@ -195,11 +172,11 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
           <Manufactureform
 
-            setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+            setForm={setForm}  form={form}   singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
             vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
-            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
+            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}  active  ={active}
 
             id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
@@ -215,14 +192,14 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
             <VendorForm
 
-              setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+              setForm={setForm}  form={form}  singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
               vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
               id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
-              poSentForApproval={poSentForApproval}
+              poSentForApproval={poSentForApproval}   active  ={active}
               setPoSentForApproval={setPoSentForApproval}
 
             />
@@ -232,13 +209,13 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
               <BuyerForm
 
-                setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+                setForm={setForm}  form={form}  singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
                 vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
-                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved}
+                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved}   active={active}
 
               />
 
@@ -247,9 +224,10 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
               //Order Report pages
               <div className="flex-1 flex flex-col">
 
-                <FormHeaderNew model={"List Of Orders"} />
+                <FormHeaderNew model={"List Of Orders"}   />
 
-
+        
+             
                 <main className="p-2 space-y-6">
                   {
                     userRole === "MANUFACTURE" ?

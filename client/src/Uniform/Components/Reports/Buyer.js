@@ -14,7 +14,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function BuyerForm({ singleData,  poItems, setPoItems,
-  setActive, setIsSave, saveData, id, setEmailId, setCurrentId, isApproved, setIsApproved, setPoSentForApproval }) {
+  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, setPoSentForApproval,  form  , active }) {
   console.log(singleData, 'singleData7');
 
 
@@ -29,6 +29,7 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
 
   let data = singleData?.data
   const isMailForm  =  true
+  const model = "Po Number"
 
 
 
@@ -84,40 +85,61 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
 
   return (
     <>
-      <FormHeaderNew
-        model={"Po Number"}
-         poNumber={data?.docId}
-      />
+
       <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
         <ArtDesignReport
-          // heading={MODEL}
 
           tableWidth="100%"
-          // data={allData?.data}
-          // onClick={(id) => {
-          // setId(id);
-          // setFormReport(false);
-          // }
-          // }
+       
           setAttachments={setAttachments}
           attachments={attachments}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
       </Modal>
+          <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
+      <div className="text-md font-semibold">
+        <span className="">{model} : </span>&nbsp;
+        <span className="text-[#303AB2]">{data?.docId}</span>
+      </div>
+
+
+  {active === "order" && form === true && (
+    <div className="flex items-center space-x-1">
+
+            <button
+            onClick={() => {
+            setForm(false);
+            setActive("order");
+            }}
+            className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+            >
+            <svg
+            className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            >
+            <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+            />
+            </svg>
+            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+            Back
+            </span>
+            </button>
+
+    </div>
+  )}
+    </div>
       <div className="flex flex-col w-full p-1 h-full overflow-auto justify-between item-end bg-white gap-4">
 
         <div>
           <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
 
-            {/* <div className="flex flex-col ">
-              <label className="text-xs font-semibold ">Po Number</label>
-              <input
-                type="text"
-                className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-                value={data?.docId}
-              />
-            </div> */}
                   <div className="col-span-2 flex flex-col">
               <label className="text-xs font-semibold ">Manufacture</label>
               <input
@@ -160,6 +182,25 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
         
 
          
+
+          
+
+           <div className=" w-18 flex flex-col ">
+            <label className="text-xs font-semibold text-gray-600">Approval status</label>
+            <select
+              className='px-1  border border-gray-300 rounded text-xs '
+              value={isApproved}
+              onChange={(e) =>
+                setIsApproved(e.target.value)
+              }
+            >
+              <option value=''>Select status</option>
+              <option value='approve'>Approve</option>
+              <option value='reject'>Reject</option>
+              <option value='hold'>Hold</option>
+            </select>
+
+          </div>
 
             <div className="flex pt-4">
               <button
@@ -274,30 +315,14 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
 
 
 
-        <div className=" w-full flex justify-between">
-
-          <div className=" w-18 flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Approval status</label>
-            <select
-              className='px-1  border border-gray-300 rounded text-xs '
-              value={isApproved}
-              onChange={(e) =>
-                setIsApproved(e.target.value)
-              }
-            >
-              <option value=''>Select status</option>
-              <option value='approve'>Approve</option>
-              <option value='reject'>Reject</option>
-              <option value='hold'>Hold</option>
-            </select>
-
-          </div>
+        <div className=" w-full flex justify-end">
 
 
 
 
 
-          <button
+
+          {/* <button
             className="bg-blue-600 hover:bg-blue-700 text-white   px-2  h-6 rounded-sm  text-[12px]"
             onClick={() => {
               // setIsSave(true);
@@ -309,8 +334,28 @@ export default function BuyerForm({ singleData,  poItems, setPoItems,
             }}
           >
             Send mail
-          </button>
+              </button> */}
+    <button
+      onClick={() => {
+        saveData(isMailForm);
+        setPoSentForApproval = (true)
 
+      }}
+      className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+    >
+      <svg
+        className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+      </svg>
+      <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+        SEND MAIL
+      </span>
+    </button>
         </div>
 
       </div >

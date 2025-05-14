@@ -65,6 +65,14 @@ export default function Form() {
     Padding: "4px"
   });
 
+  const menuItems = [
+    { name: 'home', label: 'Home', icon: <Home className="h-6 w-6" /> },
+    { name: 'order', label: 'Order', icon: <RiOrderPlayFill className="h-6 w-6" />, action: () => setisOpen(true) },
+    { name: 'Mail', label: 'Mail', icon: <MessageCircle className="h-6 w-6" /> },
+    { name: 'Report', label: 'Report', icon: <ClipboardList className="h-6 w-6" /> },
+    { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> },
+  ];
+
 
  return (
 
@@ -74,31 +82,11 @@ export default function Form() {
 
 
 
-      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3" >
+      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3 first-line:" >
 
-        <div className="flex flex-col ">
-          <aside className=" flex flex-col items-center py-4 h-full   ">
-            <footer className=" flex flex-col items-center ml-1">
-              {active === "order" && form === true || mailForm === true ?
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => {
-                      setForm(false)
-                      setMailform(false)
-                      setActive("order")
-                    }}
-                    style={getButtonStyle("order")}
-                  >
-                    <svg class="w-5 h-7 text-gray-500 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                      viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <span className="text-[10px]   text-indigo-400">Back</span>
-                </div>
-                : <></>
-              }
-            </footer>
+        {/* <div className="flex flex-col ">
+          <aside className=" flex flex-col items-center py-4 h-full  bg-zinc-300  ">
+        
 
             <button className="flex flex-col items-center "
               onClick={() => setActive("home")}
@@ -106,10 +94,10 @@ export default function Form() {
 
             >
               <div style={getButtonStyle("home")}   >
-                <Home className="h-10 w-6 text-indigo-600" />
+                <Home className="h-10 w-6 maxBlue" />
 
               </div>
-              <span className="text-[10px] mt-1   text-indigo-400">Home</span>
+              <span className="text-[10px] mt-1 maxBlue">Home</span>
             </button>
 
             <button className="flex flex-col items-center "
@@ -124,7 +112,7 @@ export default function Form() {
                 <RiOrderPlayFill className="h-10 w-6 text-indigo-600" />
 
               </div>
-              <span className="text-[10px] mt-1  text-indigo-600">Order</span>
+              <span className="text-[10px] mt-1   maxBlue">Order</span>
             </button>
 
 
@@ -136,7 +124,7 @@ export default function Form() {
                 <MessageCircle className="h-10 w-6 text-indigo-600" />
 
               </div>
-              <span className="text-[10px] mt-1 text-indigo-400">Mail</span>
+              <span className="text-[10px] mt-1  maxBlue">Mail</span>
             </button>
             <button className="flex flex-col items-center"
               onClick={() => setActive("Report")}
@@ -145,7 +133,7 @@ export default function Form() {
                 <ClipboardList className="h-10 w-6 text-indigo-600" />
 
               </div>
-              <span className="text-[10px] mt-1 text-indigo-400">Report</span>
+              <span className="text-[10px] mt-1  maxBlue">Report</span>
             </button>
 
 
@@ -155,14 +143,33 @@ export default function Form() {
               <div style={getButtonStyle("More")}>
                 <MoreHorizontal className="h-10 w-7 text-indigo-600 " />
               </div>
-              <span className="text-[10px] mt-1 text-indigo-400">OrderImport</span>
+              <span className="text-[10px] mt-1  maxBlue">OrderImport</span>
 
             </button>
 
 
           </aside>
 
-        </div>
+        </div> */}
+          <aside className="flex flex-col items-center py-6 bg-gray-300 w-14  space-y-3">
+      {menuItems.map(({ name, label, icon, action }) => (
+        <button
+          key={name}
+          onClick={() => {
+            setActive(name);
+            if (action) action();
+          }}
+          className={`flex flex-col items-center text-[10px] transition-colors ${
+            active === name ? 'text-[#303AB2]' : 'text-gray-600'
+          } hover:text-[#303AB2]`}
+        >
+          <div className={`p-2 rounded-full ${active === name ? 'bg-white shadow' : ''}`}>
+            {icon}
+          </div>
+          <span className="mt-1">{label}</span>
+        </button>
+      ))}
+    </aside>
         <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
 
 
@@ -179,7 +186,7 @@ export default function Form() {
             />}
             {active === "Report" && <EmailReport attachments={attachments} />}
             {active === "More" && <OrderImport />}
-            {active === "order" && <Order setEmailId={setEmailId}
+            {active === "order" && <Order setEmailId={setEmailId}  active={active}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
 
             />}

@@ -6,8 +6,9 @@ module.exports = {
       'times': ['Times-Roman', 'serif'],
       'times-bold': ['Times-Bold', 'serif'],
     },
+   
     extend: {},
   },
   plugins: [],
-  
+    
 }

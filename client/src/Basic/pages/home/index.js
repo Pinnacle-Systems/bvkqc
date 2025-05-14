@@ -43,6 +43,7 @@ const Home = () => {
         isOpen={logout}
         onClose={() => {
           setLogout(false);
+          setProfile(false)
         }}
         widthClass={""}
       >
@@ -66,14 +67,28 @@ const Home = () => {
 
           userRole === "MANUFACTURE" || userRole === "VENDOR" ?
             <>
-              <div className="h-[100vh]">
+              <div className="h-[100vh]"
+           onClick={()  => { 
+                        
+                         if( isOpen  &&   isMainDropdownOpen  ){
+                                    setIsOpen(true)   
+                                    
+                        }
+                             if(isOpen){
+                          setIsOpen(!isOpen);
+                        }
+ 
+                 
+                           
+                      }}
+              >
 
                 <Header profile={profile} setProfile={setProfile} />
 
                 <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                   isMainDropdownOpen={isMainDropdownOpen}
                   setIsMainDropdownOpen={setIsMainDropdownOpen} />
-                <div className="p-2 bg-gray-300 ">
+                <div className="p-2 ">
                   <ActiveTabList />
                 </div>
                   {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
@@ -88,25 +103,43 @@ const Home = () => {
             :
 
             (
-              <div className="h-[100vh] ">
-
-                <Header profile={profile} setProfile={setProfile} />
-
-                <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
-                  isMainDropdownOpen={isMainDropdownOpen}
-                  setIsMainDropdownOpen={setIsMainDropdownOpen} />
-                <div className=" p-2 bg-gray-300 ">
-                  <ActiveTabList />
+              <div className="h-[100vh] " 
+                      onClick={()  => { 
+                        
+                         if( isOpen  &&   isMainDropdownOpen  ){
+                                    setIsOpen(true)   
+                                    
+                        }
+                             if(isOpen){
+                          setIsOpen(!isOpen);
+                        }
+ 
+                 
+                           
+                      }}
+                        
+                        >
+          
+                          <Header profile={profile} setProfile={setProfile} />
+          
+                          <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
+                            isMainDropdownOpen={isMainDropdownOpen}
+                            setIsMainDropdownOpen={setIsMainDropdownOpen} />
+                          <div className=" p-2 ">
+                            <ActiveTabList />
+                          </div>
+                            {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
+          
+          
+                        </div>
+                      )
+                  }
+          
                 </div>
-                  {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
-
-
-              </div>
-            )
-        }
-
-      </div>
-    </>
-  );
-};
-export default Home;
+              </>
+            );
+          };
+          export default Home;
+                   
+         
+          

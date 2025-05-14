@@ -11,9 +11,15 @@ const FormHeaderNew = ({
   quotesData = null,
   projectOpen = null,
   model,
-  poNumber,
+  saveData = null,
+  setReadOnly = null,
+  deleteData = null,
+  onClose = null,
+  onNew = null,
   childRecord = 0,
-
+  onPrint = null,
+  openReport = null,
+  viewReport = null,
   childRecordValidationActions = ["edit", "delete"],
 }) => {
 
@@ -87,10 +93,10 @@ const FormHeaderNew = ({
 
 
    
-        <div className="md:flex md:items-center md:justify-between bg-gray-200 p-2">
+        <div className="md:flex md:items-center md:justify-between bg-gray-300 p-2">
       
             <div className="font-bold   text-gray-800 ">
-              {model} {poNumber}
+              {model}
             </div>
      
        

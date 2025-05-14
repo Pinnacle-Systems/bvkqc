@@ -141,6 +141,18 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
     // },
 
   ]
+  console.log(isOpen ,"isOpen", isMainDropdownOpen,"isMainDropdownOpen")
+
+   function click(){
+      if (isOpen && isMainDropdownOpen) {
+          setIsOpen(true);
+          setIsMainDropdownOpen(false)
+        }
+           if (!isOpen && !isMainDropdownOpen) {
+          setIsOpen(true);
+        
+        }
+  }
 
 
   return (
@@ -148,13 +160,24 @@ const Sidebar = ({ isOpen, setIsOpen, isMainDropdownOpen, setIsMainDropdownOpen 
       <div
             
 
-      onClick={() => {
-        if (isOpen && isMainDropdownOpen) {
-          setIsOpen(false);
-          setIsMainDropdownOpen(false)
+      // onClick={() => {
+      //   if (isOpen && isMainDropdownOpen) {
+      //     setIsOpen(true);
+      //     setIsMainDropdownOpen(false)
+      //   }
+      //      if (!isOpen && !isMainDropdownOpen) {
+      //     setIsOpen(true);
+        
+      //   }
+      // }
+      // }
+         onClick={() => {
+        if (!isOpen && !isMainDropdownOpen) {
+          setIsOpen(true);
+          
         }
-          setIsOpen(!isOpen)
-      }
+     
+          }
       }
         className='fixed z-[99] top-[16.5%]  bg-gray-600 opacity-50 px-0 h-[10%] flex items-center rounded-end cursor-pointer'
       >
