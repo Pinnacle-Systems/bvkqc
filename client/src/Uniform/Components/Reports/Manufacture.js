@@ -13,9 +13,10 @@ import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliverydate, setDeliverydate
+  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate
 }) {
 
+  console.log(deliveryDate,"deliveryDate")
 
   const [upload] = useUploadMutation();
 
@@ -40,8 +41,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
   const exportAndUploadExcel = async (data, poItemsData, text = "uploaded") => {
+    console.log(poItemsData,"")
     try {
-      const combinedData = poItemsData?.filter(item => item?.orderQty != null).map((item, index) => ({
+      const combinedData = poItemsData?.filter(item => item?.orderQty != null  ||   item?.orderQty != "" ).map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -123,9 +125,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
   useEffect(() => {
-    if (poItems?.length >= 7) return
+    if (poItems?.length >= 14) return
     setPoItems(prev => {
-      let newArray = Array.from({ length: 7 - prev.length }, () => {
+      let newArray = Array.from({ length: 14 - prev.length }, () => {
         return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
       })
       return [...prev, ...newArray]
@@ -136,50 +138,68 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   return (
     <>
       <FormHeaderNew
-        model={"Order"}
+         model={"Po Number"}
+         poNumber={data?.docId}
       />
 
       <div className="flex flex-col w-full bg-white p-1 h-full overflow-auto">
 
 
-        <div className="grid grid-cols-7 gap-4 border border-gray-300  p-1 rounded h-[15%]"  >
+      <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
+                  <div className="flex flex-col ">
+                    <label className="text-xs font-semibold">Customer</label>
+                    <input
+                    type="text"
+                    className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={"MAX"}
+                    />
+                 </div>
+           
+                  <div className="col-span-2 flex flex-col">
+                   <label className="text-xs font-semibold ">Manufacture</label>
+                   <input
+                     type="text"
+                     className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                      value={data?.Manufacture?.name}
+                   />
+     
+                 </div>
+                 <div className="flex flex-col ">
+                   <label className="text-xs font-semibold ">Po Date</label>
+                   <input
+                     type="text"
+                     className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+     
+                     value={getDateFromDateTime(data?.orderdate)}
+     
+                   />
+                 </div>
+     
+                <div className="flex flex-col w-72 ">
+                <label className="text-xs font-semibold ">Tag vendor</label>
+                <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
 
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Number</label>
-            <input
-              type="text"
-              className="border-2  rounded-md px-2  text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-              value={data?.docId}
-            />
-          </div>
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Date</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2  text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                </div>
+              
+            
+     
+            <div className=''>
+              {   deliveryDate}
+              <DateInput
+                name={"Delivery Date"}
+                value={ deliveryDate }
 
-              value={getDateFromDateTime(data?.orderdate)}
+             setValue={setDeliveryDate} />
+            </div>
+     
+        </div >
 
-            />
-          </div>
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Customer</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2  text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={"MAX"}
-            />
-          </div>
-          <div className="flex flex-col col-span-2 ">
-            <label className="text-xs font-semibold text-gray-600">Manufacture</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2  text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={data?.Manufacture?.name}
-            />
-          </div>
 
-        </div>
+     
+     
+         
+     
+     
 
 
 
@@ -282,28 +302,10 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-        <div className=" w-full flex gap-4 border border-gray-300  p-1  h-[14%]">
-          <div className="flex flex-col w-72 ">
-            <label className="text-xs font-semibold text-gray-600">Tag vendor</label>
-
-            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
-          </div>
-
-          <div className="flex flex-col ">
+   
 
 
-            <div className=' w-[48%]'>
-              <DateInputNew
-                name={"Delivery Date"}
-                value={
-                  deliverydate
-                } setValue={setDeliverydate} />
-            </div>
-          </div>
-        </div>
-
-
-        <div className=" flex  justify-end  gap-3 mt-[50px]">
+        <div className=" flex  justify-end gap-3">
         
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "

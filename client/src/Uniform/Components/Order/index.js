@@ -2,7 +2,7 @@ import { useAddOrderMutation, useGetOrderByIdQuery, useGetOrderQuery, useUpdateO
 import secureLocalStorage from "react-secure-storage";
 import React, { useCallback, useEffect, useState } from "react";
 import GeneralSummary from "./GeneralSummary";
-import { getCommonParams } from "../../../Utils/helper";
+import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
@@ -26,7 +26,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   const [poItems, setPoItems] = useState([]);
   const [poNo, setPoNo] = useState(null)
   const [vendor, setVendor] = useState('')
-  const [deliverydate, setDeliverydate] = useState('')
+  const [deliveryDate, setDeliveryDate] = useState('')
   const [isSave, setIsSave] = useState(true)
   const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
@@ -62,7 +62,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       setPoItems(data?.orderBillItems || []);
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
-      setDeliverydate(moment.utc(data?.deliverydate).format("YYYY-MM-DD") || null)
+      setDeliveryDate(getDateFromDateTime(data?.deliverydate) || null)
       setIsApproved(data?.isApproved || '')
     },
     [id]
@@ -84,7 +84,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     excessQty,
     isSave: true, excessQtyAmount,
     isApproved,
-    deliverydate
+    deliveryDate
   }
 
 
@@ -203,7 +203,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
             id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
-            deliverydate={deliverydate} setDeliverydate={setDeliverydate}
+            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
 
           />
 
@@ -247,7 +247,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
               //Order Report pages
               <div className="flex-1 flex flex-col">
 
-                <FormHeaderNew model={"Order Report"} />
+                <FormHeaderNew model={"List Of Orders"} />
 
 
                 <main className="p-2 space-y-6">

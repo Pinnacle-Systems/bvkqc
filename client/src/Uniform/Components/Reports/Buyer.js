@@ -13,12 +13,11 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
-export default function BuyerForm({ singleData, setForm, setMailform, vendor, setVendor, poItems, setPoItems,
+export default function BuyerForm({ singleData,  poItems, setPoItems,
   setActive, setIsSave, saveData, id, setEmailId, setCurrentId, isApproved, setIsApproved, setPoSentForApproval }) {
   console.log(singleData, 'singleData7');
 
 
-  const [upload] = useUploadMutation();
   const [formReport, setFormReport] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const { branchId, finYearId, userId } = getCommonParams()
@@ -26,11 +25,10 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
 
   const { data: partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
-  const { data: percentage } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
-  let excessQty = percentage?.data?.filter(item => item?.active === true)
-  let partyOptions = partydata?.data?.filter(item => item?.partyType === "VENDOR")
+
   let data = singleData?.data
+  const isMailForm  =  true
 
 
 
@@ -53,88 +51,14 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
   }, [id, singleData])
 
 
-  const exportAndUploadExcel = async (data, text = "uploaded") => {
-
-    try {
-      const combinedData = data?.orderBillItems?.map((item, index) => ({
-        SrNo: index + 1,
-        PONumber: data.docId,
-        OrderDate: getDateFromDateTime(data.orderdate),
-        Department: item.department,
-        Class: item.class,
-        ItemCode: item.itemCode,
-        BarCode: item.barCode,
-        SeasonSupplierCode: item.supplierCode,
-        StyleCode: item.styleCode,
-        Size: item.size,
-        sizeDescription: item.sizeDesc,
-        Color: item.color,
-        Mrp: item.mrp,
-        OrderQty: item.orderQty,
-        Product: item.product,
-        excessQty: item.excessQty,
-        Quantity: item.qty
-      }));
-
-      const worksheet = XLSX.utils.json_to_sheet(combinedData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const excelBlob = new Blob(
-        [excelBuffer],
-        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-      );
-
-      const fileName = `Order_${Date.now()}.xlsx`;
-
-      const formData = new FormData();
-      formData.append('file', excelBlob, fileName);
-      formData.append('id', id);
-      const response = await upload({ body: formData, id }).unwrap();
-      console.log("Upload response?.data?.id:", response?.data?.id);
-
-      setEmailId(response?.data?.id)
-
-      //  toast.success(`${text} Successfully`);
-      console.log("Upload Response:", response);
-
-
-
-    } catch (error) {
-      console.error("Error during Export and Upload:", error);
-      toast.error("Something went wrong!");
-    }
-  };
 
 
 
 
 
 
-  const handleQtyChange = (field, index, value, orderQty) => {
-    setPoItems((prev) => {
-      let newItem = structuredClone(prev)
-      newItem[index][field] = value
-      if (field === 'excessQty' && index === 0) {
-        for (let i = 0; i < newItem.length; i++) {
-          if (newItem[i].orderQty > 0) {
-            newItem[i]['excessQty'] = value;
-            const percentage = parseFloat((newItem[i].orderQty * value) / 100);
-            newItem[i]['qty'] = parseFloat(newItem[i].orderQty) + percentage;
-          }
 
-        }
-      }
-      if (field === 'excessQty') {
 
-        let qty = "qty"
-        let percentage = parseFloat((orderQty * value) / 100)
-        newItem[index][qty] = (parseFloat(orderQty) + percentage);
-      }
-      return newItem
-    });
-  }
 
 
 
@@ -147,9 +71,9 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
   console.log(data, "data");
   useEffect(() => {
-    if (poItems?.length >= 10) return
+    if (poItems?.length >= 14) return
     setPoItems(prev => {
-      let newArray = Array.from({ length: 10 - prev.length }, () => {
+      let newArray = Array.from({ length: 14 - prev.length }, () => {
         return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
       })
       return [...prev, ...newArray]
@@ -161,7 +85,8 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
   return (
     <>
       <FormHeaderNew
-        model={"Order"}
+        model={"Po Number"}
+         poNumber={data?.docId}
       />
       <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
         <ArtDesignReport
@@ -185,13 +110,22 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
         <div>
           <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
 
-            <div className="flex flex-col ">
+            {/* <div className="flex flex-col ">
               <label className="text-xs font-semibold ">Po Number</label>
               <input
                 type="text"
                 className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
                 value={data?.docId}
               />
+            </div> */}
+                  <div className="col-span-2 flex flex-col">
+              <label className="text-xs font-semibold ">Manufacture</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                value={findFromList(data?.manufactureId, partydata?.data, "name")}
+              />
+
             </div>
             <div className="flex flex-col ">
               <label className="text-xs font-semibold ">Po Date</label>
@@ -202,6 +136,15 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
                 value={getDateFromDateTime(data?.orderdate)}
 
               />
+            </div>
+      <div className="col-span-2 flex flex-col">
+              <label className="text-xs font-semibold ">Vendor</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                value={findFromList(data?.vendorId, partydata?.data, "name")}
+              />
+
             </div>
 
 
@@ -214,26 +157,9 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
 
               />
             </div>
-            <div className="col-span-2 flex flex-col">
-              <label className="text-xs font-semibold ">Manufacture</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-                value={findFromList(data?.manufactureId, partydata?.data, "name")}
-              />
+        
 
-            </div>
-
-            <div className="col-span-2 flex flex-col">
-              <label className="text-xs font-semibold ">Vendor</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-                value={findFromList(data?.vendorId, partydata?.data, "name")}
-              />
-
-            </div>
-
+         
 
             <div className="flex pt-4">
               <button
@@ -375,7 +301,7 @@ export default function BuyerForm({ singleData, setForm, setMailform, vendor, se
             className="bg-blue-600 hover:bg-blue-700 text-white   px-2  h-6 rounded-sm  text-[12px]"
             onClick={() => {
               // setIsSave(true);
-              saveData();
+                saveData(isMailForm);
               // exportAndUploadExcel(data);
               // setForm(false);
               // setActive("Mail");

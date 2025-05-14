@@ -73,10 +73,10 @@ const Home = () => {
                 <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                   isMainDropdownOpen={isMainDropdownOpen}
                   setIsMainDropdownOpen={setIsMainDropdownOpen} />
-                <div className="mt-[30px]  p-5 bg-gray-100  ">
+                <div className="p-2 bg-gray-300 ">
                   <ActiveTabList />
-                  {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
                 </div>
+                  {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
 
 
               </div>
@@ -95,10 +95,10 @@ const Home = () => {
                 <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                   isMainDropdownOpen={isMainDropdownOpen}
                   setIsMainDropdownOpen={setIsMainDropdownOpen} />
-                <div className=" p-2 bg-gray-100  ">
+                <div className=" p-2 bg-gray-300 ">
                   <ActiveTabList />
-                  {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
                 </div>
+                  {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
 
 
               </div>

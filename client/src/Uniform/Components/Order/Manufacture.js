@@ -14,7 +14,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
               <th className="py-1 px-1">PO Number </th>
               <th className="py-1 px-1">Order date</th>
               <th className="py-1 px-1">Vendor</th>
-              <th className="py-1 px-1">Product</th>
+              <th className="py-1 px-6">Delivery date</th>
               <th className="py-1 px-1">Approval Status</th>
               <th className="py-1 px-1">PO Status</th>
 
@@ -41,12 +41,10 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 }}
               >
                 <td className="p-1 font-semibold">{parseInt(index) + 1}</td>
-                {/* <th className="py-1 px-6">{item?.poNumber}</th> */}
                 <td className="p-1">{item?.docId}</td>
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
-
                 <td className="p-1">{item?.Vendor?.name}</td>
-                <td className="p-1">{item?.isApproval === 1 ? "TSHIRT AND SHORTS" : "TSHIRT AND SHORTS"} </td>
+                <td className="p-1">{getDateFromDateTime(item?.deliverydate)}</td>
                 <td className="p-1 items-end ">
                   {!item?.isApproved ? (
                     <span className="inline-flex  text-sm font-semibold bg-green-300 text-white-500  px-1 w-20 rounded">
@@ -60,13 +58,6 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                   )}
                 </td>
 
-
-
-
-
-
-
-
               </tr>
 
             )}
@@ -77,3 +68,10 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
     </>
   )
 }
+
+
+
+
+
+
+

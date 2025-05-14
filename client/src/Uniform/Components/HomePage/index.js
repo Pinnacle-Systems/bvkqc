@@ -60,7 +60,7 @@ export default function Form() {
 
 
   const getButtonStyle = (name) => ({
-    backgroundColor: active === name ? "#E9D5FF" : "transparent",
+    backgroundColor: active === name ? "##212E89" : "transparent",
     borderRadius: "8px",
     Padding: "4px"
   });
@@ -94,7 +94,7 @@ export default function Form() {
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  <span className="text-[10px]   text-purple-400">Back</span>
+                  <span className="text-[10px]   text-indigo-400">Back</span>
                 </div>
                 : <></>
               }
@@ -106,10 +106,10 @@ export default function Form() {
 
             >
               <div style={getButtonStyle("home")}   >
-                <Home className="h-10 w-6 text-purple-600" />
+                <Home className="h-10 w-6 text-indigo-600" />
 
               </div>
-              <span className="text-[10px] mt-1   text-purple-400">Home</span>
+              <span className="text-[10px] mt-1   text-indigo-400">Home</span>
             </button>
 
             <button className="flex flex-col items-center "
@@ -121,10 +121,10 @@ export default function Form() {
 
             >
               <div style={getButtonStyle("order")}   >
-                <RiOrderPlayFill className="h-10 w-6 text-purple-600" />
+                <RiOrderPlayFill className="h-10 w-6 text-indigo-600" />
 
               </div>
-              <span className="text-[10px] mt-1  text-purple-400">Order</span>
+              <span className="text-[10px] mt-1  text-indigo-600">Order</span>
             </button>
 
 
@@ -133,19 +133,19 @@ export default function Form() {
               onClick={() => setActive("Mail")}
             >
               <div style={getButtonStyle("Mail")}>
-                <MessageCircle className="h-10 w-6 text-purple-600" />
+                <MessageCircle className="h-10 w-6 text-indigo-600" />
 
               </div>
-              <span className="text-[10px] mt-1 text-purple-400">Mail</span>
+              <span className="text-[10px] mt-1 text-indigo-400">Mail</span>
             </button>
             <button className="flex flex-col items-center"
               onClick={() => setActive("Report")}
             >
               <div style={getButtonStyle("Report")}>
-                <ClipboardList className="h-10 w-6 text-purple-600" />
+                <ClipboardList className="h-10 w-6 text-indigo-600" />
 
               </div>
-              <span className="text-[10px] mt-1 text-purple-400">Report</span>
+              <span className="text-[10px] mt-1 text-indigo-400">Report</span>
             </button>
 
 
@@ -153,10 +153,10 @@ export default function Form() {
               onClick={() => setActive("More")}
             >
               <div style={getButtonStyle("More")}>
-                <MoreHorizontal className="h-10 w-7 text-purple-600 " />
-
+                <MoreHorizontal className="h-10 w-7 text-indigo-600 " />
               </div>
-              <span className="text-[10px] mt-1 text-purple-400">OrderImport</span>
+              <span className="text-[10px] mt-1 text-indigo-400">OrderImport</span>
+
             </button>
 
 

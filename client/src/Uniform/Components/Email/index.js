@@ -169,9 +169,13 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
       if (returnData.statusCode === 0) {
 
 
-        toast.success(text + "Successfully");
+        toast.success(text + "Successfully",{
+        autoClose: 1000 
+      });
       } else {
-        toast.error(returnData?.message);
+        toast.error(returnData?.message,{
+        autoClose: 1000 
+      });
       }
 
     } catch (error) {

@@ -12,10 +12,10 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
             <tr >
               <th className="py-1 px-6">S No</th>
               <th className="py-1 px-6">Po Number</th>
-              <th className="py-1 px-6">Orderdate</th>
-              <th className="py-1 px-6">Delivery date</th>
               <th className="py-1 px-6">Manufacture</th>
+              <th className="py-1 px-6">Orderdate</th>
               <th className="py-1 px-6">Vendor</th>
+              <th className="py-1 px-6">Delivery date</th>
               <th className="py-1 px-6">Approval Status</th>
             </tr>
           </thead>
@@ -40,10 +40,10 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                 >
                   <td className="p-1 ">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
-                  <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
-                  <th className="p-1 ">{getDateFromDateTime(item?.deliverydate)}</th>
                   <td className="p-1">{findFromList(item?.manufactureId, partyData?.data, "name")}</td>
+                  <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                   <td className="p-1">{findFromList(item?.vendorId, partyData?.data, "name")}  </td>
+                  <th className="p-1 ">{getDateFromDateTime(item?.deliverydate)}</th>
 
 
 
