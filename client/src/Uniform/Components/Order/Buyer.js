@@ -35,7 +35,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
   return (
     <>
       <div className=" bg-white shadow rounded-lg ">
-        <table className="min-w-full h-[200px] text-left overflow-y-auto" >
+        <table className="min-w-full  text-left overflow-y-auto" >
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
               <th className="py-1 px-6">S No</th>

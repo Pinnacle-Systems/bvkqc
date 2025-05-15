@@ -208,7 +208,7 @@ console.log(projectForm,"projectForm")
 
     const validateData = (data) => {
 
-        if (data.name &&  data.mailId   &&  data.partyType ) {
+        if (data.name &&  data.mailId   &&  data.partyType && data?.active ) {
             return true;
             // && data.joiningDate && data.fatherName && data.dob && data.gender && data.maritalStatus && data.bloodGroup &&
             //     data.panNo && data.email && data.mobile && data.degree && data.specialization &&
@@ -280,7 +280,6 @@ console.log(projectForm,"projectForm")
     const saveData = () => {
 
         if (!validateData(data)) {
-            console.log("hit")
 
             toast.error("Please fill all required fields...!", { position: "top-center" })
             return
@@ -403,8 +402,8 @@ console.log(projectForm,"projectForm")
     }
 
 
-    const tableHeaders = ["S.NO", "Name", "Alias Name", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-    const tableDataNames = ["index+1", "dataObj.name", 'dataObj.aliasName', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    const tableHeaders = ["S.NO", "Name", "Alias Name","Active", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", ]
+    const tableDataNames = ["index+1", "dataObj.name", 'dataObj.aliasName', "dataObj.active ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
 
     //step
     const [step, setStep] = useState(1);
@@ -554,8 +553,12 @@ console.log(projectForm,"projectForm")
                                             width={"96"}
                                             />
                                         </div>
+                                         <div className='mb-5'>
+                                            <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
                                         </div>
+                                     </div>
                                 </div>
+                                 
 
                                 <div className="w-full md:w-auto flex justify-center items-start">
                                 <BrowseSingleImage 
@@ -620,9 +623,7 @@ console.log(projectForm,"projectForm")
                                                 <TextInput name="Fax No" width={'w-[150px]'} type="text" value={faxNo} setValue={setFaxNo} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                         </div>
-                                        <div className='mb-5'>
-                                            <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
-                                        </div>
+                                      
                                     </div>
                                 </fieldset>
                             )}
