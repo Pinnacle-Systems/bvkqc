@@ -5,7 +5,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
   const stageDefinitions = [
     { key: "isSave", label: "Po Created", color: "bg-blue-500" },
     { key: "poSentForApproval", label: "Sent to Approval", color: "bg-orange-500" },
-    { key: "isApproved" },
+    { key: "isApproved", },
   ];
   const getStageColor = (stageKey, item) => {
     switch (stageKey) {
@@ -15,7 +15,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
             return "bg-red-500";
           case "Hold":
             return "bg-yellow-500";
-          case "Approved":
+          case "Approve":
             return "bg-green-500";
           default:
             return "bg-gray-300";
@@ -44,8 +44,8 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
               <th className="py-1 px-6">Orderdate</th>
               <th className="py-1 px-6">Vendor</th>
               <th className="py-1 px-6">Delivery date</th>
-              <th className="py-1 px-6">Approval Status</th>
-              <th className="py-1 px-6 text-end">Po Status</th>
+
+              <th className="py-1 px-6 text-end">Status</th>
 
             </tr>
           </thead>
@@ -61,11 +61,21 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                 .filter((stage) => item?.[stage.key])
                 .reverse();
 
-              const approvalStatus = item?.isApproved || "In Progress";
+              const rawStatus = item?.isApproved || "In Progress";
+
+              const approvalStatusMap = {
+                Approve: "Approved",
+                Reject: "Rejected",
+                Hold: "On Hold",
+                "In Progress": "In Progress",
+              };
+
+              const approvalStatus = approvalStatusMap[rawStatus] || "In Progress";
+
 
               const approvalColor = approvalStatus === "Approved"
                 ? "bg-green-500 text-white"
-                : approvalStatus === "Rejected"
+                : approvalStatus === "Reject"
                   ? "bg-red-500 text-white"
                   : approvalStatus === "Hold"
                     ? "bg-yellow-500 text-black"
@@ -85,17 +95,13 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                   <td className="p-1 ">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
-                  <td className="p-1">{getDateFromDateTime(item?.orderdate) ||    "" } </td>
+                  <td className="p-1">{getDateFromDateTime(item?.orderdate) || ""} </td>
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 ">{getDateFromDateTime(item?.deliverydate) ||  ""  }</td>
+                  <td className="p-1 ">{getDateFromDateTime(item?.deliverydate) || ""}</td>
 
 
 
-                  <td className="p-1">
-                    <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
-                      {approvalStatus || "In Progress"}
-                    </span>
-                  </td>
+
                   <td className="p-1">
                     <div className="flex flex-row-reverse items-center overflow-x-auto">
                       {completedStages.map((stage, i) => {
