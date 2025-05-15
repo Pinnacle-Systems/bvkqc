@@ -195,13 +195,15 @@ console.log(projectForm,"projectForm")
     useEffect(() => {
         syncFormWithDb(singleData?.data);
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
+    
+    const mail = mailId.trim()
 
     const data = {
         name, code, aliasName, displayName, address, cityId: city, pincode, panNo, tinNo, cstNo, cstDate, cinNo,
         faxNo, email, website, contactPersonName, isIgst, currencyId: currency, costCode, contactMobile,
         active, isSupplier, isClient, accessoryGroup, companyId, shippingAddress, contactDetails,
         accessoryItemList,partyType ,
-        id, userId, priceTemplateId, image,mailId
+        id, userId, priceTemplateId, image,mailId:mail
     }
 
     const { data: processList, isLoading: isProcessLoading, isFetching: isProcessFetching } = useGetProcessMasterQuery({ params });

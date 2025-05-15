@@ -152,7 +152,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-                value={findFromList(data?.manufactureId, partydata?.data, "name")}
+                value={data?.Manufacture?.name}
               />
 
             </div>
@@ -162,7 +162,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
 
-                value={getDateFromDateTime(data?.orderdate)}
+                value={data?.orderdate   ?   getDateFromDateTime(data?.orderdate)  :  ""}
 
               />
             </div>
@@ -171,7 +171,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-                value={findFromList(data?.vendorId, partydata?.data, "name")}
+                value={data?.Vendor?.name}
               />
 
             </div>
@@ -182,7 +182,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={getDateFromDateTime(data?.deliverydate)}
+                value={  data?.deliverydate   ? getDateFromDateTime(data?.deliverydate)  : ""}
 
               />
             </div>
@@ -196,7 +196,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
             <label className="text-xs font-semibold  ">Approval status</label>
             <select
                 className={`px-1 border rounded text-xs p-1 
-             ${isApproved === 'Approve' ? 'border-green-500 text-white-600  bg-green-500'   : ''}
+             ${isApproved === 'Approve' ? 'border-green-500 text-white-600  text-green-500'   : ''}
               ${isApproved === 'Reject' ? 'border-red-500 text-red-600' : ''}
               ${isApproved === 'hold' ? 'border-yellow-500 text-yellow-600' : ''}
               ${isApproved === '' ? 'border-gray-300 text-gray-500' : ''}
