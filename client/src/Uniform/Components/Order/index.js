@@ -224,7 +224,7 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
               :
 
               //Order Report pages
-              <div className="flex-1 flex flex-col h-[100vh]">
+              <div className="flex-1 flex flex-col h-[screen]">
 
                 <FormHeaderNew model={"List Of Orders"}   />
 
