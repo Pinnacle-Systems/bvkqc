@@ -70,17 +70,21 @@ const Home = () => {
               <div className="h-[100vh]"
            onClick={()  => { 
                         
-                         if( isOpen  &&   isMainDropdownOpen  ){
-                                    setIsOpen(true)   
-                                    
-                        }
-                             if(isOpen){
-                          setIsOpen(!isOpen);
-                        }
- 
-                 
-                           
-                      }}
+                    if( isOpen  &&   isMainDropdownOpen  ){
+                    setIsOpen(true)   
+
+                    }
+                    if(isOpen){
+                    setIsOpen(!isOpen);
+                    }
+                    if(profile){
+                       setProfile(false)
+
+                    }
+                    }
+                  }
+
+                                              
               >
 
                 <Header profile={profile} setProfile={setProfile} />
@@ -88,7 +92,7 @@ const Home = () => {
                 <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                   isMainDropdownOpen={isMainDropdownOpen}
                   setIsMainDropdownOpen={setIsMainDropdownOpen} />
-                <div className="p-2 ">
+                <div className="p-2 h-[screen]">
                   <ActiveTabList />
                 </div>
                   {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
@@ -113,8 +117,10 @@ const Home = () => {
                              if(isOpen){
                           setIsOpen(!isOpen);
                         }
- 
-                 
+                        if(profile){
+                                setProfile(false)
+
+                              }
                            
                       }}
                         

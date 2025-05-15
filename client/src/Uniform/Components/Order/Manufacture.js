@@ -2,9 +2,9 @@ import { getDateFromDateTime } from "../../../Utils/helper";
 
 export default function Manufacture({ allData, setForm, setId, setPoNo }) {
   const stageDefinitions = [
-    { key: "isSave", label: "Created", color: "bg-blue-500" },
-    { key: "poSentForApproval", label: "Sent to Supplier", color: "bg-orange-500" },
-    { key: "isApproved" }, // Dynamic
+    { key: "isSave", label: "Po Created", color: "bg-blue-500" },
+    { key: "poSentForApproval", label: "Sent to Approval", color: "bg-orange-500" },
+    { key: "isApproved" },
   ];
   const getStageColor = (stageKey, item) => {
     switch (stageKey) {
@@ -21,7 +21,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
         }
 
       case "poSentForApproval":
-        return item?.poSentForApproval ? "bg-yellow-400" : "bg-yellow-200";
+        return item?.poSentForApproval ? "bg-yellow-400" : "bg-gray-300";
 
       case "isSave":
         return item?.isSave ? "bg-blue-500" : "bg-gray-300";
@@ -78,7 +78,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{getDateFromDateTime(item?.deliverydate)}</td>
                 <td className="p-1">
                   <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
-                    {approvalStatus  ||  "In Progress"}
+                    {approvalStatus || "In Progress"}
                   </span>
                 </td>
                 <td className="p-1">

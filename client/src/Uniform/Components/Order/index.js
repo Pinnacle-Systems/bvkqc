@@ -18,7 +18,7 @@ import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage"
 import moment from 'moment';
 
 
-export default function Order({ setForm, form, setEmailId, active ,  setActive, setCurrentId }) {
+export default function Order({ setForm, form, setEmailId, active, setActive, setCurrentId }) {
 
   const [id, setId] = useState("");
 
@@ -53,7 +53,6 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
   const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
-
 
 
 
@@ -137,6 +136,7 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
 
 
   const saveData = (isMailForm) => {
+    console.log(isMailForm,"isMailForm")
 
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
@@ -160,7 +160,7 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
 
 
 
-  console.log( active,"active",form,"form")
+  console.log(active, "active", form, "form")
 
 
 
@@ -173,13 +173,13 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
 
           <Manufactureform
 
-            setForm={setForm}  form={form}   singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+            setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
             vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
-            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}  active  ={active}
+            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
-            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
 
             deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
 
@@ -193,14 +193,16 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
 
             <VendorForm
 
-              setForm={setForm}  form={form}  singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+              setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
               vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
-              poSentForApproval={poSentForApproval}   active  ={active}
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
+
+              poSentForApproval={poSentForApproval} active={active}
+
               setPoSentForApproval={setPoSentForApproval}
 
             />
@@ -210,25 +212,25 @@ export default function Order({ setForm, form, setEmailId, active ,  setActive, 
 
               <BuyerForm
 
-                setForm={setForm}  form={form}  singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+                setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
                 vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
-                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved}   active={active}
+                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active}
 
               />
 
               :
 
               //Order Report pages
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col h-[screen]">
 
-                <FormHeaderNew model={"List Of Orders"}   />
+                <FormHeaderNew model={"List Of Orders"} />
 
-        
-             
+
+
                 <main className="p-2 space-y-6">
                   {
                     userRole === "MANUFACTURE" ?
