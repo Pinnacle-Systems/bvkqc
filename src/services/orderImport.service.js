@@ -272,9 +272,21 @@ async function create(req) {
 
 }
 
+async function findFromList(id, list, property) {
+    console.log(list, 'list');
+
+    if (!list) return ""
+    let data = list?.find(i => i.mailId == id)?.id
+            console.log(data,"data")
+
+    return data
+
+}
 
 
 async function createOrder(importdata, finYearId, branchId, userId, companyId) {
+
+    
 
     const partyData = await prisma.party.findMany({
         where: {
@@ -373,14 +385,6 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 }
 
 
-async function findFromList(id, list, property) {
-    console.log(list, 'list');
-
-    if (!list) return ""
-    let data = list?.find(i => i.mailId == id)?.id
-    return data
-
-}
 
 
 async function update(id, body) {
