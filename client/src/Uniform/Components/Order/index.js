@@ -137,6 +137,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
   const saveData = (isMailForm) => {
+    console.log(isMailForm,"isMailForm")
 
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
@@ -223,7 +224,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
               :
 
               //Order Report pages
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col h-[100vh]">
 
                 <FormHeaderNew model={"List Of Orders"} />
 
