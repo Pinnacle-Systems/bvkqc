@@ -88,7 +88,7 @@ const Home = () => {
                 <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                   isMainDropdownOpen={isMainDropdownOpen}
                   setIsMainDropdownOpen={setIsMainDropdownOpen} />
-                <div className="p-2 ">
+                <div className="p-2 h-[screen]">
                   <ActiveTabList />
                 </div>
                   {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
