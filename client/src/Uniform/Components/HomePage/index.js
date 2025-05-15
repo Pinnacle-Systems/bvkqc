@@ -20,7 +20,8 @@ import { OrderImport } from "..";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
-import EmailReport from "../Email/EmailReport"export default function Form() {
+import EmailReport from "../Email/EmailReport";
+export default function Form() {
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
