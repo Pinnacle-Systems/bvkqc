@@ -310,7 +310,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 
     console.log(partyData,"partyData")
-    consaole.log(orderImport,"orderImport")
+    console.log(orderImport,"orderImport")
     let date = new Date()
     let isSave = false;
     let vendor;
