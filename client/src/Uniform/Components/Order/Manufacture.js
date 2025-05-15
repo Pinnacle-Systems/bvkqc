@@ -42,7 +42,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             <th className="py-1 px-1">Vendor</th>
             <th className="py-1 px-6">Delivery date</th>
             <th className="py-1 px-1">Approval Status</th>
-            <th className="py-1 px-1">PO Status</th>
+            <th className="py-1 px-1 text-end">PO Status</th>
           </tr>
         </thead>
         <tbody className="text-gray-700 text-xs">
@@ -78,7 +78,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{getDateFromDateTime(item?.deliverydate)}</td>
                 <td className="p-1">
                   <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
-                    {approvalStatus}
+                    {approvalStatus  ||  "In Progress"}
                   </span>
                 </td>
                 <td className="p-1">

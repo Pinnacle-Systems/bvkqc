@@ -85,10 +85,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
   return (
     <>
-      <FormHeaderNew
-        model={"Po Number"}
-         poNumber={data?.docId}
-      />
+   
       <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
         <ArtDesignReport
 
@@ -197,18 +194,22 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
           
 
            <div className=" w-18 flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Approval status</label>
+            <label className="text-xs font-semibold  ">Approval status</label>
             <select
-              className='px-1  border border-gray-300 rounded text-xs '
-              value={isApproved}
+                className={`px-1 border rounded text-xs p-1 
+             ${isApproved === 'Approve' ? 'border-green-500 text-white-600  bg-green-500'   : ''}
+              ${isApproved === 'Reject' ? 'border-red-500 text-red-600' : ''}
+              ${isApproved === 'hold' ? 'border-yellow-500 text-yellow-600' : ''}
+              ${isApproved === '' ? 'border-gray-300 text-gray-500' : ''}
+                          `}              value={isApproved}
               onChange={(e) =>
                 setIsApproved(e.target.value)
               }
             >
-              <option value=''>Select status</option>
-              <option value='approve'>Approve</option>
-              <option value='reject'>Reject</option>
-              <option value='hold'>Hold</option>
+              <option value='' >Select status</option>
+              <option value='Approve'  >Approve</option>
+              <option value='Reject'>Reject</option>
+              <option value='Hold'>Hold</option>
             </select>
 
           </div>

@@ -1,6 +1,36 @@
 import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
 
 export default function Vendor({ allData, setForm, setId, setPoNo, partyData, poSentForApproval }) {
+
+   const stageDefinitions = [
+    { key: "isSave", label: "Created", color: "bg-blue-500" },
+    { key: "poSentForApproval", label: "Sent to Supplier", color: "bg-orange-500" },
+    { key: "isApproved" }, // Dynamic
+  ];
+  const getStageColor = (stageKey, item) => {
+    switch (stageKey) {
+      case "isApproved":
+        switch (item?.isApproved) {
+          case "Reject":
+            return "bg-red-500";
+          case "Hold":
+            return "bg-yellow-500";
+          case "Approved":
+            return "bg-green-500";
+          default:
+            return "bg-gray-300";
+        }
+
+      case "poSentForApproval":
+        return item?.poSentForApproval ? "bg-yellow-400" : "bg-yellow-200";
+
+      case "isSave":
+        return item?.isSave ? "bg-blue-500" : "bg-gray-300";
+
+      default:
+        return "bg-gray-300";
+    }
+  };
   return (
     <>
  
@@ -24,10 +54,24 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
         
                   <tbody className="text-gray-700 text-xs">
         
-                    {(allData ? allData?.data : [])?.map((item, index) =>
+                    {(allData ? allData?.data : [])?.map((item, index) => {
+
+                   
+          const completedStages = stageDefinitions
+              .filter((stage) => item?.[stage.key])
+              .reverse();
+
+            const approvalStatus = item?.isApproved || "In Progress";
+
+            const approvalColor = approvalStatus === "Approved"
+              ? "bg-green-500 text-white"
+              : approvalStatus === "Rejected"
+                ? "bg-red-500 text-white"
+                : approvalStatus === "Hold"
+                  ? "bg-yellow-500 text-black"
+                  : "bg-gray-300 text-black";
         
-        
-        
+           return (
         
                    <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
                       onClick={() => {
@@ -41,23 +85,42 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                       <td className="p-1">{item?.Manufacture?.name}</td>
                       <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                        <td className="p-1">{getDateFromDateTime(item?.deliverydate)}</td>
-                      <td className="p-1 items-end ">
-                        {!item?.isApproved ? (
-                          <span className="inline-flex  text-sm font-semibold bg-green-300 text-white-500  px-1 w-20 rounded">
-                            Progress
-                          </span>
-                        ) : (
-                          <span className="inline-flex   text-sm font-semibold bg-red-300 text-white-500 px-1 w-20 rounded ">
-      
-                            {item?.isApproved}
-                          </span>
-                        )}
-                      </td>
+                     <td className="p-1">
+                  <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
+                    {approvalStatus}
+                  </span>
+                </td>
+                <td className="p-1">
+                  <div className="flex flex-row-reverse items-center overflow-x-auto">
+                    {completedStages.map((stage, i) => {
+                      const label = stage.key === "isApproved" ? approvalStatus : stage.label;
+                      const color = getStageColor(stage.key, item);
+
+
+                      return (
+                        <div
+                          key={i}
+                          className={`flex items-center justify-center text-xs font-semibold text-white ${color} px-4 py-1 ${i !== 0 ? "mr-[-10px]" : ""
+                            }`}
+                          style={{
+                            clipPath:
+                              i === 0
+                                ? "polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 100%)"
+                                : "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
+                          }}
+                        >
+                          {label}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </td>
       
       
                     </tr>
         
-                    )}
+                     )
+                     })}
         
                   </tbody>
                 </table>
