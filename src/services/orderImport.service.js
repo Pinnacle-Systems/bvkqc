@@ -274,10 +274,11 @@ async function create(req) {
 
 async function findFromList(id, list, property) {
     console.log(list, 'list');
+    console.log(id,"function inside mailid")
 
     if (!list) return ""
     let data = list?.find(i => i.mailId == id)?.id
-            console.log(data,"data")
+      console.log(data,"data")
 
     return data
 
@@ -308,7 +309,8 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 
 
-
+    console.log(partyData,"partyData")
+    consaole.log(orderImport,"orderImport")
     let date = new Date()
     let isSave = false;
     let vendor;
