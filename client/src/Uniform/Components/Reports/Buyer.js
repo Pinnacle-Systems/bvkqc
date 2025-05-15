@@ -32,7 +32,6 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
   const model = "Po Number"
 
 
-
   useEffect(() => {
     if (poItems.length >= 5) return
     setPoItems(prev => {

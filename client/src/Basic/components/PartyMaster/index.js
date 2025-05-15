@@ -403,7 +403,7 @@ console.log(projectForm,"projectForm")
 
 
     const tableHeaders = ["S.NO", "Name", "Alias Name","Active", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", ]
-    const tableDataNames = ["index+1", "dataObj.name", 'dataObj.aliasName', "dataObj.active ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    const tableDataNames = ["index+1", "dataObj.name", 'dataObj.aliasName', "dataObj.active ? ACTIVE : INACTIVE", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
 
     //step
     const [step, setStep] = useState(1);
