@@ -3,8 +3,7 @@ import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
 import { Modal } from "../../../Inputs";
 
 
-export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poSentForApproval }) {
-      const [parameter, setParameter] = useState(false);
+export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
   const stageDefinitions = [
     { key: "isSave", label: "Po Created", color: "bg-blue-500" },
@@ -134,9 +133,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                       })}
                     </div>
                   </td>
-
-
                 </tr>
+
+
               )
 
 
