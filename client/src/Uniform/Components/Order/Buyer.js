@@ -34,8 +34,8 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
 
   return (
     <>
-      <div className=" bg-white shadow rounded-lg">
-        <table className="min-w-full text-left overflow-x-auto" >
+      <div className=" bg-white shadow rounded-lg ">
+        <table className="min-w-full h-[200px] text-left overflow-y-auto" >
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
               <th className="py-1 px-6">S No</th>
@@ -95,10 +95,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                   <td className="p-1 ">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
-                  <td className="p-1">{getDateFromDateTime(item?.orderdate) || ""} </td>
+                  <td className="p-1">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 ">{getDateFromDateTime(item?.deliverydate) || ""}</td>
-
+                  <td className="p-1 ">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
 
 
 

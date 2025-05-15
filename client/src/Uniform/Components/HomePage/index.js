@@ -151,7 +151,7 @@ export default function Form() {
           </aside>
 
         </div> */}
-          <aside className="flex flex-col items-center py-6 bg-gray-300 w-14  space-y-3">
+          <aside className="flex flex-col items-center py-6 bg-gray-300 w-14  space-y-3 h-full ">
       {menuItems.map(({ name, label, icon, action }) => (
         <button
           key={name}
