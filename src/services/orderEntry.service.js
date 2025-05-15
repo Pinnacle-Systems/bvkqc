@@ -289,7 +289,7 @@ async function create(body) {
                     poNumber: ponumber ? ponumber : null,
                     isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
-                    deliverydate: deliveryDate ? new Date(deliveryDate)   : null,
+                    deliverydate: deliveryDate ? new Date(deliveryDate) : null,
 
 
 
@@ -383,9 +383,9 @@ async function update(id, body) {
         excessQtyAmount, date, orderDetails, vendor, orderId, cc,
         ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval, fromAddress, sendorName, sendorId, toEmail,
         receiverName, receiverId, subject, message, ccList, fileName, deliveryDate
- } = await body
+    } = await body
 
-console.log(deliveryDate,"deliveryDate")
+
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -394,40 +394,6 @@ console.log(deliveryDate,"deliveryDate")
     })
 
     if (!dataFound) return NoRecordFound("orderBill");
-
-    if (isAttachments) {
-
-
-        await prisma.$transaction(async (tx) => {
-            data = await tx.order.update({
-                where: {
-                    id: parseInt(id),
-                },
-                data: {
-                    attachments: {
-                        deleteMany: {},
-                        createMany: attachments ? {
-                            data: JSON.parse(attachments || []).map(temp => ({
-                                date: temp.date ? new Date(temp.date) : undefined,
-                                log: temp.log ? temp.log : "",
-                                gridUser: temp.gridUser ? temp.gridUser : "",
-                                filePath: temp.filePath ? temp.filePath : undefined,
-
-                            }))
-                        } : undefined
-                    }
-
-                },
-                include: {
-                    orderBillItems: true
-                }
-            })
-
-        })
-
-        return { statusCode: 0, data };
-
-    }
 
     if (mailTransaction) {
 
@@ -470,6 +436,40 @@ console.log(deliveryDate,"deliveryDate")
         return { statusCode: 0, data };
 
     }
+    if (isAttachments) {
+
+        await prisma.$transaction(async (tx) => {
+            data = await tx.order.update({
+                where: {
+                    id: parseInt(id),
+                },
+                data: {
+                    attachments: {
+                        deleteMany: {},
+                        createMany: attachments ? {
+                            data: JSON.parse(attachments || []).map(temp => ({
+                                date: temp.date ? new Date(temp.date) : undefined,
+                                log: temp.log ? temp.log : "",
+                                gridUser: temp.gridUser ? temp.gridUser : "",
+                                filePath: temp.filePath ? temp.filePath : undefined,
+
+                            }))
+                        } : undefined
+                    }
+
+                },
+                include: {
+                    orderBillItems: true
+                }
+            })
+
+        })
+
+        return { statusCode: 0, data };
+
+    }
+
+
 
     await prisma.$transaction(async (tx) => {
         data = await tx.order.update({
@@ -483,7 +483,7 @@ console.log(deliveryDate,"deliveryDate")
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
                 isApproved: isApproved ?? undefined,
-                deliverydate: deliveryDate ? new Date(deliveryDate)   : null
+                deliverydate: deliveryDate ? new Date(deliveryDate) : null
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {
