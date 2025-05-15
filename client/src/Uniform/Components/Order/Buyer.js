@@ -92,7 +92,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                     setPoNo(item?.docId)
                   }}
                 >
-                  <td className="p-1 ">{parseInt(index) + 1}</td>
+                  <td className="p-1 text-center">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
                   <td className="p-1">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
