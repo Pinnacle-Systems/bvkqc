@@ -90,14 +90,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     }
   }, [Emaildata, isEmailLoading, isEmailFetching]);
 
-
-
-
-
-
-
-
-
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
   }, [singleUserPartyData])
@@ -219,6 +211,7 @@ const PaperAirplaneIcon = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
   </svg>
 );
+
   const saveData = () => {
 
     if (id) {
@@ -273,36 +266,39 @@ const PaperAirplaneIcon = () => (
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-gray-600 ml-1">Cc</label>
-            <button
-              onClick={addCcField}
-              className="flex items-center text-blue-600 bg-blue-100 rounded hover:text-blue-800 text-xs px-2 py-0.5 rounded-md transition-colors"
-            >
-              <PlusCircleIcon className="w-4 h-4 mr-1" />
-              Add CC
-            </button>
-          </div>
-          
-          {ccList.map((cc, index) => (
-            <div key={index} className="flex items-center space-x-2 group">
-              <input
-                type="email"
-                placeholder={`cc${index + 1}@example.com`}
-                value={cc}
-                onChange={(e) => handleCcChange(index, e.target.value)}
-                className="w-full px-3 py-1.5 rounded-md border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 text-sm transition-all"
-              />
-              <button
-                onClick={() => removeCcField(index)}
-                className="text-red-400 hover:text-red-600 transition-colors p-1 bg-red-50 rounded-full hover:bg-red-100"
-              >
-                <XCircleIcon className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
-        </div>
+       <div className="space-y-2">
+  <div className="flex items-center justify-between">
+    <label className="text-xs font-medium text-gray-600 ml-1">Cc</label>
+    <button
+      onClick={addCcField}
+      className="flex items-center text-blue-600 bg-blue-100 rounded hover:text-blue-800 text-xs px-2 py-0.5 rounded-md transition-colors"
+    >
+      <PlusCircleIcon className="w-4 h-4 mr-1" />
+      Add CC
+    </button>
+  </div>
+
+  <div className="grid grid-cols-3 gap-2">
+    {ccList.map((cc, index) => (
+      <div key={index} className="flex items-center space-x-2 group">
+        <input
+          type="email"
+          placeholder={`cc${index + 1}@example.com`}
+          value={cc}
+          onChange={(e) => handleCcChange(index, e.target.value)}
+          className="w-full px-3 py-1.5 rounded-md border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 text-sm transition-all"
+        />
+        <button
+          onClick={() => removeCcField(index)}
+          className="text-red-400 hover:text-red-600 transition-colors p-1 bg-red-50 rounded-full hover:bg-red-100"
+        >
+          <XCircleIcon className="w-5 h-5" />
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
+
 
         <div className="relative">
           <label className="text-xs font-medium text-gray-600 ml-1">Subject</label>
@@ -336,9 +332,18 @@ const PaperAirplaneIcon = () => (
             <PhotoIcon className="w-4 h-4" />
           </button>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium flex items-center space-x-1.5">
+        <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
+       onClick={() => {
+              saveData()
+              setPoSentForApproval(true)
+              handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
+              SyncformwithDb()
+            }}
+
+        >
           <PaperAirplaneIcon className="w-4 h-4" />
           <span>Send</span>
+
         </button>
       </div>
     </div>
@@ -360,10 +365,10 @@ const PaperAirplaneIcon = () => (
   <div className="h-full flex flex-col gap-3 overflow-hidden">
     <div className="flex-1 bg-white rounded-lg shadow-sm p-6 overflow-y-auto">
       <div className="flex flex-col space-y-1 pb-3 border-b border-gray-200">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between"> 
           <span className="text-xs font-medium text-gray-600">PO Number</span>
-<span className="text-xs font-bold text-white bg-indigo-800 border border-indigo-800 rounded px-2 py-1">
-  {poNumber}-{}
+<span className="text-xs font-bold text-white bg-gray-800 border border-gray-800 rounded px-2 py-1">
+  {poNumber}-{styleNumber}
 </span>
         </div>
       </div>

@@ -20,11 +20,7 @@ import { OrderImport } from "..";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
-import EmailReport from "../Email/EmailReport";
-
-
-
-export default function Form() {
+import EmailReport from "../Email/EmailReport"export default function Form() {
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
@@ -84,92 +80,48 @@ export default function Form() {
 
       <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3 first-line:" >
 
-        {/* <div className="flex flex-col ">
-          <aside className=" flex flex-col items-center py-4 h-full  bg-zinc-300  ">
-        
+     
+ <aside className="flex flex-col items-center py-4 bg-gradient-to-b from-white to-gray-50 w-14 h-full shadow-[5px_0_15px_-5px_rgba(0,0,0,0.1)] border-r border-gray-100">
+  {menuItems.map(({ name, label, icon, action }) => (
+    <button
+      key={name}
+      onClick={() => {
+        setActive(name);
+        action?.();
+      }}
+      className={`group flex flex-col items-center text-[0.6rem] font-medium tracking-tight transition-all duration-200 ease-in-out ${
+        active === name 
+          ? 'text-primary-600' 
+          : 'text-gray-500 hover:text-gray-700'
+      } w-full px-1 py-1.5 mb-1 relative`}
+    >
+      {active === name && (
+        <div className="absolute -left-1 w-1 h-4 bg-gradient-to-b from-primary-500 to-primary-400 rounded-r-full shadow-[2px_0_4px_-1px_rgba(0,0,0,0.1)]" />
+      )}
 
-            <button className="flex flex-col items-center "
-              onClick={() => setActive("home")}
+      <div className={`relative p-1.5 rounded-lg transition-all duration-300 ${
+        active === name 
+          ? 'bg-primary-500/10 scale-[1.15]' 
+          : 'group-hover:bg-gray-200/20 group-hover:scale-105'
+      }`}>
+        {icon}
+        {active === name && (
+          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary-500 rounded-full border border-white shadow-sm" />
+        )}
+      </div>
+      
+      <span className={`mt-1 transition-transform duration-300 ${
+        active === name ? 'font-bold scale-100' : 'scale-90 opacity-80'
+      }`}>
+        {label}
+      </span>
 
+      {/* Hover effect line */}
+      <div className="absolute bottom-0 w-6 h-[2px] bg-primary-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </button>
+  ))}
+</aside>
 
-            >
-              <div style={getButtonStyle("home")}   >
-                <Home className="h-10 w-6 maxBlue" />
-
-              </div>
-              <span className="text-[10px] mt-1 maxBlue">Home</span>
-            </button>
-
-            <button className="flex flex-col items-center "
-              onClick={() => {
-                setActive("order")
-                setisOpen(true)
-              }}
-
-
-            >
-              <div style={getButtonStyle("order")}   >
-                <RiOrderPlayFill className="h-10 w-6 text-indigo-600" />
-
-              </div>
-              <span className="text-[10px] mt-1   maxBlue">Order</span>
-            </button>
-
-
-
-            <button className="flex flex-col items-center"
-              onClick={() => setActive("Mail")}
-            >
-              <div style={getButtonStyle("Mail")}>
-                <MessageCircle className="h-10 w-6 text-indigo-600" />
-
-              </div>
-              <span className="text-[10px] mt-1  maxBlue">Mail</span>
-            </button>
-            <button className="flex flex-col items-center"
-              onClick={() => setActive("Report")}
-            >
-              <div style={getButtonStyle("Report")}>
-                <ClipboardList className="h-10 w-6 text-indigo-600" />
-
-              </div>
-              <span className="text-[10px] mt-1  maxBlue">Report</span>
-            </button>
-
-
-            <button className="flex flex-col items-center"
-              onClick={() => setActive("More")}
-            >
-              <div style={getButtonStyle("More")}>
-                <MoreHorizontal className="h-10 w-7 text-indigo-600 " />
-              </div>
-              <span className="text-[10px] mt-1  maxBlue">OrderImport</span>
-
-            </button>
-
-
-          </aside>
-
-        </div> */}
-          <aside className="flex flex-col items-center py-6 bg-gray-300 w-14  space-y-3 h-full ">
-      {menuItems.map(({ name, label, icon, action }) => (
-        <button
-          key={name}
-          onClick={() => {
-            setActive(name);
-            if (action) action();
-          }}
-          className={`flex flex-col items-center text-[10px] transition-colors ${
-            active === name ? 'text-[#303AB2]' : 'text-gray-600'
-          } hover:text-[#303AB2]`}
-        >
-          <div className={`p-2 rounded-full ${active === name ? 'bg-white shadow' : ''}`}>
-            {icon}
-          </div>
-          <span className="mt-1">{label}</span>
-        </button>
-      ))}
-    </aside>
         <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
 
 
