@@ -82,7 +82,7 @@ export default function Form() {
 
 
 
-      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3 first-line:" >
+      <div className="flex font-sans bg-gary-300 px-0  h-[90vh]  mt-3 first-line:" >
 
         {/* <div className="flex flex-col ">
           <aside className=" flex flex-col items-center py-4 h-full  bg-zinc-300  ">
@@ -151,24 +151,24 @@ export default function Form() {
           </aside>
 
         </div> */}
-          <aside className="flex flex-col items-center py-6 bg-gray-300 w-14  space-y-3 h-full ">
-      {menuItems.map(({ name, label, icon, action }) => (
-        <button
-          key={name}
-          onClick={() => {
-            setActive(name);
-            if (action) action();
-          }}
-          className={`flex flex-col items-center text-[10px] transition-colors ${
-            active === name ? 'text-[#303AB2]' : 'text-gray-600'
-          } hover:text-[#303AB2]`}
-        >
-          <div className={`p-2 rounded-full ${active === name ? 'bg-white shadow' : ''}`}>
-            {icon}
-          </div>
-          <span className="mt-1">{label}</span>
-        </button>
-      ))}
+          <aside className="flex flex-col items-center py-6 bg-gray-300 w-14  space-y-3 h-[90vh] ">
+                {menuItems.map(({ name, label, icon, action }) => (
+                  <button
+                    key={name}
+                    onClick={() => {
+                      setActive(name);
+                      if (action) action();
+                    }}
+                    className={`flex flex-col items-center text-[10px] transition-colors ${
+                      active === name ? 'text-[#303AB2]' : 'text-gray-600'
+                    } hover:text-[#303AB2]`}
+                  >
+                    <div className={`p-2 rounded-full ${active === name ? 'bg-white shadow' : ''}`}>
+                      {icon}
+                    </div>
+                    <span className="mt-1">{label}</span>
+                  </button>
+                ))}
     </aside>
         <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
 

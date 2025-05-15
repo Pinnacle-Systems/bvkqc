@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
+import { Modal } from "../../../Inputs";
 
 
 export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poSentForApproval }) {
+      const [parameter, setParameter] = useState(false);
+
   const stageDefinitions = [
     { key: "isSave", label: "Po Created", color: "bg-blue-500" },
     { key: "poSentForApproval", label: "Sent to Approval", color: "bg-orange-500" },
@@ -34,18 +38,22 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
 
   return (
     <>
+  
       <div className=" bg-white shadow rounded-lg ">
         <table className="min-w-full  text-left overflow-y-auto" >
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
               <th className="py-1 px-6">S No</th>
-              <th className="py-1 px-6">Po Number</th>
+              <th className="py-1 px-6" >Po Number  
+                
+
+                 </th>
               <th className="py-1 px-6">Manufacture</th>
               <th className="py-1 px-6">Orderdate</th>
               <th className="py-1 px-6">Vendor</th>
-              <th className="py-1 px-6">Delivery date</th>
-
+              <th className="py-1 px-6">Delivery Date</th>
               <th className="py-1 px-6 text-end">Status</th>
+
 
             </tr>
           </thead>
@@ -85,14 +93,14 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
 
 
 
-                <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
+                <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row px-2"
                   onClick={() => {
                     setForm(true)
                     setId(item?.id)
                     setPoNo(item?.docId)
                   }}
                 >
-                  <td className="p-1 text-center">{parseInt(index) + 1}</td>
+                  <td className="p-1">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
                   <td className="p-1">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
