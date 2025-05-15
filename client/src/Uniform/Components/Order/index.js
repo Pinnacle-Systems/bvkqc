@@ -56,7 +56,6 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
 
-
   const syncFormWithDb = useCallback(
     (data) => {
 
@@ -180,7 +179,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
-            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
 
             deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
 
@@ -200,8 +199,10 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
+
               poSentForApproval={poSentForApproval} active={active}
+
               setPoSentForApproval={setPoSentForApproval}
 
             />
