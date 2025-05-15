@@ -212,93 +212,97 @@ const ShoppingCartIcon = ({ className }) => (
       >
         <BranchAndFinYearForm setIsGlobalOpen={setIsGlobalOpen} />
       </Modal>
-    <div className="flex flex-row w-screen h-screen bg-beige">
-  <div className="min-h-screen flex">
-    <div className="w-1/2 bg-gradient-to-br from-indigo-900 to-blue-800 p-12 flex flex-col">
-      <div className="mb-16">
-        <h1 className="text-4xl font-bold text-white mb-2">Pinnacle Systems</h1>
-        <p className="text-blue-200 text-lg">Industrial Software Solutions</p>
+    <div className=" w-full grid  h-screen bg-beige">
+  <div className="min-h-screen  flex">
+    <div className="w-full bg-gradient-to-br from-indigo-900 to-blue-800 p-5 flex flex-col overflow-y-auto">
+      <div className="mb-5">
+       <img className='w-52' src='https://www.pinnaclesystems.co.in/assets/imgs/pages/home5/logo.PNG' />
       </div>
 
-      <div className="space-y-8 overflow-y-auto">
-        <div className="group relative bg-white/10 backdrop-blur-sm p-6 rounded-2xl transition-transform hover:scale-105">
-          <div className="absolute inset-0 border border-white/20 rounded-2xl" />
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-white/5 rounded-lg">
-              <FactoryIcon className="h-6 w-6 text-blue-300" />
-            </div>
-            <div>
-              <h3 className="text-white text-xl mb-2">GMS</h3>
-              <p className="text-blue-100 text-sm leading-relaxed">
-                Comprehensive ERP solution for garment manufacturing, handling both domestic 
-                production and export operations with supply chain integration.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* PMS Card */}
-        <div className="group relative bg-white/10 backdrop-blur-sm p-6 rounded-2xl transition-transform hover:scale-105">
-          <div className="absolute inset-0 border border-white/20 rounded-2xl" />
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-white/5 rounded-lg">
-              <SmartphoneIcon className="h-6 w-6 text-blue-300" />
-            </div>
-            <div>
-              <h3 className="text-white text-xl mb-2">PMS</h3>
-              <p className="text-blue-100 text-sm leading-relaxed">
-                Payroll management system with mobile app integration, employee self-service 
-                portal, and real-time attendance tracking.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* PCS Card */}
-        <div className="group relative bg-white/10 backdrop-blur-sm p-6 rounded-2xl transition-transform hover:scale-105">
-          <div className="absolute inset-0 border border-white/20 rounded-2xl" />
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-white/5 rounded-lg">
-              <BeakerIcon className="h-6 w-6 text-blue-300" />
-            </div>
-            <div>
-              <h3 className="text-white text-xl mb-2">PCS</h3>
-              <p className="text-blue-100 text-sm leading-relaxed">
-                Specialized ERP for textile production processes including spinning, knitting, 
-                dyeing, cutting, embroidery, and compacting.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* POS Card */}
-        <div className="group relative bg-white/10 backdrop-blur-sm p-6 rounded-2xl transition-transform hover:scale-105">
-          <div className="absolute inset-0 border border-white/20 rounded-2xl" />
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-white/5 rounded-lg">
-              <ShoppingCartIcon className="h-6 w-6 text-blue-300" />
-            </div>
-            <div>
-              <h3 className="text-white text-xl mb-2">POS</h3>
-              <p className="text-blue-100 text-sm leading-relaxed">
-                Retail Point of Sale system with inventory management, customer loyalty programs, 
-                and multi-store support.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Product Cards */}
-        {/* Add similar blocks for Costing, Testing Lab, and LIMS Management */}
+     <div className="space-y-4 ">
+  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
+    <div className="absolute inset-0 border border-white/20 rounded-xl" />
+    <div className="flex items-start space-x-3">
+      <div className="p-2 bg-white/5 rounded-md">
+        <FactoryIcon className="h-5 w-5 text-blue-300" />
+      </div>
+      <div>
+        <h3 className="text-white text-lg mb-1">ERP for Textile Industries</h3>
+        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
+         An ERP (Enterprise Resource Planning) system tailored for textile industries streamlines and optimizes various operations, from supply chain management to production planning and inventory control
+        </p>
       </div>
     </div>
+  </div>
 
-    {/* Right Content Area */}
+  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
+    <div className="absolute inset-0 border border-white/20 rounded-xl" />
+    <div className="flex items-start space-x-3">
+      <div className="p-2 bg-white/5 rounded-md">
+        <SmartphoneIcon className="h-5 w-5 text-blue-300" />
+      </div>
+      <div>
+        <h3 className="text-white text-lg mb-1">Payroll management system</h3>
+        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
+          Payroll management system with mobile app integration, employee self-service 
+          portal, and real-time attendance tracking.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
+    <div className="absolute inset-0 border border-white/20 rounded-xl" />
+    <div className="flex items-start space-x-3">
+      <div className="p-2 bg-white/5 rounded-md">
+        <BeakerIcon className="h-5 w-5 text-blue-300" />
+      </div>
+      <div>
+        <h3 className="text-white text-lg mb-1">ERP For Textile Lab</h3>
+        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
+         Certainly, cloud and IoT (Internet of Things) solutions are increasingly important for various industries, including textiles.
+          These technologies can offer enhanced efficiency, real-time monitoring, data analytics, and scalability.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
+    <div className="absolute inset-0 border border-white/20 rounded-xl" />
+    <div className="flex items-start space-x-3">
+      <div className="p-2 bg-white/5 rounded-md">
+        <ShoppingCartIcon className="h-5 w-5 text-blue-300" />
+      </div>
+      <div>
+        <h3 className="text-white text-lg mb-1">POS</h3>
+        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
+          Retail Point of Sale system with inventory management, customer loyalty programs, 
+          and multi-store support.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
+    <div className="absolute inset-0 border border-white/20 rounded-xl" />
+    <div className="flex items-start space-x-3">
+      <div className="p-2 bg-white/5 rounded-md">
+        <FactoryIcon className="h-5 w-5 text-blue-300" />
+      </div>
+      <div>
+        <h3 className="text-white text-lg mb-1">Hospital Management</h3>
+        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
+         Streamline hospital operations with an integrated ERP solution. Manage patient records, billing, and resource allocation efficiently. Enhance patient care through seamless coordination and data-driven insights.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+
       <div className="w-full bg-gray-50 flex items-center justify-center p-12">
     <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10 transition-all hover:shadow-3xl">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-        <p className="text-gray-500">Secure access to your digital ecosystem</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

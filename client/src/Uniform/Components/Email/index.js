@@ -100,6 +100,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
   const addCcField = () => {
     setCcList([...ccList, ""]);
+    
   };
 
   const handleCcChange = (index, value) => {
@@ -278,7 +279,7 @@ const PaperAirplaneIcon = () => (
     </button>
   </div>
 
-  <div className="grid grid-cols-3 gap-2">
+  <div className="grid grid-cols-2 gap-2">
     {ccList.map((cc, index) => (
       <div key={index} className="flex items-center space-x-2 group">
         <input
@@ -367,9 +368,13 @@ const PaperAirplaneIcon = () => (
       <div className="flex flex-col space-y-1 pb-3 border-b border-gray-200">
         <div className="flex items-center justify-between"> 
           <span className="text-xs font-medium text-gray-600">PO Number</span>
-<span className="text-xs font-bold text-white bg-gray-800 border border-gray-800 rounded px-2 py-1">
-  {poNumber}-{styleNumber}
+          {poNumber &&
+          <span className="text-xs font-bold text-white bg-gray-800 border border-gray-800 rounded px-2 py-1">
+  {`${poNumber} (${styleNumber})`}
 </span>
+          }
+
+
         </div>
       </div>
 
