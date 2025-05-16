@@ -411,8 +411,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 }
 
 
-
-export function handleMailSendWithMultipleAttachments(
+ export function handleMailSendWithMultipleAttachments(
   FromEmailAddress,
   toEmail,
   passskey,
@@ -420,7 +419,8 @@ export function handleMailSendWithMultipleAttachments(
   message,
   fileName,
   attachments,
-  ccList
+  ccList, 
+  setActive
 ) {
   const normalizeEmails = (emails) => {
     if (Array.isArray(emails)) return emails;
@@ -460,7 +460,7 @@ export function handleMailSendWithMultipleAttachments(
       Swal.fire({
         icon: "success",
         title: "Mail Sent Successfully!",
-              timer: 1000,
+        timer: 1000,
         timerProgressBar: true,
         didOpen: () => {
           Swal.showLoading();
@@ -472,6 +472,8 @@ export function handleMailSendWithMultipleAttachments(
         willClose: () => {
           clearInterval(timerInterval);
         }
+      }).then(() => {
+        setActive("order");
       });
     })
     .catch(err => {
@@ -481,9 +483,12 @@ export function handleMailSendWithMultipleAttachments(
         text: "Mail could not be sent. Please try again.",
         timer: 2000,
         timerProgressBar: true
+      }).then(() => {
+        setActive("order");
       });
     });
 }
+
 
 
 
