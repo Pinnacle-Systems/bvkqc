@@ -30,7 +30,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
 
   const [isSave, setIsSave] = useState(true)
-  const [poSentForApproval, setPoSentForApproval] = useState(false)
+  // const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
   const [docDate, setDocDate] = useState(getDateFromDateTime(today));
   const partyId = secureLocalStorage.getItem(
@@ -233,9 +233,10 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
-              poSentForApproval={poSentForApproval} active={active}
+              // poSentForApproval={poSentForApproval} 
+              active={active}
 
-              setPoSentForApproval={setPoSentForApproval}
+            // setPoSentForApproval={setPoSentForApproval}
 
             />
             :
@@ -294,7 +295,6 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
                         :
                         <Buyer
-                          poSentForApproval={poSentForApproval}
                           partyData={partyData}
                           allData={allData}
                           setForm={setForm}

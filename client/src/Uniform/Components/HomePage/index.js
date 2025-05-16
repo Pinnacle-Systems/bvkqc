@@ -71,68 +71,65 @@ export default function Form() {
   ];
 
 
- return (
+  return (
 
     <>
       <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3 first-line:" >
 
-     
-<aside className="flex flex-col items-center py-4 bg-gray-100 backdrop-blur-md w-20 h-full border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
-  {menuItems.map(({ name, label, icon, action }) => (
-    <button
-      key={name}
-      onClick={() => {
-        setActive(name);
-        action?.();
-      }}
-      className={`group relative flex flex-col items-center text-xs font-medium tracking-tight transition-all duration-300 ease-in-out ${
-        active === name
-          ? 'text-indigo-700'
-          : 'text-gray-600 hover:text-indigo-600'
-      } w-full px-1 py-2 mb-1`}
-    >
-      {/* Active Indicator */}
-      {active === name && (
-        <div className="absolute left-0 w-1 h-8 bg-indigo-600 rounded-r-md shadow-md" />
-      )}
 
-      {/* Icon Wrapper */}
-      <div
-        className={`relative p-1.5 rounded-md transition-transform duration-300 ${
-          active === name
-            ? 'bg-indigo-100 scale-105 shadow-md'
-            : 'group-hover:bg-gray-200 group-hover:scale-100'
-        }`}
-      >
-        <span className="w-5 h-5">{icon}</span>
-        {active === name && (
-          <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-600 rounded-full border-2 border-white shadow-sm" />
-        )}
-      </div>
+        <aside className="flex flex-col items-center py-4 bg-gray-100 backdrop-blur-md w-20 h-full border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
+          {menuItems.map(({ name, label, icon, action }) => (
+            <button
+              key={name}
+              onClick={() => {
+                setActive(name);
+                action?.();
+              }}
+              className={`group relative flex flex-col items-center text-xs font-medium tracking-tight transition-all duration-300 ease-in-out ${active === name
+                  ? 'text-indigo-700'
+                  : 'text-gray-600 hover:text-indigo-600'
+                } w-full px-1 py-2 mb-1`}
+            >
+              {/* Active Indicator */}
+              {active === name && (
+                <div className="absolute left-0 w-1 h-8 bg-indigo-600 rounded-r-md shadow-md" />
+              )}
 
-      {/* Label */}
-      <span
-        className={`mt-1 transition-all duration-300 ${
-          active === name
-            ? 'font-semibold scale-100 opacity-100'
-            : 'opacity-80 group-hover:scale-100 group-hover:opacity-100'
-        }`}
-      >
-        {label}
-      </span>
+              {/* Icon Wrapper */}
+              <div
+                className={`relative p-1.5 rounded-md transition-transform duration-300 ${active === name
+                    ? 'bg-indigo-100 scale-105 shadow-md'
+                    : 'group-hover:bg-gray-200 group-hover:scale-100'
+                  }`}
+              >
+                <span className="w-5 h-5">{icon}</span>
+                {active === name && (
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-600 rounded-full border-2 border-white shadow-sm" />
+                )}
+              </div>
 
-      {/* Hover Effect */}
-      <div className="absolute inset-0 -z-10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-b from-white to-gray-100 shadow-md" />
-    </button>
-  ))}
-</aside>
+              {/* Label */}
+              <span
+                className={`mt-1 transition-all duration-300 ${active === name
+                    ? 'font-semibold scale-100 opacity-100'
+                    : 'opacity-80 group-hover:scale-100 group-hover:opacity-100'
+                  }`}
+              >
+                {label}
+              </span>
+
+              {/* Hover Effect */}
+              <div className="absolute inset-0 -z-10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-b from-white to-gray-100 shadow-md" />
+            </button>
+          ))}
+        </aside>
         <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
 
 
           <div className=" ">
 
             {active === "home" && <HomePage />}
-            {active === "Mail" && <MailForm 
+            {active === "Mail" && <MailForm
               setPoSentForApproval={setPoSentForApproval}
               poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
@@ -140,9 +137,9 @@ export default function Form() {
               setActive={setActive}
 
             />}
-            {active === "Report" && <EmailReport attachments={attachments}  />}
+            {active === "Report" && <EmailReport attachments={attachments} />}
             {active === "More" && <OrderImport />}
-            {active === "order" && <Order setEmailId={setEmailId}  active={active}
+            {active === "order" && <Order setEmailId={setEmailId} active={active}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
 
             />}

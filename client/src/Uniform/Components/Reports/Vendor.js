@@ -13,7 +13,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, setIsSave, id, setCurrentId, poSentForApproval, setPoSentForApproval, form, active  , setEmailId}) {
+  setActive, setIsSave, id, setCurrentId, form, active, setEmailId }) {
 
   const [attachments, setAttachments] = useState([]);
 
@@ -34,7 +34,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   const model = "Po Number";
 
   const data = {
-    attachments, isAttachments: true, poSentForApproval
+    attachments, isAttachments: true
   };
 
 
@@ -111,10 +111,10 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   };
 
   const exportAndUploadExcel = async (data, poItemsData) => {
-        // console.log(poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""),"Poitems")
-        const filterdPoItems =  poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== "")
+    // console.log(poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""),"Poitems")
+    const filterdPoItems = poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== "")
     try {
-      const combinedData = (filterdPoItems ||  [])?.map((item, index) => ({
+      const combinedData = (filterdPoItems || [])?.map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -313,16 +313,16 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                 <th className="w-[50px]">MRP</th>
                 <th className="w-[50px]">Po Qty</th>
                 {
-                  orderData?.isSave &&  (
+                  orderData?.isSave && (
 
 
                     <>
-                        <th className="w-[50px]">Excess %</th>
-                 <th className="w-[50px]">Order Qty</th>
+                      <th className="w-[50px]">Excess %</th>
+                      <th className="w-[50px]">Order Qty</th>
                     </>
                   )
                 }
-              
+
 
               </tr>
             </thead>
@@ -347,18 +347,18 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   <td className="border border-gray-300 text-right ">{item?.mrp}</td>
                   <td className="border border-gray-300 text-right ">{Math.round(item?.orderQty) || ""}</td>
 
-                    {
+                  {
 
-                    orderData?.isSave &&   (
+                    orderData?.isSave && (
                       <>
-                                    <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
-                                      <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
+                        <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
+                        <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
                       </>
                     )
 
-                    }
+                  }
 
-    
+
 
                 </tr>
               ))}
@@ -373,28 +373,28 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                 <td className="border-b border-gray-300 text-left w-32"></td>
                 <td className="border-b border-gray-300 text-left w-16"></td>
                 <td className="border-b border-gray-300 text-center w-2"></td>
-              <td className="border-b border-gray-300 text-right w-32"></td>
-              <td className="border-b border-gray-300 text-right w-32"></td>
+                <td className="border-b border-gray-300 text-right w-32"></td>
+                <td className="border-b border-gray-300 text-right w-32"></td>
 
                 <td className="border-b border-gray-300 text-right w-32"></td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
                   {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
 
-                {data?.isSave   &&    (
+                {data?.isSave && (
 
                   <>
-                     <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
-                </td>
-                <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
-                  {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
+                    <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
+                    </td>
+                    <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
+                      {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
 
-                </td>
+                    </td>
                   </>
                 )}
 
-             
-             
+
+
               </tr>
 
             </tbody>
