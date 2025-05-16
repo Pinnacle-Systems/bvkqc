@@ -1,6 +1,6 @@
 import React from 'react'
 import { convertSpaceToUnderScore } from '../../../Utils/helper'
-
+import moment from 'moment'
 const OrderImportItems = ({ orderImportItems }) => {
 
     const header = [
@@ -22,6 +22,23 @@ const OrderImportItems = ({ orderImportItems }) => {
         "manufacturer_mail_id"
 
     ]
+
+
+
+    function excelDateToJSDate(serial) {
+
+        const utc_days = Math.floor(serial - 25569);
+        const utc_value = utc_days * 86400;
+        let date = new Date(utc_value * 1000);
+
+        // const excelEpoch = new Date(30, 11, 1899);
+        // let date = new Date(excelEpoch.getTime() + serial * 86400000);
+        date = moment(date).format("DD-MM-YYYY")
+        date = date.toString()
+        return date
+
+        // return date.toISOString().split('T')[0]; 
+    }
     return (
         <div className="w-full">
             <div className="w-full flex flex-col gap-5">
@@ -42,7 +59,7 @@ const OrderImportItems = ({ orderImportItems }) => {
                                     <td className="border border-gray-400 text-sm py-1 text-center">{rowIndex + 1}</td>
                                     {header.map((columnName, columnIndex) => (
                                         <td className="border border-gray-400 text-xs py-1 px-1" key={columnIndex}>{row[convertSpaceToUnderScore(columnName)] === "undefined" ?
-                                            '' : row[convertSpaceToUnderScore(columnName)]}</td>
+                                            '' : columnName == "month_year" ? excelDateToJSDate(row[convertSpaceToUnderScore(columnName)]) : row[convertSpaceToUnderScore(columnName)]}</td>
                                     ))}
                                 </tr>
                             ))}

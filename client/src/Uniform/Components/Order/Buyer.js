@@ -44,7 +44,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
               <th className="py-1 px-6" >Po Number </th>
               <th className="py-1 px-6">Po Date</th>
               <th className="py-1 px-6">Manufacture</th>
-              <th className="py-1 px-6">Manufacture Assigned Date</th>
+              <th className="py-1 px-6">Received Date</th>
               <th className="py-1 px-6">Vendor</th>
               <th className="py-1 px-6">Assigned Date</th>
               <th className="py-1 px-6">Delivery Date</th>
@@ -94,7 +94,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
 
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 text-center" >{item?.docDate ? getDateFromDateTime(item?.docDate) : ""}</td>
+                  <td className="p-1 text-center" >{item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
                   <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="p-1">
                     <div className="flex items-center space-x-0">
@@ -131,28 +131,37 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                           }
                         }
 
-                        const label = item.isApproved.toUpperCase().slice(0, 2); // short code
+                        // const label = item.isApproved.toUpperCase().slice(0, 2); // short code
 
                         return (
                           <div
                             key={i}
                             title={
                               stage.key === "isApproved"
-                                ? ` ${item?.isApproved == "Approve" ? "Approved" : item?.isAproved == "Reject" ? "Rejected" : "In Progress"}`
+                                ? `Approval Status: ${item?.isApproved || "In Progress"}`
                                 : stage.title
                             }
                             className={`relative flex items-center justify-center text-xs font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${i !== 0 ? "mr-[-10px]" : ""
                               }`}
                             style={{
                               clipPath:
-                                i === 0
-                                  ? "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)"
-                                  : "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
+                                "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
                               zIndex: 50 - i,
                             }}
                           >
-                            {stage.label ? stage.label : label == 0 ? "" : ''}
+                            {stage.label
+                              ? stage.label
+                              : i === stageDefinitions.length - 1
+                                ? item?.isApproved === "Approve"
+                                  ? "A"
+                                  : item?.isApproved === "Reject"
+                                    ? "R"
+                                    : item?.isApproved === "Hold"
+                                      ? "H"
+                                      : "N"
+                                : ""}
                           </div>
+
                         );
                       })}
                     </div>
