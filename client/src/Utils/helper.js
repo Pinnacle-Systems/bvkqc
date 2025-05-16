@@ -417,46 +417,59 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList) {
+export function handleMailSendWithMultipleAttachments(
+  FromEmailAddress,
+  toEmail,
+  passskey,
+  subject,
+  message,
+  fileName,
+  attachments,
+  ccList
+) {
 
+  const normalizeEmails = (emails) => {
+    if (Array.isArray(emails)) return emails;
+    return emails.split(/[,;]+/).map(e => e.trim()).filter(e => e);
+  };
 
-  let receivedFiles = attachments?.map(j => { return { fileName: j.filePath } })
+  const toMailIds = normalizeEmails(toEmail);
+  const ccMailIds = normalizeEmails(ccList);
 
-  let mailAddress = "selvamanib986@gmail.com"
+  const joinToMailIds = toMailIds.join(', ');
+  const joinCCMailIds = ccMailIds.join(', ');
+
+  const receivedFiles = attachments?.map(j => ({ fileName: j.filePath }));
+
   let form = new FormData();
 
-  const ccMailIds = [...ccList]
-  const joinMails = ccMailIds.join(', ')
-
-
   for (let i = 0; i < receivedFiles.length; i++) {
-    form.append("attachments[]", receivedFiles[i]?.fileName); // use same key with []
+    form.append("attachments[]", receivedFiles[i]?.fileName);
   }
 
-  form.append('file', receivedFiles); // append all under same key 'file'
-
+  form.append("file", receivedFiles);
   form.append("FromAddresss", FromEmailAddress);
-  form.append("ToAddresss", toEmail);
+  form.append("ToAddresss", joinToMailIds);
   form.append("subject", subject);
   form.append("passskey", passskey);
   form.append("fileName", fileName);
-  form.append("message", message)
-  form.append("files", attachments)
-  form.append("ccList", joinMails)
-
+  form.append("message", message);
+  form.append("files", attachments);
+  form.append("ccList", joinCCMailIds);
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
     method: "POST",
     body: form
   }).then(res => {
-    toast.success("Mail Send SuccessFully",{
-        autoClose: 1000 
-      });
+    toast.success("Mail Send SuccessFully", {
+      autoClose: 1000
+    });
   }).catch(err => {
-    toast.error("Please Resend..!",{
-        autoClose: 1000 
-      })
+    toast.error("Please Resend..!", {
+      autoClose: 1000
+    })
   });
 }
+
 
 
