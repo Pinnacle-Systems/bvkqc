@@ -45,26 +45,11 @@ export default function Buyer({ allData, setForm, setId, setPoNo, partyData, poS
                   <td className="p-1">{findFromList(item?.manufactureId, partyData?.data, "name")}</td>
                   <td className="p-1">{findFromList(item?.vendorId, partyData?.data, "name")}  </td>
 
-
-
-                  {/* <td className="p-1 items-end ">
-                  {item?.isSave ? (
-                    <span className="inline-flex  text-sm  bg-green-300 text-white-500  px-1 w-10 rounded">
-                      Progress
-                    </span>
-                  ) : (
-                    <span className="inline-flex   text-sm  bg-red-300 text-white-500 px-1 w-10 rounded ">
-                      Pending
-                    </span>
-                  )}
-                </td> */}
                   <div>
                     <select
                       className='px-1 py-1 border rounded'
                       value={item.isApproved}
-                      // onChange={(e) =>
-                      //   setIsApproved(e.target.value)
-                      // }
+
                       disabled
                     >
                       <option value=''>Not Yet sent</option>
