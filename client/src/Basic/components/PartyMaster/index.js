@@ -195,6 +195,8 @@ console.log(projectForm,"projectForm")
     useEffect(() => {
         syncFormWithDb(singleData?.data);
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
+    
+
 
     const data = {
         name, code, aliasName, displayName, address, cityId: city, pincode, panNo, tinNo, cstNo, cstDate, cinNo,

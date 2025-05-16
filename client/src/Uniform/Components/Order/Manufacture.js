@@ -75,7 +75,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{item?.docId}</td>
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Vendor?.name}</td>
-                <td className="p-1">{getDateFromDateTime(item?.deliverydate)}</td>
+                <td className="p-1">{item?.deliverydate  ?  getDateFromDateTime(item?.deliverydate)  :  ""} </td>
                 <td className="p-1">
                   <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
                     {approvalStatus || "In Progress"}

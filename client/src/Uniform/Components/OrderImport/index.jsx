@@ -141,12 +141,16 @@ export default function Form() {
             if (returnData?.statusCode === 0) {
                 onNew()
                 setError("");
-                toast.success(text + "Successfully");
+                toast.success(text + "Successfully",{
+          autoClose: 1000
+        });
             } else if (returnData?.statusCode === 2) {
 
                 setError(returnData)
             } else {
-                toast.error(returnData?.message)
+                toast.error(returnData?.message,{
+          autoClose: 1000
+        })
             }
         } catch (error) {
             console.log("handle");
@@ -155,7 +159,9 @@ export default function Form() {
 
     const saveData = (isCreateMasters) => {
         if (!validateData(data)) {
-            toast.info("Please fill all required fields...!", { position: "top-center" })
+            toast.info("Please fill all required fields...!", { position: "top-center" },{
+          autoClose: 1000
+        })
             return
         }
         if (id) {
@@ -174,9 +180,13 @@ export default function Form() {
                 await removeData(id)
                 setId("");
                 onNew();
-                toast.success("Deleted Successfully");
+                toast.success("Deleted Successfully",{
+          autoClose: 1000
+        });
             } catch (error) {
-                toast.error("something went wrong");
+                toast.error("something went wrong",{
+          autoClose: 1000
+        });
             }
         }
     };
