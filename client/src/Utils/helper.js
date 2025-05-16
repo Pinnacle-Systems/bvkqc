@@ -2,6 +2,7 @@ import moment from "moment";
 import secureLocalStorage from "react-secure-storage";
 import { IMAGE_UPLOAD_URL } from "../Constants";
 import { toast } from "react-toastify";
+import { useState } from "react";
 
 
 
@@ -452,7 +453,7 @@ export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail,
         autoClose: 1000 
       });
   }).catch(err => {
-    toast.error("Please Resend !",{
+    toast.error("Please Resend..!",{
         autoClose: 1000 
       })
   });

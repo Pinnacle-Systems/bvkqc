@@ -4,6 +4,8 @@ import { convertSpaceToUnderScore } from "../../../Utils/helper";
 
 const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
 
+  console.log(pres,"pres")
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };

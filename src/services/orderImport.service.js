@@ -311,10 +311,12 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
     console.log(partyData,"partyData")
     console.log(orderImport,"orderImport")
-    let date = new Date()
+  
     let isSave = false;
     let vendor;
     let ponumber = orderImport?.orderImportItems[0]?.po_number;
+    let date = orderImport?.orderImportItems[0]?.month_year ;
+
     let manufactureId = await findFromList(orderImport?.orderImportItems[0]?.manufacturer_mail_id, partyData)
     let isMailSent = false;
 
