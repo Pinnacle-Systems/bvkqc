@@ -6,6 +6,7 @@ import { getFinYearStartTimeEndTime } from "../utils/finYearHelper.js";
 import { getDateFromDateTime, getDateTimeRangeForCurrentYear, getYearShortCode, getYearShortCodeForFinYear } from "../utils/helper.js";
 import { getTableRecordWithId } from "../utils/helperQueries.js";
 import { createAllClass, createAllColor, createAllSize, getAllClass, getAllColor, getAllSize } from '../query/masters.js';
+import moment from 'moment';
 const prisma = new PrismaClient()
 
 
@@ -273,21 +274,39 @@ async function create(req) {
 }
 
 async function findFromList(id, list, property) {
-    console.log(list, 'list');
-    console.log(id,"function inside mailid")
+
 
     if (!list) return ""
     let data = list?.find(i => i.mailId == id)?.id
-      console.log(data,"data")
+
 
     return data
 
 }
 
 
+function excelDateToJSDate(serial) {
+
+
+
+    const utc_days = Math.floor(serial - 25569);
+    const utc_value = utc_days * 86400;
+    let date = new Date(utc_value * 1000);
+    date = moment(date).format("DD-MM-YYYY")
+
+    const [day, month, year] = date.split("-");
+    date = new Date(+year, +month - 1, +day + 1); // month is 0-indexed
+
+    console.log(date, "dateeee", typeof (date))
+    return date
+
+    // return date.toISOString().split('T')[0]; 
+}
+
+
 async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
-    
+
 
     const partyData = await prisma.party.findMany({
         where: {
@@ -308,14 +327,10 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
     })
 
 
-
-    console.log(partyData,"partyData")
-    console.log(orderImport,"orderImport")
-  
     let isSave = false;
     let vendor;
     let ponumber = orderImport?.orderImportItems[0]?.po_number;
-    let date = orderImport?.orderImportItems[0]?.month_year ;
+    let date = excelDateToJSDate(orderImport?.orderImportItems[0]?.month_year)
 
     let manufactureId = await findFromList(orderImport?.orderImportItems[0]?.manufacturer_mail_id, partyData)
     let isMailSent = false;
@@ -415,7 +430,7 @@ async function update(id, body) {
 
 async function remove(id) {
 
-    
+
 
     const data = await prisma.orderImport.delete({
         where: {
