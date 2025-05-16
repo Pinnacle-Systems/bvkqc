@@ -7,10 +7,9 @@ import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage"
 import { getCommonParams, getDateFromDateTime, renameFile } from "../../../Utils/helper";
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
+import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation, useUploadMutation } from "../../../redux/uniformService/OrderService";
 import MailForm from "../Email";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
-import { upload } from "../../../../../src/services/partyMaster.service";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
@@ -26,6 +25,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
 
+  const [upload] = useUploadMutation();
 
 
 
