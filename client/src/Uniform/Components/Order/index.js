@@ -20,9 +20,9 @@ import moment from 'moment';
 
 export default function Order({ setForm, form, setEmailId, active, setActive, setCurrentId }) {
   const today = new Date()
-  console.log(today,"today")
+  console.log(today, "today")
   const [id, setId] = useState("");
-
+  const [refreshPage, setRefreshPage] = useState(false)
   const [fileName, setFileName] = useState("");
   const [poItems, setPoItems] = useState([]);
   const [poNo, setPoNo] = useState(null)
@@ -49,14 +49,14 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
   const { data: partyData } = useGetPartyQuery({ params: { branchId, finYearId } });
 
-  const { data: allData } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
+  const { data: allData, refetch } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
 
   const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
 
 
-  console.log(docDate,"docDate")
+  console.log(docDate, "docDate")
 
   const syncFormWithDb = useCallback(
     (data) => {
@@ -64,7 +64,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
       setDeliveryDate(data?.deliverydate ? moment(data?.deliverydate).format('YYYY-MM-DD') : null)
-      setDocDate(data?.docDate ?  moment(data?.docDate).format('YYYY-MM-DD') : null )
+      setDocDate(data?.docDate ? moment(data?.docDate).format('YYYY-MM-DD') : null)
       setIsApproved(data?.isApproved || '');
       // setPoSentForApproval(data?.poSentForApproval  ||  "")
     },
@@ -87,7 +87,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     excessQty,
     isSave: true, excessQtyAmount,
     isApproved,
-    deliveryDate,docDate
+    deliveryDate, docDate
   }
 
 
@@ -138,41 +138,41 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   };
 
 
-  const saveData = (isMailForm=false,isManufacture= false,isBuyer=false) => {
-    console.log(isMailForm,"isMailForm",isManufacture,isBuyer)
+  const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
+    console.log(isMailForm, "isMailForm", isManufacture, isBuyer)
 
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
     }
-    if(isManufacture &&  userRole === "MANUFACTURE"){
-      if(!deliveryDate){
-            toast.info("Choose The Delivery Date", {
+    if (isManufacture && userRole === "MANUFACTURE") {
+      if (!deliveryDate) {
+        toast.info("Choose The Delivery Date", {
           autoClose: 1000
         })
-        return ;
+        return;
       }
-         if(!vendor){
-            toast.info("Choose The Vendor", {
+      if (!vendor) {
+        toast.info("Choose The Vendor", {
           autoClose: 1000
         })
         return;
       }
     }
-    if(isBuyer){
-         if(!deliveryDate){
-            toast.info("Cannot send Mail ", {
+    if (isBuyer) {
+      if (!deliveryDate) {
+        toast.info("Cannot send Mail ", {
           autoClose: 1000
         })
-        return ;
+        return;
       }
-         if(!vendor){
-            toast.info("Cannot send Mail", {
+      if (!vendor) {
+        toast.info("Cannot send Mail", {
           autoClose: 1000
         })
         return;
       }
     }
-    
+
     if (isMailForm) {
       setForm(false);
       setActive("Mail");
@@ -211,7 +211,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
-            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
+            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
             deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
 
@@ -231,7 +231,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
               poSentForApproval={poSentForApproval} active={active}
 
@@ -259,7 +259,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
               //Order Report pages
               <div className="flex-1 flex flex-col h-[screen]">
 
-                <FormHeaderNew model={"List Of Orders"} />
+                <FormHeaderNew model={"List Of Orders"} refresh={"Refresh"} refreshPage={refetch} />
 
 
 
