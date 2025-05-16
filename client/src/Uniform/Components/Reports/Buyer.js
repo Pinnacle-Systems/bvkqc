@@ -24,14 +24,13 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
   const [attachments, setAttachments] = useState([]);
 
 
-  const { data: partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
 
 
   let data = singleData?.data
   const isMailForm = true
   const isBuyer  =  true
   const model = "Po Number"
-
+  
 
   useEffect(() => {
     if (poItems.length >= 5) return
@@ -53,24 +52,6 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  console.log(poItems, "poItems");
-
-  console.log(data, "data");
   useEffect(() => {
     if (poItems?.length >= 14) return
     setPoItems(prev => {
@@ -82,6 +63,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
     )
   }, [setPoItems, poItems])
 
+  console.log(setPoSentForApproval,"setPoSentForApproval")
 
   return (
     <>
@@ -192,7 +174,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
          
 
           
-
+ {singleData?.data?.poSentForApproval  &&   
            <div className=" w-18 flex flex-col ">
             <label className="text-xs font-semibold  ">Approval status</label>
             <select
@@ -214,7 +196,9 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
             </select>
 
           </div>
-
+     }        
+          
+       {singleData?.data?.poSentForApproval  &&   
             <div className="flex pt-4">
               <button
                 className="relative  h-6 px-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white
@@ -225,7 +209,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 <span className="relative z-10 text-[12px]"> View Art Design</span>
               </button>
             </div>
-
+    }
           </div >
 
 

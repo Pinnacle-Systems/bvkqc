@@ -399,7 +399,7 @@ async function update(id, body) {
         receiverName, receiverId, subject, message, ccList, fileName, deliveryDate , docDate
     } = await body
 
-    console.log(typeof(docDate,"docDate"),docDate)
+    console.log(typeof(docDate,"docDate"),docDate,docDate != null)
 
 
     const dataFound = await prisma.order.findUnique({
@@ -498,7 +498,7 @@ async function update(id, body) {
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
                 isApproved: isApproved ?? undefined,
                 deliverydate: deliveryDate ? new Date(deliveryDate) : undefined,
-                //  docDate : docDate != null ?  new Date(docDate)  : undefined,
+                 docDate : docDate == null ?  new Date(docDate)  : undefined,
 
                 // attachments: {
                 //     deleteMany: {},

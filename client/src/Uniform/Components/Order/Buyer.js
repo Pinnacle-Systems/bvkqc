@@ -43,7 +43,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
               <th className="py-1 px-6" >Po Number </th>
               <th className="py-1 px-6">Po Date</th>
               <th className="py-1 px-6">Manufacture</th>
-              <th className="py-1 px-6">Manufacture Assigned Date</th>
+              <th className="py-1 px-6">Received Date</th>
               <th className="py-1 px-6">Vendor</th>
               <th className="py-1 px-6">Assigned Date</th>
               <th className="py-1 px-6">Delivery Date</th>

@@ -43,7 +43,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             <th className="py-1 px-1">PO Number</th>
             <th className="py-1 px-1">Order date</th>
             <th className="py-1 px-1">Manufacture</th>
-             <th className="py-1 px-1">Assigned Date</th>
+             <th className="py-1 px-1">Received Date</th>
 
             <th className="py-1 px-1">Vendor</th>
             {/* <th className="py-1 px-6">Delivery date</th> */}
@@ -55,7 +55,6 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             const completedStages = stageDefinitions
               .filter((stage) => item?.[stage.key])
               .reverse();
-              {console.log(completedStages,'completedStages')}
             const approvalStatus = item?.isApproved || "In Progress";
 
             const approvalColor = approvalStatus === "Approved"

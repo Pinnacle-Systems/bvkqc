@@ -19,7 +19,8 @@ import moment from 'moment';
 
 
 export default function Order({ setForm, form, setEmailId, active, setActive, setCurrentId }) {
-
+  const today = new Date()
+  console.log(today,"today")
   const [id, setId] = useState("");
 
   const [fileName, setFileName] = useState("");
@@ -31,7 +32,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [isSave, setIsSave] = useState(true)
   const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
-  const [docDate, setDocDate] = useState(new Date());
+  const [docDate, setDocDate] = useState(getDateFromDateTime(today));
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
@@ -55,16 +56,17 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [updateData] = useUpdateOrderMutation();
 
 
+  console.log(docDate,"docDate")
 
   const syncFormWithDb = useCallback(
     (data) => {
-
       setPoItems(data?.orderBillItems || []);
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
       setDeliveryDate(data?.deliverydate ? moment(data?.deliverydate).format('YYYY-MM-DD') : null)
       setDocDate(data?.docDate ?  moment(data?.docDate).format('YYYY-MM-DD') : null )
-      setIsApproved(data?.isApproved || '')
+      setIsApproved(data?.isApproved || '');
+      // setPoSentForApproval(data?.poSentForApproval  ||  "")
     },
     [id]
   );
