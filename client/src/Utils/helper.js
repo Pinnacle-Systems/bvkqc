@@ -411,7 +411,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 }
 
 
- export function handleMailSendWithMultipleAttachments(
+export function handleMailSendWithMultipleAttachments(
   FromEmailAddress,
   toEmail,
   passskey,
@@ -419,7 +419,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
   message,
   fileName,
   attachments,
-  ccList, 
+  ccList,
   setActive
 ) {
   const normalizeEmails = (emails) => {
@@ -433,7 +433,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
   const joinToMailIds = toMailIds.join(", ");
   const joinCCMailIds = ccMailIds.join(", ");
 
-  const receivedFiles = attachments?.map(j => ({ fileName: j.filePath }));
+  const receivedFiles = attachments?.map(j => ({ fileName: j.filePath })) || [];
 
   let form = new FormData();
 
@@ -456,7 +456,6 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
     body: form
   })
     .then(res => {
-      let timerInterval;
       Swal.fire({
         icon: "success",
         title: "Mail Sent Successfully!",
@@ -464,13 +463,9 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
         timerProgressBar: true,
         didOpen: () => {
           Swal.showLoading();
-          const timer = Swal.getHtmlContainer().querySelector("b");
-          timerInterval = setInterval(() => {
-            timer.textContent = Swal.getTimerLeft();
-          }, 100);
         },
         willClose: () => {
-          clearInterval(timerInterval);
+          // No timerInterval to clear
         }
       }).then(() => {
         setActive("order");
@@ -488,6 +483,7 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
       });
     });
 }
+
 
 
 

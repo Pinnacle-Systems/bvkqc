@@ -49,7 +49,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setToEmail("");
     setSubject("");
     setMessage("");
-    setCcList([]);
+    setCcList([""]);
     setattachments([]);
     setfileName("");
     setFromAddress('');
