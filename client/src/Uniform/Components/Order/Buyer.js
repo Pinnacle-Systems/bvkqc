@@ -50,9 +50,6 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
               <th className="py-1 px-6">Vendor</th>
               <th className="py-1 px-6">Delivery Date</th>
               <th className="py-1 px-6 text-end">Status</th>
-
-
-
             </tr>
           </thead>
 
