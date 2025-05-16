@@ -4,17 +4,16 @@ import { saveAs } from 'file-saver';
 import * as XLSX from "xlsx"
 import { toast } from "react-toastify";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
-import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime, renameFile } from "../../../Utils/helper";
 import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
+import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation, useUploadMutation } from "../../../redux/uniformService/OrderService";
 import MailForm from "../Email";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, setIsSave, id, setCurrentId, poSentForApproval, setPoSentForApproval, form, active }) {
+  setActive, setIsSave, id, setCurrentId, poSentForApproval, setPoSentForApproval, form, active  , setEmailId}) {
 
   const [attachments, setAttachments] = useState([]);
 
@@ -26,13 +25,13 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
 
-
-  const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
-  const { data: percentage } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
+  const [upload] = useUploadMutation();
 
 
-  let orderData = singleData?.data
-  const model = "Po Number"
+
+
+  let orderData = singleData?.data;
+  const model = "Po Number";
 
   const data = {
     attachments, isAttachments: true, poSentForApproval
@@ -55,6 +54,8 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
     setAttachments(singleData?.data?.attachments)
     setCurrentId(singleData?.data?.id)
   }, [id, singleData])
+
+
 
 
 
@@ -109,6 +110,65 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
     }
   };
 
+  const exportAndUploadExcel = async (data, poItemsData) => {
+        // console.log(poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""),"Poitems")
+        const filterdPoItems =  poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== "")
+    try {
+      const combinedData = (filterdPoItems ||  [])?.map((item, index) => ({
+        SrNo: index + 1,
+        PONumber: data.docId,
+        OrderDate: getDateFromDateTime(data.orderdate),
+        Department: item.department,
+        Class: item.class,
+        ItemCode: item.itemCode,
+        BarCode: item.barCode,
+        SeasonSupplierCode: item.supplierCode,
+        StyleCode: item.styleCode,
+        Size: item.size,
+        sizeDescription: item.sizeDesc,
+        Color: item.color,
+        Mrp: item.mrp,
+        Product: item.product,
+        PoQty: item.orderQty,
+        excessPercentage: item.excessQty,
+        OrderQty: parseInt(item.qty)
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(combinedData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const excelBlob = new Blob(
+        [excelBuffer],
+        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+      );
+
+      const fileName = `Order_${Date.now()}.xlsx`;
+      const formData = new FormData();
+      formData.append('file', excelBlob, fileName);
+      formData.append('id', id);
+      const response = await upload({ body: formData, id }).unwrap();
+      setEmailId(response?.data?.id)
+
+
+
+
+    } catch (error) {
+      console.error("Error during Export and Upload:", error);
+      toast.error("Something went wrong!", {
+        position: "top-right",
+        autoClose: 100,
+        hideProgressBar: true,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+
+      });
+    }
+  };
 
 
 
@@ -331,6 +391,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           <button
             onClick={() => {
               saveData();
+              exportAndUploadExcel(orderData, poItems);
 
             }}
             className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"

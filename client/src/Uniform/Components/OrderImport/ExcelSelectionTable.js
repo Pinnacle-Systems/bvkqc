@@ -1,15 +1,32 @@
 import React from "react";
 import { read, utils } from "xlsx";
 import { convertSpaceToUnderScore } from "../../../Utils/helper";
-
+import moment from 'moment'
 const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
 
-  console.log(pres,"pres")
+  console.log(pres, "pres")
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
+
+
+
+  function excelDateToJSDate(serial) {
+
+    const utc_days = Math.floor(serial - 25569);
+    const utc_value = utc_days * 86400;
+    let date = new Date(utc_value * 1000);
+
+    // const excelEpoch = new Date(30, 11, 1899);
+    // let date = new Date(excelEpoch.getTime() + serial * 86400000);
+    date = moment(date).format("DD-MM-YYYY")
+    date = date.toString()
+    return date
+
+    // return date.toISOString().split('T')[0]; 
+  }
 
 
   const uploadFile = () => {
@@ -26,6 +43,8 @@ const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
       const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
 
       const headerNames = jsonData.shift();
+
+      console.log(jsonData, "jsonData")
 
       let transformedData = jsonData.map((row) => {
         const obj = {};
@@ -84,7 +103,7 @@ const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
             </div>
             <button onClick={uploadFile}>Upload</button>
           </div>
-          <div className="overflow-x-auto w-full">
+          <div className="overflow-x-auto w-full">{console.log(pres, "pres", header, "header")}
             <table className="min-w-full table-auto">
               <thead className='bg-sky-200'>
                 <tr>
@@ -99,7 +118,7 @@ const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
                   <tr key={rowIndex}>
                     <td className="border border-gray-400 text-sm py-1">{rowIndex + 1}</td>
                     {header.map((columnName, columnIndex) => (
-                      <td className="border border-gray-400 text-xs py-1 px-1" key={columnIndex}>{row[convertSpaceToUnderScore(columnName)]}</td>
+                      <td className="border border-gray-400 text-xs py-1 px-1" key={columnIndex}>{columnName == "month_year" ? excelDateToJSDate(row[convertSpaceToUnderScore(columnName)]) : row[convertSpaceToUnderScore(columnName)]}  </td>
                     ))}
                   </tr>
                 ))}
