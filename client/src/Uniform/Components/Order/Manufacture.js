@@ -137,7 +137,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                         }
                       }
 
-                      const label = item.isApproved.toUpperCase().slice(0, 2); // short code
+                      // const label = item.isApproved.toUpperCase().slice(0, 2); 
 
                       return (
                         <div

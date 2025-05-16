@@ -230,12 +230,15 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                   <th className=" text-[13px] w-[90px]">Color</th>
                   <th className=" text-[13px] w-[50px]">MRP</th>
                   <th className=" text-[13px] w-[50px]">Po Qty</th>
-                    <th className="w-[50px]">Excess %</th>
 
-                  {data?.isSave   &&  
+                  {data?.isSave   &&  ( 
+                    <>
+                     <th className="w-[50px]">Excess %</th>
                   <th className=" text-[13px] w-[50px]">Order Qty</th>
+                    </>
+                   
                   
-                  }
+                  )}
 
                 </tr>
               </thead>
@@ -261,12 +264,16 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
                       <td className="border border-gray-300 text-[12px] text-right ">{item?.mrp}</td>
                       <td className="border border-gray-300 text-[12px] text-right ">{Math.round(item?.orderQty) || ""}</td>
-                          <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
+                       
          
-                        {data?.isSave   &&   
+                        {data?.isSave   &&   (
+                        <>
+<td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
                           <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
 
-                        }
+                        </>
+                           
+                        )}
 
                     </tr>
                   </>
@@ -288,14 +295,17 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                   <td className="border border-gray-200 text-right w-32 text-lg  text-gray-800 font-bold ">
                     {poItems.reduce((a, c) => a +  Math.round(c.orderQty || 0), 0) || ""}
                   </td>
-                  <td className="border border-gray-300 text-right w-32"></td>
 
-                    {data?.isSave   &&   
+                    {data?.isSave   &&   (
+                      <>
+                          <td className="border border-gray-300 text-right w-32"></td>
                     <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
                     {poItems.reduce((a, c) => a +  Math.round(c.qty || 0), 0) || ""}
 
                     </td>
-                    }
+                      </>
+              
+                    )}
 
                 </tr>
 

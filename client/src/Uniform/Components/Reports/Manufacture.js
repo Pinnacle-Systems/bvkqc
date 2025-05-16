@@ -221,7 +221,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
           <div className="flex flex-col w-72 ">
             <label className="text-xs font-semibold ">Tag vendor  <span className="text-red-500">*</span></label>
-            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
+            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor From Party Master"} masterName={"PARTY MASTER"} />
 
           </div>
 
