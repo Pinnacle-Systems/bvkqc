@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { IMAGE_UPLOAD_URL } from "../Constants";
 import { toast } from "react-toastify";
 import { useState } from "react";
-
+import Swal from "sweetalert2";
 
 
 
@@ -412,11 +412,6 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-
-
-
-
-
 export function handleMailSendWithMultipleAttachments(
   FromEmailAddress,
   toEmail,
@@ -427,7 +422,6 @@ export function handleMailSendWithMultipleAttachments(
   attachments,
   ccList
 ) {
-
   const normalizeEmails = (emails) => {
     if (Array.isArray(emails)) return emails;
     return emails.split(/[,;]+/).map(e => e.trim()).filter(e => e);
@@ -436,8 +430,8 @@ export function handleMailSendWithMultipleAttachments(
   const toMailIds = normalizeEmails(toEmail);
   const ccMailIds = normalizeEmails(ccList);
 
-  const joinToMailIds = toMailIds.join(', ');
-  const joinCCMailIds = ccMailIds.join(', ');
+  const joinToMailIds = toMailIds.join(", ");
+  const joinCCMailIds = ccMailIds.join(", ");
 
   const receivedFiles = attachments?.map(j => ({ fileName: j.filePath }));
 
@@ -460,16 +454,38 @@ export function handleMailSendWithMultipleAttachments(
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
     method: "POST",
     body: form
-  }).then(res => {
-    toast.success("Mail Send SuccessFully", {
-      autoClose: 1000
-    });
-  }).catch(err => {
-    toast.error("Please Resend..!", {
-      autoClose: 1000
+  })
+    .then(res => {
+      let timerInterval;
+      Swal.fire({
+        icon: "success",
+        title: "Mail Sent Successfully!",
+              timer: 1000,
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+          const timer = Swal.getHtmlContainer().querySelector("b");
+          timerInterval = setInterval(() => {
+            timer.textContent = Swal.getTimerLeft();
+          }, 100);
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        }
+      });
     })
-  });
+    .catch(err => {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Mail could not be sent. Please try again.",
+        timer: 2000,
+        timerProgressBar: true
+      });
+    });
 }
+
+
 
 
 
