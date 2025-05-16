@@ -3,16 +3,13 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import secureLocalStorage from "react-secure-storage";
 import axios from "axios";
-import logo from "../../../assets/max.svg"
-
 import { LOGIN_API } from '../../../Api';
 import { generateSessionId } from '../../../Utils/helper';
 import Modal from '../../../UiComponents/Modal';
 import BranchAndFinYearForm from '../../components/BranchAndFinyear';
 import { PRODUCT_ADMIN_HOME_PATH } from '../../../Route/urlPaths';
 import { toast } from 'react-toastify';
-
-
+import logobanner from '../../../assets/logobanner.avif'
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
 const Login = () => {
@@ -299,8 +296,13 @@ const ShoppingCartIcon = ({ className }) => (
 </div>
     </div>
 
-      <div className="w-full bg-gray-50 flex items-center justify-center p-12">
-    <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10 transition-all hover:shadow-3xl">
+<div 
+  className="w-full bg-gray-100 flex items-center justify-center p-12"
+  style={{ 
+    backgroundImage: `url(${logobanner})`, 
+    backgroundSize: 'cover', 
+    backgroundPosition: 'center' 
+  }}>   <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10 transition-all hover:shadow-3xl">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
       </div>
