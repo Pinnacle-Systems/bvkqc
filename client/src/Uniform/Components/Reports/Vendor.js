@@ -243,6 +243,8 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={"MAX"}
+           disabled={true}
+
             />
           </div>
 
@@ -253,6 +255,8 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               type="text"
               className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
               value={orderData?.Manufacture?.name}
+            disabled={true}
+
             />
 
           </div>
@@ -261,8 +265,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-
               value={getDateFromDateTime(orderData?.orderdate)}
+              disabled={true}
+
 
             />
           </div>

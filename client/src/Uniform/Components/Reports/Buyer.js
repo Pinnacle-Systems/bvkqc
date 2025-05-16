@@ -136,6 +136,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
                 value={data?.Manufacture?.name}
+                disabled={true}
+
               />
 
             </div>
@@ -144,8 +146,9 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
               <input
                 type="text"
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-
                 value={data?.orderdate   ?   getDateFromDateTime(data?.orderdate)  :  ""}
+               disabled={true}
+
 
               />
             </div>
@@ -155,6 +158,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
                 value={data?.Vendor?.name}
+                    disabled={true}
+
               />
 
             </div>
@@ -166,6 +171,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={  data?.deliverydate   ? getDateFromDateTime(data?.deliverydate)  : ""}
+              disabled={true}
 
               />
             </div>

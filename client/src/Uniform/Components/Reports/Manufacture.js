@@ -196,6 +196,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={"MAX"}
+              disabled={true}
             />
           </div>
 
@@ -205,6 +206,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               type="text"
               className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
               value={data?.Manufacture?.name}
+              disabled={true}
+
             />
 
           </div>
@@ -213,8 +216,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-
               value={getDateFromDateTime(data?.orderdate)}
+              disabled={true}
+
 
             />
           </div>
