@@ -31,7 +31,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   let data = singleData?.data
   const isMailForm = true
   const model = "Po Number"
-  const [isManufacture, setIsManufacture] = useState(true)
+  const isManufacture = true;
 
   useEffect(() => {
     if (!id) return
@@ -346,7 +346,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
           <button
             onClick={() => {
-              saveData();
+                 saveData(isMailForm, isManufacture);
             }}
             className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
           >

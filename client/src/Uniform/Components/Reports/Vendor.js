@@ -386,7 +386,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
 
-                {data?.isSave && (
+                {orderData?.isSave && (
 
                   <>
                     <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">

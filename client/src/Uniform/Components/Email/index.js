@@ -340,11 +340,12 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
               <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
                 onClick={() => {
                   handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive);
-                  saveData()
+                
                   if (userRole === "VENDOR") {
                     { console.log("Hit") }
                     setPoSentForApproval(true)
                   }
+                    saveData()
                   handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
                   SyncformwithDb()
                 }}

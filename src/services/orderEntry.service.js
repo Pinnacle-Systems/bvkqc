@@ -410,12 +410,15 @@ async function update(id, body) {
 
     if (!dataFound) return NoRecordFound("orderBill");
 
+    console.log( req.body," req.body")
+
     if (mailTransaction) {
         const poSentForApproval = req.body.poSentForApproval;
+        
 
 
-        const parsedPoSentForApproval = poSentForApproval === 'true' ? true
-            : poSentForApproval === 'false' ? false
+        const parsedPoSentForApproval = poSentForApproval === 'true' ||  true ? true
+            : poSentForApproval === 'false' ||  false ? false
                 : undefined;
         data = await prisma.order.update({
             where: {
