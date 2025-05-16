@@ -94,7 +94,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
 
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 text-center" >{item?.docDate ? getDateFromDateTime(item?.docDate) : ""}</td>
+                  <td className="p-1 text-center" >{item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
                   <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="p-1">
                     <div className="flex items-center space-x-0">
@@ -138,7 +138,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                             key={i}
                             title={
                               stage.key === "isApproved"
-                                ? ` ${item?.isApproved || "In Progress"}`
+                                ? `Approval Status: ${item?.isApproved || "In Progress"}`
                                 : stage.title
                             }
                             className={`relative flex items-center justify-center text-xs font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${i !== 0 ? "mr-[-10px]" : ""
