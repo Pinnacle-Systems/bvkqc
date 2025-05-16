@@ -5,34 +5,31 @@ import { Modal } from "../../../Inputs";
 
 export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
+
   const stageDefinitions = [
-    { key: "isSave", label: "Po Created", color: "bg-blue-500" },
-    { key: "poSentForApproval", label: "Sent to Approval", color: "bg-orange-500" },
-    { key: "isApproved", },
+    { key: "sa", label: "1", title: "Po Received" },
+    { key: "isSave", label: "2", title: "Assigned" },
+    { key: "poSentForApproval", label: "3", title: "Sent to Aproval" },
+    { key: "isApproved", label: "4", title: "Po Received" },
   ];
-  const getStageColor = (stageKey, item) => {
-    switch (stageKey) {
-      case "isApproved":
-        switch (item?.isApproved) {
-          case "Reject":
-            return "bg-red-500";
-          case "Hold":
-            return "bg-yellow-500";
-          case "Approve":
-            return "bg-green-500";
-          default:
-            return "bg-gray-300";
+  const getProgressIndex = (item) => {
+    const keys = stageDefinitions.map(s => s.key);
+    let index = -1;
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (key === "isApproved") {
+        if (item?.isApproved) index = i;
+      } else {
+        console.log(item?.[key] === true, 'item?.[key] === true');
+
+        if (item?.[key] === true || item?.[key] === 1) {
+          index = i;
         }
-
-      case "poSentForApproval":
-        return item?.poSentForApproval ? "bg-yellow-400" : "bg-yellow-200";
-
-      case "isSave":
-        return item?.isSave ? "bg-blue-500" : "bg-gray-300";
-
-      default:
-        return "bg-gray-300";
+      }
     }
+
+    return index;
   };
 
   return (
@@ -45,12 +42,14 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
               <th className="py-1 px-6">S No</th>
               <th className="py-1 px-6" >Po Number </th>
               <th className="py-1 px-6">Po Date</th>
-              <th className="py-1 px-6">Manufacture</th>  
-             <th className="py-1 px-6">Manufacture Assigned Date</th>  
+              <th className="py-1 px-6">Manufacture</th>
+              <th className="py-1 px-6">Manufacture Assigned Date</th>
               <th className="py-1 px-6">Vendor</th>
               <th className="py-1 px-6">Assigned Date</th>
               <th className="py-1 px-6">Delivery Date</th>
-              <th className="py-1 px-6 text-end">Status</th>
+              <th className="py-1 px-6 ">Status</th>
+
+
             </tr>
           </thead>
 
@@ -61,9 +60,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
 
             {(allData ? allData?.data : [])?.map((item, index) => {
-              const completedStages = stageDefinitions
-                .filter((stage) => item?.[stage.key])
-                .reverse();
+
 
               const rawStatus = item?.isApproved || "In Progress";
 
@@ -77,13 +74,6 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
               const approvalStatus = approvalStatusMap[rawStatus] || "In Progress";
 
 
-              const approvalColor = approvalStatus === "Approved"
-                ? "bg-green-500 text-white"
-                : approvalStatus === "Reject"
-                  ? "bg-red-500 text-white"
-                  : approvalStatus === "Hold"
-                    ? "bg-yellow-500 text-black"
-                    : "bg-gray-300 text-black";
 
               return (
 
@@ -98,42 +88,91 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                 >
                   <td className="p-1">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
-                  <td className="p-1 text-center">{item?.createdAt  ?  getDateFromDateTime(item?.createdAt) : "" }</td>
+                  <td className="p-1 text-center">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
                   <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
 
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 text-center" >{item?.docDate  ?  getDateFromDateTime(item?.docDate) : "" }</td>
+                  <td className="p-1 text-center" >{item?.docDate ? getDateFromDateTime(item?.docDate) : ""}</td>
                   <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="p-1">
+                    <div className="relative w-full flex items-center justify-between px-2">
 
-                    <div className="flex flex-row-reverse items-center overflow-x-auto">
-                      {completedStages.map((stage, i) => {
-                        const label = stage.key === "isApproved" ? approvalStatus : stage.label;
-                        const color = getStageColor(stage.key, item);
+                      <div className="absolute  h-[3px]  bg-gray-300 z-0" />
 
+
+                      <div
+                        className="absolute top-1/2 h-[3px] bg-green-500 z-10 transition-all duration-300"
+                        style={{
+                          left: '16px',
+                          width: `calc(${(getProgressIndex(item) / (stageDefinitions.length - 1)) * 100}% - 32px)`,
+                          transform: 'translateY(-50%)',
+                        }}
+                      />
+
+
+
+
+                      {stageDefinitions.map((stage, i) => {
+                        const progressIndex = getProgressIndex(item);
+                        const stageIndex = i;
+                        const isReached = progressIndex >= stageIndex;
+
+                        let bgColor = "bg-white text-gray-600";
+
+                        if (stage.key === "isApproved") {
+                          switch (item?.isApproved) {
+                            case "Approve":
+                              bgColor = "bg-green-500 text-white";
+                              break;
+                            case "Reject":
+                              bgColor = "bg-red-500 text-white";
+                              break;
+                            case "Hold":
+                              bgColor = "bg-yellow-400 text-black";
+                              break;
+                            default:
+                              bgColor = "bg-gray-300 text-gray-600";
+                          }
+                        } else {
+                          bgColor = isReached ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600";
+
+                        }
 
                         return (
-                          <div
-                            key={i}
-                            className={`flex items-center justify-center text-xs font-semibold text-white ${color} px-4 py-1 ${i !== 0 ? "mr-[-10px]" : ""
-                              }`}
-                            style={{
-                              clipPath:
-                                i === 0
-                                  ? "polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 100%)"
-                                  : "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
-                            }}
-                          >
-                            {label}
+                          <div key={i} className="relative z-20 flex flex-col items-center w-1/4 group">
+
+                            <div className="absolute -top-8 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
+                              {stage.key === "isApproved"
+                                ? item?.isApproved === "Approve"
+                                  ? "Approved"
+                                  : item?.isApproved === "Reject"
+                                    ? "Rejected"
+                                    : item?.isApproved === "Hold"
+                                      ? "Hold"
+                                      : "Pending"
+                                : stage.title}
+
+                            </div>
+
+
+                            <div
+                              className={`w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-md ${bgColor}`}
+                            >
+                              {stage.label}
+                            </div>
+
+
                           </div>
-
-
 
                         );
                       })}
                     </div>
                   </td>
+
+
+
+
                 </tr>
 
 
@@ -146,7 +185,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
           </tbody>
         </table>
+
       </div>
+
     </>
   )
 }
