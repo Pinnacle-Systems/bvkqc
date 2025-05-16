@@ -42,9 +42,11 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             <th className="py-1 px-1">S No</th>
             <th className="py-1 px-1">PO Number</th>
             <th className="py-1 px-1">Order date</th>
+            <th className="py-1 px-1">Manufacture</th>
+             <th className="py-1 px-1">Assigned Date</th>
+
             <th className="py-1 px-1">Vendor</th>
-            <th className="py-1 px-6">Delivery date</th>
-            {/* <th className="py-1 px-1">Approval Status</th> */}
+            {/* <th className="py-1 px-6">Delivery date</th> */}
             <th className="py-1 px-1 text-end">PO Status</th>
           </tr>
         </thead>
@@ -77,13 +79,13 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1 font-semibold">{index + 1}</td>
                 <td className="p-1">{item?.docId}</td>
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
+                <td className="p-1">{item?.Manufacture?.name}</td>
+                <td className="p-1">{item?.createdAt  ?  getDateFromDateTime(item?.createdAt) : "" }</td>
                 <td className="p-1">{item?.Vendor?.name}</td>
-                <td className="p-1">{item?.deliverydate  ?  getDateFromDateTime(item?.deliverydate)  :  ""} </td>
-                {/* <td className="p-1">
-                  <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
-                    {approvalStatus || "In Progress"}
-                  </span>
-                </td> */}
+                {/* <td className="p-1">{item?.deliverydate  ?  getDateFromDateTime(item?.deliverydate)  :  ""} </td> */}
+                
+
+        
                 <td className="p-1">
                   <div className="flex flex-row-reverse items-center overflow-x-auto">
                     {completedStages.map((stage, i) => {

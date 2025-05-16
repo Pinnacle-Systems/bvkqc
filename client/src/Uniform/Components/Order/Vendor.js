@@ -42,10 +42,12 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
             <tr >
               <th className="py-1 px-6">S No</th>
               <th className="py-1 px-6">PO Number </th>
-              <th className="py-1 px-6">Manufacture</th>
               <th className="py-1 px-6">Order date</th>
+              <th className="py-1 px-6">Manufacture</th>
+              <th className="py-1 px-6">Vendor</th>
+              <th className="py-1 px-6">Assigned date</th>
+
               <th className="py-1 px-6">Delivery date</th>
-              {/* <th className="py-1 px-6">Approval Status</th> */}
               <th className="py-1 px-6">PO Status</th>
 
 
@@ -82,14 +84,13 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                 >
                   <td className="p-1 font-semibold">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
-                  <td className="p-1">{item?.Manufacture?.name}</td>
                   <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
-                  <td className="p-1">{getDateFromDateTime(item?.deliverydate)}</td>
-                  {/* <td className="p-1">
-                    <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
-                      {approvalStatus}
-                    </span>
-                  </td> */}
+                  <td className="p-1">{item?.Manufacture?.name}</td>
+                  <td className="p-1">{item?.Vendor?.name}</td>
+                  <td className="p-1">{ item?.docDate ?  getDateFromDateTime(item?.docDate)  : ''}</td>
+                  <td className="p-1">{ item?.deliverydate  ?  getDateFromDateTime(item?.deliverydate) : ""} </td>
+
+
                   <td className="p-1">
                     <div className="flex flex-row-reverse items-center overflow-x-auto">
                       {completedStages.map((stage, i) => {

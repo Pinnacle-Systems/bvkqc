@@ -224,13 +224,55 @@ const PaperAirplaneIcon = () => (
 
   }
 
+  const [loading, setLoading] = useState(false);
 
+  const handleClick = async () => {
+    setLoading(true); // Show loader
+    try {
+      await saveData();
+      setPoSentForApproval(true);
+      await handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
+      await SyncformwithDb();
+    } catch (error) {
+      console.error("Error occurred:", error);
+    } finally {
+      setLoading(false); // Hide loader
+    }
+  };
 
 
   return (
 
     <>
 <div className="grid grid-cols-3 gap-3 h-full bg-gray-100 p-3 overflow-hidden">
+   {loading && (
+        <div className="fixed inset-0 z-50 bg-white bg-opacity-80 flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <svg
+              className="animate-spin h-8 w-8 text-blue-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              />
+            </svg>
+            <span className="text-sm text-gray-700 font-medium">Mail Sending, please wait...</span>
+          </div>
+        </div>
+      )}
+
   <Modal 
     isOpen={formReport}
     onClose={() => setFormReport(false)} 
@@ -335,12 +377,13 @@ const PaperAirplaneIcon = () => (
       </button>
     </div>
      <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
-       onClick={() => {
-              saveData()
-              setPoSentForApproval(true)
-              handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
-              SyncformwithDb()
-            }}
+      //  onClick={() => {
+      //         saveData()
+      //         setPoSentForApproval(true)
+      //         handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
+      //         SyncformwithDb()
+      //       }}
+            onClick={handleClick}
 
         >
           <PaperAirplaneIcon className="w-4 h-4" />

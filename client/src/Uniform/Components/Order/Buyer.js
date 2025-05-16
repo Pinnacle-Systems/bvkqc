@@ -45,11 +45,13 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
               <th className="py-1 px-6">S No</th>
               <th className="py-1 px-6" >Po Number </th>
                <th className="py-1 px-6">Po Date</th>
-              <th className="py-1 px-6">Manufacture</th>
-              <th className="py-1 px-6">Assigned Date</th>
+              <th className="py-1 px-6">Manufacture</th>  
+             <th className="py-1 px-6">Manufacture Assigned Date</th>  
               <th className="py-1 px-6">Vendor</th>              
+              <th className="py-1 px-6">Assigned Date</th>
               <th className="py-1 px-6">Delivery Date</th>
               <th className="py-1 px-6 text-end">Status</th>
+
 
 
 
@@ -100,11 +102,13 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                 >
                   <td className="p-1">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
-                  <td className="p-1">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
+                  <td className="p-1 text-center">{item?.createdAt  ?  getDateFromDateTime(item?.createdAt) : "" }</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
-                  <td className="p-1">{""}</td>
+                  <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
+
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 ">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                  <td className="p-1 text-center" >{item?.docDate  ?  getDateFromDateTime(item?.docDate) : "" }</td>
+                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="p-1">
 
                     <div className="flex flex-row-reverse items-center overflow-x-auto">
