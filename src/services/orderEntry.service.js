@@ -288,7 +288,7 @@ async function create(body) {
     let data;
     const { branchId, id, userId, vendor, active, orderQty, noOfSet, isTaxBill,
         finYearId, Department, date, orderDetails, className, isSave, attachments,
-        seasonCode, styleCode, Product, Color, ponumber, deliveryDate,docDate} = await body
+        seasonCode, styleCode, Product, Color, ponumber, deliveryDate, docDate } = await body
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
     const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startTime, finYearDate?.endTime) : "";
     let newDocId = finYearDate ? (await getNextDocId(branchId, shortCode, finYearDate?.startTime, finYearDate?.endTime, isTaxBill)) : "";
@@ -304,7 +304,7 @@ async function create(body) {
                     isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
                     deliverydate: deliveryDate ? new Date(deliveryDate) : null,
-                    docDate :  docDate  ?  docDate  : null,
+                    docDate: docDate ? docDate : null,
 
 
                     attachments: {
@@ -396,10 +396,10 @@ async function update(id, body) {
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor, orderId, cc,
         ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval, fromAddress, sendorName, sendorId, toEmail,
-        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate , docDate
+        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate
     } = await body
 
-    console.log(typeof(docDate,"docDate"),docDate)
+    console.log(typeof (docDate, "docDate"), docDate)
 
 
     const dataFound = await prisma.order.findUnique({
