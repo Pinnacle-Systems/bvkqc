@@ -138,21 +138,30 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                             key={i}
                             title={
                               stage.key === "isApproved"
-                                ? ` ${item?.isApproved == "Approve" ? "Approved" : item?.isAproved == "Reject" ? "Rejected" : "In Progress"}`
+                                ? ` ${item?.isApproved || "In Progress"}`
                                 : stage.title
                             }
                             className={`relative flex items-center justify-center text-xs font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${i !== 0 ? "mr-[-10px]" : ""
                               }`}
                             style={{
                               clipPath:
-                                i === 0
-                                  ? "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)"
-                                  : "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
+                                "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
                               zIndex: 50 - i,
                             }}
                           >
-                            {stage.label ? stage.label : label == 0 ? "" : ''}
+                            {stage.label
+                              ? stage.label
+                              : i === stageDefinitions.length - 1
+                                ? item?.isApproved === "Approve"
+                                  ? "A"
+                                  : item?.isApproved === "Reject"
+                                    ? "R"
+                                    : item?.isApproved === "Hold"
+                                      ? "H"
+                                      : "N"
+                                : ""}
                           </div>
+
                         );
                       })}
                     </div>
