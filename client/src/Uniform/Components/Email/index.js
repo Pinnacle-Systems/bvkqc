@@ -149,6 +149,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
           //   }
           // });
         }
+
         else {
           formData.append(key, data[key]);
         }
@@ -166,12 +167,16 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
         toast.success(text + "Successfully", {
           autoClose: 1000
-        });
+          
+        }
+
+      );
       } else {
         toast.error(returnData?.message, {
           autoClose: 1000
         });
       }
+      setActive("order")
 
     } catch (error) {
       console.log("handle", error);
@@ -219,11 +224,11 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
       console.log(currentId, 'current');
       handleSubmitCustom(updateData, data, "Updated")
 
+
     }
 
 
   }
-
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
