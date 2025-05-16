@@ -65,8 +65,8 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             <th className="py-1 px-1">Received Date</th>
 
             <th className="py-1 px-1">Vendor</th>
-            {/* <th className="py-1 px-6">Delivery date</th> */}
-            <th className="py-1 px-1 ">PO Status</th>
+            <th className="py-1 px-6">Delivery date</th>
+            <th className="py-1 px-1 text-end">PO Status</th>
           </tr>
         </thead>
         <tbody className="text-gray-700 text-xs">
@@ -99,11 +99,8 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Manufacture?.name}</td>
                 <td className="p-1">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
+                <td className="p-1">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
                 <td className="p-1">{item?.Vendor?.name}</td>
-
-
-
-
 
                 <td className="p-1">
                   <div className="flex items-center space-x-0">

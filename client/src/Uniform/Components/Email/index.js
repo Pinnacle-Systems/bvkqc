@@ -147,7 +147,7 @@ const handleSubmitCustom = async (callback, data, text) => {
       returnData = await callback(formData).unwrap();
     }
    
-    setActive("order");
+   
   } catch (error) {
     alert(`An error occurred: ${error.message}`);
     console.log("handle", error);
@@ -337,6 +337,7 @@ const handleSubmitCustom = async (callback, data, text) => {
     </div> */}
   <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
        onClick={() => {
+            handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList,setActive);
               saveData()
                  if ( userRole === "MANUFACTURE") {
               setPoSentForApproval(true)}
