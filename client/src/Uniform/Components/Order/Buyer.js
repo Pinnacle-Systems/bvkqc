@@ -94,8 +94,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
 
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 text-center" >{item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+   <td className="p-1">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="p-1">
                     <div className="flex items-center space-x-0">
                       {stageDefinitions.map((stage, i) => {
