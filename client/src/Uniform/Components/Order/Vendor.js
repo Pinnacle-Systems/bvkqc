@@ -122,7 +122,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                           }
                         }
 
-                        const label = item.isApproved.toUpperCase().slice(0, 2); // short code
+                        // const label = item.isApproved.toUpperCase().slice(0, 2);
 
                         return (
                           <div

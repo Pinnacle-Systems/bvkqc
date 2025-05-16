@@ -132,7 +132,7 @@ export default function Form() {
           <div className=" ">
 
             {active === "home" && <HomePage />}
-            {active === "Mail" && <MailForm
+            {active === "Mail" && <MailForm 
               setPoSentForApproval={setPoSentForApproval}
               poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
@@ -140,7 +140,7 @@ export default function Form() {
               setActive={setActive}
 
             />}
-            {active === "Report" && <EmailReport attachments={attachments} />}
+            {active === "Report" && <EmailReport attachments={attachments}  />}
             {active === "More" && <OrderImport />}
             {active === "order" && <Order setEmailId={setEmailId}  active={active}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
