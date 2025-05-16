@@ -141,7 +141,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
     console.log(isMailForm, "isMailForm", isManufacture, isBuyer)
 
-    if (!window.confirm("Are you sure you want to save the details?")) {
+    if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
       return;
     }
     if (isManufacture && userRole === "MANUFACTURE") {

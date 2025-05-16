@@ -329,12 +329,12 @@ const handleSubmitCustom = async (callback, data, text) => {
   </div>
 
   <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
-    <div className="flex items-center gap-2">
+    {/* <div className="flex items-center gap-2">
       <button className="p-2 hover:bg-gray-100 rounded-md text-gray-600 border border-gray-300">
         <PaperClipIcon className="w-5 h-5" />
       </button>
       
-    </div>
+    </div> */}
   <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
        onClick={() => {
             handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList,setActive);
