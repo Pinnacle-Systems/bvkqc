@@ -4,6 +4,7 @@ import { getTableRecordWithId } from '../utils/helperQueries.js';
 import { getFinYearStartTimeEndTime } from '../utils/finYearHelper.js';
 import { PrismaClient } from '@prisma/client';
 import { excessQty } from '../routes/index.js';
+
 const prisma = new PrismaClient()
 
 
@@ -398,6 +399,7 @@ async function update(id, body) {
         receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate
     } = await body
 
+    console.log(typeof (docDate, "docDate"), docDate)
 
 
     const dataFound = await prisma.order.findUnique({
@@ -495,8 +497,8 @@ async function update(id, body) {
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
                 isApproved: isApproved ?? undefined,
-                deliverydate: deliveryDate ? new Date(deliveryDate) : null,
-                //  docDate :  docDate  ?  new Date(docDate)  : null,
+                deliverydate: deliveryDate ? new Date(deliveryDate) : undefined,
+                //  docDate : docDate != null ?  new Date(docDate)  : undefined,
 
                 // attachments: {
                 //     deleteMany: {},
