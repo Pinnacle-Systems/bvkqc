@@ -2,6 +2,7 @@ import moment from "moment";
 import secureLocalStorage from "react-secure-storage";
 import { IMAGE_UPLOAD_URL } from "../Constants";
 import { toast } from "react-toastify";
+import { useState } from "react";
 
 
 
@@ -458,14 +459,16 @@ export function handleMailSendWithMultipleAttachments(
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
     method: "POST",
-    body: form,
-  })
-    .then((res) => {
-      toast.success("Mail Sent Successfully", { autoClose: 1000 });
-    })
-    .catch((err) => {
-      toast.error("Please Resend!", { autoClose: 1000 });
+    body: form
+  }).then(res => {
+    toast.success("Mail Send SuccessFully", {
+      autoClose: 1000
     });
+  }).catch(err => {
+    toast.error("Please Resend..!", {
+      autoClose: 1000
+    })
+  });
 }
 
 

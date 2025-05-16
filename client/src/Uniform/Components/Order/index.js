@@ -31,7 +31,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [isSave, setIsSave] = useState(true)
   const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
-
+  const [docDate, setDocDate] = useState(new Date());
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
@@ -63,6 +63,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
       setDeliveryDate(data?.deliverydate ? moment(data?.deliverydate).format('YYYY-MM-DD') : null)
+      setDocDate(data?.docDate ?  moment(data?.docDate).format('YYYY-MM-DD') : null )
       setIsApproved(data?.isApproved || '')
     },
     [id]
@@ -84,7 +85,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     excessQty,
     isSave: true, excessQtyAmount,
     isApproved,
-    deliveryDate
+    deliveryDate,docDate
   }
 
 

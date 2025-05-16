@@ -40,13 +40,12 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
               <th className="py-1 px-6">S No</th>
-              <th className="py-1 px-6" >Po Number
-
-
-              </th>
+              <th className="py-1 px-6" >Po Number </th>
+              <th className="py-1 px-6">Po Date</th>
               <th className="py-1 px-6">Manufacture</th>
-              <th className="py-1 px-6">Orderdate</th>
+              <th className="py-1 px-6">Manufacture Assigned Date</th>
               <th className="py-1 px-6">Vendor</th>
+              <th className="py-1 px-6">Assigned Date</th>
               <th className="py-1 px-6">Delivery Date</th>
               <th className="py-1 px-6 ">Status</th>
 
@@ -89,12 +88,13 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                 >
                   <td className="p-1">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
+                  <td className="p-1 text-center">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
-                  <td className="p-1">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
+                  <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
+
                   <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 ">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
-
-
+                  <td className="p-1 text-center" >{item?.docDate ? getDateFromDateTime(item?.docDate) : ""}</td>
+                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="p-1">
                     <div className="relative w-full flex items-center justify-between px-2">
 
