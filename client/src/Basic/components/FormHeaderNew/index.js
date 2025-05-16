@@ -4,9 +4,12 @@ import { toast } from "react-toastify";
 import secureLocalStorage from "react-secure-storage";
 import { useGetPagePermissionsByIdQuery } from "../../../redux/services/PageMasterService";
 import { CloseButton, DeleteButton, EditButton, NewButton, OpenProjectButton, PrintButtonOnly, SaveButton, SearchButton, ViewButtton } from "../../../Buttons";
+import { Refresh } from "@mui/icons-material";
 
 
 const FormHeaderNew = ({
+  refresh,
+  refreshPage,
   setNavigateProjectId = null,
   quotesData = null,
   projectOpen = null,
@@ -92,19 +95,21 @@ const FormHeaderNew = ({
     <>
 
 
-   
-        <div className="md:flex md:items-center md:justify-between bg-gray-300 p-2">
-      
-            <div className="font-bold   text-gray-800 ">
-              {model}
-            </div>
-     
-       
-       
-        </div>
-   
 
-  
+      <div className="md:flex md:items-center md:justify-between bg-gray-300 p-2">
+
+        <div className="font-bold   text-gray-800 ">
+          {model}
+        </div>
+        <div className="" onClick={() => refreshPage()}>
+          {/* {refresh} */}
+          <Refresh />
+
+        </div>
+      </div>
+
+
+
     </>
   );
 };
