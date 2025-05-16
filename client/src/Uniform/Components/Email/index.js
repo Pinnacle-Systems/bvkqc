@@ -68,7 +68,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [updateData] = useUpdateOrderMutation();
 
     const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode
-    console.log(styleNumber,"styleNumber")
+
 
 
 

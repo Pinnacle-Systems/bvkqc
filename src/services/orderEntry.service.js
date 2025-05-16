@@ -477,7 +477,6 @@ async function update(id, body) {
                 id: parseInt(id),
             },
             data: {
-                branchId: parseInt(branchId),
                 isSave: isSave ? JSON.parse(isSave) : false,
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
