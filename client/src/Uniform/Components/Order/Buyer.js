@@ -37,24 +37,20 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
   return (
     <>
-  
+
       <div className=" bg-white shadow rounded-lg ">
         <table className="min-w-full  text-left overflow-y-auto" >
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
               <th className="py-1 px-6">S No</th>
               <th className="py-1 px-6" >Po Number </th>
-               <th className="py-1 px-6">Po Date</th>
+              <th className="py-1 px-6">Po Date</th>
               <th className="py-1 px-6">Manufacture</th>  
              <th className="py-1 px-6">Manufacture Assigned Date</th>  
-              <th className="py-1 px-6">Vendor</th>              
+              <th className="py-1 px-6">Vendor</th>
               <th className="py-1 px-6">Assigned Date</th>
               <th className="py-1 px-6">Delivery Date</th>
               <th className="py-1 px-6 text-end">Status</th>
-
-
-
-
             </tr>
           </thead>
 

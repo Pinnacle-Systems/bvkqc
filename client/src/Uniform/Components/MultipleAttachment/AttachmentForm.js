@@ -22,22 +22,30 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
 
     function openPreview() {
         window.open(item?.filePath instanceof File ? URL.createObjectURL(item?.filePath) : getImageUrlPath(item.filePath))
+
     }
+
+
+    // function getImage(fileName) {
+
+    //     console.log("kiii")
+    // }
+
     return (
         <>
 
             <tr
                 key={index}
-                className="hover:bg-gray-100 transition duration-150"
+                className="hover:bg-gray-100 transition duration-150 text-xs table-row"
             >
-                <td className="py-0.5 px-3 w-10 border border-gray-400">
+                <td className=" px-3 border border-gray-400">
                     {index + 1}
                 </td>
-                <td className="py-0.5 px-3 w-32 border border-gray-400">
+                <td className=" px-3 border border-gray-400">
                     <input
                         type="date"
                         disabled={readOnly}
-                        className="text-center rounded py-1 px-2 w-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
+                        className="text-center rounded py-1 w-full  focus:outline-none focus:ring focus:border-blue-300"
                         value={
                             moment(item?.date).format("YYYY-MM-DD")
                         }
@@ -46,7 +54,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                         }
                     />
                 </td>
-                <td className="py-0.5 px-3  w-32 border border-gray-400">
+                {/* <td className="py-0.5 px-3  w-32 border border-gray-400">
                     <input
                         type="text"
                         className="text-left rounded py-1 px-2 w-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
@@ -56,11 +64,11 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                         }
 
                     />
-                </td>
-                <td className="py-0.5 px-3 border border-gray-400">
+                </td> */}
+                <td className=" px-3 border border-gray-400">
                     <input
                         type="text"
-                        className="text-left rounded py-1 px-2 w-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
+                        className="text-left rounded py-1 px-2 w-full  focus:outline-none focus:ring focus:border-blue-300"
                         value={item?.log}
                         disabled={readOnly}
                         onChange={(e) =>
@@ -69,7 +77,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                     />
                 </td>
 
-                <td className="py-0.5 px-3  w-20 border border-gray-400">
+                <td className=" px-3 w-60 border border-gray-400">
                     <div className='flex gap-2'>
                         {(!readOnly && !item.filePath) &&
                             <input
@@ -84,7 +92,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                         }
                         {item.filePath &&
                             <>
-
+                                {item.filePath?.name ? item.filePath?.name : item?.filePath}
                                 <button onClick={() => { openPreview() }}>
                                     {VIEW}
                                 </button>
@@ -93,7 +101,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                                 }
                             </>
                         }
-                 
+
 
 
                     </div>

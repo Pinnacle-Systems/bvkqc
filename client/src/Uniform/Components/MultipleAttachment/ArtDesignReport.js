@@ -1,7 +1,7 @@
 
 
 import moment from 'moment'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CLOSE_ICON, DELETE, PLUS, VIEW } from '../../../icons';
 import { getImageUrlPath } from '../../../helper';
 import { renameFile } from '../../../Utils/helper';
@@ -17,6 +17,22 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, formRep
     setAttachments((prev) => [...prev, { log: "", date: today, filePath: "" }]);
     setDueDate(moment.utc(today).format("YYYY-MM-DD"));
   }
+
+
+
+
+  useEffect(() => {
+    if (attachments?.length >= 1) return
+    setAttachments(prev => {
+      let newArray = Array.from({ length: 1 - prev.length }, () => {
+        return { date: today, filePath: "", log: "" }
+      })
+      return [...prev, ...newArray]
+    }
+    )
+  }, [setAttachments, attachments])
+
+
   return (
     <>
       {/* <div>
@@ -61,16 +77,16 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, formRep
         <div className='w-full p-2 bg-gray-200 text-center text-lg' >{Model}</div>
         <div className="flex-1 overflow-hidden">
 
-          <div className="h-full grid grid-cols-1 gap-4 p-1">
-            <div className="h-full overflow-hidden border border-gray-300">
-              <table className="text-sm table-auto w-full">
+          <div className="w-full grid grid-cols-1 mt-2  px-5">
+            <div className="grid grid-cols-1 gap-4 p-1">
+              <table className="border border-gray-300 text-sm table-auto w-full">
                 <thead className="bg-gray-300 border border-gray-400">
                   <tr>
-                    <th className="py-1 px-3 w-7 text-left border border-gray-400">S.No</th>
-                    <th className="py-1 px-3 w-32 text-left border border-gray-400">Date</th>
-                    <th className="py-1 px-3 w-32 text-left border border-gray-400">User</th>
+                    <th className="py-1 px-3 w-10 text-left border border-gray-400">S.No</th>
+                    <th className="py-1 px-3 w-24 text-left border border-gray-400">Date</th>
+                    {/* <th className="py-1 px-3 w-32 text-left border border-gray-400">User</th> */}
                     <th className="py-1 px-3 text-left border border-gray-400">Comments</th>
-                    <th className="py-1 px-3 text-left w-20 border border-gray-400">File</th>
+                    <th className="py-1 px-3 text-left w-60 border border-gray-400">File</th>
                     <th className="py-1 px-3 w-10 text-center">
                       <button
                         onClick={addNewComments}
@@ -81,32 +97,30 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, formRep
                     </th>
                   </tr>
                 </thead>
+
+
+                <tbody>
+                  {(attachments ?? []).map((item, index) => (
+                    <AttachementForm
+                      key={index}
+                      item={item}
+                      index={index}
+                      readOnly={false}
+                      setAttachments={setAttachments}
+                      attachments={attachments}
+                    />
+                  ))}
+                </tbody>
               </table>
-              <div className="overflow-y-auto h-[440px]">
-                <table className="text-sm table-auto w-full">
-                  <tbody>
-                    {(attachments ?? []).map((item, index) => (
-                      <AttachementForm
-                        key={index}
-                        item={item}
-                        index={index}
-                        readOnly={false}
-                        setAttachments={setAttachments}
-                        attachments={attachments}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+
             </div>
           </div>
         </div>
-        {console.log(formReport, 'formReport')
-        }
+
         <div className="h-[60px] flex items-center justify-end px-5">
           <button
             onClick={() => setFormReport?.(false)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-3  rounded hover:bg-blue-600"
           >
             DONE
           </button>
