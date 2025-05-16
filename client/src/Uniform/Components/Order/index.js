@@ -135,12 +135,41 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   };
 
 
-  const saveData = (isMailForm) => {
-    console.log(isMailForm,"isMailForm")
+  const saveData = (isMailForm=false,isManufacture= false,isBuyer=false) => {
+    console.log(isMailForm,"isMailForm",isManufacture,isBuyer)
 
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
     }
+    if(isManufacture &&  userRole === "MANUFACTURE"){
+      if(!deliveryDate){
+            toast.info("Choose The Delivery Date", {
+          autoClose: 1000
+        })
+        return ;
+      }
+         if(!vendor){
+            toast.info("Choose The Vendor", {
+          autoClose: 1000
+        })
+        return;
+      }
+    }
+    if(isBuyer){
+         if(!deliveryDate){
+            toast.info("Cannot send Mail ", {
+          autoClose: 1000
+        })
+        return ;
+      }
+         if(!vendor){
+            toast.info("Cannot send Mail", {
+          autoClose: 1000
+        })
+        return;
+      }
+    }
+    
     if (isMailForm) {
       setForm(false);
       setActive("Mail");

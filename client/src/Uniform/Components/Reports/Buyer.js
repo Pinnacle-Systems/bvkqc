@@ -29,6 +29,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
   let data = singleData?.data
   const isMailForm = true
+  const isBuyer  =  true
   const model = "Po Number"
 
 
@@ -204,6 +205,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
               onChange={(e) =>
                 setIsApproved(e.target.value)
               }
+              disabled={!data?.deliverydate  ||   !data?.vendorId  }
             >
               <option value='' >Select status</option>
               <option value='Approve'  >Approve</option>
@@ -245,7 +247,11 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                   <th className=" text-[13px] w-[50px]">MRP</th>
                   <th className=" text-[13px] w-[50px]">OrderQty</th>
                   {/* <th className=" text-[13px] w-[50px]">Excess %</th> */}
+                  {data?.isSave   &&  
                   <th className=" text-[13px] w-[50px]">Qty</th>
+                  
+                  }
+
                 </tr>
               </thead>
 
@@ -269,7 +275,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                       <td className="border border-gray-300 text-[12px] text-center ">{item?.color}</td>
 
                       <td className="border border-gray-300 text-[12px] text-right ">{item?.mrp}</td>
-                      <td className="border border-gray-300 text-[12px] text-right ">{item?.orderQty || ""}</td>
+                      <td className="border border-gray-300 text-[12px] text-right ">{parseInt(item?.orderQty) || ""}</td>
                       {/* <td className="border border-gray-300 w-16">
                      <input
                      type="number"
@@ -279,8 +285,10 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                    />
                
                </td> */}
+{data?.isSave   &&   
+                      <td className="border border-gray-300 text-right w-32 " key={index}>{parseInt(item?.qty) || ""} </td>
 
-                      <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+}
 
                     </tr>
                   </>
@@ -308,12 +316,12 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                     {poItems.reduce((a, c) => a + parseInt(c.orderQty || 0), 0) || ""}
                   </td>
 
-
+{data?.isSave   &&   
                   <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
                     {poItems.reduce((a, c) => a + parseInt(c.qty || 0), 0) || ""}
 
                   </td>
-
+  }
 
                 </tr>
 
@@ -327,28 +335,11 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
 
         <div className=" w-full flex justify-end">
-
-
-
-
-
-
-          {/* <button
-            className="bg-blue-600 hover:bg-blue-700 text-white   px-2  h-6 rounded-sm  text-[12px]"
-            onClick={() => {
-              // setIsSave(true);
-              saveData(isMailForm);
-              // exportAndUploadExcel(data);
-              // setForm(false);
-              // setActive("Mail");
-              setPoSentForApproval = (true)
-            }}
-          >
-            Send mail
-              </button> */}
+{!data?.deliverydate  ||   !data?.vendorId   ?    <></>   :  
     <button
       onClick={() => {
-        saveData(isMailForm);
+          console.log(isBuyer,":isBuyer")
+        saveData(isMailForm,false,isBuyer);
         setPoSentForApproval = (true)
 
       }}
@@ -367,6 +358,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
         SEND MAIL
       </span>
     </button>
+
+     }
         </div>
 
       </div >

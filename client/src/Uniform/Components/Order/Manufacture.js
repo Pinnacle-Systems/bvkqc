@@ -2,12 +2,15 @@ import { getDateFromDateTime } from "../../../Utils/helper";
 
 export default function Manufacture({ allData, setForm, setId, setPoNo }) {
   const stageDefinitions = [
+    {key: "" , lable:"In Progress" , color : "bg-violet=500"},
     { key: "isSave", label: "Po Created", color: "bg-blue-500" },
     { key: "poSentForApproval", label: "Sent to Approval", color: "bg-orange-500" },
     { key: "isApproved" },
   ];
   const getStageColor = (stageKey, item) => {
     switch (stageKey) {
+    case "":
+         return  "bg-violet-300";
       case "isApproved":
         switch (item?.isApproved) {
           case "Reject":
@@ -25,7 +28,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
 
       case "isSave":
         return item?.isSave ? "bg-blue-500" : "bg-gray-300";
-
+    
       default:
         return "bg-gray-300";
     }
@@ -41,7 +44,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             <th className="py-1 px-1">Order date</th>
             <th className="py-1 px-1">Vendor</th>
             <th className="py-1 px-6">Delivery date</th>
-            <th className="py-1 px-1">Approval Status</th>
+            {/* <th className="py-1 px-1">Approval Status</th> */}
             <th className="py-1 px-1 text-end">PO Status</th>
           </tr>
         </thead>
@@ -50,7 +53,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             const completedStages = stageDefinitions
               .filter((stage) => item?.[stage.key])
               .reverse();
-
+              {console.log(completedStages,'completedStages')}
             const approvalStatus = item?.isApproved || "In Progress";
 
             const approvalColor = approvalStatus === "Approved"
@@ -76,11 +79,11 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Vendor?.name}</td>
                 <td className="p-1">{item?.deliverydate  ?  getDateFromDateTime(item?.deliverydate)  :  ""} </td>
-                <td className="p-1">
+                {/* <td className="p-1">
                   <span className={`inline-block text-sm font-semibold px-2 py-0.5 rounded ${approvalColor}`}>
                     {approvalStatus || "In Progress"}
                   </span>
-                </td>
+                </td> */}
                 <td className="p-1">
                   <div className="flex flex-row-reverse items-center overflow-x-auto">
                     {completedStages.map((stage, i) => {
