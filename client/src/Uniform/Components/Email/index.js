@@ -7,7 +7,6 @@ import { DELETE } from "../../../icons";
 import { ArrowBack, AttachFile } from "@mui/icons-material";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import { toast } from 'react-toastify';
 import { useGetOrderByIdQuery, useUpdateOrderMutation, useUploadMutation } from "../../../redux/uniformService/OrderService";
 import { useGetEmailByIdQuery, useGetEmailQuery } from "../../../redux/uniformService/Email.Services";
 import { getImageUrlPath } from "../../../Constants";
@@ -130,58 +129,31 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
 
-
-  const handleSubmitCustom = async (callback, data, text) => {
-
-    try {
-      const formData = new FormData();
-      for (let key in data) {
-        // if (key === "attachments") {
-        //   data[key].forEach(item =>
-        //     formData.append(key, JSON.stringify(item))
-        //   );
-        // }
-        if (key === 'attachments') {
-          formData.append(key, JSON.stringify(data[key].map(i => ({ ...i }))));
-          // data[key].forEach(option => {
-          //   if (option?.filePath instanceof File) {
-          //     formData.append('images', option.filePath);
-          //   }
-          // });
-        }
-
-        else {
-          formData.append(key, data[key]);
-        }
-      }
-
-
-      let returnData;
-      if (text === "Updated") {
-        returnData = await callback({ id, body: formData }).unwrap();
+const handleSubmitCustom = async (callback, data, text) => {
+  try {
+    const formData = new FormData();
+    for (let key in data) {
+      if (key === 'attachments') {
+        formData.append(key, JSON.stringify(data[key].map(i => ({ ...i }))));
       } else {
-        returnData = await callback(formData).unwrap();
+        formData.append(key, data[key]);
       }
-      if (returnData.statusCode === 0) {
-
-
-        toast.success(text + "Successfully", {
-          autoClose: 1000
-          
-        }
-
-      );
-      } else {
-        toast.error(returnData?.message, {
-          autoClose: 1000
-        });
-      }
-      setActive("order")
-
-    } catch (error) {
-      console.log("handle", error);
     }
-  };
+
+    let returnData;
+    if (text === "Updated") {
+      returnData = await callback({ id, body: formData }).unwrap();
+    } else {
+      returnData = await callback(formData).unwrap();
+    }
+   
+    setActive("order");
+  } catch (error) {
+    alert(`An error occurred: ${error.message}`);
+    console.log("handle", error);
+  }
+};
+
   const MailIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
