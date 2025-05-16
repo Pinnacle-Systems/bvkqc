@@ -342,6 +342,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                   handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive);
                   saveData()
                   if (userRole === "VENDOR") {
+                    { console.log("Hit") }
                     setPoSentForApproval(true)
                   }
                   handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);

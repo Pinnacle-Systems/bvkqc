@@ -16,7 +16,6 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
       if (key === "isApproved") {
         if (item?.isApproved) index = i;
       } else {
-        console.log(item?.[key] === true, 'item?.[key] === true');
 
         if (item?.[key] === true || item?.[key] === 1) {
           index = i;
@@ -99,7 +98,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Manufacture?.name}</td>
                 <td className="p-1">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
-       
+
                 <td className="p-1">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
                 <td className="p-1">{item?.Vendor?.name}</td>
 

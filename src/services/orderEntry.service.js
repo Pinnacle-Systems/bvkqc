@@ -411,18 +411,20 @@ async function update(id, body) {
     if (!dataFound) return NoRecordFound("orderBill");
 
     if (mailTransaction) {
+        const poSentForApproval = req.body.poSentForApproval;
 
+
+        const parsedPoSentForApproval = poSentForApproval === 'true' ? true
+            : poSentForApproval === 'false' ? false
+                : undefined;
         data = await prisma.order.update({
             where: {
                 id: parseInt(orderId),
             },
             data: {
-                poSentForApproval: poSentForApproval ? Boolean(poSentForApproval) : undefined,
-
+                poSentForApproval: parsedPoSentForApproval,
             },
-
-        })
-
+        });
 
         data = await prisma.mailTransaction.create(
             {

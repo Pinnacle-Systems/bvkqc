@@ -17,7 +17,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
       if (key === "isApproved") {
         if (item?.isApproved) index = i;
       } else {
-        console.log(item?.[key] === true, 'item?.[key] === true');
+
 
         if (item?.[key] === true || item?.[key] === 1) {
           index = i;
