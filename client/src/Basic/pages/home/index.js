@@ -77,10 +77,10 @@ const Home = () => {
                     if(isOpen){
                     setIsOpen(!isOpen);
                     }
-                    if(profile){
-                       setProfile(false)
+                    // if(profile){
+                    //    setProfile(false)
 
-                    }
+                    // }
                     }
                   }
 
