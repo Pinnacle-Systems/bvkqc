@@ -25,7 +25,7 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, formRep
     if (attachments?.length >= 1) return
     setAttachments(prev => {
       let newArray = Array.from({ length: 1 - prev.length }, () => {
-        return { date: "", log: "" }
+        return { date: today, filePath: "", log: "" }
       })
       return [...prev, ...newArray]
     }

@@ -26,10 +26,10 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
     }
 
 
-    function getImage(fileName) {
+    // function getImage(fileName) {
 
-        console.log("kiii")
-    }
+    //     console.log("kiii")
+    // }
 
     return (
         <>
@@ -92,8 +92,8 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                         }
                         {item.filePath &&
                             <>
-                                {item.filePath?.name ? item.filePath?.name : ""}
-                                <button onClick={() => { item.filePath?.name ? getImage(item.filePath?.name) : openPreview() }}>
+                                {item.filePath?.name ? item.filePath?.name : item?.filePath}
+                                <button onClick={() => { openPreview() }}>
                                     {VIEW}
                                 </button>
                                 {!readOnly &&
