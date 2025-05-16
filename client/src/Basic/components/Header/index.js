@@ -20,7 +20,7 @@ import useLogout from "../../../CustomHooks/useLogout";
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
 
-const Header = ({ profile, setProfile }) => {
+const Header = ({ profile, setProfile , setLogout , logout}) => {
     const [hideNavBar, sethideNavBar] = useState(true);
 
     const navBatItemsStyle = hideNavBar ? "hidden" : "";
@@ -165,7 +165,7 @@ const Header = ({ profile, setProfile }) => {
                         dp={dp}
                         setProfile={setProfile}
                         items={allowedPages.filter((page) => page.type === "AdminAccess")}
-
+                        setLogout={setLogout}  logout={logout}
                         />}
 
                 </div>

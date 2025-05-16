@@ -17,6 +17,7 @@ const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
   const [profile, setProfile] = useState(false);
+  
   const isSuperAdmin = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "superAdmin"
   );
@@ -77,17 +78,17 @@ const Home = () => {
                     if(isOpen){
                     setIsOpen(!isOpen);
                     }
-                    // if(profile){
-                    //    setProfile(false)
+                    if(profile){
+                       setProfile(false)
 
-                    // }
+                    }
                     }
                   }
 
                                               
               >
 
-                <Header profile={profile} setProfile={setProfile} />
+                <Header profile={profile} setProfile={setProfile}  logout={logout}  setLogout={setLogout}  />
 
                 <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                   isMainDropdownOpen={isMainDropdownOpen}
@@ -126,7 +127,7 @@ const Home = () => {
                         
                         >
           
-                          <Header profile={profile} setProfile={setProfile} />
+                          <Header profile={profile} setProfile={setProfile}  setLogout={setLogout} logout={logout} />
           
                           <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                             isMainDropdownOpen={isMainDropdownOpen}
