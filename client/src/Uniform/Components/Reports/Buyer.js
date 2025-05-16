@@ -245,10 +245,11 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                   <th className=" text-[13px] w-[50px]">Size</th>
                   <th className=" text-[13px] w-[90px]">Color</th>
                   <th className=" text-[13px] w-[50px]">MRP</th>
-                  <th className=" text-[13px] w-[50px]">OrderQty</th>
-                  {/* <th className=" text-[13px] w-[50px]">Excess %</th> */}
+                  <th className=" text-[13px] w-[50px]">Po Qty</th>
+                    <th className="w-[50px]">Excess %</th>
+
                   {data?.isSave   &&  
-                  <th className=" text-[13px] w-[50px]">Qty</th>
+                  <th className=" text-[13px] w-[50px]">Order Qty</th>
                   
                   }
 
@@ -275,20 +276,13 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                       <td className="border border-gray-300 text-[12px] text-center ">{item?.color}</td>
 
                       <td className="border border-gray-300 text-[12px] text-right ">{item?.mrp}</td>
-                      <td className="border border-gray-300 text-[12px] text-right ">{parseInt(item?.orderQty) || ""}</td>
-                      {/* <td className="border border-gray-300 w-16">
-                     <input
-                     type="number"
-                     value={item?.excessQty }
-                     onChange={(e) => handleQtyChange("excessQty" ,index, e.target.value,item?.orderQty)}
-                     className="w-full p-1   rounded-md text-right focus:ring-blue-400"
-                   />
-               
-               </td> */}
-{data?.isSave   &&   
-                      <td className="border border-gray-300 text-right w-32 " key={index}>{parseInt(item?.qty) || ""} </td>
+                      <td className="border border-gray-300 text-[12px] text-right ">{Math.round(item?.orderQty) || ""}</td>
+                          <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
+         
+                        {data?.isSave   &&   
+                          <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
 
-}
+                        }
 
                     </tr>
                   </>
@@ -306,26 +300,27 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                   <td className="border border-gray-300 text-left w-52"></td>
                   <td className="border border-gray-300 text-left w-52"></td>
                   <td className="border border-gray-300 text-left w-52"></td>
-
-
-
-
-
-                  <td className="border border-gray-300 text-right w-32"></td>
+                  <td className="border border-gray-300 text-left w-52"></td>
                   <td className="border border-gray-200 text-right w-32 text-lg  text-gray-800 font-bold ">
-                    {poItems.reduce((a, c) => a + parseInt(c.orderQty || 0), 0) || ""}
+                    {poItems.reduce((a, c) => a +  Math.round(c.orderQty || 0), 0) || ""}
                   </td>
+                  <td className="border border-gray-300 text-right w-32"></td>
 
-{data?.isSave   &&   
-                  <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
-                    {poItems.reduce((a, c) => a + parseInt(c.qty || 0), 0) || ""}
+                    {data?.isSave   &&   
+                    <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
+                    {poItems.reduce((a, c) => a +  Math.round(c.qty || 0), 0) || ""}
 
-                  </td>
-  }
+                    </td>
+                    }
 
                 </tr>
 
               </tbody>
+
+
+
+
+
 
 
             </table>

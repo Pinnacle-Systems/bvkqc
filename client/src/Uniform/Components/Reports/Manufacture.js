@@ -40,9 +40,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-  const exportAndUploadExcel = async (data, poItemsData, text = "uploaded") => {
+  const exportAndUploadExcel = async (data, poItemsData) => {
+        // console.log(poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""),"Poitems")
+        const filterdPoItems =  poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== "")
     try {
-      const combinedData = poItemsData?.filter(item => item?.orderQty != null || item?.orderQty != "").map((item, index) => ({
+      const combinedData = (filterdPoItems ||  [])?.map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -56,10 +58,10 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         sizeDescription: item.sizeDesc,
         Color: item.color,
         Mrp: item.mrp,
-        OrderQty: item.orderQty,
         Product: item.product,
+        PoQty: item.orderQty,
         excessPercentage: item.excessQty,
-        Quantity: item.qty
+        OrderQty: parseInt(item.qty)
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(combinedData);
@@ -118,7 +120,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         }
 
         newItems[index]['excessQty'] = value;
-        const percentage = parseInt((orderQty * value) / 100);
+        const percentage = Math.round ((orderQty * value) / 100);
         const updatedQty = Math.round(orderQty + percentage);
 
         newItems[index]['qty'] = updatedQty;
@@ -198,7 +200,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           </div>
 
           <div className="col-span-2 flex flex-col">
-            <label className="text-xs font-semibold ">Manufacture</label>
+            <label className="text-xs font-semibold ">Manufacture </label>
             <input
               type="text"
               className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
@@ -218,7 +220,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           </div>
 
           <div className="flex flex-col w-72 ">
-            <label className="text-xs font-semibold ">Tag vendor</label>
+            <label className="text-xs font-semibold ">Tag vendor  <span className="text-red-500">*</span></label>
             <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
 
           </div>
@@ -227,11 +229,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
           <div className=''>
 
-            <DateInputNew
-              name={"Delivery Date"}
-              value={deliveryDate}
-
-              setValue={setDeliveryDate} />
+            <DateInputNew name={"Delivery Date"} value={deliveryDate}  setValue={setDeliveryDate}  required={true} />
           </div>
 
         </div >
@@ -260,9 +258,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                 <th className="w-[50px]">Size</th>
                 <th className="w-[90px]">Color</th>
                 <th className="w-[50px]">MRP</th>
-                <th className="w-[50px]">OrderQty</th>
+                <th className="w-[50px]">Po Qty</th>
                 <th className="w-[50px]">Excess %</th>
-                <th className="w-[50px]">Qty</th>
+                <th className="w-[50px]">Order Qty</th>
               </tr>
             </thead>
 
@@ -318,11 +316,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-
                 <td className="border-b border-gray-300 text-right w-32"></td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
                   {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
+
 
                 <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
                 </td>
@@ -349,32 +347,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
         <div className=" flex  justify-end gap-3">
 
-          {/* <button
-            className="bg-[#303AB2] hover:bg-[#303AB2] text-white px-1  rounded-sm "
-            onClick={() => {
-
-              saveData()
-
-            }}
-          >
-            Save
-          </button>
-
-
-          <button
           
-            className="bg-[#303AB2] hover:bg-[#303AB2] text-white  p-0  rounded-sm  "
-            onClick={() => {
-              // setIsSave(true);
-              saveData(isMailForm);
-              exportAndUploadExcel(data, poItems);
-              // setForm(false);
-              // setActive("Mail");
-            }}
-          >
-            Save & Send
-          </button> */}
-
 
           <button
             onClick={() => {

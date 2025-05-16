@@ -390,14 +390,7 @@ export const DateInput = ({ name, value, setValue, readOnly, required = false, t
 }
 export const DateInputNew = ({ name, value, setValue, readOnly, required = false, type = "date", disabled = false, tabIndex = null, inputClass, inputHead }) => {
     console.log(value, 'value');
-    //     const formatDateForInput = (dateStr) => {
-    //     if (!dateStr) return '';
-    //     const [day, month, year] = dateStr.split('-');
-    //     if (!year || !month || !day) return dateStr; 
-    //     return `${year}-${month}-${day}`;
-    // };
 
-    // const formattedValue = formatDateForInput(value);
 
     return (
         <div className='   grid-cols-1 md:grid-cols-3 items-center  md:px-1  w-32'>

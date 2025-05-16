@@ -251,8 +251,10 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                 <th className="w-[50px]">Size</th>
                 <th className="w-[90px]">Color</th>
                 <th className="w-[50px]">MRP</th>
-                <th className="w-[50px]">OrderQty</th>
-                <th className="w-[50px]">Qty</th>
+                <th className="w-[50px]">Po Qty</th>
+                 <th className="w-[50px]">Excess %</th>
+                <th className="w-[50px]">Order Qty</th>
+
               </tr>
             </thead>
 
@@ -274,7 +276,8 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   <td className="border border-gray-300 text-center ">{item?.color}</td>
 
                   <td className="border border-gray-300 text-right ">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
+                  <td className="border border-gray-300 text-right ">{Math.round(item?.orderQty) || ""}</td>
+                  <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
 
 
                   <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
@@ -291,12 +294,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                 </td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
                 <td className="border-b border-gray-300 text-left w-16"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-
-
-
-
+                <td className="border-b border-gray-300 text-center w-2"></td>
+              <td className="border-b border-gray-300 text-right w-32"></td>
+              <td className="border-b border-gray-300 text-right w-32"></td>
 
                 <td className="border-b border-gray-300 text-right w-32"></td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
@@ -309,8 +309,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
 
                 </td>
-
-
+             
               </tr>
 
             </tbody>
@@ -318,6 +317,12 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
           </table>
         </div>
+
+
+
+
+
+
 
 
         <div className="flex justify-end gap-3 ">
