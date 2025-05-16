@@ -3,6 +3,7 @@ import { getDateFromDateTime, getYearShortCodeForFinYear } from '../utils/helper
 import { getTableRecordWithId } from '../utils/helperQueries.js';
 import { getFinYearStartTimeEndTime } from '../utils/finYearHelper.js';
 import { PrismaClient } from '@prisma/client';
+import { excessQty } from '../routes/index.js';
 const prisma = new PrismaClient()
 
 
@@ -157,22 +158,34 @@ async function getOne(req) {
 
     if (!data) return NoRecordFound("Order Bill");
 
+
     let percentage = await findPercentageValue()
 
     data["orderBillItems"] = data["orderBillItems"]?.map((val) => {
+        const excessQty = val?.excessQty ?? percentage;
+        const orderQty = parseFloat(val?.orderQty) || 0;
+
         return {
-            ...val, excessQty: val?.excessQty ? val?.excessQty : val?.orderQty ? percentage : "",
-            qty: getQty(val.excessQty, val?.orderQty)
-        }
-    })
+            ...val,
+            excessQty: excessQty,
+            qty: getQty(excessQty, orderQty)
+        };
+    });
+
+
 
     return { statusCode: 0, data };
 }
 function getQty(excessQty, orderQty) {
-    const percentage = parseFloat((orderQty * excessQty) / 100);
-    const updatedQty = parseFloat(orderQty) + percentage;
-    return updatedQty
+    const excess = parseFloat(excessQty) || 0;
+    const order = parseFloat(orderQty) || 0;
+    console.log(excess, order, 'order');
+
+    const percentage = (order * excess) / 100;
+    const updatedQty = order + percentage;
+    return updatedQty;
 }
+
 
 async function findPercentageValue() {
     let data = await prisma.percentage.findMany({
