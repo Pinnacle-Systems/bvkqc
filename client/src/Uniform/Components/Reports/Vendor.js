@@ -14,7 +14,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, setIsSave, id, setCurrentId, poSentForApproval, setPoSentForApproval }) {
+  setActive, setIsSave, id, setCurrentId, poSentForApproval, setPoSentForApproval, form, active }) {
 
   const [attachments, setAttachments] = useState([]);
 
@@ -22,7 +22,6 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   const [searchValue, setSearchValue] = useState("");
   const { branchId, finYearId, userId } = getCommonParams()
 
-  console.log(singleData, "singleData")
 
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
@@ -31,25 +30,25 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
   const { data: percentage } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
-  let excessQty = percentage?.data?.filter(item => item?.active === true)
-  let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
+
   let orderData = singleData?.data
+  const model = "Po Number"
 
   const data = {
     attachments, isAttachments: true, poSentForApproval
   };
 
+
   useEffect(() => {
-    if (poItems.length >= 5) return
+    if (poItems?.length >= 14) return
     setPoItems(prev => {
-      let newArray = Array.from({ length: 5 - prev.length }, i => {
-        return { excessQty: "", qty: 0.00, orderQty: 0.00 }
+      let newArray = Array.from({ length: 14 - prev.length }, () => {
+        return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
       })
       return [...prev, ...newArray]
     }
     )
-  }, [poItems])
-
+  }, [setPoItems, poItems])
 
   useEffect(() => {
     if (!id) return
@@ -87,7 +86,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
         toast.success(text + "Successfully");
 
-
+        setActive("Mail")
       } else {
         toast.error(returnData?.message);
       }
@@ -120,42 +119,85 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
   return (
     <>
-      <FormHeaderNew
-        model={"Order"}
-      />
+
       <Modal isOpen={formReport}
         onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
       >
         <ArtDesignReport
+
           setFormReport={setFormReport}
           tableWidth="100%"
-          // data={allData?.data}
-          // onClick={(id) => {
-          // setId(id);
-          // setFormReport(false);
-          // }
-          // }
+          formReport={formReport}
           setAttachments={setAttachments}
           attachments={attachments}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
       </Modal>
-      <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto">
+      <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
+        <div className="text-md font-semibold">
+          <span className="">{model} : </span>&nbsp;
+          <span className="text-[#303AB2]">{orderData?.docId}</span>
+        </div>
 
 
-        <div className="grid grid-cols-7 gap-4 border border-gray-300 pb-3 p-2 rounded h-[15%]"  >
+        {active === "order" && form === true && (
+          <div className="flex items-center space-x-1">
 
+            <button
+              onClick={() => {
+                setForm(false);
+                setActive("order");
+              }}
+              className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+            >
+              <svg
+                className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                Back
+              </span>
+            </button>
+
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col w-full bg-white  h-full overflow-auto p-1">
+
+
+
+        <div className="flex flex-wrap gap-1 border  rounded item-center p-2"  >
           <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Number</label>
+            <label className="text-xs font-semibold">Customer</label>
             <input
               type="text"
-              className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-              value={orderData?.docId}
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={"MAX"}
             />
           </div>
+
+
+          <div className="col-span-2 flex flex-col">
+            <label className="text-xs font-semibold ">Manufacture</label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+              value={orderData?.Manufacture?.name}
+            />
+
+          </div>
           <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Date</label>
+            <label className="text-xs font-semibold ">Po Date</label>
             <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -164,48 +206,42 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
             />
           </div>
+
+
+
           <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Customer</label>
+            <label className="text-xs font-semibold ">Delivery Date</label>
             <input
               type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={"MAX"}
+              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={getDateFromDateTime(data?.deliverydate)}
+
             />
           </div>
 
-          <div className="flex flex-col col-span-2 ">
-            <label className="text-xs font-semibold text-gray-600">Manufacture</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-              value={orderData?.manufacture || ""}
-            />
-
-          </div>
 
 
-          <div className="flex  mt-2">
+
+          <div className="flex pt-4">
             <button
-              className="relative py-1  bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
+              className="relative  h-6 px-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white
+              rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
               onClick={() => setFormReport(true)}
             >
-              <span className="absolute inset-0 bg-white opacity-10 blur-sm rounded-xl"></span>
-              <span className="relative z-10"> Attach  Design</span>
+              <span className="absolute  bg-white opacity-10 "></span>
+              <span className="relative z-10 text-[12px]"> Attach Art Design</span>
             </button>
           </div>
 
+        </div >
 
 
-        </div>
-
-
-
-        <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto ">
+        <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
             <thead className="bg-gray-200 text-gray-700 ">
-              <tr className="p-2">
-                <th className="w-[50px] p-2">S No</th>
-                <th className="w-[120px] p-2">Department</th>
+              <tr className="p-1">
+                <th className="w-[50px] p-1">S No</th>
+                <th className="w-[120px] p-1">Department</th>
                 <th className="w-[150px]">Class-SubClass</th>
                 <th className="w-[120px]">ItemCode</th>
                 <th className="w-[120px]">BarCode</th>
@@ -215,15 +251,17 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                 <th className="w-[50px]">Size</th>
                 <th className="w-[90px]">Color</th>
                 <th className="w-[50px]">MRP</th>
-                <th className="w-[50px]">OrderQty</th>
-                <th className="w-[50px]">Qty</th>
+                <th className="w-[50px]">Po Qty</th>
+                 <th className="w-[50px]">Excess %</th>
+                <th className="w-[50px]">Order Qty</th>
+
               </tr>
             </thead>
 
             <tbody className="">
               {(poItems || []).map((item, index) => (
                 <tr key={index} className=" table-row ">
-                  <td className="border border-gray-300 text-center p-2">{index + 1}</td>
+                  <td className="border border-gray-300 text-center p-1">{index + 1}</td>
                   <td className="border border-gray-300 text-left ">{item?.department}</td>
                   <td className="border border-gray-300 text-left ">{item?.class}</td>
 
@@ -233,19 +271,20 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
                   <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
                   <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
+
                   <td className="border border-gray-300 text-center ">{item?.size}</td>
-
                   <td className="border border-gray-300 text-center ">{item?.color}</td>
+
                   <td className="border border-gray-300 text-right ">{item?.mrp}</td>
+                  <td className="border border-gray-300 text-right ">{Math.round(item?.orderQty) || ""}</td>
+                  <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
 
-                  <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
-                  <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
 
-
+                  <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
 
                 </tr>
               ))}
-              <tr className="border-2  border-gray-400 bg-gray-200 p-2">
+              <tr className="border-2  border-gray-400 bg-gray-200 p-1">
                 <td className="border-b border-gray-300 text-center w-2"></td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
@@ -255,43 +294,59 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                 </td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
                 <td className="border-b border-gray-300 text-left w-16"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-
-
-
-
+                <td className="border-b border-gray-300 text-center w-2"></td>
+              <td className="border-b border-gray-300 text-right w-32"></td>
+              <td className="border-b border-gray-300 text-right w-32"></td>
 
                 <td className="border-b border-gray-300 text-right w-32"></td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
-                  {poItems.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) || ""}
+                  {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
 
-
+                <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
+                </td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
-                  {poItems.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+                  {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
 
                 </td>
-
-
+             
               </tr>
+
             </tbody>
+
+
           </table>
         </div>
 
 
-        <div className="flex justify-end gap-3 mt-[50px]">
+
+
+
+
+
+
+        <div className="flex justify-end gap-3 ">
+
+
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
             onClick={() => {
               saveData();
-              setForm(false);
-              setActive("Mail");
 
             }}
+            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
           >
-            Save & Send
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+            </svg>
+            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+              SAVE AND SEND
+            </span>
           </button>
         </div>
 

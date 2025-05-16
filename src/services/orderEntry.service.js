@@ -3,6 +3,7 @@ import { getDateFromDateTime, getYearShortCodeForFinYear } from '../utils/helper
 import { getTableRecordWithId } from '../utils/helperQueries.js';
 import { getFinYearStartTimeEndTime } from '../utils/finYearHelper.js';
 import { PrismaClient } from '@prisma/client';
+import { excessQty } from '../routes/index.js';
 const prisma = new PrismaClient()
 
 
@@ -76,22 +77,22 @@ async function get(req) {
                     contains: searchDocId
                 }
                 : undefined,
-               
+
 
         },
-        include:{
-            mailTransaction : true,
-            Vendor:{
-                select :{
-                    name:true
+        include: {
+            mailTransaction: true,
+            Vendor: {
+                select: {
+                    name: true
                 }
             },
-            Manufacture :{
-                select :{
-                    name:true
+            Manufacture: {
+                select: {
+                    name: true
                 }
             },
-            
+
         }
 
     });
@@ -120,11 +121,6 @@ async function get(req) {
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
     const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startDateStartTime, finYearDate?.endDateEndTime) : "";
     let newDocId = finYearDate ? (await getNextDocId(branchId, shortCode, finYearDate?.startDateStartTime, finYearDate?.endDateEndTime, isTaxBill)) : "";
-
-
- 
-
-
     return { statusCode: 0, nextDocId: newDocId, data, totalCount };
 }
 
@@ -162,11 +158,32 @@ async function getOne(req) {
 
     if (!data) return NoRecordFound("Order Bill");
 
+
     let percentage = await findPercentageValue()
 
-    data["orderBillItems"] = data["orderBillItems"]?.map(val => { return { ...val, excessQty: val?.excessQty ? val?.excessQty : val?.orderQty ? percentage : "" } })
+    data["orderBillItems"] = data["orderBillItems"]?.map((val) => {
+        const excessQty = val?.excessQty ?? percentage;
+        const orderQty = parseFloat(val?.orderQty) || 0;
+
+        return {
+            ...val,
+            excessQty: excessQty,
+            qty: getQty(excessQty, orderQty)
+        };
+    });
+
+
 
     return { statusCode: 0, data };
+}
+function getQty(excessQty, orderQty) {
+    const excess = parseFloat(excessQty) || 0;
+    const order = parseFloat(orderQty) || 0;
+    console.log(excess, order, 'order');
+
+    const percentage = (order * excess) / 100;
+    const updatedQty = order + percentage;
+    return updatedQty;
 }
 
 
@@ -270,7 +287,7 @@ async function create(body) {
     let data;
     const { branchId, id, userId, vendor, active, orderQty, noOfSet, isTaxBill,
         finYearId, Department, date, orderDetails, className, isSave, attachments,
-        seasonCode, styleCode, Product, Color, ponumber, isApproved } = await body
+        seasonCode, styleCode, Product, Color, ponumber, deliveryDate } = await body
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
     const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startTime, finYearDate?.endTime) : "";
     let newDocId = finYearDate ? (await getNextDocId(branchId, shortCode, finYearDate?.startTime, finYearDate?.endTime, isTaxBill)) : "";
@@ -285,6 +302,7 @@ async function create(body) {
                     poNumber: ponumber ? ponumber : null,
                     isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
+                    deliverydate: deliveryDate ? new Date(deliveryDate) : null,
 
 
 
@@ -377,7 +395,8 @@ async function update(id, body) {
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor, orderId, cc,
         ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval, fromAddress, sendorName, sendorId, toEmail,
-        receiverName, receiverId, subject, message, ccList, fileName } = await body
+        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate
+    } = await body
 
 
 
@@ -388,40 +407,6 @@ async function update(id, body) {
     })
 
     if (!dataFound) return NoRecordFound("orderBill");
-
-    if (isAttachments) {
-
-
-        await prisma.$transaction(async (tx) => {
-            data = await tx.order.update({
-                where: {
-                    id: parseInt(id),
-                },
-                data: {
-                    attachments: {
-                        deleteMany: {},
-                        createMany: attachments ? {
-                            data: JSON.parse(attachments || []).map(temp => ({
-                                date: temp.date ? new Date(temp.date) : undefined,
-                                log: temp.log ? temp.log : "",
-                                gridUser: temp.gridUser ? temp.gridUser : "",
-                                filePath: temp.filePath ? temp.filePath : undefined,
-
-                            }))
-                        } : undefined
-                    }
-
-                },
-                include: {
-                    orderBillItems: true
-                }
-            })
-
-        })
-
-        return { statusCode: 0, data };
-
-    }
 
     if (mailTransaction) {
 
@@ -464,6 +449,40 @@ async function update(id, body) {
         return { statusCode: 0, data };
 
     }
+    if (isAttachments) {
+
+        await prisma.$transaction(async (tx) => {
+            data = await tx.order.update({
+                where: {
+                    id: parseInt(id),
+                },
+                data: {
+                    attachments: {
+                        deleteMany: {},
+                        createMany: attachments ? {
+                            data: JSON.parse(attachments || []).map(temp => ({
+                                date: temp.date ? new Date(temp.date) : undefined,
+                                log: temp.log ? temp.log : "",
+                                gridUser: temp.gridUser ? temp.gridUser : "",
+                                filePath: temp.filePath ? temp.filePath : undefined,
+
+                            }))
+                        } : undefined
+                    }
+
+                },
+                include: {
+                    orderBillItems: true
+                }
+            })
+
+        })
+
+        return { statusCode: 0, data };
+
+    }
+
+
 
     await prisma.$transaction(async (tx) => {
         data = await tx.order.update({
@@ -471,12 +490,12 @@ async function update(id, body) {
                 id: parseInt(id),
             },
             data: {
-                branchId: parseInt(branchId),
                 isSave: isSave ? JSON.parse(isSave) : false,
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
                 isApproved: isApproved ?? undefined,
+                deliverydate: deliveryDate ? new Date(deliveryDate) : null
                 // attachments: {
                 //     deleteMany: {},
                 //     createMany: attachments ? {

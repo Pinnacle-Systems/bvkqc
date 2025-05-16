@@ -309,4 +309,13 @@ label {
   .input-hover {
     @apply text-gray-600 hover:text-gray-800;
   }
+ 
+}
+
+.maxBlue {
+ color: #303AB2;
+}
+
+.maxRed {
+  color: #E4002B;
 }

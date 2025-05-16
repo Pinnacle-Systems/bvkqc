@@ -28,6 +28,12 @@ root.render(
       <Routing />
     </Provider>
 
-    <ToastContainer />
+    <ToastContainer
+      position="top-right"
+      autoClose={100}
+      hideProgressBar
+      newestOnTop={false}
+      closeOnClick={false}
+    />
   </>
 );

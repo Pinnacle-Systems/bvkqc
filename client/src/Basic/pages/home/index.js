@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import {  Sidebar, Dashboard, Header } from "../../components";
+import { Sidebar, Dashboard, Header } from "../../components";
 import Modal from "../../../UiComponents/Modal";
 import { BranchAndFinyearForm, LogoutConfirm } from "../../components";
 import ActiveTabList from "../../components/ActiveTabList";
 import secureLocalStorage from "react-secure-storage";
 import SuperAdminHeader from "../../components/SuperAdminHeader";
-import {  useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { MaxHomePage, Order } from "../../../Uniform/Components";
 import SlackStyleUI from "../../../Uniform/Components/HomePage";
@@ -23,7 +23,7 @@ const Home = () => {
   const userRole = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userRole"
   );
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
 
   const openTabs = useSelector((state) => state.openTabs);
@@ -43,6 +43,7 @@ const Home = () => {
         isOpen={logout}
         onClose={() => {
           setLogout(false);
+          setProfile(false)
         }}
         widthClass={""}
       >
@@ -61,52 +62,90 @@ const Home = () => {
             </div>
 
           </>
-        ) :      
-        
-        
-      userRole  === "MANUFACTURE"  ||     userRole  === "VENDOR"   ? 
-        <>
-          <div className="h-[100vh]">
-
-          <Header profile={profile} setProfile={setProfile} />
-
-          <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} 
-          isMainDropdownOpen={isMainDropdownOpen} 
-          setIsMainDropdownOpen={setIsMainDropdownOpen} />
-          <div className="mt-[30px]  p-5 bg-gray-100  ">
-            <ActiveTabList />
-            {openTabs.tabs.length === 0 ? <Dashboard  setProfile={setProfile}  /> : ''}
-          </div>
+        ) :
 
 
-          </div>
+          userRole === "MANUFACTURE" || userRole === "VENDOR" ?
+            <>
+              <div className="h-[100vh]"
+           onClick={()  => { 
+                        
+                    if( isOpen  &&   isMainDropdownOpen  ){
+                    setIsOpen(true)   
 
-        </>
-        
+                    }
+                    if(isOpen){
+                    setIsOpen(!isOpen);
+                    }
+                    if(profile){
+                       setProfile(false)
 
-            
-          : 
+                    }
+                    }
+                  }
 
-       (
-          <div className="h-[100vh]">
+                                              
+              >
 
-            <Header profile={profile} setProfile={setProfile} />
+                <Header profile={profile} setProfile={setProfile} />
 
-            <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} 
-             isMainDropdownOpen={isMainDropdownOpen} 
-             setIsMainDropdownOpen={setIsMainDropdownOpen} />
-            <div className="mt-[30px]  p-5 bg-gray-100  ">
-              <ActiveTabList />
-              {openTabs.tabs.length === 0 ? <Dashboard  setProfile={setProfile}  /> : ''}
-            </div>
+                <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
+                  isMainDropdownOpen={isMainDropdownOpen}
+                  setIsMainDropdownOpen={setIsMainDropdownOpen} />
+                <div className="p-2 h-[screen]">
+                  <ActiveTabList />
+                </div>
+                  {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
 
 
-          </div>
-        )
-        }
+              </div>
 
-      </div>
-    </>
-  );
-};
-export default Home;
+            </>
+
+
+
+            :
+
+            (
+              <div className="h-[100vh] " 
+                      onClick={()  => { 
+                        
+                         if( isOpen  &&   isMainDropdownOpen  ){
+                                    setIsOpen(true)   
+                                    
+                        }
+                             if(isOpen){
+                          setIsOpen(!isOpen);
+                        }
+                        if(profile){
+                                setProfile(false)
+
+                              }
+                           
+                      }}
+                        
+                        >
+          
+                          <Header profile={profile} setProfile={setProfile} />
+          
+                          <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
+                            isMainDropdownOpen={isMainDropdownOpen}
+                            setIsMainDropdownOpen={setIsMainDropdownOpen} />
+                          <div className=" p-2 ">
+                            <ActiveTabList />
+                          </div>
+                            {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}
+          
+          
+                        </div>
+                      )
+                  }
+          
+                </div>
+              </>
+            );
+          };
+          export default Home;
+                   
+         
+          

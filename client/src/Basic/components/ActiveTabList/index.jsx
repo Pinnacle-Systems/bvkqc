@@ -68,7 +68,7 @@ const ActiveTabList = () => {
     "DASHBOARD": <Dashboard />,
     "ORDER": <Order />,
     "HOMEPAGE": <MaxHomePage />,
-    "MAX CONTROL PANEL" : <MaxcontrolPanel/>
+    "MAX CONTROL PANEL": <MaxcontrolPanel />
 
 
 
@@ -84,7 +84,7 @@ const ActiveTabList = () => {
     sessionStorage.getItem("sessionId") + "userId"
   )
   return (
-    <div className="relative  p-2">
+    <div className="relative mt-10 ">
       <div className="flex justify-between">
         <div className="flex gap-2">
           {(currentShowingTabs)?.map((tab, index) => (

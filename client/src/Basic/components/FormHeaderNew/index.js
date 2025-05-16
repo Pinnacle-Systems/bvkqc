@@ -93,7 +93,7 @@ const FormHeaderNew = ({
 
 
    
-        <div className="md:flex md:items-center md:justify-between bg-gray-200 p-2">
+        <div className="md:flex md:items-center md:justify-between bg-gray-300 p-2">
       
             <div className="font-bold   text-gray-800 ">
               {model}

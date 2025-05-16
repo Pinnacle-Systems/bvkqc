@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { push } from "../../../redux/features/opentabs";
@@ -46,7 +46,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
     const [hoveredGroupId, setHoveredGroupId] = useState(null);
     const navigate = useNavigate();
 
-
+ const ref = useRef(null);
     const [search, setSearch] = useState("");
 
     const filteredData = pages.filter((item) =>
@@ -123,9 +123,12 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
     }
 
 
+
+
+
     return (
         <div
-            className="fixed top-[16.5%] left-[87px] z-50"
+            className="fixed top-[16.5%] left-[87px] z-50"  
         >
 
             {isMainDropdownOpen === true ? <div onClick={() => setIsMainDropdownOpen(false)} className="bg-gray-600 opacity-40 fixed top-0 left-0 right-0 bottom-0 -z-10 "
@@ -134,7 +137,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
 
             {/* Main Dropdown */}
             {isMainDropdownOpen === true && (
-                <div className=" ">
+                <div className=" "  >
 
                     <div className=" bg-white p-2 outline outline-gray-500 shadow-lg  rounded-lg   overflow-auto h-[400px] transition duration-100">
                         <div className='flex items-center text-[11px] border rounded-full relative  w-full'>

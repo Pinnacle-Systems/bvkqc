@@ -1,4 +1,4 @@
-import { DropdownWithSearch } from "../../../Inputs"
+import { DateInput, DateInputNew, DropdownWithSearch } from "../../../Inputs"
 import { useEffect, useState } from "react";
 
 import { saveAs } from 'file-saver';
@@ -8,15 +8,15 @@ import { toast } from "react-toastify";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
-import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { iteratee } from "lodash";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId
+  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active
 }) {
+
+  console.log(deliveryDate, "deliveryDate")
 
   const [upload] = useUploadMutation();
 
@@ -29,22 +29,22 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
-
-
+  const isMailForm = true
+  const model = "Po Number"
+  const [isManufacture,setIsManufacture]  =  useState(true)
 
   useEffect(() => {
     if (!id) return
     setCurrentId(singleData?.data?.id)
-
-
   }, [id, singleData]);
 
 
 
-  const exportAndUploadExcel = async (data, poItemsData, text = "uploaded") => {
-
+  const exportAndUploadExcel = async (data, poItemsData) => {
+        // console.log(poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""),"Poitems")
+        const filterdPoItems =  poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== "")
     try {
-      const combinedData = poItemsData?.map((item, index) => ({
+      const combinedData = (filterdPoItems ||  [])?.map((item, index) => ({
         SrNo: index + 1,
         PONumber: data.docId,
         OrderDate: getDateFromDateTime(data.orderdate),
@@ -58,10 +58,10 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         sizeDescription: item.sizeDesc,
         Color: item.color,
         Mrp: item.mrp,
-        OrderQty: item.orderQty,
         Product: item.product,
-        excessQty: item.excessQty,
-        Quantity: item.qty
+        PoQty: item.orderQty,
+        excessPercentage: item.excessQty,
+        OrderQty: parseInt(item.qty)
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(combinedData);
@@ -86,7 +86,17 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
     } catch (error) {
       console.error("Error during Export and Upload:", error);
-      toast.error("Something went wrong!");
+      toast.error("Something went wrong!", {
+        position: "top-right",
+        autoClose: 100,
+        hideProgressBar: true,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+
+      });
     }
   };
 
@@ -102,14 +112,16 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
       if (field === 'excessQty') {
 
-        if (parseFloat(value) > parseFloat(percentageValue)) {
-          toast.error("Excess Qty is Too High");
+        if (parseInt(value) > parseInt(percentageValue)) {
+          toast.error("Excess % is Too High", {
+            autoClose: 1000
+          });
           return newItems
         }
 
         newItems[index]['excessQty'] = value;
-        const percentage = parseFloat((orderQty * value) / 100);
-        const updatedQty = parseFloat(orderQty) + percentage;
+        const percentage = Math.round ((orderQty * value) / 100);
+        const updatedQty = Math.round(orderQty + percentage);
 
         newItems[index]['qty'] = updatedQty;
       } else {
@@ -121,27 +133,83 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   };
 
 
+  useEffect(() => {
+    if (poItems?.length >= 14) return
+    setPoItems(prev => {
+      let newArray = Array.from({ length: 14 - prev.length }, () => {
+        return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
+      })
+      return [...prev, ...newArray]
+    }
+    )
+  }, [setPoItems, poItems])
+
   return (
     <>
-      <FormHeaderNew
-        model={"Order"}
-      />
+      <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
+        <div className="text-md font-semibold">
+          <span className="">{model} : </span>&nbsp;
+          <span className="text-[#303AB2]">{data?.docId}</span>
+        </div>
 
-      <div className="flex flex-col w-full bg-white p-6 h-full overflow-auto">
+
+        {active === "order" && form === true && (
+          <div className="flex items-center space-x-1">
+
+            <button
+              onClick={() => {
+                setForm(false);
+                setActive("order");
+              }}
+              className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+            >
+              <svg
+                className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                Back
+              </span>
+            </button>
+
+          </div>
+        )}
+      </div>
 
 
-        <div className="grid grid-cols-7 gap-4 border border-gray-300 pb-3 p-2 rounded h-[15%]"  >
+      <div className="flex flex-col w-full bg-white p-1 h-full overflow-auto">
 
+
+        <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
           <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Number</label>
+            <label className="text-xs font-semibold">Customer</label>
             <input
               type="text"
-              className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-              value={data?.docId}
+              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={"MAX"}
             />
           </div>
+
+          <div className="col-span-2 flex flex-col">
+            <label className="text-xs font-semibold ">Manufacture </label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+              value={data?.Manufacture?.name}
+            />
+
+          </div>
           <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Po Date</label>
+            <label className="text-xs font-semibold ">Po Date</label>
             <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -150,25 +218,37 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
             />
           </div>
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Customer</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={"MAX"}
-            />
+
+          <div className="flex flex-col w-72 ">
+            <label className="text-xs font-semibold ">Tag vendor  <span className="text-red-500">*</span></label>
+            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
+
           </div>
 
-        </div>
+
+
+          <div className=''>
+
+            <DateInputNew name={"Delivery Date"} value={deliveryDate}  setValue={setDeliveryDate}  required={true} />
+          </div>
+
+        </div >
 
 
 
-        <div className="w-full mt-5 mb-3 h-[250px] overflow-y-auto overflow-x-auto ">
+
+
+
+
+
+
+
+        <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
             <thead className="bg-gray-200 text-gray-700 ">
-              <tr className="p-2">
-                <th className="w-[50px] p-2">S No</th>
-                <th className="w-[120px] p-2">Department</th>
+              <tr className="p-1">
+                <th className="w-[50px] p-1">S No</th>
+                <th className="w-[120px] p-1">Department</th>
                 <th className="w-[150px]">Class-SubClass</th>
                 <th className="w-[120px]">ItemCode</th>
                 <th className="w-[120px]">BarCode</th>
@@ -178,16 +258,16 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                 <th className="w-[50px]">Size</th>
                 <th className="w-[90px]">Color</th>
                 <th className="w-[50px]">MRP</th>
-                <th className="w-[50px]">OrderQty</th>
+                <th className="w-[50px]">Po Qty</th>
                 <th className="w-[50px]">Excess %</th>
-                <th className="w-[50px]">Qty</th>
+                <th className="w-[50px]">Order Qty</th>
               </tr>
             </thead>
 
             <tbody className="">
               {(poItems || []).map((item, index) => (
                 <tr key={index} className=" table-row ">
-                  <td className="border border-gray-300 text-center p-2">{index + 1}</td>
+                  <td className="border border-gray-300 text-center p-1">{index + 1}</td>
                   <td className="border border-gray-300 text-left ">{item?.department}</td>
                   <td className="border border-gray-300 text-left ">{item?.class}</td>
 
@@ -215,11 +295,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
                   </td>
 
-                  <td className="border border-gray-300 text-right w-32 " key={index}>{item?.qty || ""} </td>
+                  <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
 
                 </tr>
               ))}
-              <tr className="border-2  border-gray-400 bg-gray-200 p-2">
+              <tr className="border-2  border-gray-400 bg-gray-200 p-1">
                 <td className="border-b border-gray-300 text-center w-2"></td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
                 <td className="border-b border-gray-300 text-left w-32"></td>
@@ -236,16 +316,16 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-
                 <td className="border-b border-gray-300 text-right w-32"></td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
-                  {poItems?.reduce((a, c) => a + parseFloat(c.orderQty || 0), 0) || ""}
+                  {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
+
 
                 <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
                 </td>
                 <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
-                  {poItems?.reduce((a, c) => a + parseFloat(c.qty || 0), 0) || ""}
+                  {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
 
                 </td>
 
@@ -262,54 +342,55 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-        <div className=" w-full flex gap-4 border border-gray-300  p-2  h-[14%]">
-          <div className="flex flex-col w-72 ">
-            <label className="text-xs font-semibold text-gray-600">Tag vendor</label>
-
-            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
-          </div>
-
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold text-gray-600">Delivery Date</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={getDateFromDateTime(data?.deliverydate)}
-
-            />
-          </div>
-        </div>
 
 
-        <div className=" flex  justify-end  gap-3 mt-[50px]">
-          {!data?.isSave ?
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-1  rounded-sm "
-              onClick={() => {
-                // setIsSave(true)
-                setForm(false);
-                setActive("order")
-                saveData()
 
-              }}
-            >
-              Save
-            </button>
-            :
-            <></>
-          }
+        <div className=" flex  justify-end gap-3">
+
+          
+
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white  p-0  rounded-sm  "
             onClick={() => {
-              // setIsSave(true);
               saveData();
-              exportAndUploadExcel(data, poItems);
-              setForm(false);
-              setActive("Mail");
             }}
+            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
           >
-            Save & Send
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+              Save
+            </span>
           </button>
+
+
+          <button
+            onClick={() => {
+              saveData(isMailForm,isManufacture);
+              exportAndUploadExcel(data, poItems);
+            }}
+            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+          >
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+            </svg>
+            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+              Save & Send
+            </span>
+          </button>
+
         </div>
       </div>
 

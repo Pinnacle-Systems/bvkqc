@@ -8,7 +8,7 @@ import excelIcon from "../assets/icons8-microsoft-excel-48.png"
 export const AddNewButton = ({ onClick, disabled = false }) => {
 
     return (
-        <button className='text-yellow-300 py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => onClick()} disabled={disabled}>
+        <button className='text--300 py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => onClick()} disabled={disabled}>
             {<FontAwesomeIcon icon={faUserPlus} />} Add New
         </button>
     )
@@ -16,7 +16,7 @@ export const AddNewButton = ({ onClick, disabled = false }) => {
 
 export const New = ({ name, setFormHidden }) => {
     return (
-        <button className='text-yellow-300 py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => { setFormHidden(false); }}>
+        <button className='text-violet-400 py-2 px-4 rounded focus:outline-none focus:shadow-outline' onClick={() => { setFormHidden(false); }}>
             {<FontAwesomeIcon icon={faPlusCircle} />} Add {name}
         </button>
     )

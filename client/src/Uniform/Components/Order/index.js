@@ -1,8 +1,8 @@
 import { useAddOrderMutation, useGetOrderByIdQuery, useGetOrderQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
 import secureLocalStorage from "react-secure-storage";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import GeneralSummary from "./GeneralSummary";
-import { getCommonParams } from "../../../Utils/helper";
+import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
@@ -15,17 +15,20 @@ import BuyerForm from "../Reports/Buyer";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
+import moment from 'moment';
 
 
-export default function Order({ setForm, form, setEmailId, setActive, setCurrentId }) {
+export default function Order({ setForm, form, setEmailId, active, setActive, setCurrentId }) {
 
   const [id, setId] = useState("");
+
   const [fileName, setFileName] = useState("");
   const [poItems, setPoItems] = useState([]);
   const [poNo, setPoNo] = useState(null)
   const [vendor, setVendor] = useState('')
+  const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
+
   const [isSave, setIsSave] = useState(true)
-  const dispatch = useDispatch()
   const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
 
@@ -53,13 +56,13 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
 
 
-
   const syncFormWithDb = useCallback(
     (data) => {
 
       setPoItems(data?.orderBillItems || []);
       setIsSave(data?.isSave)
       setVendor(data?.vendorId)
+      setDeliveryDate(data?.deliverydate ? moment(data?.deliverydate).format('YYYY-MM-DD') : null)
       setIsApproved(data?.isApproved || '')
     },
     [id]
@@ -81,7 +84,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
     excessQty,
     isSave: true, excessQtyAmount,
     isApproved,
-
+    deliveryDate
   }
 
 
@@ -117,9 +120,13 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
       if (returnData.statusCode === 0) {
 
 
-        toast.success(text + "Successfully");
+        toast.success(text + "Successfully", {
+          autoClose: 1000
+        });
       } else {
-        toast.error(returnData?.message);
+        toast.error(returnData?.message, {
+          autoClose: 1000
+        });
       }
 
     } catch (error) {
@@ -128,11 +135,46 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
   };
 
 
-  const saveData = () => {
+  const saveData = (isMailForm=false,isManufacture= false,isBuyer=false) => {
+    console.log(isMailForm,"isMailForm",isManufacture,isBuyer)
 
     if (!window.confirm("Are you sure you want to save the details?")) {
       return;
     }
+    if(isManufacture &&  userRole === "MANUFACTURE"){
+      if(!deliveryDate){
+            toast.info("Choose The Delivery Date", {
+          autoClose: 1000
+        })
+        return ;
+      }
+         if(!vendor){
+            toast.info("Choose The Vendor", {
+          autoClose: 1000
+        })
+        return;
+      }
+    }
+    if(isBuyer){
+         if(!deliveryDate){
+            toast.info("Cannot send Mail ", {
+          autoClose: 1000
+        })
+        return ;
+      }
+         if(!vendor){
+            toast.info("Cannot send Mail", {
+          autoClose: 1000
+        })
+        return;
+      }
+    }
+    
+    if (isMailForm) {
+      setForm(false);
+      setActive("Mail");
+    }
+
     if (id) {
 
       handleSubmitCustom(updateData, data, "Updated")
@@ -147,49 +189,28 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
 
 
-
-
-  // useEffect(() => {
-  //     if (poItems?.length >= 5) return
-  //     setPoItems(prev => {
-  //         let newArray = Array?.from({ length: 5  - prev.length }, i => {
-  //             return { excessQty: "", qty: 0.00,orderQty:0.00 }
-  //         })
-  //         return [...prev, ...newArray]
-  //     }
-  //     )
-  // }, [poItems])
-
-  //  useEffect(() => {
-  //     if (percentage?.data?.length === 0) return;
-
-  //    let percentageValue = percentage?.data?.find(i => i.active)?.qty
-  // console.log(percentageValue,"percentageValue")
-
-  //     let newArray = poItems?.map((item, index) => {
-  //       return { ...item, excessQty: item?.orderQty ? percentageValue : "" }
-  //     });
-  //     setPoItems(newArray)
-  //   }, [percentage?.data, setPoItems,id]);
+  console.log(active, "active", form, "form")
 
 
 
   return (
 
     //forms
-    <>
+    <React.Fragment >
       {
         form === true && userRole === "MANUFACTURE" ?
 
           <Manufactureform
 
-            setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+            setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
             vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
-            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
+            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
-            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
+
+            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
 
           />
 
@@ -201,14 +222,16 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
             <VendorForm
 
-              setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+              setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
               vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
-              poSentForApproval={poSentForApproval}
+              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  
+
+              poSentForApproval={poSentForApproval} active={active}
+
               setPoSentForApproval={setPoSentForApproval}
 
             />
@@ -218,20 +241,23 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
               <BuyerForm
 
-                setForm={setForm} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
+                setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
                 vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
-                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved}
+                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active}
 
               />
 
               :
-              <div className="flex-1 flex flex-col">
 
-                <FormHeaderNew model={"Order Report"} />
+              //Order Report pages
+              <div className="flex-1 flex flex-col h-[screen]">
+
+                <FormHeaderNew model={"List Of Orders"} />
+
 
 
                 <main className="p-2 space-y-6">
@@ -279,7 +305,7 @@ export default function Order({ setForm, form, setEmailId, setActive, setCurrent
 
 
       }
-    </>
+    </React.Fragment >
 
   )
 

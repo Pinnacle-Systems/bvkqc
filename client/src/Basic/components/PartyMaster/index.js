@@ -195,6 +195,8 @@ console.log(projectForm,"projectForm")
     useEffect(() => {
         syncFormWithDb(singleData?.data);
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
+    
+
 
     const data = {
         name, code, aliasName, displayName, address, cityId: city, pincode, panNo, tinNo, cstNo, cstDate, cinNo,
@@ -208,7 +210,7 @@ console.log(projectForm,"projectForm")
 
     const validateData = (data) => {
 
-        if (data.name &&  data.mailId   &&  data.partyType ) {
+        if (data.name &&  data.mailId   &&  data.partyType && data?.active ) {
             return true;
             // && data.joiningDate && data.fatherName && data.dob && data.gender && data.maritalStatus && data.bloodGroup &&
             //     data.panNo && data.email && data.mobile && data.degree && data.specialization &&
@@ -280,7 +282,6 @@ console.log(projectForm,"projectForm")
     const saveData = () => {
 
         if (!validateData(data)) {
-            console.log("hit")
 
             toast.error("Please fill all required fields...!", { position: "top-center" })
             return
@@ -403,8 +404,8 @@ console.log(projectForm,"projectForm")
     }
 
 
-    const tableHeaders = ["S.NO", "Name", "Alias Name", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-    const tableDataNames = ["index+1", "dataObj.name", 'dataObj.aliasName', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    const tableHeaders = ["S.NO", "Name", "Alias Name","Active", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", ]
+    const tableDataNames = ["index+1", "dataObj.name", 'dataObj.aliasName', "dataObj.active ? ACTIVE : INACTIVE", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
 
     //step
     const [step, setStep] = useState(1);
@@ -478,7 +479,7 @@ console.log(projectForm,"projectForm")
 
                                 <fieldset className="mb-4">
                                     <div className={`my-2 ${readOnly ? "pointer-events-none" : ""}`}>
-                                    <div className="flex flex-wrap items-center gap-6">
+                                    <div className="flex flex-wrap items-center gap-1">
                                         <CheckBox 
                                         name="Is Supplier" 
                                         style={{ fontWeight: 'bold' }} 
@@ -502,7 +503,7 @@ console.log(projectForm,"projectForm")
                                     </div>
                                 </fieldset>
                                   <div className="flex flex-wrap justify-between w-full mb-4 gap-1">
-                                    <div className="w-[48%] mb-3">
+                                    <div className="w-full mb-3">
                                     <TextInput 
                                         name="Party Name" 
                                         width="w-full" 
@@ -518,7 +519,7 @@ console.log(projectForm,"projectForm")
                                         }}
                                     />
                                     </div>
-                                    <div className="w-[48%] mb-3">
+                                    <div className="w-full mb-3">
                                     <TextInput 
                                         name="Alias Name" 
                                         width="w-full" 
@@ -532,7 +533,7 @@ console.log(projectForm,"projectForm")
                                     </div>
                                 </div>
                                    <div className="flex flex-wrap justify-between w-full mb-4 gap-1">
-                                        <div className="w-[48%] mb-3">
+                                        <div className="w-full mb-3">
                                             <TextInput 
                                                 name="Email" 
                                                 width="w-full" 
@@ -544,17 +545,22 @@ console.log(projectForm,"projectForm")
                                                 disabled={(childRecord.current > 0)} 
                                             />
                                             </div>
-                                        <div className="w-[48%] mb-4">
+                                        <div className="w-full mb-4">
                                             <DropdownInput 
                                             readOnly={readOnly} 
                                             name="PartyType" 
                                             value={partyType} 
                                             setValue={setpartyType}
                                             options={PartyTypes} 
+                                            width={"96"}
                                             />
                                         </div>
+                                         <div className='mb-5'>
+                                            <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
                                         </div>
+                                     </div>
                                 </div>
+                                 
 
                                 <div className="w-full md:w-auto flex justify-center items-start">
                                 <BrowseSingleImage 
@@ -607,7 +613,8 @@ console.log(projectForm,"projectForm")
                                                 <DateInput name="CST Date" width={'w-[150px]'} value={cstDate} setValue={setCstDate} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                             <div className="mb-2  w-[48%]">
-                                                <DropdownInput name="City/State Name" options={dropDownListMergedObject(id ? cityList?.data : cityList?.data?.filter(item => item.active), "name", "id")} value={city} setValue={setCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                                <DropdownInput name="City/State Name"  width={"72"}
+                                                 options={dropDownListMergedObject(id ? cityList?.data : cityList?.data?.filter(item => item.active), "name", "id")} value={city} setValue={setCity} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap justify-between">
@@ -618,9 +625,7 @@ console.log(projectForm,"projectForm")
                                                 <TextInput name="Fax No" width={'w-[150px]'} type="text" value={faxNo} setValue={setFaxNo} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                         </div>
-                                        <div className='mb-5'>
-                                            <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
-                                        </div>
+                                      
                                     </div>
                                 </fieldset>
                             )}

@@ -272,9 +272,22 @@ async function create(req) {
 
 }
 
+async function findFromList(id, list, property) {
+    console.log(list, 'list');
+    console.log(id,"function inside mailid")
+
+    if (!list) return ""
+    let data = list?.find(i => i.mailId == id)?.id
+      console.log(data,"data")
+
+    return data
+
+}
 
 
 async function createOrder(importdata, finYearId, branchId, userId, companyId) {
+
+    
 
     const partyData = await prisma.party.findMany({
         where: {
@@ -296,7 +309,8 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 
 
-
+    console.log(partyData,"partyData")
+    console.log(orderImport,"orderImport")
     let date = new Date()
     let isSave = false;
     let vendor;
@@ -373,12 +387,6 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 }
 
 
-async function findFromList(id, list, property) {
-    if (!list) return ""
-    let data = list?.find(i => i.mailId == id)?.id
-    return data
-
-}
 
 
 async function update(id, body) {
@@ -404,6 +412,9 @@ async function update(id, body) {
 };
 
 async function remove(id) {
+
+    
+
     const data = await prisma.orderImport.delete({
         where: {
             id: parseInt(id)

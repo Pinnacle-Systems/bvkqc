@@ -12,7 +12,6 @@ import {
 import { HomePage } from "./homePage";
 import { Message } from "./Message";
 import { Activity } from "./Activity";
-import { More } from "./More";
 import { RiOrderPlayFill } from "react-icons/ri";
 import secureLocalStorage from "react-secure-storage";
 import Order from "../Order";
@@ -22,9 +21,6 @@ import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
 import EmailReport from "../Email/EmailReport";
-
-
-
 export default function Form() {
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
@@ -54,119 +50,86 @@ export default function Form() {
     setPartyId(singleuserData?.data?.partyType)
   }, [singleUserPartyData])
 
-useEffect(() =>  {
-  setattachments(SigleOrderdata?.data?.attachments)
-},[SigleOrderdata])
+  useEffect(() => {
+    setattachments(SigleOrderdata?.data?.attachments)
+  }, [SigleOrderdata])
 
 
 
   const getButtonStyle = (name) => ({
-    backgroundColor: active === name ? "#E9D5FF" : "transparent",
+    backgroundColor: active === name ? "##212E89" : "transparent",
     borderRadius: "8px",
-    Padding: "2px"
+    Padding: "4px"
   });
 
+  const menuItems = [
+    { name: 'home', label: 'Home', icon: <Home className="h-6 w-6" /> },
+    { name: 'order', label: 'Order', icon: <RiOrderPlayFill className="h-6 w-6" />, action: () => setisOpen(true) },
+    { name: 'Mail', label: 'Mail', icon: <MessageCircle className="h-6 w-6" /> },
+    { name: 'Report', label: 'Report', icon: <ClipboardList className="h-6 w-6" /> },
+    { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> },
+  ];
 
 
-
-
-
-
-  return (
-
-
+ return (
 
     <>
+      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3 first-line:" >
 
-      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3" >
+     
+<aside className="flex flex-col items-center py-4 bg-gray-100 backdrop-blur-md w-20 h-full border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
+  {menuItems.map(({ name, label, icon, action }) => (
+    <button
+      key={name}
+      onClick={() => {
+        setActive(name);
+        action?.();
+      }}
+      className={`group relative flex flex-col items-center text-xs font-medium tracking-tight transition-all duration-300 ease-in-out ${
+        active === name
+          ? 'text-indigo-700'
+          : 'text-gray-600 hover:text-indigo-600'
+      } w-full px-1 py-2 mb-1`}
+    >
+      {/* Active Indicator */}
+      {active === name && (
+        <div className="absolute left-0 w-1 h-8 bg-indigo-600 rounded-r-md shadow-md" />
+      )}
 
-        <aside className="w-[4%] flex flex-col items-center py-4 space-y-6   h-full   ">
+      {/* Icon Wrapper */}
+      <div
+        className={`relative p-1.5 rounded-md transition-transform duration-300 ${
+          active === name
+            ? 'bg-indigo-100 scale-105 shadow-md'
+            : 'group-hover:bg-gray-200 group-hover:scale-100'
+        }`}
+      >
+        <span className="w-5 h-5">{icon}</span>
+        {active === name && (
+          <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-600 rounded-full border-2 border-white shadow-sm" />
+        )}
+      </div>
 
-          <button className="flex flex-col items-center "
-            onClick={() => setActive("home")}
+      {/* Label */}
+      <span
+        className={`mt-1 transition-all duration-300 ${
+          active === name
+            ? 'font-semibold scale-100 opacity-100'
+            : 'opacity-80 group-hover:scale-100 group-hover:opacity-100'
+        }`}
+      >
+        {label}
+      </span>
 
-
-          >
-            <div style={getButtonStyle("home")}   >
-              <Home className="h-10 w-6 text-purple-600" />
-
-            </div>
-            <span className="text-[10px] mt-1  text-purple-400">Home</span>
-          </button>
-
-          <button className="flex flex-col items-center "
-            onClick={() => {
-              setActive("order")
-              setisOpen(true)
-            }}
-
-
-          >
-            <div style={getButtonStyle("order")}   >
-              <RiOrderPlayFill className="h-10 w-6 text-purple-600" />
-
-            </div>
-            <span className="text-[10px] mt-1  text-purple-400">Order</span>
-          </button>
-
-
-
-          <button className="flex flex-col items-center"
-            onClick={() => setActive("Mail")}
-          >
-            <div style={getButtonStyle("Mail")}>
-              <MessageCircle className="h-10 w-6 text-purple-600" />
-
-            </div>
-            <span className="text-[10px] mt-1 text-purple-400">Mail</span>
-          </button>
-        <button className="flex flex-col items-center"
-            onClick={() => setActive("Report")}
-          >
-            <div style={getButtonStyle("Report")}>
-              <ClipboardList className="h-10 w-6 text-purple-600" />
-
-            </div>
-            <span className="text-[10px] mt-1 text-purple-400">Report</span>
-          </button>
-
-
-          <button className="flex flex-col items-center"
-            onClick={() => setActive("More")}
-          >
-            <div style={getButtonStyle("More")}>
-              <MoreHorizontal className="h-10 w-7 text-purple-600 " />
-
-            </div>
-            <span className="text-[10px] mt-1 text-purple-400">OrderImport</span>
-          </button>
+      {/* Hover Effect */}
+      <div className="absolute inset-0 -z-10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-b from-white to-gray-100 shadow-md" />
+    </button>
+  ))}
+</aside>
+        <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
 
 
-        </aside>
-        <footer className="">
-          {active === "order" && form === true || mailForm === true ?
-            <div className="ml-5 p-1">
-              <button
-                onClick={() => {
-                  setForm(false)
-                  setMailform(false)
-                  setActive("order")
-                }}
-                style={getButtonStyle("order")}
-              >
-                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                  viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            </div>
-            : <></>
-          }
-        </footer>
-        <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[50%] ">
-
-
-          <div>
+          <div className=" ">
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
@@ -174,11 +137,12 @@ useEffect(() =>  {
               poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
               singleUserPartyData={singleUserPartyData}
+              setActive={setActive}
 
             />}
-            {active === "Report" && <EmailReport  attachments={attachments}  />}
+            {active === "Report" && <EmailReport attachments={attachments} />}
             {active === "More" && <OrderImport />}
-            {active === "order" && <Order setEmailId={setEmailId}
+            {active === "order" && <Order setEmailId={setEmailId}  active={active}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
 
             />}
@@ -194,17 +158,17 @@ useEffect(() =>  {
 
 
 
-
-
-
-
-
-
-
-
-
-
     </>
+
+
+
+
+
+
+
+
+
+
   )
 
 }

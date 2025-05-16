@@ -158,7 +158,7 @@ export async function sendMailWithAttachmentWithMultipleFiles(req) {
       }
     ]
 
-    files.forEach(file => {
+    files?.forEach(file => {
 
       attachments.push(
         {

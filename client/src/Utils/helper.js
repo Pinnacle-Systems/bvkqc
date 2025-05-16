@@ -184,7 +184,7 @@ export function titleCase(str) {
   return str.join(' ');
 }
 
-export const getDateFromDateTime = (dateTime) => moment.utc(dateTime).format("YYYY-MM-DD")
+export const getDateFromDateTime = (dateTime) => moment.utc(dateTime).format("DD-MM-YYYY")
 export const getDateFromDateTimeToDisplay = (dateTime) => moment.utc(dateTime).format("DD-MM-YYYY")
 
 
@@ -448,9 +448,13 @@ export function handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail,
     method: "POST",
     body: form
   }).then(res => {
-    toast.success("Mail Send SuccessFully");
+    toast.success("Mail Send SuccessFully",{
+        autoClose: 1000 
+      });
   }).catch(err => {
-    toast.error("Please Resend !")
+    toast.error("Please Resend !",{
+        autoClose: 1000 
+      })
   });
 }
 
