@@ -4,8 +4,9 @@ import { CLOSE_ICON, DELETE, VIEW } from '../../../icons';
 import { getImageUrlPath } from '../../../helper';
 import { renameFile } from '../../../Utils/helper';
 
-const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, setAttachments, attachments, setDueDate }) => {
+const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userRole, setAttachments, attachments, setDueDate }) => {
 
+    console.log(userRole, "userRole");
 
     const today = new Date();
     function handleInputChange(value, index, field) {
@@ -44,7 +45,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                 <td className=" px-3 border border-gray-400">
                     <input
                         type="date"
-                        disabled={readOnly}
+                        disabled={userRole == ""}
                         className="text-center rounded py-1 w-full  focus:outline-none focus:ring focus:border-blue-300"
                         value={
                             moment(item?.date).format("YYYY-MM-DD")
@@ -70,10 +71,11 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                         type="text"
                         className="text-left rounded py-1 px-2 w-full  focus:outline-none focus:ring focus:border-blue-300"
                         value={item?.log}
-                        disabled={readOnly}
+                        disabled
                         onChange={(e) =>
                             handleInputChange(e.target.value, index, "log")
                         }
+
                     />
                 </td>
 
@@ -81,9 +83,9 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                     <div className='flex gap-2'>
                         {(!readOnly && !item.filePath) &&
                             <input
+                                disabled={userRole == ""}
                                 title=" "
                                 type="file"
-                                disabled={readOnly}
                                 onChange={(e) =>
                                     e.target.files[0] ? handleInputChange(renameFile(e.target.files[0]), index, "filePath") : () => { }
                                 }
@@ -97,7 +99,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                                     {VIEW}
                                 </button>
                                 {!readOnly &&
-                                    <button onClick={() => { handleInputChange('', index, "filePath") }}>{CLOSE_ICON}</button>
+                                    <button disabled={userRole == ""} onClick={() => { handleInputChange('', index, "filePath") }}>{CLOSE_ICON}</button>
                                 }
                             </>
                         }
@@ -107,14 +109,14 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userName, set
                     </div>
                 </td>
 
-                {!readOnly &&
-                    <td className="py-0.5 px-3  w-10 border border-gray-400 text-center ">
+                {!userRole === "" ?
+                    <td className="py-0.5 px-3  w-10 border border-gray-400 text-center " disabled={userRole === ""}>
                         <button
                             type='button'
                             onClick={() => deleteRow(index)}
                             className='text-xs text-red-600 '>{DELETE}
                         </button>
-                    </td>
+                    </td> : ""
                 }
 
 

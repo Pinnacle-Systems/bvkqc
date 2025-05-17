@@ -9,7 +9,6 @@ import { Provider } from 'react-redux';
 import { Font } from '@react-pdf/renderer'
 import { Toaster } from 'react-hot-toast';
 
-
 Font.register({
   family: 'Times-Roman',
   src: '/fonts/times new roman.ttf',

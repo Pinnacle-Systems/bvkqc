@@ -9,9 +9,9 @@ import { push } from '../../../redux/features/opentabs';
 import useOutsideClick from '../../../CustomHooks/handleOutsideClick';
 import { useState } from 'react';
 
-const Profile = ({ dp, setProfile,items = [] }) => {
+const Profile = ({ dp, setProfile, items = [] , setLogout , logout }) => {
     
-    const [logout, setLogout] = useState(false);
+    // const [logout, setLogout] = useState(false);
     const navigate = useNavigate();
     const [allowedPages, setAllowedPages] = useState([]);
  

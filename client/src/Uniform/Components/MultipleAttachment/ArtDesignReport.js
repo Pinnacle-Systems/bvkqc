@@ -7,7 +7,7 @@ import { getImageUrlPath } from '../../../helper';
 import { renameFile } from '../../../Utils/helper';
 import AttachementForm from './AttachmentForm';
 
-const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, formReport, setAttachments, attachments, setDueDate }) => {
+const ArtDesignReport = ({ item, index, readOnly, userRole, setFormReport, formReport, setAttachments, attachments, setDueDate }) => {
 
   const today = new Date();
   const Model = "Art Design Attachment"
@@ -87,14 +87,16 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, formRep
                     {/* <th className="py-1 px-3 w-32 text-left border border-gray-400">User</th> */}
                     <th className="py-1 px-3 text-left border border-gray-400">Comments</th>
                     <th className="py-1 px-3 text-left w-60 border border-gray-400">File</th>
-                    <th className="py-1 px-3 w-10 text-center">
-                      <button
-                        onClick={addNewComments}
-                        className="text-green-500 hover:text-green-700 transition duration-150"
-                      >
-                        {PLUS}
-                      </button>
-                    </th>
+                    {!userRole === "" &&
+                      <th className="py-1 px-3 w-10 text-center">
+                        <button
+                          onClick={addNewComments}
+                          className="text-green-500 hover:text-green-700 transition duration-150"
+                        >
+                          {PLUS}
+                        </button>
+                      </th>
+                    }
                   </tr>
                 </thead>
 
@@ -108,6 +110,7 @@ const ArtDesignReport = ({ item, index, readOnly, leadId, setFormReport, formRep
                       readOnly={false}
                       setAttachments={setAttachments}
                       attachments={attachments}
+                      userRole={userRole}
                     />
                   ))}
                 </tbody>

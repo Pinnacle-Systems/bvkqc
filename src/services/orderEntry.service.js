@@ -9,6 +9,8 @@ const prisma = new PrismaClient()
 
 
 async function getNextDocId(branchId, shortCode, startTime, endTime, isTaxBill) {
+
+
     let lastObject = await prisma.order.findFirst({
         where: {
             // branchId: parseInt(branchId),
@@ -37,6 +39,7 @@ async function getNextDocId(branchId, shortCode, startTime, endTime, isTaxBill) 
     if (lastObject) {
         newDocId = `${branchObj.branchCode}/${shortCode}/${code}/${parseInt(lastObject.docId.split("/").at(-1)) + 1}`
     }
+
 
     return newDocId
 }
@@ -180,7 +183,7 @@ async function getOne(req) {
 function getQty(excessQty, orderQty) {
     const excess = parseFloat(excessQty) || 0;
     const order = parseFloat(orderQty) || 0;
-    console.log(excess, order, 'order');
+
 
     const percentage = (order * excess) / 100;
     const updatedQty = order + percentage;
@@ -301,7 +304,6 @@ async function create(body) {
                     createdById: parseInt(userId),
                     orderdate: date ? new Date(date) : null,
                     poNumber: ponumber ? ponumber : null,
-                    isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
                     deliverydate: deliveryDate ? new Date(deliveryDate) : null,
                     docDate: docDate ? docDate : null,
@@ -399,8 +401,14 @@ async function update(id, body) {
         receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate
     } = await body
 
-    console.log(typeof(docDate,"docDate"),docDate,docDate != null)
 
+
+    console.log(typeof (isSave), isSave)
+
+
+    const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ? true : false;
+
+    console.log(typeof (parsedIsSave), parsedIsSave)
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -410,20 +418,43 @@ async function update(id, body) {
 
     if (!dataFound) return NoRecordFound("orderBill");
 
+
     if (mailTransaction) {
 
-        data = await prisma.order.update({
-            where: {
-                id: parseInt(orderId),
-            },
-            data: {
-                poSentForApproval: poSentForApproval ? Boolean(poSentForApproval) : undefined,
-
-            },
-
-        })
 
 
+        if (poSentForApproval == 'true') {
+            console.log(poSentForApproval, 'poSentForApproval');
+
+            const parsedPoSentForApproval = poSentForApproval === 'true' || true ? true
+                : poSentForApproval === 'false' || false ? false
+                    : undefined;
+
+            data = await prisma.order.update({
+                where: {
+                    id: parseInt(orderId),
+                },
+                data: {
+                    poSentForApproval: parsedPoSentForApproval ? Boolean(parsedPoSentForApproval) : undefined,
+
+                },
+            });
+
+        }
+        if (isSave == "true") {
+            const parsedIsSave = isSave === 'true' || true ? true
+                : isSave === 'false' || false ? false
+                    : undefined;
+            data = await prisma.order.update({
+                where: {
+                    id: parseInt(orderId),
+                },
+                data: {
+
+                    isSave: parsedIsSave ? Boolean(parsedIsSave) : undefined,
+                },
+            });
+        }
         data = await prisma.mailTransaction.create(
             {
                 data: {
@@ -451,6 +482,10 @@ async function update(id, body) {
         return { statusCode: 0, data };
 
     }
+
+
+
+
     if (isAttachments) {
 
         await prisma.$transaction(async (tx) => {
@@ -485,6 +520,9 @@ async function update(id, body) {
     }
 
 
+    if (parsedIsSave) {
+        console.log("hit")
+    }
 
     await prisma.$transaction(async (tx) => {
         data = await tx.order.update({
@@ -492,26 +530,15 @@ async function update(id, body) {
                 id: parseInt(id),
             },
             data: {
-                isSave: isSave ? JSON.parse(isSave) : false,
+
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,
                 isApproved: isApproved ?? undefined,
                 deliverydate: deliveryDate ? new Date(deliveryDate) : undefined,
-                 docDate : docDate == null ?  new Date(docDate)  : undefined,
+                docDate: docDate == null ? new Date(docDate) : undefined,
 
-                // attachments: {
-                //     deleteMany: {},
-                //     createMany: attachments ? {
-                //         data: attachments.map(temp => ({
-                //             date: temp.date ? new Date(temp.date) : undefined,
-                //             log: temp.log ? temp.log : "",
-                //             gridUser: temp.gridUser ? temp.gridUser : "",
-                //             filePath: temp.filePath ? temp.filePath : undefined,
 
-                //         }))
-                //     } : undefined
-                // }
 
             },
 

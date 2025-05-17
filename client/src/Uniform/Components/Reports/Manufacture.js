@@ -31,7 +31,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   let data = singleData?.data
   const isMailForm = true
   const model = "Po Number"
-  const [isManufacture, setIsManufacture] = useState(true)
+  const isManufacture = true;
+  console.log(data, "data")
 
   useEffect(() => {
     if (!id) return
@@ -61,7 +62,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         Product: item.product,
         PoQty: item.orderQty,
         excessPercentage: item.excessQty,
-        OrderQty: parseInt(item.qty)
+        OrderQty: Math.round(item.qty)
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(combinedData);
@@ -196,6 +197,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={"MAX"}
+              disabled={true}
             />
           </div>
 
@@ -205,6 +207,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               type="text"
               className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
               value={data?.Manufacture?.name}
+              disabled={true}
+
             />
 
           </div>
@@ -213,15 +217,16 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-
               value={getDateFromDateTime(data?.orderdate)}
+              disabled={true}
+
 
             />
           </div>
 
           <div className="flex flex-col w-72 ">
             <label className="text-xs font-semibold ">Tag vendor  <span className="text-red-500">*</span></label>
-            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor On Party Master"} masterName={"PARTY MASTER"} />
+            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor From Party Master"} masterName={"PARTY MASTER"} />
 
           </div>
 
@@ -229,7 +234,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
           <div className=''>
 
-            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} />
+            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"} />
           </div>
 
         </div >
@@ -277,11 +282,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                   <td className="border border-gray-300 w-16">
                     <input
                       type="number"
-
                       value={item?.excessQty}
                       onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-
                       className="w-full p-1   rounded-md text-right focus:ring-blue-400"
+                      disabled={data?.isSave || item?.orderQty == ""}
+
                     />
 
                   </td>
@@ -339,49 +344,53 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         <div className=" flex  justify-end gap-3">
 
 
+          {!data?.isSave && (
+            <>
 
-          <button
-            onClick={() => {
-              saveData();
-            }}
-            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-          >
-            <svg
-              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-              Save
-            </span>
-          </button>
+              <button
+                onClick={() => {
+                  saveData(!isMailForm, isManufacture);
+                }}
+                className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+              >
+                <svg
+                  className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                  Save
+                </span>
+              </button>
 
 
-          <button
-            onClick={() => {
-              saveData(isMailForm, isManufacture);
-              exportAndUploadExcel(data, poItems);
-            }}
-            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-          >
-            <svg
-              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
-            </svg>
-            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-              Save & Send
-            </span>
-          </button>
+              <button
+                onClick={() => {
+                  saveData(isMailForm, isManufacture);
+                  exportAndUploadExcel(data, poItems);
+                }}
+                className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+              >
+                <svg
+                  className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+                </svg>
+                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                  Save & Send
+                </span>
+              </button>
 
+            </>
+          )}
         </div>
       </div>
 

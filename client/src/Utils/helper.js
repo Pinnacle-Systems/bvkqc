@@ -3,7 +3,8 @@ import secureLocalStorage from "react-secure-storage";
 import { IMAGE_UPLOAD_URL } from "../Constants";
 import { toast } from "react-toastify";
 import { useState } from "react";
-
+import Swal from "sweetalert2";
+import "./swalStyles.css";
 
 
 
@@ -413,10 +414,6 @@ export function handleMailSend(blob, mailAddress, subject, fileName, logo, headi
 
 
 
-
-
-
-
 export function handleMailSendWithMultipleAttachments(
   FromEmailAddress,
   toEmail,
@@ -425,21 +422,22 @@ export function handleMailSendWithMultipleAttachments(
   message,
   fileName,
   attachments,
-  ccList
+  ccList,
+  setActive,
+  setForm
 ) {
-
   const normalizeEmails = (emails) => {
     if (Array.isArray(emails)) return emails;
-    return emails.split(/[,;]+/).map(e => e.trim()).filter(e => e);
+    return emails.split(/[,;]+/).map((e) => e.trim()).filter((e) => e);
   };
 
   const toMailIds = normalizeEmails(toEmail);
   const ccMailIds = normalizeEmails(ccList);
 
-  const joinToMailIds = toMailIds.join(', ');
-  const joinCCMailIds = ccMailIds.join(', ');
+  const joinToMailIds = toMailIds.join(", ");
+  const joinCCMailIds = ccMailIds.join(", ");
 
-  const receivedFiles = attachments?.map(j => ({ fileName: j.filePath }));
+  const receivedFiles = attachments?.map((j) => ({ fileName: j.filePath })) || [];
 
   let form = new FormData();
 
@@ -447,29 +445,66 @@ export function handleMailSendWithMultipleAttachments(
     form.append("attachments[]", receivedFiles[i]?.fileName);
   }
 
-  form.append("file", receivedFiles);
   form.append("FromAddresss", FromEmailAddress);
   form.append("ToAddresss", joinToMailIds);
   form.append("subject", subject);
   form.append("passskey", passskey);
   form.append("fileName", fileName);
   form.append("message", message);
-  form.append("files", attachments);
   form.append("ccList", joinCCMailIds);
 
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
     method: "POST",
-    body: form
-  }).then(res => {
-    toast.success("Mail Send SuccessFully", {
-      autoClose: 1000
-    });
-  }).catch(err => {
-    toast.error("Please Resend..!", {
-      autoClose: 1000
+    body: form,
+  })
+    .then((res) => {
+      Swal.fire({
+        icon: "success",
+        title: "Mail Sent!",
+        html: `
+          <div class="payment-box">
+            <div class="payment-icon">
+              <i class="fas fa-paper-plane"></i>
+            </div>
+            <div class="payment-text">mail successfully sent!</div>
+          </div>
+        `,
+        timer: 1000,
+        timerProgressBar: true,
+        customClass: {
+          popup: "payment-swal-popup",
+        },
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      }).then(() => {
+        setForm(false)
+        setActive("order");
+      });
     })
-  });
+    .catch((err) => {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Mail could not be sent. Please try again.",
+        timer: 2000,
+        timerProgressBar: true,
+        customClass: {
+          popup: "payment-swal-popup",
+        },
+      }).then(() => {
+        setForm(false)
+        setActive("order");
+
+      });
+    });
 }
+
+
+
+
+
+
 
 
 

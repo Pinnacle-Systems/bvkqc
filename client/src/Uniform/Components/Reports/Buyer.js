@@ -13,9 +13,8 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
-export default function BuyerForm({ singleData, poItems, setPoItems,
-  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, setPoSentForApproval,  form  , active }) {
-  console.log(singleData, 'singleData7');
+export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
+  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active }) {
 
 
   const [formReport, setFormReport] = useState(false);
@@ -28,9 +27,9 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
   let data = singleData?.data
   const isMailForm = true
-  const isBuyer  =  true
+  const isBuyer = true
   const model = "Po Number"
-  
+  console.log(data, "data")
 
   useEffect(() => {
     if (poItems.length >= 5) return
@@ -63,60 +62,59 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
     )
   }, [setPoItems, poItems])
 
-  console.log(setPoSentForApproval,"setPoSentForApproval")
 
   return (
     <>
-   
+
       <Modal isOpen={formReport} onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}>
         <ArtDesignReport
 
           tableWidth="100%"
-       
+          userRole={userRole}
           setAttachments={setAttachments}
           attachments={attachments}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
       </Modal>
-          <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
-      <div className="text-md font-semibold">
-        <span className="">{model} : </span>&nbsp;
-        <span className="text-[#303AB2]">{data?.docId}</span>
-      </div>
+      <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
+        <div className="text-md font-semibold">
+          <span className="">{model} : </span>&nbsp;
+          <span className="text-[#303AB2]">{data?.docId}</span>
+        </div>
 
 
-  {active === "order" && form === true && (
-    <div className="flex items-center space-x-1">
+        {active === "order" && form === true && (
+          <div className="flex items-center space-x-1">
 
             <button
-            onClick={() => {
-            setForm(false);
-            setActive("order");
-            }}
-            className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+              onClick={() => {
+                setForm(false);
+                setActive("order");
+              }}
+              className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
             >
-            <svg
-            className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            >
-            <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 19l-7-7 7-7"
-            />
-            </svg>
-            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-            Back
-            </span>
+              <svg
+                className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                Back
+              </span>
             </button>
 
-    </div>
-  )}
-    </div>
+          </div>
+        )}
+      </div>
       <div className="flex flex-col w-full p-1 h-full overflow-auto justify-between item-end bg-white gap-4">
 
         <div>
@@ -130,12 +128,14 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 value={data?.docId}
               />
             </div> */}
-                  <div className="col-span-2 flex flex-col">
+            <div className="col-span-2 flex flex-col">
               <label className="text-xs font-semibold ">Manufacture</label>
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
                 value={data?.Manufacture?.name}
+                disabled={true}
+
               />
 
             </div>
@@ -144,8 +144,9 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
               <input
                 type="text"
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={data?.orderdate ? getDateFromDateTime(data?.orderdate) : ""}
+                disabled={true}
 
-                value={data?.orderdate   ?   getDateFromDateTime(data?.orderdate)  :  ""}
 
               />
             </div>
@@ -155,6 +156,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
                 value={data?.Vendor?.name}
+                disabled={true}
+
               />
 
             </div>
@@ -165,51 +168,52 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
               <input
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={  data?.deliverydate   ? getDateFromDateTime(data?.deliverydate)  : ""}
+                value={data?.deliverydate ? getDateFromDateTime(data?.deliverydate) : ""}
+                disabled={true}
 
               />
             </div>
 
 
-         
 
-          
- {singleData?.data?.poSentForApproval  &&   
-           <div className=" w-18 flex flex-col ">
-            <label className="text-xs font-semibold  ">Approval status</label>
-            <select
-                className={`px-1 border rounded text-xs p-1 
-             ${isApproved === 'Approve' ? 'border-green-500 text-white-600  text-green-500'   : ''}
+
+
+            {singleData?.data?.poSentForApproval &&
+              <div className=" w-18 flex flex-col ">
+                <label className="text-xs font-semibold  ">Approval status</label>
+                <select
+                  className={`px-1 border rounded text-xs p-1 
+             ${isApproved === 'Approve' ? 'border-green-500 text-white-600  text-green-500' : ''}
               ${isApproved === 'Reject' ? 'border-red-500 text-red-600' : ''}
               ${isApproved === 'hold' ? 'border-yellow-500 text-yellow-600' : ''}
               ${isApproved === '' ? 'border-gray-300 text-gray-500' : ''}
-                          `}              value={isApproved}
-              onChange={(e) =>
-                setIsApproved(e.target.value)
-              }
-              disabled={!data?.deliverydate  ||   !data?.vendorId  }
-            >
-              <option value='' >Select status</option>
-              <option value='Approve'  >Approve</option>
-              <option value='Reject'>Reject</option>
-              <option value='Hold'>Hold</option>
-            </select>
+                          `} value={isApproved}
+                  onChange={(e) =>
+                    setIsApproved(e.target.value)
+                  }
+                  disabled={!data?.deliverydate || !data?.vendorId}
+                >
+                  <option value='' >Select status</option>
+                  <option value='Approve'  >Approve</option>
+                  <option value='Reject'>Reject</option>
+                  <option value='Hold'>Hold</option>
+                </select>
 
-          </div>
-     }        
-          
-       {singleData?.data?.poSentForApproval  &&   
-            <div className="flex pt-4">
-              <button
-                className="relative  h-6 px-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white
+              </div>
+            }
+
+            {singleData?.data?.poSentForApproval &&
+              <div className="flex pt-4">
+                <button
+                  className="relative  h-6 px-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white
                 rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
-                onClick={() => setFormReport(true)}
-              >
-                <span className="absolute  bg-white opacity-10 "></span>
-                <span className="relative z-10 text-[12px]"> View Art Design</span>
-              </button>
-            </div>
-    }
+                  onClick={() => setFormReport(true)}
+                >
+                  <span className="absolute  bg-white opacity-10 "></span>
+                  <span className="relative z-10 text-[12px]"> View Art Design</span>
+                </button>
+              </div>
+            }
           </div >
 
 
@@ -231,13 +235,13 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                   <th className=" text-[13px] w-[50px]">MRP</th>
                   <th className=" text-[13px] w-[50px]">Po Qty</th>
 
-                  {data?.isSave   &&  ( 
+                  {data?.isSave && (
                     <>
-                     <th className="w-[50px]">Excess %</th>
-                  <th className=" text-[13px] w-[50px]">Order Qty</th>
+                      <th className="w-[50px]">Excess %</th>
+                      <th className=" text-[13px] w-[50px]">Order Qty</th>
                     </>
-                   
-                  
+
+
                   )}
 
                 </tr>
@@ -264,16 +268,16 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
                       <td className="border border-gray-300 text-[12px] text-right ">{item?.mrp}</td>
                       <td className="border border-gray-300 text-[12px] text-right ">{Math.round(item?.orderQty) || ""}</td>
-                       
-         
-                        {data?.isSave   &&   (
+
+
+                      {data?.isSave && (
                         <>
-<td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
+                          <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
                           <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
 
                         </>
-                           
-                        )}
+
+                      )}
 
                     </tr>
                   </>
@@ -293,19 +297,19 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                   <td className="border border-gray-300 text-left w-52"></td>
                   <td className="border border-gray-300 text-left w-52"></td>
                   <td className="border border-gray-200 text-right w-32 text-lg  text-gray-800 font-bold ">
-                    {poItems.reduce((a, c) => a +  Math.round(c.orderQty || 0), 0) || ""}
+                    {poItems.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                   </td>
 
-                    {data?.isSave   &&   (
-                      <>
-                          <td className="border border-gray-300 text-right w-32"></td>
-                    <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
-                    {poItems.reduce((a, c) => a +  Math.round(c.qty || 0), 0) || ""}
+                  {data?.isSave && (
+                    <>
+                      <td className="border border-gray-300 text-right w-32"></td>
+                      <td className="border border-gray-200 text-right w-32 text-lg text-gray-800 font-bold  ">
+                        {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
 
-                    </td>
-                      </>
-              
-                    )}
+                      </td>
+                    </>
+
+                  )}
 
                 </tr>
 
@@ -324,31 +328,31 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
 
 
         <div className=" w-full flex justify-end">
-{!data?.deliverydate  ||   !data?.vendorId   ?    <></>   :  
-    <button
-      onClick={() => {
-          console.log(isBuyer,":isBuyer")
-        saveData(isMailForm,false,isBuyer);
-        setPoSentForApproval = (true)
+          {!data?.deliverydate || !data?.vendorId ? <></> :
+            <button
+              onClick={() => {
+                console.log(isBuyer, ":isBuyer")
+                saveData(isMailForm, false, isBuyer);
 
-      }}
-      className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-    >
-      <svg
-        className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
-      </svg>
-      <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-        SEND MAIL
-      </span>
-    </button>
 
-     }
+              }}
+              className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+            >
+              <svg
+                className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+              </svg>
+              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                SEND MAIL
+              </span>
+            </button>
+
+          }
         </div>
 
       </div >
