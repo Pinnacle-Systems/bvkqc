@@ -145,12 +145,12 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       return;
     }
     if (isManufacture && userRole === "MANUFACTURE") {
-      // if (!deliveryDate) {
-      //   toast.info("Choose The Delivery Date", {
-      //     autoClose: 1000
-      //   })
-      //   return;
-      // }
+      if (!deliveryDate) {
+        toast.info("Choose The Delivery Date", {
+          autoClose: 1000
+        })
+        return;
+      }
       if (!vendor) {
         toast.info("Choose The Vendor", {
           autoClose: 1000
@@ -158,20 +158,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
         return;
       }
     }
-    if (isBuyer) {
-      if (!deliveryDate) {
-        toast.info("Cannot send Mail ", {
-          autoClose: 1000
-        })
-        return;
-      }
-      if (!vendor) {
-        toast.info("Cannot send Mail", {
-          autoClose: 1000
-        })
-        return;
-      }
-    }
+
 
     if (isMailForm) {
       setForm(false);

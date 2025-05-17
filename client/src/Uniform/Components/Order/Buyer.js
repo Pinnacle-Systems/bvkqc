@@ -89,9 +89,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                 >
                   <td className="p-1">{parseInt(index) + 1}</td>
                   <td className="p-1">{item?.docId}</td>
-                  <td className="p-1 text-center">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
+                  <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
-                  <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""} </td>
+                  <td className="p-1 text-center">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""} </td>
 
                   <td className="p-1">{item?.Vendor?.name}  </td>
                   <td className="p-1">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
