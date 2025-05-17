@@ -19,7 +19,7 @@ import { Backpack, DeleteIcon, Send } from "lucide-react";
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive , setForm }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive, setForm, isSave, setIsSave }) {
 
   console.log(userRole, "userRole");
 
@@ -128,8 +128,9 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   const data = {
     mailTransaction: true, orderId: id,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval, isSave
   }
+  console.log(isSave, 'isSave');
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
@@ -339,13 +340,19 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     </div> */}
               <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
                 onClick={() => {
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive , setForm);
-                
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
+
                   if (userRole === "VENDOR") {
-         
+
                     setPoSentForApproval(true)
                   }
-                    saveData()
+                  {
+                    console.log(userRole, 'userRole');
+                  }
+                  if (userRole === "MANUFACTURE") {
+                    setIsSave(true)
+                  }
+                  saveData()
                   // handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
                   SyncformwithDb()
                 }}

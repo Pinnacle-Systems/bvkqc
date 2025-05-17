@@ -65,7 +65,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
 
             <th className="py-1 px-1">Vendor</th>
             <th className="py-1 px-6">Delivery date</th>
-            <th className="py-1 px-1 text-end">PO Status</th>
+            <th className="py-1 px-1 ">PO Status</th>
           </tr>
         </thead>
         <tbody className="text-gray-700 text-xs">
