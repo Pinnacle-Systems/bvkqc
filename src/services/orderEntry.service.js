@@ -403,12 +403,12 @@ async function update(id, body) {
 
 
 
-       console.log(typeof(isSave),isSave)
+    console.log(typeof (isSave), isSave)
 
 
-   const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ?  true   : false;
+    const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ? true : false;
 
-       console.log(typeof(parsedIsSave),parsedIsSave)
+    console.log(typeof (parsedIsSave), parsedIsSave)
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -421,10 +421,10 @@ async function update(id, body) {
 
     if (mailTransaction) {
 
-        console.log(isSave, 'isSave');
+
 
         if (poSentForApproval == 'true') {
-            console.log(mailTransaction, 'mailTransaction');
+            console.log(poSentForApproval, 'poSentForApproval');
 
             const parsedPoSentForApproval = poSentForApproval === 'true' || true ? true
                 : poSentForApproval === 'false' || false ? false
@@ -520,9 +520,9 @@ async function update(id, body) {
     }
 
 
-   if(parsedIsSave){
-    console.log("hit")
-   }
+    if (parsedIsSave) {
+        console.log("hit")
+    }
 
     await prisma.$transaction(async (tx) => {
         data = await tx.order.update({
@@ -538,7 +538,7 @@ async function update(id, body) {
                 deliverydate: deliveryDate ? new Date(deliveryDate) : undefined,
                 docDate: docDate == null ? new Date(docDate) : undefined,
 
-          
+
 
             },
 
