@@ -8,7 +8,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
     { key: "isApproved", },
   ];
   const getProgressIndex = (item) => {
-console.log(typeof(item?.isSave,"item"))
+    console.log(typeof (item?.isSave, "item"))
     const keys = stageDefinitions.map(s => s.key);
     let index = -1;
 
@@ -17,7 +17,7 @@ console.log(typeof(item?.isSave,"item"))
       if (key === "isApproved") {
         if (item?.isApproved) index = i;
       } else {
-            console.log(typeof(item?.[key],"key"))
+        console.log(typeof (item?.[key], "key"))
         if (Boolean(item?.[key]) === true || item?.[key] === 1) {
           index = i;
         }
@@ -71,7 +71,7 @@ console.log(typeof(item?.isSave,"item"))
         </thead>
         <tbody className="text-gray-700 text-xs">
           {(allData?.data || []).map((item, index) => {
-           console.log(typeof(item?.isSave,"AlldatIsSave"))
+            console.log(typeof (item?.isSave, "AlldatIsSave"))
             const completedStages = stageDefinitions
               .filter((stage) => item?.[stage.key])
               .reverse();
@@ -100,14 +100,10 @@ console.log(typeof(item?.isSave,"item"))
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Manufacture?.name}</td>
                 <td className="p-1">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
-                {item?.isSave  &&   (
-                  <>
-                  <td className="p-1">{item?.Vendor?.name}</td>
-                  <td className="p-1 text-center">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                  </>
-                )
-              }
-                  
+
+                <td className="p-1">{item?.isSave ? item?.Vendor?.name : ""}</td>
+                <td className="p-1 text-center">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+
                 <td className="p-1">
                   <div className="flex items-center space-x-0">
                     {stageDefinitions.map((stage, i) => {
