@@ -87,7 +87,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   useEffect(() => {
     if (Emaildata?.data?.poExcelFileName) {
-      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
+      setattachments([{ filePath: Emaildata?.data?.poExcelFileName }]);
     }
   }, [Emaildata, isEmailLoading, isEmailFetching]);
 
@@ -130,7 +130,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     mailTransaction: true, orderId: id, isSave: true,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
-  console.log(isSave, 'isSave');
+  console.log(fileName, 'fileName');
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
@@ -204,7 +204,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   const handleSend = () => {
     handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
-    console.log(userRole, 'userRole');
+
 
     if (userRole === "VENDOR") {
       setPoSentForApproval(true);
@@ -390,7 +390,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
               <div className="flex flex-col gap-2">
                 {attachments?.map((item, index) => {
-                  const fileName = item.filePath?.split('/').pop();
+                  const fileName = item?.filePath?.split('/').pop();
                   return (
                     <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div className="flex items-center gap-3 flex-1">

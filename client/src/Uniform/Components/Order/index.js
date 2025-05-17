@@ -83,7 +83,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     finYearId,
     vendor,
     excessQty,
-     excessQtyAmount,
+    excessQtyAmount,
     isApproved,
     deliveryDate, docDate
   }
@@ -137,18 +137,14 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
   const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
-    
-    if(isMailForm){
+
+    if (isMailForm) {
       if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
-      return;
-    }else{
-         if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
-      return;
-    }
-    }
+        return;
+      }
 
     }
-   
+
     if (isManufacture && userRole === "MANUFACTURE") {
       if (!deliveryDate) {
         toast.info("Choose The Delivery Date", {
@@ -198,7 +194,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-            vendor={vendor} setVendor={setVendor}  saveData={saveData}
+            vendor={vendor} setVendor={setVendor} saveData={saveData}
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
@@ -218,7 +214,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-              vendor={vendor} setVendor={setVendor}  saveData={saveData}
+              vendor={vendor} setVendor={setVendor} saveData={saveData}
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
@@ -242,7 +238,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
-                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active}
+                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active} userRole={userRole}
 
               />
 

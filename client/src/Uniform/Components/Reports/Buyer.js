@@ -13,7 +13,7 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
-export default function BuyerForm({ singleData, poItems, setPoItems,
+export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
   setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active }) {
 
 
@@ -29,7 +29,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
   const isMailForm = true
   const isBuyer = true
   const model = "Po Number"
-
+  console.log(data, "data")
 
   useEffect(() => {
     if (poItems.length >= 5) return
@@ -70,7 +70,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
         <ArtDesignReport
 
           tableWidth="100%"
-
+          userRole={userRole}
           setAttachments={setAttachments}
           attachments={attachments}
           searchValue={searchValue}
@@ -145,7 +145,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={data?.orderdate ? getDateFromDateTime(data?.orderdate) : ""}
-               disabled={true}
+                disabled={true}
 
 
               />
@@ -156,7 +156,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
                 value={data?.Vendor?.name}
-                    disabled={true}
+                disabled={true}
 
               />
 
@@ -169,7 +169,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems,
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={data?.deliverydate ? getDateFromDateTime(data?.deliverydate) : ""}
-              disabled={true}
+                disabled={true}
 
               />
             </div>
