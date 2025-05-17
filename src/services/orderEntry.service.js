@@ -180,7 +180,7 @@ async function getOne(req) {
 function getQty(excessQty, orderQty) {
     const excess = parseFloat(excessQty) || 0;
     const order = parseFloat(orderQty) || 0;
-    console.log(excess, order, 'order');
+
 
     const percentage = (order * excess) / 100;
     const updatedQty = order + percentage;
@@ -399,36 +399,36 @@ async function update(id, body) {
         receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate
     } = await body
 
-    console.log(typeof (docDate, "docDate"), docDate, docDate != null)
-
+   
 
     const dataFound = await prisma.order.findUnique({
         where: {
             id: parseInt(id)
         }
-    })
+    })  
 
     if (!dataFound) return NoRecordFound("orderBill");
 
-    console.log( req.body," req.body")
 
-    if (mailTransaction) {
-        const poSentForApproval = req.body.poSentForApproval;
+    if (mailTransaction ) {
+    
+       
+     if (poSentForApproval == 'true' ) {
+        console.log(poSentForApproval,'poSentForApproval');
         
-
-
-        const parsedPoSentForApproval = poSentForApproval === 'true' ||  true ? true
-            : poSentForApproval === 'false' ||  false ? false
-                : undefined;
-        data = await prisma.order.update({
+             const parsedPoSentForApproval = poSentForApproval === 'true' ||  true ? true
+           : poSentForApproval === 'false' ||  false ? false
+            : undefined;
+           data = await prisma.order.update({
             where: {
                 id: parseInt(orderId),
             },
             data: {
-                poSentForApproval: parsedPoSentForApproval,
+                poSentForApproval: parsedPoSentForApproval? Boolean(parsedPoSentForApproval):undefined,
             },
         });
 
+     }
         data = await prisma.mailTransaction.create(
             {
                 data: {
