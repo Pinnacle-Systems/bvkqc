@@ -21,10 +21,9 @@ import { Backpack, DeleteIcon, Send } from "lucide-react";
 
 export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive , setForm }) {
 
-  console.log(userRole, "userRole");
 
-  const user = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userType"
+  const userId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userId"
   );
   const [toEmail, setToEmail] = useState(["manojbharathi00@gmail.com"]);
   const [subject, setSubject] = useState('');
@@ -33,7 +32,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [attachments, setattachments] = useState([]);
   const [fileName, setfileName] = useState('')
   const [files, setFiles] = useState([]);
-  const [userId, setUserId] = useState("")
+  // const [userId, setUserId] = useState("")
   const [fromAddress, setFromAddress] = useState("")
   const [sendorName, setSendorName] = useState("")
   const [receiverName, setReceiverName] = useState("")
@@ -76,7 +75,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   useEffect(() => {
     setPoNumber(SigleOrderdata?.data?.docId)
     setSubject(SigleOrderdata?.data?.docId)
-    setUserId(SigleOrderdata?.data?.vendorId)
+    // setUserId(SigleOrderdata?.data?.vendorId)
     setattachments(emailId ? [] : SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
     setReceiverName(SigleOrderdata?.data?.Vendor?.name)
@@ -127,7 +126,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
   const data = {
-    mailTransaction: true, orderId: id,
+    mailTransaction: true, orderId: id,isSave: true,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
 
@@ -205,19 +204,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   }
   const [loading, setLoading] = useState(false);
 
-  // const handleClick = async () => {
-  //   setLoading(true); // Show loader
-  //   try {
-  //     await saveData();
-  //     setPoSentForApproval(true);
-  //     await handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
-  //     await SyncformwithDb();
-  //   } catch (error) {
-  //     console.error("Error occurred:", error);
-  //   } finally {
-  //     setLoading(false); // Hide loader
-  //   }
-  // };
+ 
 
 
   return (

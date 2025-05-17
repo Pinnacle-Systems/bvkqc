@@ -15,7 +15,6 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 export default function BuyerForm({ singleData, poItems, setPoItems,
   setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active }) {
-  console.log(singleData, 'singleData7');
 
 
   const [formReport, setFormReport] = useState(false);

@@ -233,7 +233,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
           <div className=''>
 
-            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true}   type = "date" />
+            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true}   type ={"date"} />
           </div>
 
         </div >

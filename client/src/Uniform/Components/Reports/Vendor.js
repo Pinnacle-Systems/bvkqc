@@ -13,7 +13,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, setIsSave, id, setCurrentId, form, active, setEmailId }) {
+  setActive, id, setCurrentId, form, active, setEmailId }) {
 
   const [attachments, setAttachments] = useState([]);
 

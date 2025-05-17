@@ -84,7 +84,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     finYearId,
     vendor,
     excessQty,
-    isSave: true, excessQtyAmount,
+     excessQtyAmount,
     isApproved,
     deliveryDate, docDate
   }
@@ -178,7 +178,6 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
 
-  console.log(active, "active", form, "form")
 
 
 
@@ -193,7 +192,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-            vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+            vendor={vendor} setVendor={setVendor}  saveData={saveData}
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
@@ -213,7 +212,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-              vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+              vendor={vendor} setVendor={setVendor}  saveData={saveData}
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
@@ -233,7 +232,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
                 setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-                vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+                vendor={vendor} setVendor={setVendor} saveData={saveData}
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 

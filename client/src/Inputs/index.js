@@ -388,8 +388,8 @@ export const DateInput = ({ name, value, setValue, readOnly, required = false, t
         </div>
     )
 }
-export const DateInputNew = ({ name, value, setValue, readOnly, required = false, type = "date", disabled = false, tabIndex = null, inputClass, inputHead }) => {
-    console.log(value, 'value');
+export const DateInputNew = ({ name, value, setValue, readOnly, required = false, type = "", disabled = false, tabIndex = null, inputClass, inputHead }) => {
+    console.log(type, 'type');
 
 const today = new Date().toISOString().split("T")[0];
     return (

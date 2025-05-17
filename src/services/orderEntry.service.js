@@ -399,7 +399,13 @@ async function update(id, body) {
         receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate
     } = await body
 
-   
+
+       console.log(typeof(isSave),isSave)
+
+
+   const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ?  true   : false;
+
+       console.log(typeof(parsedIsSave),parsedIsSave)
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -414,7 +420,6 @@ async function update(id, body) {
     
        
      if (poSentForApproval == 'true' ) {
-        console.log(poSentForApproval,'poSentForApproval');
         
              const parsedPoSentForApproval = poSentForApproval === 'true' ||  true ? true
            : poSentForApproval === 'false' ||  false ? false
@@ -456,6 +461,10 @@ async function update(id, body) {
         return { statusCode: 0, data };
 
     }
+
+
+
+
     if (isAttachments) {
 
         await prisma.$transaction(async (tx) => {
@@ -490,6 +499,9 @@ async function update(id, body) {
     }
 
 
+   if(parsedIsSave){
+    console.log("hit")
+   }
 
     await prisma.$transaction(async (tx) => {
         data = await tx.order.update({
@@ -497,7 +509,7 @@ async function update(id, body) {
                 id: parseInt(id),
             },
             data: {
-                isSave: isSave ? JSON.parse(isSave) : false,
+                isSave: Boolean(parsedIsSave) ? Boolean(parsedIsSave) : undefined,
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,

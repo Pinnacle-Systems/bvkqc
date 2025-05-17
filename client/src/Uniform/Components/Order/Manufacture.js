@@ -8,6 +8,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
     { key: "isApproved", },
   ];
   const getProgressIndex = (item) => {
+console.log(typeof(item?.isSave,"item"))
     const keys = stageDefinitions.map(s => s.key);
     let index = -1;
 
@@ -16,8 +17,8 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
       if (key === "isApproved") {
         if (item?.isApproved) index = i;
       } else {
-
-        if (item?.[key] === true || item?.[key] === 1) {
+            console.log(typeof(item?.[key],"key"))
+        if (Boolean(item?.[key]) === true || item?.[key] === 1) {
           index = i;
         }
       }
@@ -70,6 +71,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
         </thead>
         <tbody className="text-gray-700 text-xs">
           {(allData?.data || []).map((item, index) => {
+           console.log(typeof(item?.isSave,"AlldatIsSave"))
             const completedStages = stageDefinitions
               .filter((stage) => item?.[stage.key])
               .reverse();
