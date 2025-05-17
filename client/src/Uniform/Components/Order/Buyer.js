@@ -93,7 +93,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   <td className="p-1">{item?.Manufacture?.name}</td>
                   <td className="p-1 text-center">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""} </td>
                 
-                  <td className="p-1">{item?.Vendor?.name}  </td>
+                  <td className="p-1">{item?.Vendor?.name}</td>
                   <td className="p-1 text-center">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>   
                   <td className="p-1">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
                

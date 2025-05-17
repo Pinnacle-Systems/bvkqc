@@ -32,7 +32,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [attachments, setattachments] = useState([]);
   const [fileName, setfileName] = useState('')
   const [files, setFiles] = useState([]);
-  // const [userId, setUserId] = useState("")
   const [fromAddress, setFromAddress] = useState("")
   const [sendorName, setSendorName] = useState("")
   const [receiverName, setReceiverName] = useState("")
@@ -110,21 +109,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setCcList(updated);
   };
 
-
-
-  // const removeCcField = (index) => {
-  //   const updated = ccList.filter((_, i) => i !== index);
-  //   setCcList(updated);
-  // };
-
-
-
-  // const handleFileChange = (event) => {
-  //   const selectedFiles = Array.from(event.target.files).map(file => ({
-  //     filePath: file.name,
-  //   })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
-  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-  // };
 
   const data = {
     mailTransaction: true, orderId: id, isSave: true,
