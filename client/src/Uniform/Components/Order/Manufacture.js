@@ -100,10 +100,14 @@ console.log(typeof(item?.isSave,"item"))
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Manufacture?.name}</td>
                 <td className="p-1">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
-
-                <td className="p-1">{item?.Vendor?.name}</td>
-                <td className="p-1 text-center">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-
+                {item?.isSave  &&   (
+                  <>
+                  <td className="p-1">{item?.Vendor?.name}</td>
+                  <td className="p-1 text-center">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                  </>
+                )
+              }
+                  
                 <td className="p-1">
                   <div className="flex items-center space-x-0">
                     {stageDefinitions.map((stage, i) => {
