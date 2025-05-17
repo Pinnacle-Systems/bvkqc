@@ -420,7 +420,8 @@ export function handleMailSendWithMultipleAttachments(
   fileName,
   attachments,
   ccList,
-  setActive
+  setActive ,
+  setForm
 ) {
   const normalizeEmails = (emails) => {
     if (Array.isArray(emails)) return emails;
@@ -468,6 +469,7 @@ export function handleMailSendWithMultipleAttachments(
           // No timerInterval to clear
         }
       }).then(() => {
+        setForm(false)
         setActive("order");
       });
     })
@@ -479,6 +481,8 @@ export function handleMailSendWithMultipleAttachments(
         timer: 2000,
         timerProgressBar: true
       }).then(() => {
+                setForm(false)
+
         setActive("order");
       });
     });

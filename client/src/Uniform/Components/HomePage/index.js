@@ -70,7 +70,7 @@ export default function Form() {
     { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> },
   ];
 
-
+console.log(active,"active")
   return (
 
     <>
@@ -134,7 +134,7 @@ export default function Form() {
               poSentForApproval={poSentForApproval}
               emailId={emailId} currentId={currentId} userRole={userRole}
               singleUserPartyData={singleUserPartyData}
-              setActive={setActive}
+              setActive={setActive}  setForm={setForm}
 
             />}
             {active === "Report" && <EmailReport attachments={attachments} />}
