@@ -87,7 +87,7 @@ const ArtDesignReport = ({ item, index, readOnly, userRole, setFormReport, formR
                     {/* <th className="py-1 px-3 w-32 text-left border border-gray-400">User</th> */}
                     <th className="py-1 px-3 text-left border border-gray-400">Comments</th>
                     <th className="py-1 px-3 text-left w-60 border border-gray-400">File</th>
-                    {!userRole === "" &&
+                    {userRole === "VENDOR" &&
                       <th className="py-1 px-3 w-10 text-center">
                         <button
                           onClick={addNewComments}

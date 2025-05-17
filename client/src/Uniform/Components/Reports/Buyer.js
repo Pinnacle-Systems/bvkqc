@@ -23,6 +23,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
   const [attachments, setAttachments] = useState([]);
 
 
+  console.log(id, 'id26');
 
 
   let data = singleData?.data

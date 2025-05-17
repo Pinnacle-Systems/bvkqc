@@ -45,7 +45,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userRole, set
                 <td className=" px-3 border border-gray-400">
                     <input
                         type="date"
-                        disabled={userRole == ""}
+                        disabled
                         className="text-center rounded py-1 w-full  focus:outline-none focus:ring focus:border-blue-300"
                         value={
                             moment(item?.date).format("YYYY-MM-DD")
@@ -71,7 +71,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userRole, set
                         type="text"
                         className="text-left rounded py-1 px-2 w-full  focus:outline-none focus:ring focus:border-blue-300"
                         value={item?.log}
-                        disabled
+                        disabled={userRole == ""}
                         onChange={(e) =>
                             handleInputChange(e.target.value, index, "log")
                         }
@@ -109,7 +109,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userRole, set
                     </div>
                 </td>
 
-                {!userRole === "" ?
+                {userRole == "VENDOR" ?
                     <td className="py-0.5 px-3  w-10 border border-gray-400 text-center " disabled={userRole === ""}>
                         <button
                             type='button'

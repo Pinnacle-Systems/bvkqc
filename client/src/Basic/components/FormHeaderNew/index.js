@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import secureLocalStorage from "react-secure-storage";
 import { useGetPagePermissionsByIdQuery } from "../../../redux/services/PageMasterService";
@@ -24,13 +24,15 @@ const FormHeaderNew = ({
   openReport = null,
   viewReport = null,
   childRecordValidationActions = ["edit", "delete"],
+  setId,
+  setPoItems
 }) => {
 
   const openTabs = useSelector((state) => state?.openTabs);
 
   const activeTab = openTabs?.tabs?.find(tab => tab.active);
 
-  // const currentPageId = activeTab.id
+  const dispatch = useDispatch()
   const currentPageId = activeTab?.name
 
   const userRoleId = secureLocalStorage.getItem(
@@ -42,7 +44,15 @@ const FormHeaderNew = ({
     isFetching,
   } = useGetPagePermissionsByIdQuery({ currentPageId, userRoleId }, { skip: !(currentPageId && userRoleId) });
 
-
+  const handleRefetch = () => {
+    refreshPage();
+    setId('')
+    setPoItems([])
+    dispatch({
+      type: `Order/invalidateTags`,
+      payload: ['Order'],
+    });
+  }
   const IsSuperAdmin = () => {
     return JSON.parse(
       secureLocalStorage.getItem(
@@ -101,7 +111,7 @@ const FormHeaderNew = ({
         <div className="font-bold   text-gray-800 ">
           {model}
         </div>
-        <div className="" onClick={() => refreshPage()}>
+        <div className="" onClick={() => handleRefetch()}>
           {/* {refresh} */}
           <Refresh />
 

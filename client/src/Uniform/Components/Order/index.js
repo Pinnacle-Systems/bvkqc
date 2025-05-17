@@ -30,14 +30,15 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
 
   const [isSave, setIsSave] = useState(true)
-  // const [poSentForApproval, setPoSentForApproval] = useState(false)
+
   const { branchId, finYearId, userId } = getCommonParams()
   const [docDate, setDocDate] = useState(getDateFromDateTime(today));
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
-
+  console.log(id, "idd");
+  const { data: singleData, isSingleFetching, isSingleLoading, } = useGetOrderByIdQuery(id);
 
 
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
@@ -50,9 +51,9 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
   const { data: allData, refetch } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
 
-  const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
+
 
 
 
@@ -88,7 +89,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     deliveryDate, docDate
   }
 
-
+  const dispatch = useDispatch()
   const handleSubmitCustom = async (callback, data, text) => {
 
     try {
@@ -123,6 +124,10 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
         toast.success(text + "Successfully", {
           autoClose: 1000
+        });
+        dispatch({
+          type: `Order/invalidateTags`,
+          payload: ['Order'],
         });
       } else {
         toast.error(returnData?.message, {
@@ -220,8 +225,8 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
-              // poSentForApproval={poSentForApproval} 
-              active={active}
+              // poSentForApproval={poSentForApproval}   
+              active={active} userRole={userRole}
 
             // setPoSentForApproval={setPoSentForApproval}
 
@@ -247,7 +252,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
               //Order Report pages
               <div className="flex-1 flex flex-col h-[screen]">
 
-                <FormHeaderNew model={"List Of Orders"} refresh={"Refresh"} refreshPage={refetch} />
+                <FormHeaderNew model={"List Of Orders"} refresh={"Refresh"} refreshPage={refetch} setId={setId} setPoItems={setPoItems} />
 
 
 

@@ -13,7 +13,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, id, setCurrentId, form, active, setEmailId }) {
+  setActive, id, setCurrentId, form, active, setEmailId, userRole }) {
 
   const [attachments, setAttachments] = useState([]);
 
@@ -183,7 +183,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
       >
         <ArtDesignReport
-
+          userRole={userRole}
           setFormReport={setFormReport}
           tableWidth="100%"
           formReport={formReport}
