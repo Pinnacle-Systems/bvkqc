@@ -32,6 +32,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [attachments, setattachments] = useState([]);
   const [fileName, setfileName] = useState('')
   const [files, setFiles] = useState([]);
+  // const [userId, setUserId] = useState("")
   const [fromAddress, setFromAddress] = useState("")
   const [sendorName, setSendorName] = useState("")
   const [receiverName, setReceiverName] = useState("")
@@ -110,9 +111,26 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
 
+
+  // const removeCcField = (index) => {
+  //   const updated = ccList.filter((_, i) => i !== index);
+  //   setCcList(updated);
+  // };
+
+
+
+  // const handleFileChange = (event) => {
+  //   const selectedFiles = Array.from(event.target.files).map(file => ({
+  //     filePath: file.name,
+  //   })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
+  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+  // };
+
   const data = {
-    mailTransaction: true, orderId: id, isSave: true,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
+    mailTransaction: true, orderId: id,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message,
+    userRole,
+    cc: ccList.map(item => item).join(','), attachments, fileName, userId,
   }
   console.log(isSave, 'isSave');
 
@@ -287,17 +305,20 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
                   handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
 
                   if (userRole === "VENDOR") {
-                    setPoSentForApproval(true)
-                    saveData()
+
+                    saveData(poSentForApproval = true)
                     SyncformwithDb()
                   }
 
-                  if (userRole === "MANUFACTURE") {
+                  else if (userRole === "MANUFACTURE") {
                     setIsSave(true)
                     saveData()
                     SyncformwithDb()
-                  }
+                  } else {
+                    saveData()
 
+                    SyncformwithDb()
+                  }
                 }}
 
               >

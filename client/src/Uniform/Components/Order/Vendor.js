@@ -71,6 +71,8 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
 
               return (
                 <>
+                  {console.log(item?.isSave, 'item?.isSave')
+                  }
                   {item?.isSave && (
 
                     <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
