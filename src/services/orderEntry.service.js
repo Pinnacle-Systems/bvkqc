@@ -304,7 +304,6 @@ async function create(body) {
                     createdById: parseInt(userId),
                     orderdate: date ? new Date(date) : null,
                     poNumber: ponumber ? ponumber : null,
-                    isSave,
                     vendorId: vendor ? parseInt(vendor) : null,
                     deliverydate: deliveryDate ? new Date(deliveryDate) : null,
                     docDate: docDate ? docDate : null,
@@ -403,6 +402,7 @@ async function update(id, body) {
     } = await body
 
 
+
        console.log(typeof(isSave),isSave)
 
 
@@ -414,29 +414,47 @@ async function update(id, body) {
         where: {
             id: parseInt(id)
         }
-    })  
+    })
 
     if (!dataFound) return NoRecordFound("orderBill");
 
 
-    if (mailTransaction ) {
-    
-       
-     if (poSentForApproval == 'true' ) {
-        
-             const parsedPoSentForApproval = poSentForApproval === 'true' ||  true ? true
-           : poSentForApproval === 'false' ||  false ? false
-            : undefined;
-           data = await prisma.order.update({
-            where: {
-                id: parseInt(orderId),
-            },
-            data: {
-                poSentForApproval: parsedPoSentForApproval? Boolean(parsedPoSentForApproval):undefined,
-            },
-        });
+    if (mailTransaction) {
 
-     }
+        console.log(isSave, 'isSave');
+
+        if (poSentForApproval == 'true') {
+            console.log(mailTransaction, 'mailTransaction');
+
+            const parsedPoSentForApproval = poSentForApproval === 'true' || true ? true
+                : poSentForApproval === 'false' || false ? false
+                    : undefined;
+
+            data = await prisma.order.update({
+                where: {
+                    id: parseInt(orderId),
+                },
+                data: {
+                    poSentForApproval: parsedPoSentForApproval ? Boolean(parsedPoSentForApproval) : undefined,
+
+                },
+            });
+
+        }
+        if (isSave == "true") {
+            const parsedIsSave = isSave === 'true' || true ? true
+                : isSave === 'false' || false ? false
+                    : undefined;
+            data = await prisma.order.update({
+                where: {
+                    id: parseInt(orderId),
+                },
+                data: {
+
+                    isSave: parsedIsSave ? Boolean(parsedIsSave) : undefined,
+                },
+            });
+        }
         data = await prisma.mailTransaction.create(
             {
                 data: {
@@ -512,7 +530,7 @@ async function update(id, body) {
                 id: parseInt(id),
             },
             data: {
-                isSave: Boolean(parsedIsSave) ? Boolean(parsedIsSave) : undefined,
+
                 vendorId: vendor ? parseInt(vendor) : null,
                 excessQty: excessQty ? parseFloat(excessQty) : null,
                 netAmount: excessQtyAmount ? parseFloat(excessQtyAmount) : null,

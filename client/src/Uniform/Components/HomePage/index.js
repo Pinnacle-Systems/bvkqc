@@ -37,7 +37,7 @@ export default function Form() {
 
   const [poSentForApproval, setPoSentForApproval] = useState(false)
 
-
+  const [isSave, setIsSave] = useState(false)
   const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId")
 
@@ -71,7 +71,7 @@ export default function Form() {
     { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> }  :  "",
   ];
 
-console.log(active,"active")
+  console.log(active, "active")
   return (
 
     <>
@@ -87,8 +87,8 @@ console.log(active,"active")
                 action?.();
               }}
               className={`group relative flex flex-col items-center text-xs font-medium tracking-tight transition-all duration-300 ease-in-out ${active === name
-                  ? 'text-indigo-700'
-                  : 'text-gray-600 hover:text-indigo-600'
+                ? 'text-indigo-700'
+                : 'text-gray-600 hover:text-indigo-600'
                 } w-full px-1 py-2 mb-1`}
             >
               {/* Active Indicator */}
@@ -98,8 +98,8 @@ console.log(active,"active")
 
               <div
                 className={`relative p-1.5 rounded-md transition-transform duration-300 ${active === name
-                    ? 'bg-indigo-100 scale-105 shadow-md'
-                    : 'group-hover:bg-gray-200 group-hover:scale-100'
+                  ? 'bg-indigo-100 scale-105 shadow-md'
+                  : 'group-hover:bg-gray-200 group-hover:scale-100'
                   }`}
               >
                 <span className="w-5 h-5">{icon}</span>
@@ -111,8 +111,8 @@ console.log(active,"active")
               {/* Label */}
               <span
                 className={`mt-1 transition-all duration-300 ${active === name
-                    ? 'font-semibold scale-100 opacity-100'
-                    : 'opacity-80 group-hover:scale-100 group-hover:opacity-100'
+                  ? 'font-semibold scale-100 opacity-100'
+                  : 'opacity-80 group-hover:scale-100 group-hover:opacity-100'
                   }`}
               >
                 {label}
@@ -134,8 +134,8 @@ console.log(active,"active")
                             poSentForApproval={poSentForApproval}  
                              emailId={emailId} currentId={currentId} userRole={userRole}
                               singleUserPartyData={singleUserPartyData}
-                              setActive={setActive}  setForm={setForm}
-
+                              setActive={setActive} setForm={setForm}
+              isSave={isSave} setIsSave={setIsSave}
             />}
             {active === "Report" && <EmailReport attachments={attachments} />}
             {active === "More"  &&  userRole === ""  ?   <OrderImport />  : ''}
