@@ -38,13 +38,13 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
             <tr >
               <th className="py-1 px-6">S No</th>
               <th className="py-1 px-6">PO Number </th>
-              <th className="py-1 px-6">Order date</th>
+              <th className="py-1 px-6">Po date</th>
               <th className="py-1 px-6">Manufacture</th>
               <th className="py-1 px-6">Vendor</th>
               <th className="py-1 px-6">Assigned date</th>
-
               <th className="py-1 px-6">Delivery date</th>
-              <th className="py-1 px-6">PO Status</th>
+              <th className="py-1 px-6 text-center">PO Status</th>
+
 
 
             </tr>
@@ -83,11 +83,8 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                   <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                   <td className="p-1">{item?.Manufacture?.name}</td>
                   <td className="p-1">{item?.Vendor?.name}</td>
-                  <td className="p-1">{item?.isSave  && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
-
-                  <td className="p-1">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
-
-
+                  <td className="p-1 text-center">{item?.isSave  && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                  {/* <td className="p-1">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td> */}
                   <td className="p-1">
                     <div className="flex items-center space-x-0">
                       {stageDefinitions.map((stage, i) => {
@@ -123,7 +120,6 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                           }
                         }
 
-                        // const label = item.isApproved.toUpperCase().slice(0, 2);
 
                         return (
                           <div
@@ -160,6 +156,9 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
 
 
                   </td>
+
+
+
 
 
 

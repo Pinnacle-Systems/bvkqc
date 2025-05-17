@@ -67,7 +67,8 @@ export default function Form() {
     { name: 'order', label: 'Order', icon: <RiOrderPlayFill className="h-6 w-6" />, action: () => setisOpen(true) },
     { name: 'Mail', label: 'Mail', icon: <MessageCircle className="h-6 w-6" /> },
     { name: 'Report', label: 'Report', icon: <ClipboardList className="h-6 w-6" /> },
-    { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> },
+    userRole  ===  ""  ?  
+    { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> }  :  "",
   ];
 
 console.log(active,"active")
@@ -95,7 +96,6 @@ console.log(active,"active")
                 <div className="absolute left-0 w-1 h-8 bg-indigo-600 rounded-r-md shadow-md" />
               )}
 
-              {/* Icon Wrapper */}
               <div
                 className={`relative p-1.5 rounded-md transition-transform duration-300 ${active === name
                     ? 'bg-indigo-100 scale-105 shadow-md'
@@ -130,15 +130,15 @@ console.log(active,"active")
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
-              setPoSentForApproval={setPoSentForApproval}
-              poSentForApproval={poSentForApproval}
-              emailId={emailId} currentId={currentId} userRole={userRole}
-              singleUserPartyData={singleUserPartyData}
-              setActive={setActive}  setForm={setForm}
+                             setPoSentForApproval={setPoSentForApproval}
+                            poSentForApproval={poSentForApproval}  
+                             emailId={emailId} currentId={currentId} userRole={userRole}
+                              singleUserPartyData={singleUserPartyData}
+                              setActive={setActive}  setForm={setForm}
 
             />}
             {active === "Report" && <EmailReport attachments={attachments} />}
-            {active === "More" && <OrderImport />}
+            {active === "More"  &&  userRole === ""  ?   <OrderImport />  : ''}
             {active === "order" && <Order setEmailId={setEmailId} active={active}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
 

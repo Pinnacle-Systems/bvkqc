@@ -56,6 +56,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setReceiverName("");
   }
 
+  
 
   const { data: Emaildata, isLoading: isEmailLoading, isFetching: isEmailFetching } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
@@ -69,7 +70,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode
 
-
+console.log(attachments,"attachments")
 
 
   useEffect(() => {
@@ -111,19 +112,19 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
 
-  const removeCcField = (index) => {
-    const updated = ccList.filter((_, i) => i !== index);
-    setCcList(updated);
-  };
+  // const removeCcField = (index) => {
+  //   const updated = ccList.filter((_, i) => i !== index);
+  //   setCcList(updated);
+  // };
 
 
 
-  const handleFileChange = (event) => {
-    const selectedFiles = Array.from(event.target.files).map(file => ({
-      filePath: file.name,
-    })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
-    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-  };
+  // const handleFileChange = (event) => {
+  //   const selectedFiles = Array.from(event.target.files).map(file => ({
+  //     filePath: file.name,
+  //   })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
+  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+  // };
 
   const data = {
     mailTransaction: true, orderId: id,isSave: true,
@@ -194,7 +195,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const saveData = () => {
 
     if (id) {
-      console.log(currentId, 'current');
       handleSubmitCustom(updateData, data, "Updated")
 
 
@@ -202,7 +202,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
   }
-  const [loading, setLoading] = useState(false);
 
  
 
@@ -211,33 +210,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
     <>
       <div className="grid grid-cols-3 gap-3 h-full bg-gray-100 p-3 overflow-hidden">
-        {loading && (
-          <div className="fixed inset-0 z-50 bg-white bg-opacity-80 flex items-center justify-center">
-            <div className="flex items-center gap-3">
-              <svg
-                className="animate-spin h-8 w-8 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
-                />
-              </svg>
-              <span className="text-sm text-gray-700 font-medium">Mail Sending, please wait...</span>
-            </div>
-          </div>
-        )}
+    
 
         <Modal
           isOpen={formReport}
@@ -349,7 +322,11 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
             <div className="flex w-full items-center">
               <button
                 className="px-3 py-1.5 text-sm bg-gradient-to-r from-blue-800 to-red-600 text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out flex items-center gap-2"
-                onClick={() => setActive("order")}
+                onClick={() => {
+                  setForm(false)
+                 setActive("order")
+                } 
+              }
               >
                 <ArrowBack />
                 Back
@@ -358,7 +335,6 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
           </div>
         </div>
 
-        {/* PO Details Column */}
         <div className="h-[533px] flex flex-col gap-3 ">
           <div className="flex-1 bg-white rounded-lg shadow-sm p-6 overflow-y-auto">
             <div className="flex flex-col space-y-1 pb-3 border-b border-gray-200">

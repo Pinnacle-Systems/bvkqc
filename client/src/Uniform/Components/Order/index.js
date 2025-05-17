@@ -55,7 +55,6 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [updateData] = useUpdateOrderMutation();
 
 
-  console.log(docDate, "docDate")
 
   const syncFormWithDb = useCallback(
     (data) => {
@@ -138,11 +137,18 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
   const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
-    console.log(isMailForm, "isMailForm", isManufacture, isBuyer)
-
-    if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
+    
+    if(isMailForm){
+      if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
+      return;
+    }else{
+         if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
       return;
     }
+    }
+
+    }
+   
     if (isManufacture && userRole === "MANUFACTURE") {
       if (!deliveryDate) {
         toast.info("Choose The Delivery Date", {

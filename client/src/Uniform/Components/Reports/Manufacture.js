@@ -61,7 +61,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         Product: item.product,
         PoQty: item.orderQty,
         excessPercentage: item.excessQty,
-        OrderQty: parseInt(item.qty)
+        OrderQty: Math.round(item.qty)
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(combinedData);
@@ -281,11 +281,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                   <td className="border border-gray-300 w-16">
                     <input
                       type="number"
-
                       value={item?.excessQty}
                       onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-
                       className="w-full p-1   rounded-md text-right focus:ring-blue-400"
+                      disabled={data?.isSave ||  item?.orderQty  == ""}
+
                     />
 
                   </td>
@@ -343,7 +343,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         <div className=" flex  justify-end gap-3">
 
 
-
+{!data?.isSave  &&    (  
+  <>
+ 
           <button
             onClick={() => {
                  saveData(!isMailForm,isManufacture);
@@ -386,6 +388,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             </span>
           </button>
 
+           </>
+ )}
         </div>
       </div>
 

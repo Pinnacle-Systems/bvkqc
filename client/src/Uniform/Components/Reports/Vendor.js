@@ -111,7 +111,6 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
   };
 
   const exportAndUploadExcel = async (data, poItemsData) => {
-    // console.log(poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""),"Poitems")
     const filterdPoItems = poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== "")
     try {
       const combinedData = (filterdPoItems || [])?.map((item, index) => ({
@@ -131,7 +130,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         Product: item.product,
         PoQty: item.orderQty,
         excessPercentage: item.excessQty,
-        OrderQty: parseInt(item.qty)
+        OrderQty:  Math.round(item.qty)
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(combinedData);
