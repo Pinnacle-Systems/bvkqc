@@ -19,10 +19,11 @@ import { Backpack, DeleteIcon, Send } from "lucide-react";
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive, setForm, isSave, setIsSave }) {
 
-  const user = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userType"
+
+  const userId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userId"
   );
   const [toEmail, setToEmail] = useState(["manojbharathi00@gmail.com"]);
   const [subject, setSubject] = useState('');
@@ -31,7 +32,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [attachments, setattachments] = useState([]);
   const [fileName, setfileName] = useState('')
   const [files, setFiles] = useState([]);
-  const [userId, setUserId] = useState("")
+  // const [userId, setUserId] = useState("")
   const [fromAddress, setFromAddress] = useState("")
   const [sendorName, setSendorName] = useState("")
   const [receiverName, setReceiverName] = useState("")
@@ -55,6 +56,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setReceiverName("");
   }
 
+  
 
   const { data: Emaildata, isLoading: isEmailLoading, isFetching: isEmailFetching } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
@@ -68,13 +70,13 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode
 
-
+console.log(attachments,"attachments")
 
 
   useEffect(() => {
     setPoNumber(SigleOrderdata?.data?.docId)
     setSubject(SigleOrderdata?.data?.docId)
-    setUserId(SigleOrderdata?.data?.vendorId)
+    // setUserId(SigleOrderdata?.data?.vendorId)
     setattachments(emailId ? [] : SigleOrderdata?.data?.attachments)
     setfileName(Emaildata?.data?.poExcelFileName)
     setReceiverName(SigleOrderdata?.data?.Vendor?.name)
@@ -110,49 +112,50 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
 
 
-  const removeCcField = (index) => {
-    const updated = ccList.filter((_, i) => i !== index);
-    setCcList(updated);
-  };
+  // const removeCcField = (index) => {
+  //   const updated = ccList.filter((_, i) => i !== index);
+  //   setCcList(updated);
+  // };
 
 
 
-  const handleFileChange = (event) => {
-    const selectedFiles = Array.from(event.target.files).map(file => ({
-      filePath: file.name,
-    })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
-    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-  };
+  // const handleFileChange = (event) => {
+  //   const selectedFiles = Array.from(event.target.files).map(file => ({
+  //     filePath: file.name,
+  //   })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
+  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+  // };
 
   const data = {
-    mailTransaction: true, orderId: id,
+    mailTransaction: true, orderId: id,isSave: true,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
+  console.log(isSave, 'isSave');
 
-const handleSubmitCustom = async (callback, data, text) => {
-  try {
-    const formData = new FormData();
-    for (let key in data) {
-      if (key === 'attachments') {
-        formData.append(key, JSON.stringify(data[key].map(i => ({ ...i }))));
-      } else {
-        formData.append(key, data[key]);
+  const handleSubmitCustom = async (callback, data, text) => {
+    try {
+      const formData = new FormData();
+      for (let key in data) {
+        if (key === 'attachments') {
+          formData.append(key, JSON.stringify(data[key].map(i => ({ ...i }))));
+        } else {
+          formData.append(key, data[key]);
+        }
       }
-    }
 
-    let returnData;
-    if (text === "Updated") {
-      returnData = await callback({ id, body: formData }).unwrap();
-    } else {
-      returnData = await callback(formData).unwrap();
+      let returnData;
+      if (text === "Updated") {
+        returnData = await callback({ id, body: formData }).unwrap();
+      } else {
+        returnData = await callback(formData).unwrap();
+      }
+
+
+    } catch (error) {
+      alert(`An error occurred: ${error.message}`);
+      console.log("handle", error);
     }
-   
-   
-  } catch (error) {
-    alert(`An error occurred: ${error.message}`);
-    console.log("handle", error);
-  }
-};
+  };
 
   const MailIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -193,7 +196,6 @@ const handleSubmitCustom = async (callback, data, text) => {
   const saveData = () => {
 
     if (id) {
-      console.log(currentId, 'current');
       handleSubmitCustom(updateData, data, "Updated")
 
 
@@ -201,54 +203,15 @@ const handleSubmitCustom = async (callback, data, text) => {
 
 
   }
-  const [loading, setLoading] = useState(false);
 
-  const handleClick = async () => {
-    setLoading(true); // Show loader
-    try {
-      await saveData();
-      setPoSentForApproval(true);
-      await handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
-      await SyncformwithDb();
-    } catch (error) {
-      console.error("Error occurred:", error);
-    } finally {
-      setLoading(false); // Hide loader
-    }
-  };
+ 
 
 
   return (
 
     <>
       <div className="grid grid-cols-3 gap-3 h-full bg-gray-100 p-3 overflow-hidden">
-        {loading && (
-          <div className="fixed inset-0 z-50 bg-white bg-opacity-80 flex items-center justify-center">
-            <div className="flex items-center gap-3">
-              <svg
-                className="animate-spin h-8 w-8 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
-                />
-              </svg>
-              <span className="text-sm text-gray-700 font-medium">Mail Sending, please wait...</span>
-            </div>
-          </div>
-        )}
+    
 
         <Modal
           isOpen={formReport}
@@ -263,86 +226,96 @@ const handleSubmitCustom = async (callback, data, text) => {
           />
         </Modal>
 
-  <div className="col-span-2 h-full flex flex-col gap-3 overflow-hidden">
-  <div className="flex-1 bg-white rounded-lg shadow-sm p-4 overflow-y-auto">
-  <div className="flex items-center space-x-2 pb-3 border-b border-gray-200 mb-4">
-    <div className="p-1.5 bg-blue-50 rounded-full">
-      <MailIcon className="w-5 h-5 text-blue-600" />
-    </div>
-    <h2 className="text-lg font-semibold text-gray-800">New Mail</h2>
-  </div>
+        <div className="col-span-2 h-full flex flex-col gap-3 overflow-hidden">
+          <div className="flex-1 bg-white rounded-lg shadow-sm p-4 overflow-y-auto">
+            <div className="flex items-center space-x-2 pb-3 border-b border-gray-200 mb-4">
+              <div className="p-1.5 bg-blue-50 rounded-full">
+                <MailIcon className="w-5 h-5 text-blue-600" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-800">New Mail</h2>
+            </div>
 
-  <div className="space-y-4">
-    <div className="flex border rounded-md border-gray-300">
-      <label className="w-20 text-sm text-gray-600 p-2 border-r border-gray-300 bg-gray-50 ">To</label>
-      <input
-        type="email"
-        placeholder="Recipient email"
-        value={toEmail}
-        onChange={(e) => setToEmail(e.target.value)}
-        className="flex-1 px-3  text-sm focus:outline-none bg-white"
-      />
-    </div>
+            <div className="space-y-4">
+              <div className="flex border rounded-md border-gray-300">
+                <label className="w-20 text-sm text-gray-600 p-2 border-r border-gray-300 bg-gray-50 ">To</label>
+                <input
+                  type="email"
+                  placeholder="Recipient email"
+                  value={toEmail}
+                  onChange={(e) => setToEmail(e.target.value)}
+                  className="flex-1 px-3  text-sm focus:outline-none bg-white"
+                />
+              </div>
 
- <div className="space-y-1 mt-2">
-  {ccList.map((cc, index) => (
-    <div key={index} className="flex border rounded-md border-gray-300">
-      <label className="w-20 text-sm text-gray-600 p-2 border-r border-gray-300 bg-gray-50">
-        CC
-      </label>
-      <textarea
-        rows={1} 
-        placeholder={`cc${index + 1}@example.com`}
-        value={cc}
-        onChange={(e) => handleCcChange(index, e.target.value)}
-        onInput={(e) => {
-          e.target.style.height = 'auto'; 
-          e.target.style.height = `${e.target.scrollHeight}px`;
-        }}
-        className="flex-1 px-3 text-sm focus:outline-none bg-white resize-none  pt-2 overflow-hidden"
-      />
-    </div>
-  ))}
-</div>
+              <div className="space-y-1 mt-2">
+                {ccList.map((cc, index) => (
+                  <div key={index} className="flex border rounded-md border-gray-300">
+                    <label className="w-20 text-sm text-gray-600 p-2 border-r border-gray-300 bg-gray-50">
+                      CC
+                    </label>
+                    <textarea
+                      rows={1}
+                      placeholder={`cc${index + 1}@example.com`}
+                      value={cc}
+                      onChange={(e) => handleCcChange(index, e.target.value)}
+                      onInput={(e) => {
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
+                      className="flex-1 px-3 text-sm focus:outline-none bg-white resize-none  pt-2 overflow-hidden"
+                    />
+                  </div>
+                ))}
+              </div>
 
 
-    <div className="flex border rounded-md border-gray-300">
-      <label className="w-20 text-sm text-gray-600 p-2 border-r border-gray-300 bg-gray-50">Subject</label>
-      <input
-        type="text"
-        placeholder="Email subject"
-        value={subject}
-        onChange={(e) => setSubject(e.target.value)}
-        className="flex-1 px-3  text-sm focus:outline-none bg-white"
-      />
-    </div>
+              <div className="flex border rounded-md border-gray-300">
+                <label className="w-20 text-sm text-gray-600 p-2 border-r border-gray-300 bg-gray-50">Subject</label>
+                <input
+                  type="text"
+                  placeholder="Email subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="flex-1 px-3  text-sm focus:outline-none bg-white"
+                />
+              </div>
 
-    <div className="border rounded-md border-gray-300 h-[170px]">
-      <label className="block text-sm text-gray-600 p-2 border-b border-gray-300 bg-gray-50">Message</label>
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Compose your message..."
-        className="w-full h-[calc(100%-40px)] px-3  text-sm focus:outline-none resize-none"
-      />
-    </div>
-  </div>
+              <div className="border rounded-md border-gray-300 h-[170px]">
+                <label className="block text-sm text-gray-600 p-2 border-b border-gray-300 bg-gray-50">Message</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Compose your message..."
+                  className="w-full h-[calc(100%-40px)] px-3  text-sm focus:outline-none resize-none"
+                />
+              </div>
+            </div>
 
-  <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
-    {/* <div className="flex items-center gap-2">
+            <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
+              {/* <div className="flex items-center gap-2">
       <button className="p-2 hover:bg-gray-100 rounded-md text-gray-600 border border-gray-300">
         <PaperClipIcon className="w-5 h-5" />
       </button>
       
     </div> */}
-  <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
-       onClick={() => {
-            handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList,setActive);
-              saveData()
-                 if ( userRole === "MANUFACTURE") {
-              setPoSentForApproval(true)}
-              SyncformwithDb()
-            }}
+              <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
+                onClick={() => {
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
+
+                  if (userRole === "VENDOR") {
+
+                    setPoSentForApproval(true)
+                  }
+                  {
+                    console.log(userRole, 'userRole');
+                  }
+                  if (userRole === "MANUFACTURE") {
+                    setIsSave(true)
+                  }
+                  saveData()
+                  // handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
+                  SyncformwithDb()
+                }}
 
               >
                 <PaperAirplaneIcon className="w-4 h-4" />
@@ -356,7 +329,11 @@ const handleSubmitCustom = async (callback, data, text) => {
             <div className="flex w-full items-center">
               <button
                 className="px-3 py-1.5 text-sm bg-gradient-to-r from-blue-800 to-red-600 text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out flex items-center gap-2"
-                onClick={() => setActive("order")}
+                onClick={() => {
+                  setForm(false)
+                 setActive("order")
+                } 
+              }
               >
                 <ArrowBack />
                 Back
@@ -365,17 +342,16 @@ const handleSubmitCustom = async (callback, data, text) => {
           </div>
         </div>
 
-  {/* PO Details Column */}
-  <div className="h-[533px] flex flex-col gap-3 ">
-    <div className="flex-1 bg-white rounded-lg shadow-sm p-6 overflow-y-auto">
-      <div className="flex flex-col space-y-1 pb-3 border-b border-gray-200">
-        <div className="flex items-center justify-between"> 
-          <span className="text-xs font-medium text-gray-600">PO Number</span>
-          {poNumber &&
-          <span className="text-xs font-bold text-white bg-gray-800 border border-gray-800 rounded px-2 py-1">
-  {`${poNumber} (${styleNumber})`}
-</span>
-          }
+        <div className="h-[533px] flex flex-col gap-3 ">
+          <div className="flex-1 bg-white rounded-lg shadow-sm p-6 overflow-y-auto">
+            <div className="flex flex-col space-y-1 pb-3 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-600">PO Number</span>
+                {poNumber &&
+                  <span className="text-xs font-bold text-white bg-gray-800 border border-gray-800 rounded px-2 py-1">
+                    {`${poNumber} (${styleNumber})`}
+                  </span>
+                }
 
 
               </div>

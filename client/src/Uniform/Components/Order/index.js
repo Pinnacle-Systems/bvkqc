@@ -30,14 +30,13 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
 
   const [isSave, setIsSave] = useState(true)
-  const [poSentForApproval, setPoSentForApproval] = useState(false)
+  // const [poSentForApproval, setPoSentForApproval] = useState(false)
   const { branchId, finYearId, userId } = getCommonParams()
   const [docDate, setDocDate] = useState(getDateFromDateTime(today));
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
-
 
 
 
@@ -56,7 +55,6 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [updateData] = useUpdateOrderMutation();
 
 
-  console.log(docDate, "docDate")
 
   const syncFormWithDb = useCallback(
     (data) => {
@@ -85,7 +83,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     finYearId,
     vendor,
     excessQty,
-    isSave: true, excessQtyAmount,
+     excessQtyAmount,
     isApproved,
     deliveryDate, docDate
   }
@@ -139,11 +137,18 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
   const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
-    console.log(isMailForm, "isMailForm", isManufacture, isBuyer)
-
-    if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
+    
+    if(isMailForm){
+      if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
+      return;
+    }else{
+         if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
       return;
     }
+    }
+
+    }
+   
     if (isManufacture && userRole === "MANUFACTURE") {
       if (!deliveryDate) {
         toast.info("Choose The Delivery Date", {
@@ -158,20 +163,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
         return;
       }
     }
-    if (isBuyer) {
-      if (!deliveryDate) {
-        toast.info("Cannot send Mail ", {
-          autoClose: 1000
-        })
-        return;
-      }
-      if (!vendor) {
-        toast.info("Cannot send Mail", {
-          autoClose: 1000
-        })
-        return;
-      }
-    }
+
 
     if (isMailForm) {
       setForm(false);
@@ -192,7 +184,6 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
 
-  console.log(active, "active", form, "form")
 
 
 
@@ -207,7 +198,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-            vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+            vendor={vendor} setVendor={setVendor}  saveData={saveData}
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
@@ -227,15 +218,16 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-              vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+              vendor={vendor} setVendor={setVendor}  saveData={saveData}
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
               id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
-              poSentForApproval={poSentForApproval} active={active}
+              // poSentForApproval={poSentForApproval} 
+              active={active}
 
-              setPoSentForApproval={setPoSentForApproval}
+            // setPoSentForApproval={setPoSentForApproval}
 
             />
             :
@@ -246,7 +238,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
                 setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-                vendor={vendor} setVendor={setVendor} setIsSave={setIsSave} saveData={saveData}
+                vendor={vendor} setVendor={setVendor} saveData={saveData}
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
@@ -294,7 +286,6 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
                         :
                         <Buyer
-                          poSentForApproval={poSentForApproval}
                           partyData={partyData}
                           allData={allData}
                           setForm={setForm}

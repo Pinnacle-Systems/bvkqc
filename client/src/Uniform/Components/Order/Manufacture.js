@@ -8,6 +8,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
     { key: "isApproved", },
   ];
   const getProgressIndex = (item) => {
+console.log(typeof(item?.isSave,"item"))
     const keys = stageDefinitions.map(s => s.key);
     let index = -1;
 
@@ -16,9 +17,8 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
       if (key === "isApproved") {
         if (item?.isApproved) index = i;
       } else {
-        console.log(item?.[key] === true, 'item?.[key] === true');
-
-        if (item?.[key] === true || item?.[key] === 1) {
+            console.log(typeof(item?.[key],"key"))
+        if (Boolean(item?.[key]) === true || item?.[key] === 1) {
           index = i;
         }
       }
@@ -60,17 +60,18 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
           <tr>
             <th className="py-1 px-1">S No</th>
             <th className="py-1 px-1">PO Number</th>
-            <th className="py-1 px-1">Order date</th>
-            <th className="py-1 px-1">Manufacture</th>
+            <th className="py-1 px-1">Po date</th>
+            <th className="py-1 px-1 text-center">Manufacture</th>
             <th className="py-1 px-1">Received Date</th>
 
             <th className="py-1 px-1">Vendor</th>
             <th className="py-1 px-6">Delivery date</th>
-            <th className="py-1 px-1 text-end">PO Status</th>
+            <th className="py-1 px-1 ">PO Status</th>
           </tr>
         </thead>
         <tbody className="text-gray-700 text-xs">
           {(allData?.data || []).map((item, index) => {
+           console.log(typeof(item?.isSave,"AlldatIsSave"))
             const completedStages = stageDefinitions
               .filter((stage) => item?.[stage.key])
               .reverse();
@@ -87,7 +88,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             return (
               <tr
                 key={item?.id}
-                className="border-b transition-all duration-300 hover:shadow-lg hover:bg-gray-200 cursor-pointer"
+                className="border-b transition-all duration-300 hover:shadow-lg hover:bg-gray-200 cursor-pointer table-row"
                 onClick={() => {
                   setForm(true);
                   setId(item?.id);
@@ -99,9 +100,9 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Manufacture?.name}</td>
                 <td className="p-1">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
-       
-                <td className="p-1">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+
                 <td className="p-1">{item?.Vendor?.name}</td>
+                <td className="p-1 text-center">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
 
                 <td className="p-1">
                   <div className="flex items-center space-x-0">

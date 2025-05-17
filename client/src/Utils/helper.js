@@ -423,7 +423,8 @@ export function handleMailSendWithMultipleAttachments(
   fileName,
   attachments,
   ccList,
-  setActive
+  setActive ,
+  setForm
 ) {
   const normalizeEmails = (emails) => {
     if (Array.isArray(emails)) return emails;
@@ -477,6 +478,7 @@ export function handleMailSendWithMultipleAttachments(
           Swal.showLoading();
         },
       }).then(() => {
+        setForm(false)
         setActive("order");
       });
     })
@@ -491,6 +493,8 @@ export function handleMailSendWithMultipleAttachments(
           popup: "payment-swal-popup",
         },
       }).then(() => {
+                setForm(false)
+
         setActive("order");
       });
     });

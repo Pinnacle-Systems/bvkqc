@@ -361,7 +361,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
 
 
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
-    const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startTime, finYearDate?.endTime) : "";
+    const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startDateStartTime, finYearDate?.endDateEndTime) : "";
     let newDocId = finYearDate ? (await ordergetNextDocId(branchId, shortCode, finYearDate?.startTime, finYearDate?.endTime)) : "";
 
 
