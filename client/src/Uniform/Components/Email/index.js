@@ -56,7 +56,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     setReceiverName("");
   }
 
-  
+
 
   const { data: Emaildata, isLoading: isEmailLoading, isFetching: isEmailFetching } = useGetEmailByIdQuery(emailId, { skip: !emailId });
 
@@ -70,7 +70,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode
 
-console.log(attachments,"attachments")
+  console.log(attachments, "attachments")
 
 
   useEffect(() => {
@@ -127,7 +127,7 @@ console.log(attachments,"attachments")
   // };
 
   const data = {
-    mailTransaction: true, orderId: id,isSave: true,
+    mailTransaction: true, orderId: id, isSave: true,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
   console.log(isSave, 'isSave');
@@ -197,21 +197,36 @@ console.log(attachments,"attachments")
 
     if (id) {
       handleSubmitCustom(updateData, data, "Updated")
-
-
     }
 
 
   }
 
- 
+  const handleSend = () => {
+    handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
+    console.log(userRole, 'userRole');
+
+    if (userRole === "VENDOR") {
+      setPoSentForApproval(true);
+      saveData();
+      SyncformwithDb();
+    } else if (userRole === "MANUFACTURE") {
+      setIsSave(true);
+      saveData();
+      SyncformwithDb();
+    } else {
+      saveData();
+      SyncformwithDb();
+    }
+  };
+
 
 
   return (
 
     <>
       <div className="grid grid-cols-3 gap-3 h-full bg-gray-100 p-3 overflow-hidden">
-    
+
 
         <Modal
           isOpen={formReport}
@@ -299,23 +314,7 @@ console.log(attachments,"attachments")
       
     </div> */}
               <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
-                onClick={() => {
-                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
-
-                  if (userRole === "VENDOR") {
-
-                    setPoSentForApproval(true)
-                  }
-                  {
-                    console.log(userRole, 'userRole');
-                  }
-                  if (userRole === "MANUFACTURE") {
-                    setIsSave(true)
-                  }
-                  saveData()
-                  // handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
-                  SyncformwithDb()
-                }}
+                onClick={() => handleSend()}
 
               >
                 <PaperAirplaneIcon className="w-4 h-4" />
@@ -331,9 +330,9 @@ console.log(attachments,"attachments")
                 className="px-3 py-1.5 text-sm bg-gradient-to-r from-blue-800 to-red-600 text-white font-medium rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out flex items-center gap-2"
                 onClick={() => {
                   setForm(false)
-                 setActive("order")
-                } 
-              }
+                  setActive("order")
+                }
+                }
               >
                 <ArrowBack />
                 Back
