@@ -87,7 +87,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   useEffect(() => {
     if (Emaildata?.data?.poExcelFileName) {
-      setattachments([{ filePath: Emaildata?.data?.poExcelFileName }]);
+      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
     }
   }, [Emaildata, isEmailLoading, isEmailFetching]);
 
@@ -130,7 +130,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
     mailTransaction: true, orderId: id, isSave: true,
     fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
   }
-  console.log(fileName, 'fileName');
+  console.log(isSave, 'isSave');
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
@@ -197,28 +197,13 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
     if (id) {
       handleSubmitCustom(updateData, data, "Updated")
+
+
     }
 
 
   }
 
-  const handleSend = () => {
-    handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
-
-
-    if (userRole === "VENDOR") {
-      setPoSentForApproval(true);
-      saveData();
-      SyncformwithDb();
-    } else if (userRole === "MANUFACTURE") {
-      setIsSave(true);
-      saveData();
-      SyncformwithDb();
-    } else {
-      saveData();
-      SyncformwithDb();
-    }
-  };
 
 
 
@@ -314,7 +299,22 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
       
     </div> */}
               <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
-                onClick={() => handleSend()}
+                onClick={() => {
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
+
+                  if (userRole === "VENDOR") {
+                    setPoSentForApproval(true)
+                    saveData()
+                    SyncformwithDb()
+                  }
+
+                  if (userRole === "MANUFACTURE") {
+                    setIsSave(true)
+                    saveData()
+                    SyncformwithDb()
+                  }
+
+                }}
 
               >
                 <PaperAirplaneIcon className="w-4 h-4" />
@@ -390,7 +390,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
               <div className="flex flex-col gap-2">
                 {attachments?.map((item, index) => {
-                  const fileName = item?.filePath?.split('/').pop();
+                  const fileName = item.filePath?.split('/').pop();
                   return (
                     <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div className="flex items-center gap-3 flex-1">
