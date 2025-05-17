@@ -341,7 +341,6 @@ const handleSubmitCustom = async (callback, data, text) => {
               saveData()
                  if ( userRole === "MANUFACTURE") {
               setPoSentForApproval(true)}
-              handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList);
               SyncformwithDb()
             }}
 
