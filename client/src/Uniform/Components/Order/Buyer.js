@@ -1,20 +1,17 @@
 import { useState } from "react";
-import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
+import { findFromList, getDateFromDateTime } from "../../../Utils/helper";
 import { Modal } from "../../../Inputs";
 
-
 export default function Buyer({ allData, setForm, setId, setPoNo }) {
-
-
   const stageDefinitions = [
-    { key: "sa", title: "Po Received", label: 'PR' },
-    { key: "isSave", title: "Assigned", label: 'AS' },
-    { key: "poSentForApproval", title: "Sent to Approval", label: 'SA' },
-    { key: "isApproved", },
+    { key: "sa", title: "Po Received", label: "PR" },
+    { key: "isSave", title: "Assigned", label: "AS" },
+    { key: "poSentForApproval", title: "Sent to Approval", label: "SA" },
+    { key: "isApproved" },
   ];
 
   const getProgressIndex = (item) => {
-    const keys = stageDefinitions.map(s => s.key);
+    const keys = stageDefinitions.map((s) => s.key);
     let index = -1;
 
     for (let i = 0; i < keys.length; i++) {
@@ -22,8 +19,6 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
       if (key === "isApproved") {
         if (item?.isApproved) index = i;
       } else {
-
-
         if (item?.[key] === true || item?.[key] === 1) {
           index = i;
         }
@@ -33,42 +28,49 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
     return index;
   };
   const handleClick = (item) => {
-    setForm(true)
-    setId(item?.id)
-    setPoNo(item?.docId)
-  }
-
+    setForm(true);
+    setId(item?.id);
+    setPoNo(item?.docId);
+  };
 
   return (
     <>
-
       <div className=" bg-[#F1F1F0] h-screen shadow rounded-lg  ">
         <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
-  <thead className="bg-white text-gray-800 border-b border-gray-300">
-            <tr >
-             <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[30px]">S No</th>
-             <th className="text-[12px] font-semibold p-1 border border-gray-300">Po Number </th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Po Date</th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300">Manufacture</th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Received Date</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300">Vendor</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Assigned Date</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Delivery Date</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300">Po Status</th>
-
-
+          <thead className="bg-white text-gray-800 border-b border-gray-300">
+            <tr>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[30px]">
+                S No
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300">
+                Po Number{" "}
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+                Po Date
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300">
+                Manufacture
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+                Received Date
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300">
+                Vendor
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+                Assigned Date
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+                Delivery Date
+              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300">
+                Po Status
+              </th>
             </tr>
           </thead>
 
           <tbody className="text-gray-700 text-xs">
-
-
-
-
-
             {(allData ? allData?.data : [])?.map((item, index) => {
-
-
               const rawStatus = item?.isApproved || "In Progress";
 
               const approvalStatusMap = {
@@ -78,30 +80,52 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                 "In Progress": "In Progress",
               };
 
-              const approvalStatus = approvalStatusMap[rawStatus] || "In Progress";
-              
-
-
+              const approvalStatus =
+                approvalStatusMap[rawStatus] || "In Progress";
 
               return (
-
-
-
-                <tr className="border-b  transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row px-2"
+                <tr
+                  className={`border-b transition-all duration-300 hover:shadow-lg transform table-row px-2 ${
+                    index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
+                  }`}
                   onClick={() => {
-                    handleClick(item)
+                    handleClick(item);
                   }}
                 >
-                  <td className="border p-1 text-center text-[11px]">{parseInt(index) + 1}</td>
-                  <td className="border p-1 text-center text-[11px]">{item?.docId}</td>
-                  <td className="border p-1 text-center text-[11px]">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""}</td>
-                  <td className="border p-1 text-center text-[11px]">{item?.Manufacture?.name}</td>
-                  <td className="border p-1 text-center text-[11px]">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""} </td>
-
-                  <td className="border p-1 text-center text-[11px]">{item?.isSave ? item?.Vendor?.name : ''}  </td>
-                  <td className="border p-1 text-center text-[11px]">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                  <td className="border p-1 text-center text-[11px]">{item?.isSave && item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="border p-1 text-center text-[11px]">
+                    {parseInt(index) + 1}
+                  </td>
+                  <td className="border p-1 text-center text-[11px]">
+                    {item?.docId}
+                  </td>
+                  <td className="border p-1 text-center text-[11px]">
+                    {item?.orderdate
+                      ? getDateFromDateTime(item?.orderdate)
+                      : ""}
+                  </td>
+                  <td className="border p-1 text-center text-[11px]">
+                    {item?.Manufacture?.name}
+                  </td>
+                  <td className="border p-1 text-center text-[11px]">
+                    {item?.createdAt
+                      ? getDateFromDateTime(item?.createdAt)
+                      : ""}{" "}
+                  </td>
+
+                  <td className="p-1">
+                    {item?.isSave ? item?.Vendor?.name : ""}{" "}
+                  </td>
+                  <td className="p-1 text-center">
+                    {item?.isSave && item?.updatedAt
+                      ? getDateFromDateTime(item?.updatedAt)
+                      : ""}
+                  </td>
+                  <td className="p-1 text-center">
+                    {item?.isSave && item?.deliverydate
+                      ? getDateFromDateTime(item?.deliverydate)
+                      : ""}
+                  </td>
+                  <td className="p-1">
                     <div className="flex items-center space-x-0">
                       {stageDefinitions.map((stage, i) => {
                         const progressIndex = getProgressIndex(item);
@@ -115,15 +139,18 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                           switch (item?.isApproved) {
                             case "Approve":
                               bgColor = "bg-green-600 text-white";
-                              gradient = "bg-gradient-to-br from-green-400 to-green-700";
+                              gradient =
+                                "bg-gradient-to-br from-green-400 to-green-700";
                               break;
                             case "Reject":
                               bgColor = "bg-red-600 text-white";
-                              gradient = "bg-gradient-to-br from-red-400 to-red-700";
+                              gradient =
+                                "bg-gradient-to-br from-red-400 to-red-700";
                               break;
                             case "Hold":
                               bgColor = "bg-yellow-400 text-black";
-                              gradient = "bg-gradient-to-br from-yellow-300 to-yellow-500";
+                              gradient =
+                                "bg-gradient-to-br from-yellow-300 to-yellow-500";
                               break;
                             default:
                               bgColor = "bg-gray-300 text-gray-600";
@@ -132,7 +159,8 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                         } else {
                           if (isReached) {
                             bgColor = "bg-green-600 text-white";
-                            gradient = "bg-gradient-to-br from-green-400 to-green-700";
+                            gradient =
+                              "bg-gradient-to-br from-green-400 to-green-700";
                           }
                         }
 
@@ -143,11 +171,14 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                             key={i}
                             title={
                               stage.key === "isApproved"
-                                ? `Approval Status: ${item?.isApproved || "In Progress"}`
+                                ? `Approval Status: ${
+                                    item?.isApproved || "In Progress"
+                                  }`
                                 : stage.title
                             }
-                            className={`relative flex items-center justify-center text-xs font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${i !== 0 ? "mr-[-10px]" : ""
-                              }`}
+                            className={`relative flex items-center justify-center text-xs font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${
+                              i !== 0 ? "mr-[-10px]" : ""
+                            }`}
                             style={{
                               clipPath:
                                 "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
@@ -157,41 +188,25 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                             {stage.label
                               ? stage.label
                               : i === stageDefinitions.length - 1
-                                ? item?.isApproved === "Approve"
-                                  ? "A"
-                                  : item?.isApproved === "Reject"
-                                    ? "R"
-                                    : item?.isApproved === "Hold"
-                                      ? "H"
-                                      : "N"
-                                : ""}
+                              ? item?.isApproved === "Approve"
+                                ? "A"
+                                : item?.isApproved === "Reject"
+                                ? "R"
+                                : item?.isApproved === "Hold"
+                                ? "H"
+                                : "N"
+                              : ""}
                           </div>
-
                         );
                       })}
                     </div>
-
-
                   </td>
-
-
-
-
                 </tr>
-
-
-              )
-
-
+              );
             })}
-
-
-
           </tbody>
         </table>
-
       </div>
-
     </>
-  )
+  );
 }

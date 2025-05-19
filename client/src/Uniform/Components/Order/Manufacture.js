@@ -88,7 +88,9 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             return (
               <tr
                 key={item?.id}
-                className="border-b transition-all duration-300 hover:shadow-lg hover:bg-gray-200 cursor-pointer table-row"
+                   className={`border-b transition-all duration-300 hover:shadow-lg transform table-row px-2 ${
+                    index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
+                  }`}
                 onClick={() => {
                   setForm(true);
                   setId(item?.id);

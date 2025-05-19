@@ -259,7 +259,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
      <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
   <thead className="bg-white text-gray-800 border-b border-gray-300">
     <tr>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[30px]">S No</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300">Department</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300">Class-SubClass</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300">Item Code</th>

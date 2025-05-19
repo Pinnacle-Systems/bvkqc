@@ -173,11 +173,7 @@ const Header = ({ profile, setProfile , setLogout , logout}) => {
     src={dp}
     alt="Profile"
   />
-<div className="text-lg font-semibold text-gray-900 tracking-wide">
-    {secureLocalStorage.getItem(
-        sessionStorage.getItem("sessionId") + "username"
-    )}
-</div>
+
 
 </div>
 

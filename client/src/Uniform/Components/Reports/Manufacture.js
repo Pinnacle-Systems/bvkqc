@@ -262,7 +262,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   <tbody>
     {(poItems || []).map((item, index) => (
-      <tr
+   <tr
         key={index}
         className={`${
           index % 2 === 0 ? "bg-gray-100" : "bg-white"
