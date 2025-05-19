@@ -44,17 +44,17 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
       <div className=" bg-[#F1F1F0] h-screen shadow rounded-lg  ">
         <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
-  <thead className="bg-white text-gray-800 border-b border-gray-300">
+          <thead className="bg-white text-gray-800 border-b border-gray-300">
             <tr >
-             <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[30px]">S No</th>
-             <th className="text-[12px] font-semibold p-1 border border-gray-300">Po Number </th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Po Date</th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[30px]">S No</th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300">Po Number </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Po Date</th>
               <th className="text-[12px] font-semibold p-1 border border-gray-300">Manufacture</th>
               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Received Date</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300">Vendor</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Assigned Date</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Delivery Date</th>
-               <th className="text-[12px] font-semibold p-1 border border-gray-300">Po Status</th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300">Vendor</th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Assigned Date</th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Delivery Date</th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300">Po Status</th>
 
 
             </tr>
@@ -79,7 +79,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
               };
 
               const approvalStatus = approvalStatusMap[rawStatus] || "In Progress";
-              
+
 
 
 
@@ -98,9 +98,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   <td className="border p-1 text-center text-[11px]">{item?.Manufacture?.name}</td>
                   <td className="border p-1 text-center text-[11px]">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""} </td>
 
-                  <td className="border p-1 text-center text-[11px]">{item?.isSave ? item?.Vendor?.name : ''}  </td>
+                  <td className="border p-1 text-center text-[11px]">{item?.Vendor?.name}  </td>
                   <td className="border p-1 text-center text-[11px]">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                  <td className="border p-1 text-center text-[11px]">{item?.isSave && item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                  <td className="border p-1 text-center text-[11px]">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="border p-1 text-center text-[11px]">
                     <div className="flex items-center space-x-0">
                       {stageDefinitions.map((stage, i) => {

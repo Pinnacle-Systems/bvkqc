@@ -21,7 +21,7 @@ import secureLocalStorage from "react-secure-storage";
 
 
 export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
-  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active }) {
+  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active, setId }) {
 
 
   const [formReport, setFormReport] = useState(false);
@@ -125,6 +125,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
               onClick={() => {
                 setForm(false);
                 setActive("order");
+                setId('')
               }}
               className="group flex items-center bg-white text-[#E4002B] border border-[#E4002B] hover:bg-[#E4002B] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E4002B] focus:ring-offset-1"
             >
@@ -288,12 +289,10 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
-                    {data?.isSave && (
-                      <>
-                        <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
-                        <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th>
-                      </>
-                    )}
+
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th>
+
                   </tr>
                 </thead>
 
@@ -319,16 +318,14 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                         {Math.round(item?.orderQty) || ""}
                       </td>
 
-                      {data?.isSave && (
-                        <>
-                          <td className="border p-1 text-right text-[11px]">
-                            {item?.excessQty || ""}
-                          </td>
-                          <td className="border p-1 text-right text-[11px]">
-                            {Math.round(item?.qty) || ""}
-                          </td>
-                        </>
-                      )}
+
+                      <td className="border p-1 text-right text-[11px]">
+                        {item?.excessQty || ""}
+                      </td>
+                      <td className="border p-1 text-right text-[11px]">
+                        {Math.round(item?.qty) || ""}
+                      </td>
+
                     </tr>
                   ))}
 
@@ -338,14 +335,12 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
                       {poItems.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                     </td>
-                    {data?.isSave && (
-                      <>
-                        <td className="border p-2 text-right"></td>
-                        <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
-                          {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-                        </td>
-                      </>
-                    )}
+
+                    <td className="border p-2 text-right"></td>
+                    <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                      {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
+                    </td>
+
 
                   </tr>
                 </tbody>

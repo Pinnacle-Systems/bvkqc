@@ -367,8 +367,8 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             </tbody>
           </table>
         </div>
-        <div className=" flex  justify-end gap-3">
-          {!data?.isSave && (
+        {/* <div className=" flex  justify-end gap-3">
+          {allData?.data[0]?.selectedApprover === "MANUFACTURE" && (
             <>
               <button
                 onClick={() => {
@@ -415,7 +415,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
             </>
           )}
-        </div>
+        </div> */}
       </div>
 
 
