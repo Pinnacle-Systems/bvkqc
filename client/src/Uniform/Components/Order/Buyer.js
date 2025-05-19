@@ -46,15 +46,15 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
         <table className="min-w-full  text-left overflow-y-auto" >
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
-              <th className="py-1 px-6">S No</th>
-              <th className="py-1 px-6" >Po Number </th>
-              <th className="py-1 px-6">Po Date</th>
-              <th className="py-1 px-6 text-center">Manufacture</th>
-              <th className="py-1 px-6">Received Date</th>
-              <th className="py-1 px-6">Vendor</th>
-              <th className="py-1 px-6">Assigned Date</th>
-              <th className="py-1 px-6">Delivery Date</th>
-              <th className="py-1 px-6 ">Po Status</th>
+              <th className="py-1 px-6 border-r-2 text-left" >S No</th>
+              <th className="py-1 px-6 border-r-2 text-left"  >Po Number </th>
+              <th className="py-1 px-6 border-r-2 text-left">Po Date</th>
+              <th className="py-1 px-6 border-r-2 text-left">Manufacture</th>
+              <th className="py-1 px-6 border-r-2 text-left">Received Date</th>
+              <th className="py-1 px-6 border-r-2 text-left">Vendor</th>
+              <th className="py-1 px-6 border-r-2 text-left" >Assigned Date</th>
+              <th className="py-1 px-6 border-r-2 text-left">Delivery Date</th>
+              <th className="py-1 px-6 border-r-2 text-left">Po Status</th>
 
 
             </tr>
@@ -86,21 +86,21 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
 
 
-                <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row px-2"
+                <tr className="border-b  transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row px-2"
                   onClick={() => {
                     handleClick(item)
                   }}
                 >
-                  <td className="p-1">{parseInt(index) + 1}</td>
-                  <td className="p-1">{item?.docId}</td>
-                  <td className="p-1 text-center">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""}</td>
-                  <td className="p-1">{item?.Manufacture?.name}</td>
-                  <td className="p-1 text-center">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""} </td>
+                  <td className="p-1 border-r-2">{parseInt(index) + 1}</td>
+                  <td className="p-1 border-r-2">{item?.docId}</td>
+                  <td className="p-1 border-r-2">{item?.orderdate ? getDateFromDateTime(item?.orderdate) : ""}</td>
+                  <td className="p-1 border-r-2">{item?.Manufacture?.name}</td>
+                  <td className="p-1 border-r-2">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""} </td>
 
-                  <td className="p-1">{item?.isSave ? item?.Vendor?.name : ''}  </td>
-                  <td className="p-1 text-center">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                  <td className="p-1 text-center">{item?.isSave && item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
-                  <td className="p-1">
+                  <td className="p-1 border-r-2">{ item?.Vendor?.name }  </td>
+                  <td className="p-1 border-r-2">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                  <td className="p-1 border-r-2">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                  <td className="p-1 border-r-2">
                     <div className="flex items-center space-x-0">
                       {stageDefinitions.map((stage, i) => {
                         const progressIndex = getProgressIndex(item);

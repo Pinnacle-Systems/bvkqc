@@ -71,9 +71,8 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
 
               return (
                 <>
-                  {console.log(item?.isSave, 'item?.isSave')
-                  }
-                  {item?.isSave && (
+               
+                  {/* {item?.isSave && ( */}
 
                     <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
                       onClick={() => {
@@ -86,9 +85,9 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                       <td className="p-1">{item?.docId}</td>
                       <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                       <td className="p-1">{item?.Manufacture?.name}</td>
-                      <td className="p-1">{item?.isSave ? item?.Vendor?.name : ""}</td>
+                      <td className="p-1">{ item?.Vendor?.name }</td>
                       <td className="p-1 text-center">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                      <td className="p-1">{item?.isSave && item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
+                      <td className="p-1">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
                       <td className="p-1">
                         <div className="flex items-center space-x-0">
                           {stageDefinitions.map((stage, i) => {
@@ -167,7 +166,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
 
 
                     </tr>
-                  )}
+                   {/* )} */}
                 </>
 
               )

@@ -60,12 +60,12 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
           <tr>
             <th className="py-1 px-1">S No</th>
             <th className="py-1 px-1">PO Number</th>
-            <th className="py-1 px-1">Po date</th>
+            <th className="py-1 px-1">Po Date</th>
             <th className="py-1 px-1 text-center">Manufacture</th>
             <th className="py-1 px-1">Received Date</th>
-
             <th className="py-1 px-1">Vendor</th>
-            <th className="py-1 px-6">Delivery date</th>
+           <th className="py-1 px-1">Assigned Date</th>
+            <th className="py-1 px-6">Delivery Date</th>
             <th className="py-1 px-1 ">PO Status</th>
           </tr>
         </thead>
@@ -95,14 +95,15 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                   setPoNo(item?.docId);
                 }}
               >
-                <td className="p-1 font-semibold">{index + 1}</td>
-                <td className="p-1">{item?.docId}</td>
+                <td className="p-1 font-semibold border-r-2">{index + 1}</td>
+                <td className="p-1 border-r-2">{item?.docId}</td>
                 <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
                 <td className="p-1">{item?.Manufacture?.name}</td>
                 <td className="p-1">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
-
-                <td className="p-1">{item?.isSave ? item?.Vendor?.name : ""}</td>
+                <td className="p-1">{ item?.Vendor?.name }</td>
                 <td className="p-1 text-center">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                
 
                 <td className="p-1">
                   <div className="flex items-center space-x-0">
