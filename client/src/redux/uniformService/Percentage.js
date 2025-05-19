@@ -68,15 +68,15 @@ const PercentageApi = createApi({
         }),
         upload: builder.mutation({
             query: (payload) => {
-              const { id, body } = payload;
-              return {
-                url: `${PERCENTAGE_API}/upload/${id}`,
-                method: "PATCH",
-                body,
-              };
+                const { id, body } = payload;
+                return {
+                    url: `${PERCENTAGE_API}/upload/${id}`,
+                    method: "PATCH",
+                    body,
+                };
             },
             invalidatesTags: ["Percentage"],
-          }),
+        }),
         updatePercentage: builder.mutation({
             query: (payload) => {
                 const { id, ...body } = payload;
@@ -105,7 +105,7 @@ export const {
     useAddPercentageMutation,
     useUpdatePercentageMutation,
     useDeletePercentageMutation,
-    
+
 } = PercentageApi;
 
 export default PercentageApi;
