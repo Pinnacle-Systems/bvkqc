@@ -233,7 +233,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   <th className=" text-[13px] w-[50px]">Size</th>
                   <th className=" text-[13px] w-[90px]">Color</th>
                   <th className=" text-[13px] w-[50px]">MRP</th>
-                  <th className=" text-[13px] w-[50px]">Po Qty</th>
+                  <th className=" text-[13px] w-[50px]">Po Qty  </th>
 
                   {data?.isSave && (
                     <>
