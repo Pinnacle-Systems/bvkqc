@@ -318,39 +318,40 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               </tr>
             </thead>
 
-            <tbody>
-              {(poItems || []).map((item, index) => (
-                <tr
-                  key={index}
-                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
-                    } hover:bg-gray-200`}
-                >
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.orderQty || ""}</td>
-                  <td className="border border-gray-300 p-1">
-                    <input
-                      type="number"
-                      value={item?.excessQty}
-                      onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-                      className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                      disabled={data?.isSave || item?.orderQty == ""}
-                    />
-                  </td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">
-                    {Math.round(item?.qty) || ""}
-                  </td>
-                </tr>
-              ))}
+  <tbody>
+    {(poItems || []).map((item, index) => (
+   <tr
+        key={index}
+        className={`${
+          index % 2 === 0 ? "bg-gray-100" : "bg-white"
+        } hover:bg-gray-200`}
+      >
+        <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
+        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
+        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
+        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
+        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
+        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
+        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
+        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
+        <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
+        <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
+        <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
+        <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.orderQty || ""}</td>
+        <td className="border border-gray-300 p-1">
+          <input
+            type="number"
+            value={item?.excessQty}
+            onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
+            className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            disabled={data?.isSave || item?.orderQty == ""}
+          />
+        </td>
+        <td className="border border-gray-300 text-right p-1 text-[11px]">
+          {Math.round(item?.qty) || ""}
+        </td>
+      </tr>
+    ))}
 
               {/* Total Row */}
               <tr className="bg-white font-bold text-gray-800">

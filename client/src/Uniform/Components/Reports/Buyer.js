@@ -272,22 +272,22 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
 
             </div>
 
-            <div className="w-full   overflow-x-auto h-[100%] pt-2">
-              <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
-                <thead className="bg-white text-gray-800 border-b border-gray-300">
-                  <tr>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[30px]">S No</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Department</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Class-SubClass</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Item Code</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Bar Code</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Supplier Code</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Style Code</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Size Description</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[40px]">Size</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Color</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
+          <div className="w-full   overflow-x-auto h-[100%] pt-2">
+     <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+  <thead className="bg-white text-gray-800 border-b border-gray-300">
+    <tr>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Department</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Class-SubClass</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Item Code</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Bar Code</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Supplier Code</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Style Code</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Size Description</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[40px]">Size</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Color</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
 
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>

@@ -353,7 +353,8 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               {(poItems || []).map((item, index) => (
                 <tr
                   key={index}
-                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}
+                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                    } hover:bg-gray-200`}
                 >
                   <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
                   <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
