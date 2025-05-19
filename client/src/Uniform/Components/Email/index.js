@@ -19,7 +19,7 @@ import { Backpack, DeleteIcon, Send } from "lucide-react";
 
 
 
-export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive, setForm, isSave, setIsSave }) {
+export default function MailForm({ currentId, emailId, userRole, singleUserPartyData, poSentForApproval, setPoSentForApproval, setActive, setForm, isSave, setIsSave, setCurrentId }) {
 
 
   const userId = secureLocalStorage.getItem(
@@ -32,6 +32,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   const [attachments, setattachments] = useState([]);
   const [fileName, setfileName] = useState('')
   const [files, setFiles] = useState([]);
+  // const [userId, setUserId] = useState("")
   const [fromAddress, setFromAddress] = useState("")
   const [sendorName, setSendorName] = useState("")
   const [receiverName, setReceiverName] = useState("")
@@ -69,26 +70,27 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode
 
-  console.log(attachments, "attachments")
 
 
   useEffect(() => {
-    setPoNumber(SigleOrderdata?.data?.docId)
-    setSubject(SigleOrderdata?.data?.docId)
-    // setUserId(SigleOrderdata?.data?.vendorId)
-    setattachments(emailId ? [] : SigleOrderdata?.data?.attachments)
-    setfileName(Emaildata?.data?.poExcelFileName)
-    setReceiverName(SigleOrderdata?.data?.Vendor?.name)
-    setSendorName(SigleOrderdata?.data?.Manufacture?.name)
-    setSendorId(SigleOrderdata?.data?.Manufacture?.id)
-    setReceiverId(SigleOrderdata?.data?.Vendor?.id)
-  }, [SigleOrderdata, isLoading, isFetching])
+    const singleAttachments = SigleOrderdata?.data?.attachments || [];
+    const emailAttachment = Emaildata?.data?.poExcelFileName
+      ? [{ filePath: Emaildata.data.poExcelFileName }]
+      : [];
 
-  useEffect(() => {
-    if (Emaildata?.data?.poExcelFileName) {
-      setattachments([{ filePath: Emaildata?.data?.poExcelFileName }]);
-    }
-  }, [Emaildata, isEmailLoading, isEmailFetching]);
+    const combined = [...singleAttachments, ...emailAttachment];
+
+    setPoNumber(SigleOrderdata?.data?.docId);
+    setSubject(SigleOrderdata?.data?.docId);
+    setattachments(combined);
+    setfileName(Emaildata?.data?.poExcelFileName);
+    setReceiverName(SigleOrderdata?.data?.Vendor?.name);
+    setSendorName(SigleOrderdata?.data?.Manufacture?.name);
+    setSendorId(SigleOrderdata?.data?.Manufacture?.id);
+    setReceiverId(SigleOrderdata?.data?.Vendor?.id);
+  }, [SigleOrderdata, Emaildata, isLoading, isFetching, isEmailLoading, isEmailFetching]);
+
+
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId)
@@ -110,11 +112,27 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
   };
 
 
+
+  // const removeCcField = (index) => {
+  //   const updated = ccList.filter((_, i) => i !== index);
+  //   setCcList(updated);
+  // };
+
+
+
+  // const handleFileChange = (event) => {
+  //   const selectedFiles = Array.from(event.target.files).map(file => ({
+  //     filePath: file.name,
+  //   })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
+  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+  // };
+
   const data = {
-    mailTransaction: true, orderId: id, isSave: true,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message, cc: ccList.map(item => item).join(','), attachments, fileName, userId, poSentForApproval
+    mailTransaction: true, orderId: id,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message,
+    userRole,
+    cc: ccList.map(item => item).join(','), attachments, fileName, userId,
   }
-  console.log(fileName, 'fileName');
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
@@ -130,6 +148,8 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
       let returnData;
       if (text === "Updated") {
         returnData = await callback({ id, body: formData }).unwrap();
+        setCurrentId('')
+        SyncformwithDb()
       } else {
         returnData = await callback(formData).unwrap();
       }
@@ -181,28 +201,13 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
 
     if (id) {
       handleSubmitCustom(updateData, data, "Updated")
+
+
     }
 
 
   }
 
-  const handleSend = () => {
-    handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
-
-
-    if (userRole === "VENDOR") {
-      setPoSentForApproval(true);
-      saveData();
-      SyncformwithDb();
-    } else if (userRole === "MANUFACTURE") {
-      setIsSave(true);
-      saveData();
-      SyncformwithDb();
-    } else {
-      saveData();
-      SyncformwithDb();
-    }
-  };
 
 
 
@@ -298,7 +303,25 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
       
     </div> */}
               <button className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-[12px] font-medium flex items-center space-x-1.5"
-                onClick={() => handleSend()}
+                onClick={() => {
+                  handleMailSendWithMultipleAttachments(FromEmailAddress, toEmail, passskey, subject, message, fileName, attachments, ccList, setActive, setForm);
+
+                  if (userRole === "VENDOR") {
+
+                    saveData(poSentForApproval = true)
+                    SyncformwithDb()
+                  }
+
+                  else if (userRole === "MANUFACTURE") {
+                    setIsSave(true)
+                    saveData()
+                    SyncformwithDb()
+                  } else {
+                    saveData()
+
+                    SyncformwithDb()
+                  }
+                }}
 
               >
                 <PaperAirplaneIcon className="w-4 h-4" />
@@ -373,7 +396,7 @@ export default function MailForm({ currentId, emailId, userRole, singleUserParty
               <h3 className="text-xs font-semibold text-gray-700 mb-3">Attachments</h3>
 
               <div className="flex flex-col gap-2">
-                {attachments?.map((item, index) => {
+                {(attachments ? attachments : []).map((item, index) => {
                   const fileName = item?.filePath?.split('/').pop();
                   return (
                     <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">

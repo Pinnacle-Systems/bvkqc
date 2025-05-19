@@ -398,7 +398,7 @@ async function update(id, body) {
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor, orderId, cc,
         ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval, fromAddress, sendorName, sendorId, toEmail,
-        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate
+        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate, userRole
     } = await body
 
 
@@ -423,38 +423,26 @@ async function update(id, body) {
 
 
 
-        if (poSentForApproval == 'true') {
-            console.log(poSentForApproval, 'poSentForApproval');
+        let updateData = {};
 
-            const parsedPoSentForApproval = poSentForApproval === 'true' || true ? true
-                : poSentForApproval === 'false' || false ? false
-                    : undefined;
+        if (userRole === 'MANUFACTURE') {
+            updateData.isSave = true;
+        }
 
-            data = await prisma.order.update({
-                where: {
-                    id: parseInt(orderId),
-                },
-                data: {
-                    poSentForApproval: parsedPoSentForApproval ? Boolean(parsedPoSentForApproval) : undefined,
+        if (userRole === 'VENDOR') {
 
-                },
+            updateData.poSentForApproval = true;
+        }
+
+        if (Object.keys(updateData).length > 0) {
+            const data = await prisma.order.update({
+                where: { id: parseInt(orderId) },
+                data: updateData,
             });
 
+            console.log('Updated order:', data);
         }
-        if (isSave == "true") {
-            const parsedIsSave = isSave === 'true' || true ? true
-                : isSave === 'false' || false ? false
-                    : undefined;
-            data = await prisma.order.update({
-                where: {
-                    id: parseInt(orderId),
-                },
-                data: {
 
-                    isSave: parsedIsSave ? Boolean(parsedIsSave) : undefined,
-                },
-            });
-        }
         data = await prisma.mailTransaction.create(
             {
                 data: {

@@ -16,7 +16,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active
 }) {
 
-  console.log(deliveryDate, "deliveryDate")
+
 
   const [upload] = useUploadMutation();
 
