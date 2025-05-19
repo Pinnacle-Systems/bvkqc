@@ -17,6 +17,7 @@ import {
 } from "../../../Utils/helper";
 
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import secureLocalStorage from "react-secure-storage";
 
 
 export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
@@ -62,7 +63,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
           department: "",
           ProcessMasterId: "",
           itemId: "",
-          stockQty: "0",  
+          stockQty: "0",
           orderQty: "",
           price: "0.00",
           amount: "0.000",
@@ -76,7 +77,21 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
       return [...prev, ...newArray];
     });
   }, [setPoItems, poItems]);
+  const params = {
+    companyId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userCompanyId"
+    ),
+    branchId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "currentBranchId"
+    ),
+    userId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userId"
+    ),
+    finYearId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + 'currentFinYear')
+    , approverData: true
+  };
 
+  const { data: allData } = useGetPercentageQuery({ params });
   return (
     <>
       <Modal
@@ -93,7 +108,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
           setSearchValue={setSearchValue}
         />
       </Modal>
-<div className="h-screen flex flex-col bg-[#F1F1F0]">           <div
+      <div className="h-screen flex flex-col bg-[#F1F1F0]">           <div
         className="flex m-2 items-center justify-between p-2 md:px-4"
         style={{ backgroundColor: "white" }}
       >
@@ -130,7 +145,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
             </button>
           )}
 
-          {data?.poSentForApproval &&  (
+          {data?.poSentForApproval && (
             <button
               onClick={() => saveData(isMailForm, false, isBuyer)}
               className="group flex items-center bg-white text-[#303AB2] border border-[#303AB2] hover:bg-[#303AB2] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#303AB2] focus:ring-offset-1"
@@ -153,13 +168,13 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
           )}
         </div>
       </div>
-      <div
-        className="flex flex-col w-full p-1 h-full overflow-auto justify-between item-end bg-white gap-4"
-        style={{ backgroundColor: "#F1F1F0" }}
-      >
-        <div>
-          <div className="flex flex-wrap gap-1 border  rounded item-center p-1" style={{ backgroundColor: "white" }}>
-            {/* <div className="flex flex-col ">
+        <div
+          className="flex flex-col w-full p-1 h-full overflow-auto justify-between item-end bg-white gap-4"
+          style={{ backgroundColor: "#F1F1F0" }}
+        >
+          <div>
+            <div className="flex flex-wrap gap-1 border  rounded item-center p-1" style={{ backgroundColor: "white" }}>
+              {/* <div className="flex flex-col ">
               <label className="text-xs font-semibold ">Po Number</label>
               <input
                 type="text"
@@ -167,93 +182,94 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                 value={data?.docId}
               />
             </div> */}
-            <div className="col-span-2 flex flex-col">
-              <label className="text-xs font-semibold ">Manufacture</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-                value={data?.Manufacture?.name}
-                disabled={true}
-              />
-            </div>
-            <div className="flex flex-col ">
-              <label className="text-xs font-semibold ">Po Date</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={data?.orderdate ? getDateFromDateTime(data?.orderdate) : ""}
-                disabled={true}
+              <div className="col-span-2 flex flex-col">
+                <label className="text-xs font-semibold ">Manufacture</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                  value={data?.Manufacture?.name}
+                  disabled={true}
+                />
+              </div>
+              <div className="flex flex-col ">
+                <label className="text-xs font-semibold ">Po Date</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={data?.orderdate ? getDateFromDateTime(data?.orderdate) : ""}
+                  disabled={true}
 
 
-              />
-            </div>
-            <div className="col-span-2 flex flex-col">
-              <label className="text-xs font-semibold ">Vendor</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-                value={data?.Vendor?.name}
-                disabled={true}
-              />
-            </div>
+                />
+              </div>
+              <div className="col-span-2 flex flex-col">
+                <label className="text-xs font-semibold ">Vendor</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                  value={data?.Vendor?.name}
+                  disabled={true}
+                />
+              </div>
 
-            <div className="flex flex-col ">
-              <label className="text-xs font-semibold ">Delivery Date</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={
-                  data?.deliverydate ? getDateFromDateTime(data?.deliverydate) : ""
-                }
-                disabled={true}
-              />
-            </div>{console.log( data?.deliverydate," data?.deliverydate")}
-
-            {singleData?.data?.poSentForApproval && (
-              <div className=" w-18 flex flex-col ">
-                <label className="text-xs font-semibold  ">
-                  Approval status
-                </label>
-                <select
-                  className={`px-1 border rounded text-xs p-1 
-             ${
-               isApproved === "Approve"
-                 ? "border-green-500 text-white-600  text-green-500"
-                 : ""
-             }
+              <div className="flex flex-col ">
+                <label className="text-xs font-semibold ">Delivery Date</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={
+                    data?.deliverydate
+                      ? getDateFromDateTime(data?.deliverydate)
+                      : ""
+                  }
+                  disabled={true}
+                />
+              </div>
+              {allData?.data[0]?.selectedApprover === "BUYER" ? <>
+                {singleData?.data?.poSentForApproval && (
+                  <div className=" w-18 flex flex-col ">
+                    <label className="text-xs font-semibold  ">
+                      Approval status
+                    </label>
+                    <select
+                      className={`px-1 border rounded text-xs p-1 
+             ${isApproved === "Approve"
+                          ? "border-green-500 text-white-600  text-green-500"
+                          : ""
+                        }
               ${isApproved === "Reject" ? "border-red-500 text-red-600" : ""}
-              ${
-                isApproved === "hold" ? "border-yellow-500 text-yellow-600" : ""
-              }
+              ${isApproved === "hold" ? "border-yellow-500 text-yellow-600" : ""
+                        }
               ${isApproved === "" ? "border-gray-300 text-gray-500" : ""}
                           `}
-                  value={isApproved}
-                  onChange={(e) => setIsApproved(e.target.value)}
-                  disabled={!data?.deliverydate || !data?.vendorId}
-                >
-                  <option value="">Select status</option>
-                  <option value="Approve">Approve</option>
-                  <option value="Reject">Reject</option>
-                  <option value="Hold">Hold</option>
-                </select>
-              </div>
-            )}
+                      value={isApproved}
+                      onChange={(e) => setIsApproved(e.target.value)}
+                      disabled={!data?.deliverydate || !data?.vendorId}
+                    >
+                      <option value="">Select status</option>
+                      <option value="Approve">Approve</option>
+                      <option value="Reject">Reject</option>
+                      <option value="Hold">Hold</option>
+                    </select>
+                  </div>
+                )}
 
-           {singleData?.data?.poSentForApproval && (
-  <div className="flex pt-3">
-    <button
-      className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
+                {singleData?.data?.poSentForApproval && (
+                  <div className="flex pt-3">
+                    <button
+                      className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
       rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
       duration-300 ease-in-out focus:outline-none focus:ring-2 
       focus:ring-blue-400 focus:ring-offset-2"
-      onClick={() => setFormReport(true)}
-    >
-      <span className="text-[13px]">View Art Design</span>
-    </button>
-  </div>
-)}
+                      onClick={() => setFormReport(true)}
+                    >
+                      <span className="text-[13px]">View Art Design</span>
+                    </button>
+                  </div>
+                )}</> : ''}
 
-          </div>
+
+            </div>
 
           <div className="w-full   overflow-x-auto h-[100%] pt-2">
      <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
@@ -272,77 +288,76 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
-      {data?.isSave && (
-        <>
-          <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
-          <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th>
-        </>
-      )}
-    </tr>
-  </thead>
+                    {data?.isSave && (
+                      <>
+                        <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
+                        <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
 
-  <tbody>
-    {(poItems || []).map((item, index) => (
-      <tr
-        key={index}
-        className={`${
-          index % 2 === 0 ? "bg-gray-100" : "bg-white"
-        } hover:bg-gray-200`}
-      >
-        <td className="border p-1 text-center text-[11px]">{index + 1}</td>
-        <td className="border p-1 text-left text-[11px]">{item?.department}</td>
-        <td className="border p-1 text-left text-[11px]">{item?.class}</td>
-        <td className="border p-1 text-left text-[11px]">{item?.itemCode}</td>
-        <td className="border p-1 text-left text-[11px]">{item?.barCode}</td>
-        <td className="border p-1 text-left text-[11px]">{item?.supplierCode}</td>
-        <td className="border p-1 text-left text-[11px]">{item?.styleCode}</td>
-        <td className="border p-1 text-left text-[11px]">{item?.sizeDesc}</td>
-        <td className="border p-1 text-center text-[11px]">{item?.size}</td>
-        <td className="border p-1 text-center text-[11px]">{item?.color}</td>
-        <td className="border p-1 text-right text-[11px]">{item?.mrp}</td>
-        <td className="border p-1 text-right text-[11px]">
-          {Math.round(item?.orderQty) || ""}
-        </td>
+                <tbody>
+                  {(poItems || []).map((item, index) => (
+                    <tr
+                      key={index}
+                      className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                        } hover:bg-gray-200`}
+                    >
+                      <td className="border p-1 text-center text-[11px]">{index + 1}</td>
+                      <td className="border p-1 text-left text-[11px]">{item?.department}</td>
+                      <td className="border p-1 text-left text-[11px]">{item?.class}</td>
+                      <td className="border p-1 text-left text-[11px]">{item?.itemCode}</td>
+                      <td className="border p-1 text-left text-[11px]">{item?.barCode}</td>
+                      <td className="border p-1 text-left text-[11px]">{item?.supplierCode}</td>
+                      <td className="border p-1 text-left text-[11px]">{item?.styleCode}</td>
+                      <td className="border p-1 text-left text-[11px]">{item?.sizeDesc}</td>
+                      <td className="border p-1 text-center text-[11px]">{item?.size}</td>
+                      <td className="border p-1 text-center text-[11px]">{item?.color}</td>
+                      <td className="border p-1 text-right text-[11px]">{item?.mrp}</td>
+                      <td className="border p-1 text-right text-[11px]">
+                        {Math.round(item?.orderQty) || ""}
+                      </td>
 
-        {data?.isSave && (
-          <>
-            <td className="border p-1 text-right text-[11px]">
-              {item?.excessQty || ""}
-            </td>
-            <td className="border p-1 text-right text-[11px]">
-              {Math.round(item?.qty) || ""}
-            </td>
-          </>
-        )}
-      </tr>
-    ))}
+                      {data?.isSave && (
+                        <>
+                          <td className="border p-1 text-right text-[11px]">
+                            {item?.excessQty || ""}
+                          </td>
+                          <td className="border p-1 text-right text-[11px]">
+                            {Math.round(item?.qty) || ""}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
 
-    {/* Total Row */}
-    <tr className="bg-white font-bold text-gray-800">
-      <td colSpan={11} className="border p-2 text-left">Total</td>
-      <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
-        {poItems.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
-      </td>
-      {data?.isSave && (
-        <>
-          <td className="border p-2 text-right"></td>
-          <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
-            {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-          </td>
-        </>
-      )}
+                  {/* Total Row */}
+                  <tr className="bg-white font-bold text-gray-800">
+                    <td colSpan={11} className="border p-2 text-left">Total</td>
+                    <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                      {poItems.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
+                    </td>
+                    {data?.isSave && (
+                      <>
+                        <td className="border p-2 text-right"></td>
+                        <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                          {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
+                        </td>
+                      </>
+                    )}
 
-    </tr>
-  </tbody>
-</table>
-
+                  </tr>
+                </tbody>
+              </table>
 
 
+
+            </div>
           </div>
         </div>
       </div>
-      </div>
-   
+
     </>
   );
 }

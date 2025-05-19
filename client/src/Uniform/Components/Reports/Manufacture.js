@@ -10,13 +10,14 @@ import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
+import secureLocalStorage from "react-secure-storage";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active , mailConvert
+  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active, isApproved, setIsApproved, mailConvert
 }) {
 
-
+  const [formReport, setFormReport] = useState(false);
 
   const [upload] = useUploadMutation();
 
@@ -144,7 +145,22 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     }
     )
   }, [setPoItems, poItems])
+  const params = {
+    companyId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userCompanyId"
+    ),
+    branchId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "currentBranchId"
+    ),
+    userId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userId"
+    ),
+    finYearId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + 'currentFinYear')
+    , approverData: true
+  };
 
+  const { data: allData } = useGetPercentageQuery({ params });
+  console.log(allData?.data[0]?.selectedApprover, 'allData?.data[0]?.selectedApprover');
   return (
     <>
       <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: 'white' }}>
@@ -236,29 +252,71 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
             <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"} />
           </div>
+          {allData?.data[0]?.selectedApprover === "MANUFACTURE" ? <>
+            {singleData?.data?.poSentForApproval && (
+              <div className=" w-18 flex flex-col ">
+                <label className="text-xs font-semibold  ">
+                  Approval status
+                </label>
+                <select
+                  className={`px-1 border rounded text-xs p-1 
+             ${isApproved === "Approve"
+                      ? "border-green-500 text-white-600  text-green-500"
+                      : ""
+                    }
+              ${isApproved === "Reject" ? "border-red-500 text-red-600" : ""}
+              ${isApproved === "hold" ? "border-yellow-500 text-yellow-600" : ""
+                    }
+              ${isApproved === "" ? "border-gray-300 text-gray-500" : ""}
+                          `}
+                  value={isApproved}
+                  onChange={(e) => setIsApproved(e.target.value)}
+                  disabled={!data?.deliverydate || !data?.vendorId}
+                >
+                  <option value="">Select status</option>
+                  <option value="Approve">Approve</option>
+                  <option value="Reject">Reject</option>
+                  <option value="Hold">Hold</option>
+                </select>
+              </div>
+            )}
 
+            {singleData?.data?.poSentForApproval && (
+              <div className="flex pt-3">
+                <button
+                  className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
+      rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
+      duration-300 ease-in-out focus:outline-none focus:ring-2 
+      focus:ring-blue-400 focus:ring-offset-2"
+                  onClick={() => setFormReport(true)}
+                >
+                  <span className="text-[13px]">View Art Design</span>
+                </button>
+              </div>
+            )}
+          </> : ''}
         </div >
 
         <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
-        <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
-  <thead className="bg-white text-gray-800 border-b border-gray-300">
-    <tr>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">Department</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">Class-SubClass</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">ItemCode</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">BarCode</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">SeasonSupplierCode</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">StyleCodeGroup</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">SizeDesc</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Size</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
-    </tr>
-  </thead>
+          <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+            <thead className="bg-white text-gray-800 border-b border-gray-300">
+              <tr>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">Department</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">Class-SubClass</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">ItemCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">BarCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">SeasonSupplierCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">StyleCodeGroup</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">SizeDesc</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Size</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
+              </tr>
+            </thead>
 
   <tbody>
     {(poItems || []).map((item, index) => (
@@ -295,20 +353,20 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
       </tr>
     ))}
 
-    {/* Total Row */}
-    <tr className="bg-white font-bold text-gray-800">
-      <td colSpan={10} className="border border-gray-300 p-2 text-left">Total</td>
-      <td className="border border-gray-300 p-2 text-right"></td>
-      <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
-        {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
-      </td>
-      <td className="border border-gray-300 p-2 text-right"></td>
-      <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
-        {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-      </td>
-    </tr>
-  </tbody>
-</table>
+              {/* Total Row */}
+              <tr className="bg-white font-bold text-gray-800">
+                <td colSpan={10} className="border border-gray-300 p-2 text-left">Total</td>
+                <td className="border border-gray-300 p-2 text-right"></td>
+                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                  {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
+                </td>
+                <td className="border border-gray-300 p-2 text-right"></td>
+                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                  {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div className=" flex  justify-end gap-3">
           {!data?.isSave && (
@@ -337,7 +395,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               <button
                 onClick={() => {
                   saveData(isMailForm, isManufacture);
-                    
+
                   exportAndUploadExcel(data, poItems);
                 }}
                 className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"

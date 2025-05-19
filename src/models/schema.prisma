@@ -543,7 +543,7 @@ model order {
   isApproved         String?
   isMailSent         Boolean?
   poSentForApproval  Boolean?
-  docDate            DateTime?        
+  docDate            DateTime?
   Email              Email[]
   orderBillItems     orderBillItems[]
   attachments        Attachments[]
@@ -714,4 +714,9 @@ model MailTransAttachments {
   mailTransactionId Int?
   fileName          String?
   filePath          String?
+}
+
+model ApprovalDoneBy {
+  id               Int     @id @default(autoincrement())
+  selectedApprover String?
 }

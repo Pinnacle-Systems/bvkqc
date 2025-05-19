@@ -4,12 +4,28 @@ import { NoRecordFound } from '../configs/Responses.js';
 const prisma = new PrismaClient()
 
 async function get(req) {
-    const { companyId, active, defaultRole } = req.query
-    const data = await prisma.percentage.findMany({
-        where: {
-            active: active ? Boolean(active) : undefined,
-        }
-    });
+    const { companyId, active, defaultRole, approverData } = req.query
+    let data;
+    console.log(approverData, "hit");
+
+    if (!approverData) {
+
+        data = await prisma.percentage.findMany({
+            where: {
+                active: active ? Boolean(active) : undefined,
+            }
+        });
+    } else {
+
+        data = await prisma.approvalDoneBy.findMany({
+            select: {
+                id: true,
+                selectedApprover: true
+            }
+
+
+        });
+    }
     return { statusCode: 0, data };
 }
 
@@ -19,10 +35,10 @@ async function getOne(id) {
         where: {
             id: parseInt(id)
         }
-       
+
     })
     if (!data) return NoRecordFound("Percentage");
-    return { statusCode: 0, data: {...data, ...{childRecord}} };
+    return { statusCode: 0, data: { ...data, ...{ childRecord } } };
 }
 
 async function getSearch(req) {
@@ -32,7 +48,7 @@ async function getSearch(req) {
         where: {
             companyId: companyId ? parseInt(companyId) : undefined,
             active: active ? Boolean(active) : undefined,
-            defaultRole: defaultRole ?  JSON.parse(defaultRole) : undefined,
+            defaultRole: defaultRole ? JSON.parse(defaultRole) : undefined,
             OR: [
                 {
                     name: {
@@ -46,37 +62,50 @@ async function getSearch(req) {
 }
 
 async function create(body) {
-    const { active,qty } = await body
-   
-    const data = await prisma.percentage.create({
-        data: {
-            qty:qty ? parseInt(qty)  : null,
-            active: active,
-          
-        },
-    });
+    const { active, qty, approverData, selectedApprover } = await body
+    let data;
+    if (approverData) {
+        data = await prisma.approvalDoneBy.create({
+            data: {
+                selectedApprover: selectedApprover ? selectedApprover : undefined,
+
+
+            },
+        });
+    } else {
+
+        data = await prisma.percentage.create({
+            data: {
+                qty: qty ? parseInt(qty) : null,
+                active: active,
+
+            },
+        });
+    }
     return { statusCode: 0, data };
 }
 
+
+
 async function update(id, body) {
-    const { active,qty } = await body
-    const dataFound = await prisma.percentage.findUnique({
+    const { approverData, selectedApprover } = await body
+    const dataFound = await prisma.approvalDoneBy.findUnique({
         where: {
             id: parseInt(id)
         }
     })
     if (!dataFound) return NoRecordFound("role");
-    const data = await prisma.percentage.update({
+    const data = await prisma.approvalDoneBy.update({
         where: {
             id: parseInt(id),
         },
         data: {
-            qty:qty ? parseInt(qty)  : null,
-            active: active,
+            selectedApprover: selectedApprover ? selectedApprover : undefined,
         },
     })
     return { statusCode: 0, data };
 };
+
 
 async function remove(id) {
     const data = await prisma.percentage.delete({
@@ -93,5 +122,5 @@ export {
     getSearch,
     create,
     update,
-    remove
+    remove,
 }

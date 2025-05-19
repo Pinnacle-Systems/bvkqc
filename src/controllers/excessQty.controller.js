@@ -30,6 +30,7 @@ async function getSearch(req, res, next) {
 }
 
 async function create(req, res, next) {
+
     try {
         res.json(await _create(req.body));
         console.log(res.statusCode);
@@ -47,6 +48,25 @@ async function create(req, res, next) {
     }
 }
 
+
+async function createApprover(req, res, next) {
+
+    try {
+        res.json(await _createApprover(req.body));
+        console.log(res.statusCode);
+    } catch (error) {
+        console.error(`Error`, error.message);
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2002') {
+                res.statusCode = 200;
+                res.json({ statusCode: 1, message: `${error.meta.target.split("_")[1].toUpperCase()} Already exists` })
+                console.log(res.statusCode)
+            }
+        } else {
+            res.json({ statusCode: 1, message: error.message })
+        }
+    }
+}
 async function update(req, res, next) {
     try {
         res.json(await _update(req.params.id, req.body));
@@ -64,7 +84,23 @@ async function update(req, res, next) {
         }
     }
 }
-
+async function updateApprover(req, res, next) {
+    try {
+        res.json(await _updateApprover(req.params.id, req.body));
+        console.log(res.statusCode);
+    } catch (error) {
+        console.error(`Error`, error.message);
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2002') {
+                res.statusCode = 200;
+                res.json({ statusCode: 1, message: `${error.meta.target.split("_")[1].toUpperCase()} Already exists` })
+                console.log(res.statusCode)
+            }
+        } else {
+            res.json({ statusCode: 1, message: error.message })
+        }
+    }
+}
 async function remove(req, res, next) {
     try {
         res.json(await _remove(req.params.id));
@@ -89,5 +125,7 @@ export {
     getSearch,
     create,
     update,
-    remove
+    remove,
+    createApprover,
+    updateApprover
 };
