@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react"
-import { useAddPercentageMutation, useGetPercentageByIdQuery, useGetPercentageQuery, useUpdatePercentageMutation } from "../../../redux/uniformService/Percentage";
+import { useAddPercentageMutation, useDeletePercentageMutation, useGetPercentageByIdQuery, useGetPercentageQuery, useUpdatePercentageMutation } from "../../../redux/uniformService/Percentage";
 import { params } from "../../../Utils/helper";
 import { CheckBox, Modal, TextInput, ToggleButton } from "../../../Inputs";
 
 
 import { statusDropdown } from "../../../Utils/DropdownData";
-import toast from "react-hot-toast";
 import Mastertable from "../MasterTable/Mastertable";
 import MastersForm from "../MastersForm/MastersForm";
+import { toast } from "react-toastify";
 
 
 
@@ -25,7 +25,7 @@ export default function ExcessQty(){
 
     const [addData] = useAddPercentageMutation();
     const [updateData] =  useUpdatePercentageMutation();
-
+     const [removeData]   =   useDeletePercentageMutation();
 
      const syncFormWithDb = useCallback(
             (data) => {
@@ -70,13 +70,10 @@ export default function ExcessQty(){
         const saveData = () => {
             console.log("hit")
             if (!validateOneActiveFinYear(data?.active)) {
-                toast.error("Only one Fin year can be active...!", { position: "top-center" })
+                toast.error("Only one Excess % Can  be active...!", { position: "top-center" })
                 return
             }
-            // if (!validateData(data)) {
-            //     toast.error("Please fill all required fields...!", { position: "top-center" })
-            //     return
-            // }
+           
             if (!window.confirm("Are you sure save the details ...?")) {
                 return
             }
@@ -86,6 +83,28 @@ export default function ExcessQty(){
                 handleSubmitCustom(addData, data, "Added")
             }
         }
+
+          const deleteData = async () => {
+            if (id) {
+              if (!window.confirm("Are you sure to delete...?")) {
+                return
+              }
+              try {
+                let deldata = await removeData(id).unwrap();
+                if (deldata?.statusCode == 1) {
+                  toast.error(deldata?.message)
+                  return
+                }
+                setId("");
+                toast.success("Deleted Successfully");
+                setForm(false);
+              } catch (error) {
+                toast.error("something went wrong")
+                setForm(false);
+              }
+              ;
+            }
+          }
 
         const onNew = () => { setId(""); setReadOnly(false); setForm(true);setQty("") }
         const tableHeaders = ["S.NO", "qty",  "Status", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
@@ -154,14 +173,14 @@ export default function ExcessQty(){
                                     // childRecord={childRecord.current}
                                     saveData={saveData}
                                     setReadOnly={setReadOnly}
-                                    // deleteData={deleteData}
+                                    deleteData={deleteData}
                                     readOnly={readOnly}
                                     emptyErrors={() => setErrors({})}
                                 >
                                     <fieldset className=' rounded mt-2'>
                                         <div className=''>
                                          
-                                        <div className='mb-5'>
+                                        <div className='mb-5 w-64'>
                                                 <TextInput name="Qty"  value={qty} setValue={setQty} required={true} readOnly={readOnly} />
                                             </div>
                 

@@ -54,6 +54,13 @@ const BranchAndFinYearForm = ({ setIsGlobalOpen }) => {
 
     }, []);
     useEffect(retrieveBranchData, [retrieveBranchData]);
+        useEffect(() => {
+        setCurrentBranch(branches[0]?.id || "");
+        let selectedFinYears = dropDownFinYear(finYears?.filter(val => val?.active));
+        console.log(selectedFinYears, "selectedFinYears")
+        setcurrentFinYear(selectedFinYears[0]?.value || "");
+    }, [branches, finYears])
+    useEffect(retrieveBranchData, [retrieveBranchData]);
 
     const navigate = useNavigate();
 

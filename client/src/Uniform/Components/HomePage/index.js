@@ -132,8 +132,8 @@ export default function Form() {
             {active === "Mail" && <MailForm
               setPoSentForApproval={setPoSentForApproval}
               poSentForApproval={poSentForApproval}
-              emailId={emailId} currentId={currentId} userRole={userRole}
-              singleUserPartyData={singleUserPartyData}
+              emailId={emailId}  setEmailId={setEmailId} currentId={currentId} userRole={userRole}
+              singleUserPartyData={singleUserPartyData} 
               setActive={setActive} setForm={setForm}
               isSave={isSave} setIsSave={setIsSave} setCurrentId={setCurrentId}
             />}

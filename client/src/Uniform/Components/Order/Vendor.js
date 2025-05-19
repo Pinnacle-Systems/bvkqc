@@ -36,14 +36,14 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
         <table className="min-w-full text-left overflow-x-auto" >
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
             <tr >
-              <th className="py-1 px-6">S No</th>
-              <th className="py-1 px-6">PO Number </th>
-              <th className="py-1 px-6">Po date</th>
-              <th className="py-1 px-6">Manufacture</th>
-              <th className="py-1 px-6">Vendor</th>
-              <th className="py-1 px-6">Assigned date</th>
-              <th className="py-1 px-6">Delivery date</th>
-              <th className="py-1 px-6 text-center">PO Status</th>
+              <th className="py-1 px-6 border-r-2">S No</th>
+              <th className="py-1 px-6 border-r-2">PO Number </th>
+              <th className="py-1 px-6 border-r-2">Po date</th>
+              <th className="py-1 px-6 border-r-2 ">Manufacture</th>
+              <th className="py-1 px-6 border-r-2">Vendor</th>
+              <th className="py-1 px-6 border-r-2">Assigned date</th>
+              <th className="py-1 px-6 border-r-2">Delivery date</th>
+              <th className="py-1 px-6 border-r-2">PO Status</th>
 
 
 
@@ -71,9 +71,8 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
 
               return (
                 <>
-                  {console.log(item?.isSave, 'item?.isSave')
-                  }
-                  {item?.isSave && (
+               
+                  {/* {item?.isSave && ( */}
 
                     <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
                       onClick={() => {
@@ -82,14 +81,14 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                         setPoNo(item?.docId)
                       }}
                     >
-                      <td className="p-1 font-semibold">{parseInt(index) + 1}</td>
-                      <td className="p-1">{item?.docId}</td>
-                      <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
-                      <td className="p-1">{item?.Manufacture?.name}</td>
-                      <td className="p-1">{item?.isSave ? item?.Vendor?.name : ""}</td>
-                      <td className="p-1 text-center">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                      <td className="p-1">{item?.isSave && item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
-                      <td className="p-1">
+                      <td className="p-1 border-r-2 font-semibold ">{parseInt(index) + 1}</td>
+                      <td className="p-1 border-r-2">{item?.docId}</td>
+                      <td className="p-1 border-r-2">{getDateFromDateTime(item?.orderdate)}</td>
+                      <td className="p-1 border-r-2">{item?.Manufacture?.name}</td>
+                      <td className="p-1 border-r-2" >{ item?.Vendor?.name }</td>
+                      <td className="p-1 border-r-2">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                      <td className="p-1 border-r-2">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
+                      <td className="p-1 border-r-2 ">
                         <div className="flex items-center space-x-0">
                           {stageDefinitions.map((stage, i) => {
                             const progressIndex = getProgressIndex(item);
@@ -167,7 +166,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
 
 
                     </tr>
-                  )}
+                   {/* )} */}
                 </>
 
               )

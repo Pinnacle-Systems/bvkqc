@@ -58,18 +58,18 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
       <table className="min-w-full text-left overflow-x-auto">
         <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
           <tr>
-            <th className="py-1 px-1">S No</th>
-            <th className="py-1 px-1">PO Number</th>
-            <th className="py-1 px-1">Po date</th>
-            <th className="py-1 px-1 text-center">Manufacture</th>
-            <th className="py-1 px-1">Received Date</th>
-
-            <th className="py-1 px-1">Vendor</th>
-            <th className="py-1 px-6">Delivery date</th>
-            <th className="py-1 px-1 ">PO Status</th>
+            <th className="py-1 px-1 border-r-2">S No</th>
+            <th className="py-1 px-1 border-r-2">PO Number</th>
+            <th className="py-1 px-1 border-r-2">Po Date</th>
+            <th className="py-1 px-1 border-r-2">Manufacture</th>
+            <th className="py-1 px-1 border-r-2">Received Date</th>
+            <th className="py-1 px-1 border-r-2">Vendor</th>
+           <th className="py-1 px-1  border-r-2">Assigned Date</th>
+            <th className="py-1 px-6 border-r-2">Delivery Date</th>
+            <th className="py-1 px-1 border-r-2">PO Status</th>
           </tr>
         </thead>
-        <tbody className="text-gray-700 text-xs">
+            <tbody className="text-gray-700 text-xs">
           {(allData?.data || []).map((item, index) => {
             console.log(typeof (item?.isSave, "AlldatIsSave"))
             const completedStages = stageDefinitions
@@ -95,14 +95,15 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                   setPoNo(item?.docId);
                 }}
               >
-                <td className="p-1 font-semibold">{index + 1}</td>
-                <td className="p-1">{item?.docId}</td>
-                <td className="p-1">{getDateFromDateTime(item?.orderdate)}</td>
-                <td className="p-1">{item?.Manufacture?.name}</td>
-                <td className="p-1">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
-
-                <td className="p-1">{item?.isSave ? item?.Vendor?.name : ""}</td>
-                <td className="p-1 text-center">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                <td className="p-1 font-semibold border-r-2">{index + 1}</td>
+                <td className="p-1 border-r-2">{item?.docId}</td>
+                <td className="p-1 border-r-2">{getDateFromDateTime(item?.orderdate)}</td>
+                <td className="p-1 border-r-2">{item?.Manufacture?.name}</td>
+                <td className="p-1 border-r-2">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
+                <td className="p-1 border-r-2">{ item?.Vendor?.name }</td>
+                <td className="p-1 border-r-2">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                <td className="p-1 border-r-2">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                
 
                 <td className="p-1">
                   <div className="flex items-center space-x-0">

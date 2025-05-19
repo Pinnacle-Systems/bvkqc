@@ -4,7 +4,6 @@ import { push } from '../../../redux/features/opentabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faDollarSign, faClock, faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { WEB_LINK } from '../../../icons';
-import { MailIcon, ChatAltIcon } from '@heroicons/react/outline';
 import { FaBed } from 'react-icons/fa';
 import { GiBed } from "react-icons/gi";
 import cutting from "../../../assets/cutting_12698384.svg"
