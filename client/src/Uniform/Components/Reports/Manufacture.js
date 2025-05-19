@@ -147,7 +147,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
   return (
     <>
-      <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
+      <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: '#F1F1F0' }}>
         <div className="text-md font-semibold">
           <span className="">{model} : </span>&nbsp;
           <span className="text-[#303AB2]">{data?.docId}</span>
