@@ -272,26 +272,27 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
 
             </div>
 
-          <div className="w-full   overflow-x-auto h-[100%] pt-2">
-     <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
-  <thead className="bg-white text-gray-800 border-b border-gray-300">
-    <tr>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Department</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Class-SubClass</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Item Code</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Bar Code</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Supplier Code</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Style Code</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Size Description</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[40px]">Size</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Color</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
+            <div className="w-full   overflow-x-auto h-[100%] pt-2">
+              <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+                <thead className="bg-white text-gray-800 border-b border-gray-300">
+                  <tr>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Department</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Class-SubClass</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Item Code</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Bar Code</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Supplier Code</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Style Code</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300">Size Description</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[40px]">Size</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Color</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
+                    {singleData?.data?.isSave && (<>
+                      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>
+                      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th></>)}
 
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th>
 
                   </tr>
                 </thead>
@@ -318,13 +319,15 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                         {Math.round(item?.orderQty) || ""}
                       </td>
 
+                      {singleData?.data?.isSave && (<>
+                        <td className="border p-1 text-right text-[11px]">
+                          {item?.excessQty || ""}
+                        </td>
+                        <td className="border p-1 text-right text-[11px]">
+                          {Math.round(item?.qty) || ""}
+                        </td>
+                      </>)}
 
-                      <td className="border p-1 text-right text-[11px]">
-                        {item?.excessQty || ""}
-                      </td>
-                      <td className="border p-1 text-right text-[11px]">
-                        {Math.round(item?.qty) || ""}
-                      </td>
 
                     </tr>
                   ))}
@@ -335,11 +338,11 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
                       {poItems.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                     </td>
+                    {singleData?.data?.isSave && (<> <td className="border p-2 text-right"></td>
+                      <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                        {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
+                      </td></>)}
 
-                    <td className="border p-2 text-right"></td>
-                    <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
-                      {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-                    </td>
 
 
                   </tr>

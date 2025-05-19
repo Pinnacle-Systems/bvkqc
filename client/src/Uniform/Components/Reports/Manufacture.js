@@ -225,7 +225,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               </span>
             </button>
           )}
-          {allData?.data[0]?.selectedApprover === "MANUFACTURE" && (<button
+          {allData?.data[0]?.selectedApprover === "MANUFACTURE" || !data?.isSave && (<button
             onClick={() => {
               saveData(isMailForm, isManufacture);
 

@@ -114,7 +114,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   </td>
 
                   <td className="p-1">
-                    {item?.isSave ? item?.Vendor?.name : ""}{" "}
+                    {item?.Vendor?.name}
                   </td>
                   <td className="p-1 text-center">
                     {item?.isSave && item?.updatedAt
@@ -122,7 +122,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                       : ""}
                   </td>
                   <td className="p-1 text-center">
-                    {item?.isSave && item?.deliverydate
+                    {item?.deliverydate
                       ? getDateFromDateTime(item?.deliverydate)
                       : ""}
                   </td>
