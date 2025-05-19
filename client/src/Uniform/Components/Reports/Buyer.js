@@ -289,7 +289,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
-                    {singleData?.data?.isSave && (<>
+                    {singleData?.data?.vendorId && (<>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th></>)}
 
@@ -319,7 +319,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                         {Math.round(item?.orderQty) || ""}
                       </td>
 
-                      {singleData?.data?.isSave && (<>
+                      {singleData?.data?.vendorId && (<>
                         <td className="border p-1 text-right text-[11px]">
                           {item?.excessQty || ""}
                         </td>
@@ -338,7 +338,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
                       {poItems.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                     </td>
-                    {singleData?.data?.isSave && (<> <td className="border p-2 text-right"></td>
+                    {singleData?.data?.vendorId && (<> <td className="border p-2 text-right"></td>
                       <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
                         {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
                       </td></>)}

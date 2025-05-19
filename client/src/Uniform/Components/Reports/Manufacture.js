@@ -1,4 +1,4 @@
-import { DateInput, DateInputNew, DropdownWithSearch } from "../../../Inputs"
+import { DateInput, DateInputNew, DropdownWithSearch, Modal } from "../../../Inputs"
 import { useEffect, useState } from "react";
 
 import { saveAs } from 'file-saver';
@@ -11,10 +11,11 @@ import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 import secureLocalStorage from "react-secure-storage";
+import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active, isApproved, setIsApproved, mailConvert
+  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active, isApproved, setIsApproved, mailConvert, userRole
 }) {
 
   const [formReport, setFormReport] = useState(false);
@@ -134,7 +135,11 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     });
   };
 
-
+  useEffect(() => {
+    if (!id) return;
+    setAttachments(singleData?.data?.attachments);
+    setCurrentId(singleData?.data?.id);
+  }, [id, singleData]);
   useEffect(() => {
     if (poItems?.length >= 10) return
     setPoItems(prev => {
@@ -158,12 +163,25 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     finYearId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + 'currentFinYear')
     , approverData: true
   };
-
+  const [attachments, setAttachments] = useState([]);
   const { data: allData } = useGetPercentageQuery({ params });
   console.log(allData?.data[0]?.selectedApprover, 'allData?.data[0]?.selectedApprover');
   return (
     <>
       <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: 'white' }}>
+        <Modal
+          isOpen={formReport}
+          onClose={() => setFormReport(false)}
+          widthClass={"px-2 h-[90%] w-[70%]"}
+        >
+          <ArtDesignReport
+            tableWidth="100%"
+            userRole={userRole}
+            setAttachments={setAttachments}
+            attachments={attachments}
+
+          />
+        </Modal>
         <div className="text-md font-semibold">
           <span className="">{model} : </span>&nbsp;
           <span className="text-[#303AB2]">{data?.docId}</span>
@@ -225,7 +243,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               </span>
             </button>
           )}
-          {allData?.data[0]?.selectedApprover === "MANUFACTURE" || !data?.isSave && (<button
+          {(allData?.data[0]?.selectedApprover === "MANUFACTURE" || !data?.isSave) && (<button
             onClick={() => {
               saveData(isMailForm, isManufacture);
 

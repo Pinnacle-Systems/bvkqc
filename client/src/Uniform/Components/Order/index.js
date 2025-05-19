@@ -200,7 +200,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
         form === true && userRole === "MANUFACTURE" ?
 
           <Manufactureform
-
+            userRole={userRole}
             setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
             vendor={vendor} setVendor={setVendor} saveData={saveData}
