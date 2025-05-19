@@ -170,36 +170,87 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         </div>
 
 
-        {active === "order" && form === true && (
-          <div className="flex items-center space-x-1">
+
+        <div className=" flex  justify-end gap-3">
+          {active === "order" && form === true && (
+            <div className="flex items-center space-x-1">
+
+              <button
+                onClick={() => {
+                  setForm(false);
+                  setActive("order");
+                }}
+                className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+              >
+                <svg
+                  className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                  Back
+                </span>
+              </button>
+
+            </div>
+
+          )}
+          {!data?.isSave && (
 
             <button
               onClick={() => {
-                setForm(false);
-                setActive("order");
+                saveData(!isMailForm, isManufacture);
               }}
-              className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+              className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
               <svg
-                className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                Back
+                Save
               </span>
             </button>
+          )}
+          {allData?.data[0]?.selectedApprover === "MANUFACTURE" && (<button
+            onClick={() => {
+              saveData(isMailForm, isManufacture);
 
-          </div>
-        )}
+              exportAndUploadExcel(data, poItems);
+            }}
+            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+          >
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+            </svg>
+            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+              Save & Send
+            </span>
+          </button>)}
+
+
+
+
+        </div>
       </div>
 
 
@@ -254,12 +305,12 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           </div>
           {allData?.data[0]?.selectedApprover === "MANUFACTURE" ? <>
             {singleData?.data?.poSentForApproval && (
-              <div className=" w-18 flex flex-col ">
-                <label className="text-xs font-semibold  ">
+              <div className=" w-18 h-2 flex flex-col px-2">
+                <label className="text-xs font-semibold  pb-1">
                   Approval status
                 </label>
                 <select
-                  className={`px-1 border rounded text-xs p-1 
+                  className={`h-6 border rounded text-xs 
              ${isApproved === "Approve"
                       ? "border-green-500 text-white-600  text-green-500"
                       : ""
@@ -318,40 +369,39 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               </tr>
             </thead>
 
-  <tbody>
-    {(poItems || []).map((item, index) => (
-   <tr
-        key={index}
-        className={`${
-          index % 2 === 0 ? "bg-gray-100" : "bg-white"
-        } hover:bg-gray-200`}
-      >
-        <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
-        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
-        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
-        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
-        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
-        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
-        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
-        <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
-        <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
-        <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
-        <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
-        <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.orderQty || ""}</td>
-        <td className="border border-gray-300 p-1">
-          <input
-            type="number"
-            value={item?.excessQty}
-            onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-            className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            disabled={data?.isSave || item?.orderQty == ""}
-          />
-        </td>
-        <td className="border border-gray-300 text-right p-1 text-[11px]">
-          {Math.round(item?.qty) || ""}
-        </td>
-      </tr>
-    ))}
+            <tbody>
+              {(poItems || []).map((item, index) => (
+                <tr
+                  key={index}
+                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                    } hover:bg-gray-200`}
+                >
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.orderQty || ""}</td>
+                  <td className="border border-gray-300 p-1">
+                    <input
+                      type="number"
+                      value={item?.excessQty}
+                      onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
+                      className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                      disabled={data?.isSave || item?.orderQty == ""}
+                    />
+                  </td>
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">
+                    {Math.round(item?.qty) || ""}
+                  </td>
+                </tr>
+              ))}
 
               {/* Total Row */}
               <tr className="bg-white font-bold text-gray-800">
@@ -368,55 +418,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             </tbody>
           </table>
         </div>
-        {/* <div className=" flex  justify-end gap-3">
-          {allData?.data[0]?.selectedApprover === "MANUFACTURE" && (
-            <>
-              <button
-                onClick={() => {
-                  saveData(!isMailForm, isManufacture);
-                }}
-                className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-              >
-                <svg
-                  className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                  Save
-                </span>
-              </button>
 
-
-              <button
-                onClick={() => {
-                  saveData(isMailForm, isManufacture);
-
-                  exportAndUploadExcel(data, poItems);
-                }}
-                className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-              >
-                <svg
-                  className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
-                </svg>
-                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                  Save & Send
-                </span>
-              </button>
-
-            </>
-          )}
-        </div> */}
       </div>
 
 

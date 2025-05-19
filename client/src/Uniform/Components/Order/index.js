@@ -209,7 +209,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             id={id} setEmailId={setEmailId} setCurrentId={setCurrentId} mailConvert={mailConvert}
 
-            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
+            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate} isApproved={isApproved} setIsApproved={setIsApproved}
 
           />
 
