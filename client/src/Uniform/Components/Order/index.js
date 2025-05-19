@@ -30,14 +30,15 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
 
   const [isSave, setIsSave] = useState(true)
-  // const [poSentForApproval, setPoSentForApproval] = useState(false)
+
   const { branchId, finYearId, userId } = getCommonParams()
   const [docDate, setDocDate] = useState(getDateFromDateTime(today));
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
-
+  console.log(id, "idd");
+  const { data: singleData, isSingleFetching, isSingleLoading, } = useGetOrderByIdQuery(id);
 
 
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
@@ -50,9 +51,9 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
   const { data: allData, refetch } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
 
-  const { data: singleData, isSingleFetching, isSingleLoading } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
+
 
 
 
@@ -83,12 +84,12 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     finYearId,
     vendor,
     excessQty,
-     excessQtyAmount,
+    excessQtyAmount,
     isApproved,
     deliveryDate, docDate
   }
 
-
+  const dispatch = useDispatch()
   const handleSubmitCustom = async (callback, data, text) => {
 
     try {
@@ -124,6 +125,10 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
         toast.success(text + "Successfully", {
           autoClose: 1000
         });
+        dispatch({
+          type: `Order/invalidateTags`,
+          payload: ['Order'],
+        });
       } else {
         toast.error(returnData?.message, {
           autoClose: 1000
@@ -137,18 +142,14 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
   const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
-    
-    if(isMailForm){
+
+    if (isMailForm) {
       if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
-      return;
-    }else{
-         if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
-      return;
-    }
-    }
+        return;
+      }
 
     }
-   
+
     if (isManufacture && userRole === "MANUFACTURE") {
       if (!deliveryDate) {
         toast.info("Choose The Delivery Date", {
@@ -198,7 +199,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-            vendor={vendor} setVendor={setVendor}  saveData={saveData}
+            vendor={vendor} setVendor={setVendor} saveData={saveData}
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
@@ -218,14 +219,14 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
               setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
-              vendor={vendor} setVendor={setVendor}  saveData={saveData}
+              vendor={vendor} setVendor={setVendor} saveData={saveData}
 
               orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
 
               id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
 
-              // poSentForApproval={poSentForApproval} 
-              active={active}
+              // poSentForApproval={poSentForApproval}   
+              active={active} userRole={userRole}
 
             // setPoSentForApproval={setPoSentForApproval}
 
@@ -242,7 +243,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
-                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active}
+                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active} userRole={userRole}
 
               />
 
@@ -251,7 +252,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
               //Order Report pages
               <div className="flex-1 flex flex-col h-[screen]">
 
-                <FormHeaderNew model={"List Of Orders"} refresh={"Refresh"} refreshPage={refetch} />
+                <FormHeaderNew model={"List Of Orders"} refresh={"Refresh"} refreshPage={refetch} setId={setId} setPoItems={setPoItems} />
 
 
 

@@ -423,7 +423,7 @@ export function handleMailSendWithMultipleAttachments(
   fileName,
   attachments,
   ccList,
-  setActive ,
+  setActive,
   setForm
 ) {
   const normalizeEmails = (emails) => {
@@ -493,9 +493,9 @@ export function handleMailSendWithMultipleAttachments(
           popup: "payment-swal-popup",
         },
       }).then(() => {
-                setForm(false)
-
+        setForm(false)
         setActive("order");
+
       });
     });
 }

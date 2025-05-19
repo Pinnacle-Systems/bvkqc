@@ -37,7 +37,7 @@ export default function MailForm({
   setActive,
   setForm,
   isSave,
-  setIsSave,
+  setIsSave, setCurrentId,
 }) {
   const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId"
@@ -91,25 +91,27 @@ export default function MailForm({
 
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode;
 
-  console.log(attachments, "attachments");
+
 
   useEffect(() => {
+    const singleAttachments = SigleOrderdata?.data?.attachments || [];
+    const emailAttachment = Emaildata?.data?.poExcelFileName
+      ? [{ filePath: Emaildata.data.poExcelFileName }]
+      : [];
+
+    const combined = [...singleAttachments, ...emailAttachment];
+
     setPoNumber(SigleOrderdata?.data?.docId);
     setSubject(SigleOrderdata?.data?.docId);
-    // setUserId(SigleOrderdata?.data?.vendorId)
-    setattachments(emailId ? [] : SigleOrderdata?.data?.attachments);
+    setattachments(combined);
     setfileName(Emaildata?.data?.poExcelFileName);
     setReceiverName(SigleOrderdata?.data?.Vendor?.name);
     setSendorName(SigleOrderdata?.data?.Manufacture?.name);
     setSendorId(SigleOrderdata?.data?.Manufacture?.id);
     setReceiverId(SigleOrderdata?.data?.Vendor?.id);
-  }, [SigleOrderdata, isLoading, isFetching]);
+  }, [SigleOrderdata, Emaildata, isLoading, isFetching, isEmailLoading, isEmailFetching]);
 
-  useEffect(() => {
-    if (Emaildata?.data?.poExcelFileName) {
-      setattachments([{ filePath: Emaildata.data.poExcelFileName }]);
-    }
-  }, [Emaildata, isEmailLoading, isEmailFetching]);
+
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId);
@@ -141,24 +143,11 @@ export default function MailForm({
   // };
 
   const data = {
-    mailTransaction: true,
-    orderId: id,
-    isSave: true,
-    fromAddress,
-    sendorName,
-    sendorId,
-    toEmail,
-    receiverName,
-    receiverId,
-    subject,
-    message,
-    cc: ccList.map((item) => item).join(","),
-    attachments,
-    fileName,
-    userId,
-    poSentForApproval,
-  };
-  console.log(isSave, "isSave");
+    mailTransaction: true, orderId: id,
+    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message,
+    userRole,
+    cc: ccList.map(item => item).join(','), attachments, fileName, userId,
+  }
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
@@ -177,6 +166,8 @@ export default function MailForm({
       let returnData;
       if (text === "Updated") {
         returnData = await callback({ id, body: formData }).unwrap();
+        setCurrentId('')
+        SyncformwithDb()
       } else {
         returnData = await callback(formData).unwrap();
       }

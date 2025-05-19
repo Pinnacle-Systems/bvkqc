@@ -32,6 +32,12 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
     return index;
   };
+  const handleClick = (item) => {
+    setForm(true)
+    setId(item?.id)
+    setPoNo(item?.docId)
+  }
+
 
   return (
     <>
@@ -82,9 +88,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
                 <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row px-2"
                   onClick={() => {
-                    setForm(true)
-                    setId(item?.id)
-                    setPoNo(item?.docId)
+                    handleClick(item)
                   }}
                 >
                   <td className="p-1">{parseInt(index) + 1}</td>
@@ -93,8 +97,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   <td className="p-1">{item?.Manufacture?.name}</td>
                   <td className="p-1 text-center">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""} </td>
 
-                  <td className="p-1">{item?.Vendor?.name}  </td>
-                  <td className="p-1 text-center">{item?.poSentForApproval && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>                  <td className="p-1 text-center">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                  <td className="p-1">{item?.isSave ? item?.Vendor?.name : ''}  </td>
+                  <td className="p-1 text-center">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                  <td className="p-1 text-center">{item?.isSave && item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                   <td className="p-1">
                     <div className="flex items-center space-x-0">
                       {stageDefinitions.map((stage, i) => {

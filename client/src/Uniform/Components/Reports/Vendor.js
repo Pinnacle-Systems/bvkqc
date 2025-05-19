@@ -13,7 +13,7 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,
-  setActive, id, setCurrentId, form, active, setEmailId }) {
+  setActive, id, setCurrentId, form, active, setEmailId, userRole }) {
 
   const [attachments, setAttachments] = useState([]);
 
@@ -32,7 +32,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
   let orderData = singleData?.data;
   const model = "Po Number";
-
+  console.log(orderData, "data")
   const data = {
     attachments, isAttachments: true
   };
@@ -130,7 +130,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         Product: item.product,
         PoQty: item.orderQty,
         excessPercentage: item.excessQty,
-        OrderQty:  Math.round(item.qty)
+        OrderQty: Math.round(item.qty)
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(combinedData);
@@ -183,7 +183,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
       >
         <ArtDesignReport
-
+          userRole={userRole}
           setFormReport={setFormReport}
           tableWidth="100%"
           formReport={formReport}
@@ -242,7 +242,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={"MAX"}
-           disabled={true}
+              disabled={true}
 
             />
           </div>
@@ -254,7 +254,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               type="text"
               className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
               value={orderData?.Manufacture?.name}
-            disabled={true}
+              disabled={true}
 
             />
 

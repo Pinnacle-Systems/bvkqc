@@ -398,17 +398,17 @@ async function update(id, body) {
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor, orderId, cc,
         ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval, fromAddress, sendorName, sendorId, toEmail,
-        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate
+        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate, userRole
     } = await body
 
 
 
-       console.log(typeof(isSave),isSave)
+    console.log(typeof (isSave), isSave)
 
 
-   const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ?  true   : false;
+    const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ? true : false;
 
-       console.log(typeof(parsedIsSave),parsedIsSave)
+    console.log(typeof (parsedIsSave), parsedIsSave)
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -421,40 +421,28 @@ async function update(id, body) {
 
     if (mailTransaction) {
 
-        console.log(isSave, 'isSave');
 
-        if (poSentForApproval == 'true') {
-            console.log(mailTransaction, 'mailTransaction');
 
-            const parsedPoSentForApproval = poSentForApproval === 'true' || true ? true
-                : poSentForApproval === 'false' || false ? false
-                    : undefined;
+        let updateData = {};
 
-            data = await prisma.order.update({
-                where: {
-                    id: parseInt(orderId),
-                },
-                data: {
-                    poSentForApproval: parsedPoSentForApproval ? Boolean(parsedPoSentForApproval) : undefined,
+        if (userRole === 'MANUFACTURE') {
+            updateData.isSave = true;
+        }
 
-                },
+        if (userRole === 'VENDOR') {
+
+            updateData.poSentForApproval = true;
+        }
+
+        if (Object.keys(updateData).length > 0) {
+            const data = await prisma.order.update({
+                where: { id: parseInt(orderId) },
+                data: updateData,
             });
 
+            console.log('Updated order:', data);
         }
-        if (isSave == "true") {
-            const parsedIsSave = isSave === 'true' || true ? true
-                : isSave === 'false' || false ? false
-                    : undefined;
-            data = await prisma.order.update({
-                where: {
-                    id: parseInt(orderId),
-                },
-                data: {
 
-                    isSave: parsedIsSave ? Boolean(parsedIsSave) : undefined,
-                },
-            });
-        }
         data = await prisma.mailTransaction.create(
             {
                 data: {
@@ -520,9 +508,9 @@ async function update(id, body) {
     }
 
 
-   if(parsedIsSave){
-    console.log("hit")
-   }
+    if (parsedIsSave) {
+        console.log("hit")
+    }
 
     await prisma.$transaction(async (tx) => {
         data = await tx.order.update({
@@ -538,7 +526,7 @@ async function update(id, body) {
                 deliverydate: deliveryDate ? new Date(deliveryDate) : undefined,
                 docDate: docDate == null ? new Date(docDate) : undefined,
 
-          
+
 
             },
 

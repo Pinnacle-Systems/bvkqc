@@ -19,30 +19,25 @@ import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
-export default function BuyerForm({
-  singleData,
-  poItems,
-  setPoItems,
-  setActive,
-  setForm,
-  saveData,
-  id,
-  setCurrentId,
-  isApproved,
-  setIsApproved,
-  form,
-  active,
-}) {
+
+export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
+  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active }) {
+
+
   const [formReport, setFormReport] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const { branchId, finYearId, userId } = getCommonParams();
   const [attachments, setAttachments] = useState([]);
-  const [showPrintModal, setShowPrintModal] = useState(false);
 
-  let data = singleData?.data;
-  const isMailForm = true;
-  const isBuyer = true;
-  const model = "Po Number";
+
+  console.log(id, 'id26');
+
+
+  let data = singleData?.data
+  const isMailForm = true
+  const isBuyer = true
+  const model = "Po Number"
+  console.log(data, "data")
 
   useEffect(() => {
     if (poItems.length >= 5) return;
@@ -92,6 +87,7 @@ export default function BuyerForm({
       >
         <ArtDesignReport
           tableWidth="100%"
+          userRole={userRole}
           setAttachments={setAttachments}
           attachments={attachments}
           searchValue={searchValue}
@@ -236,10 +232,10 @@ export default function BuyerForm({
               <input
                 type="text"
                 className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={
-                  data?.orderdate ? getDateFromDateTime(data?.orderdate) : ""
-                }
+                value={data?.orderdate ? getDateFromDateTime(data?.orderdate) : ""}
                 disabled={true}
+
+
               />
             </div>
             <div className="col-span-2 flex flex-col">

@@ -67,8 +67,8 @@ export default function Form() {
     { name: 'order', label: 'Order', icon: <RiOrderPlayFill className="h-6 w-6" />, action: () => setisOpen(true) },
     { name: 'Mail', label: 'Mail', icon: <MessageCircle className="h-6 w-6" /> },
     { name: 'Report', label: 'Report', icon: <ClipboardList className="h-6 w-6" /> },
-    userRole  ===  ""  ?  
-    { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> }  :  "",
+    userRole === "" ?
+      { name: 'More', label: 'OrderImport', icon: <MoreHorizontal className="h-6 w-6" /> } : "",
   ];
 
   console.log(active, "active")
@@ -130,15 +130,15 @@ export default function Form() {
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
-                             setPoSentForApproval={setPoSentForApproval}
-                            poSentForApproval={poSentForApproval}  
-                             emailId={emailId} currentId={currentId} userRole={userRole}
-                              singleUserPartyData={singleUserPartyData}
-                              setActive={setActive} setForm={setForm}
-              isSave={isSave} setIsSave={setIsSave}
+              setPoSentForApproval={setPoSentForApproval}
+              poSentForApproval={poSentForApproval}
+              emailId={emailId} currentId={currentId} userRole={userRole}
+              singleUserPartyData={singleUserPartyData}
+              setActive={setActive} setForm={setForm}
+              isSave={isSave} setIsSave={setIsSave} setCurrentId={setCurrentId}
             />}
             {active === "Report" && <EmailReport attachments={attachments} />}
-            {active === "More"  &&  userRole === ""  ?   <OrderImport />  : ''}
+            {active === "More" && userRole === "" ? <OrderImport /> : ''}
             {active === "order" && <Order setEmailId={setEmailId} active={active}
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
 
