@@ -26,6 +26,9 @@ import { LongDropdownInput } from "../../../Inputs";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 import { useDispatch } from "react-redux";
 import { Backpack, DeleteIcon, Send } from "lucide-react";
+import { Loader } from "../../../Basic/components";
+import Swal from "sweetalert2";
+import "./swalStyles.css";
 
 export default function MailForm({
   currentId,
@@ -37,7 +40,7 @@ export default function MailForm({
   setActive,
   setForm,
   isSave,
-  setIsSave, setCurrentId,
+  setIsSave, setCurrentId,setEmailId
 }) {
   const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId"
@@ -65,13 +68,15 @@ export default function MailForm({
     setSubject("");
     setMessage("");
     setCcList([""]);
-    setattachments([]);
+    setattachments([""]);
     setfileName("");
     setFromAddress("");
     setSendorName("");
     setReceiverName("");
   };
 
+
+  console.log(singleUserPartyData,"singleUserPartyData")
   const {
     data: Emaildata,
     isLoading: isEmailLoading,
@@ -111,6 +116,8 @@ export default function MailForm({
     setReceiverId(SigleOrderdata?.data?.Vendor?.id);
   }, [SigleOrderdata, Emaildata, isLoading, isFetching, isEmailLoading, isEmailFetching]);
 
+
+  
 
 
   useEffect(() => {
@@ -194,90 +201,7 @@ export default function MailForm({
     </svg>
   );
 
-  const PlusCircleIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-6 h-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
 
-  const XCircleIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-6 h-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-
-  const PaperClipIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-6 h-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
-      />
-    </svg>
-  );
-
-  const PhotoIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-6 h-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-      />
-    </svg>
-  );
-
-  const PaperAirplaneIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-6 h-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
-      />
-    </svg>
-  );
 
   const saveData = () => {
     if (id) {
@@ -285,8 +209,41 @@ export default function MailForm({
     }
   };
 
+
+   
+
+  const [loading, setLoading] = useState(false);
+const handleSubmit = async () => {
+  setLoading(true); 
+  try {
+    await handleMailSendWithMultipleAttachments(
+      FromEmailAddress,
+      toEmail,
+      passskey,
+      subject,
+      message,
+      fileName,
+      attachments,
+      ccList,
+      setActive,
+      setForm,
+      setLoading
+    );
+  } catch (error) {
+    console.error("Email sending failed:", error);
+  }
+}
+
+ if (isFetching || isLoading) return <Loader />
+
   return (
     <>
+    {loading && (
+  <div className="fixed inset-0 z-50 bg-white bg-opacity-70 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+    <span className="ml-3 text-sm font-medium text-gray-700">Sending Mail...</span>
+  </div>
+)}
       <div className="flex items-end gap-2 p-2 ml-2 justify-end bg-white">
         <button
           onClick={() => {
@@ -312,31 +269,23 @@ export default function MailForm({
         </button>
         <button
           onClick={() => {
-            handleMailSendWithMultipleAttachments(
-              FromEmailAddress,
-              toEmail,
-              passskey,
-              subject,
-              message,
-              fileName,
-              attachments,
-              ccList,
-              setActive,
-              setForm
-            );
+    
+              handleSubmit()
 
             if (userRole === "VENDOR") {
               setPoSentForApproval(true);
             }
-            {
-              console.log(userRole, "userRole");
-            }
+          
             if (userRole === "MANUFACTURE") {
               setIsSave(true);
             }
             saveData();
             SyncformwithDb();
+            setattachments([""]);
+            setEmailId("");
           }}
+
+
           className="group flex items-center bg-white text-[#303AB2] mr-5 border border-[#303AB2] hover:bg-[#303AB2] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#303AB2] focus:ring-offset-1"
         >
           <svg
@@ -377,7 +326,7 @@ export default function MailForm({
                 <MailIcon className="w-4 h-4 text-blue-600" />
               </div>
               <h2 className="text-base font-semibold text-gray-800">
-                New Mail
+                
               </h2>
             </div>
 
@@ -452,7 +401,7 @@ export default function MailForm({
         </div>
 
         <div className="h-[533px] flex flex-col gap-3 ">
-          <div className="flex-1 bg-white rounded-lg shadow-sm p-6 overflow-y-auto">
+          <div className="flex-1 bg-white rounded-lg shadow-sm p-6 ">
             <div className="flex flex-col space-y-1 pb-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-gray-600">
@@ -510,7 +459,7 @@ export default function MailForm({
                 Attachments
               </h3>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2  h-[380px] overflow-y-auto">
                 {attachments?.map((item, index) => {
                   const fileName = item.filePath?.split("/").pop();
                   return (

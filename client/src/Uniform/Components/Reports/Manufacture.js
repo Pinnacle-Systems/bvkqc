@@ -13,7 +13,7 @@ import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active
+  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active , mailConvert
 }) {
 
 
@@ -337,6 +337,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
               <button
                 onClick={() => {
                   saveData(isMailForm, isManufacture);
+                    
                   exportAndUploadExcel(data, poItems);
                 }}
                 className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
