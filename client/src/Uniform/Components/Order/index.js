@@ -16,6 +16,7 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
 import moment from 'moment';
+import { Loader } from "../../../Basic/components";
 
 
 export default function Order({ setForm, form, setEmailId, active, setActive, setCurrentId }) {
@@ -30,27 +31,26 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
 
   const [isSave, setIsSave] = useState(true)
+  const [mailConvert,setMailConvert] = useState(false)
 
   const { branchId, finYearId, userId } = getCommonParams()
   const [docDate, setDocDate] = useState(getDateFromDateTime(today));
+  
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
-  console.log(id, "idd");
-  const { data: singleData, isSingleFetching, isSingleLoading, } = useGetOrderByIdQuery(id);
-
-
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
-
   const userRole = singleuserData?.data?.userType || ""
+  
+  
+  
+  
+  
 
-  // const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
-
-  const { data: partyData } = useGetPartyQuery({ params: { branchId, finYearId } });
-
-  const { data: allData, refetch } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
-
+  const { data: allData, refetch , isLoading , isFetching } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
+  
+  const { data: singleData, isFetching:isSingleFetching, isLoading:isSingleLoading, } = useGetOrderByIdQuery(id , { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
 
@@ -90,7 +90,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   }
 
   const dispatch = useDispatch()
-  const handleSubmitCustom = async (callback, data, text) => {
+  const handleSubmitCustom = async (callback, data, text , isManufacture=false) => {
 
     try {
       const formData = new FormData();
@@ -121,14 +121,16 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       }
       if (returnData.statusCode === 0) {
 
-
-        // toast.success(text + "Successfully", {
-        //   autoClose: 1000
-        // });
-        dispatch({
-          type: `Order/invalidateTags`,
-          payload: ['Order'],
-        });
+      if(isManufacture){
+        toast.success(text + "Successfully", {
+                autoClose: 1000
+              });
+      }
+      dispatch({
+        type: `Order/invalidateTags`,
+        payload: ['Order'],
+      });
+      
       } else {
         toast.error(returnData?.message, {
           autoClose: 1000
@@ -163,6 +165,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
         })
         return;
       }
+      setMailConvert(true)
     }
 
 
@@ -173,7 +176,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
     if (id) {
 
-      handleSubmitCustom(updateData, data, "Updated")
+      handleSubmitCustom(updateData, data, "Updated",isManufacture)
 
     } else {
 
@@ -185,12 +188,13 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
 
+ if (isFetching || isLoading) return <Loader />
 
 
 
   return (
 
-    //forms
+ 
     <React.Fragment >
       {
         form === true && userRole === "MANUFACTURE" ?
@@ -203,7 +207,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
-            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
+            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  mailConvert={mailConvert}
 
             deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
 
@@ -267,7 +271,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
                           setForm={setForm}
                           setId={setId}
                           setPoNo={setPoNo}
-                          partyData={partyData}
+                          // partyData={partyData}
                         />
                       </>
                       :
@@ -280,14 +284,14 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
                             setForm={setForm}
                             setId={setId}
                             setPoNo={setPoNo}
-                            partyData={partyData}
+                            // partyData={partyData}
 
                           />
                         </>
 
                         :
                         <Buyer
-                          partyData={partyData}
+                          // partyData={partyData}
                           allData={allData}
                           setForm={setForm}
                           setId={setId}

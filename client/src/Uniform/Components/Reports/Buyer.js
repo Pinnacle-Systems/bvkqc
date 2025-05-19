@@ -131,7 +131,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
             </button>
           )}
 
-          {data?.deliverydate && data?.vendorId && (
+          {data?.poSentForApproval &&  (
             <button
               onClick={() => saveData(isMailForm, false, isBuyer)}
               className="group flex items-center bg-white text-[#303AB2] border border-[#303AB2] hover:bg-[#303AB2] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#303AB2] focus:ring-offset-1"
@@ -204,13 +204,11 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                 type="text"
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={
-                  data?.deliverydate
-                    ? getDateFromDateTime(data?.deliverydate)
-                    : ""
+                  data?.deliverydate ? getDateFromDateTime(data?.deliverydate) : ""
                 }
                 disabled={true}
               />
-            </div>
+            </div>{console.log( data?.deliverydate," data?.deliverydate")}
 
             {singleData?.data?.poSentForApproval && (
               <div className=" w-18 flex flex-col ">
@@ -269,7 +267,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
       <th className="text-[12px] font-semibold p-1 border border-gray-300">Bar Code</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300">Supplier Code</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300">Style Code</th>
-      <th className="text-[12px] font-semibold p-1 border border-gray-300">Size Desc</th>
+      <th className="text-[12px] font-semibold p-1 border border-gray-300">Size Description</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[40px]">Size</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Color</th>
       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>

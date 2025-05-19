@@ -435,7 +435,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
             </svg>
             <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-              SAVE AND SEND
+             SEND MAIL
             </span>
           </button>
         </div>

@@ -24,7 +24,7 @@ import { useDispatch } from "react-redux";
 
 
 
-export default function Form(activeNavBar,setActiveNavBar) {
+export default function Form(activeNavBar) {
     const MODEL = activeNavBar.activeNavBar
     const [form, setForm] = useState(false);
 

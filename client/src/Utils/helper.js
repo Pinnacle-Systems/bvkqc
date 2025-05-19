@@ -424,7 +424,8 @@ export function handleMailSendWithMultipleAttachments(
   attachments,
   ccList,
   setActive,
-  setForm
+  setForm,
+  setLoading
 ) {
   const normalizeEmails = (emails) => {
     if (Array.isArray(emails)) return emails;
@@ -453,6 +454,7 @@ export function handleMailSendWithMultipleAttachments(
   form.append("message", message);
   form.append("ccList", joinCCMailIds);
 
+  setLoading(true);
   fetch(`${process.env.REACT_APP_SERVER_URL}sendMail/multipleFiles`, {
     method: "POST",
     body: form,
@@ -480,6 +482,7 @@ export function handleMailSendWithMultipleAttachments(
       }).then(() => {
         setForm(false)
         setActive("order");
+        setLoading(false)
       });
     })
     .catch((err) => {
@@ -495,7 +498,7 @@ export function handleMailSendWithMultipleAttachments(
       }).then(() => {
         setForm(false)
         setActive("order");
-
+        setLoading(false)
       });
     });
 }
