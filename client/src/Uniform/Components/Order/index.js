@@ -122,9 +122,9 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       if (returnData.statusCode === 0) {
 
 
-        toast.success(text + "Successfully", {
-          autoClose: 1000
-        });
+        // toast.success(text + "Successfully", {
+        //   autoClose: 1000
+        // });
         dispatch({
           type: `Order/invalidateTags`,
           payload: ['Order'],

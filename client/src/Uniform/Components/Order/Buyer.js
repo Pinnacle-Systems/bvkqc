@@ -87,7 +87,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
 
 
-                <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row px-2"
+                <tr className="border-b  transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row px-2"
                   onClick={() => {
                     handleClick(item)
                   }}

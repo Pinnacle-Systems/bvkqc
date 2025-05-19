@@ -33,7 +33,7 @@ const Header = ({ profile, setProfile , setLogout , logout}) => {
     const toggleNavMenu = () => {
         setProfile(!profile);
     };
-  
+    const userName  =   secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "username")
 
      const handleOutsideClick = () => {
                  sethideNavBar(false);
@@ -154,9 +154,12 @@ const Header = ({ profile, setProfile , setLogout , logout}) => {
                         <Search size={15} />
                     </div>
                 </div>
-                <div className="mr-3 bg-beige p-2 rounded-full ">
+                {/* <div className="mr-3 bg-beige p-2 rounded-full ">
                     <Bell size={17}  />
-                </div>
+                </div> */}
+                  <div className="text-sm text-black my-0 px-3">
+                                        {userName.toUpperCase()}
+                                    </div>
                <div className="flex items-center gap-4">
 <div className="flex items-center space-x-2">
   <img
