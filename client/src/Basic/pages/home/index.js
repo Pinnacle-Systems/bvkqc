@@ -50,7 +50,7 @@ const Home = () => {
       >
         <LogoutConfirm setLogout={setLogout} />
       </Modal>
-      <div>
+      <div style={{ backgroundColor: '#F1F1F0' }}>
         {isSuperAdmin ? (
           <>
             <SuperAdminHeader
@@ -68,7 +68,7 @@ const Home = () => {
 
           userRole === "MANUFACTURE" || userRole === "VENDOR" ?
             <>
-              <div className="h-[100vh]"
+              <div className="h-[100vh]" style={{ backgroundColor: '#F1F1F0' }}
            onClick={()  => { 
                         
                     if( isOpen  &&   isMainDropdownOpen  ){
@@ -93,7 +93,7 @@ const Home = () => {
                 <Sidebar isOpen={isOpen} setIsOpen={setIsOpen}
                   isMainDropdownOpen={isMainDropdownOpen}
                   setIsMainDropdownOpen={setIsMainDropdownOpen} />
-                <div className="p-2 h-[screen]">
+                <div className="p-2 h-[screen]" style={{ backgroundColor: '#F1F1F0' }}>
                   <ActiveTabList />
                 </div>
                   {openTabs.tabs.length === 0 ? <Dashboard setProfile={setProfile} /> : ''}

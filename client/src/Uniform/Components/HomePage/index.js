@@ -126,7 +126,7 @@ export default function Form() {
         <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
 
 
-          <div className=" ">
+        <div style={{ backgroundColor: '#F1F1F0' }}>
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
