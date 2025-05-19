@@ -152,56 +152,6 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
               <span className="ml-1.5 text-xs font-medium">SEND MAIL</span>
             </button>
           )}
-
-          {/* Print Set Button */}
-          <button
-            onClick={() => setShowPrintModal(true)}
-            className="group flex items-center bg-white text-[#28A745] border border-[#28A745] hover:bg-[#28A745] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#28A745] focus:ring-offset-1"
-          >
-            <svg
-              className="w-4 h-4 transition-transform duration-200 group-hover:scale-105"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 9V2h12v7M6 18h12v4H6v-4z"
-              />
-            </svg>
-            <span className="ml-1.5 text-xs font-medium">Print Set</span>
-          </button>
-
-          {/* Print Set Modal */}
-          {showPrintModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-lg shadow-md w-64 space-y-4">
-                <h3 className="text-lg font-semibold">Print Settings</h3>
-                <p className="text-sm text-gray-600">
-                  Configure your print settings.
-                </p>
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => setShowPrintModal(false)}
-                    className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Add your print function here
-                      setShowPrintModal(false);
-                    }}
-                    className="px-3 py-1 bg-[#28A745] text-white rounded-md hover:bg-[#218838]"
-                  >
-                    Print
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
       <div
