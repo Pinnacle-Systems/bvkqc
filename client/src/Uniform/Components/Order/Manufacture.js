@@ -69,7 +69,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             <th className="py-1 px-1 ">PO Status</th>
           </tr>
         </thead>
-        <tbody className="text-gray-700 text-xs">
+            <tbody className="text-gray-700 text-xs">
           {(allData?.data || []).map((item, index) => {
             console.log(typeof (item?.isSave, "AlldatIsSave"))
             const completedStages = stageDefinitions

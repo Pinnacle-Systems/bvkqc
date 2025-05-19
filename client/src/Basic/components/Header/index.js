@@ -137,6 +137,7 @@ const Header = ({ profile, setProfile , setLogout , logout}) => {
   
     const { userId, branchId } = getCommonParams()
     const { data: branch } = useGetBranchByIdQuery(branchId, { skip: !branchId });
+    
 
 
     return (
@@ -156,19 +157,38 @@ const Header = ({ profile, setProfile , setLogout , logout}) => {
                 <div className="mr-3 bg-beige p-2 rounded-full ">
                     <Bell size={17}  />
                 </div>
-                <div className="relative">
-                    <img className="rounded-full cursor-pointer" onClick={() => setProfile(!profile)} width={'25px'}
-                        src={dp}
-                        alt="image" />
+               <div className="flex items-center gap-4">
+<div className="flex items-center space-x-2">
+  <img
+    className="rounded-full border-2 border-indigo-500 cursor-pointer 
+               hover:border-indigo-700 transition-all duration-200
+               shadow-sm hover:shadow-md focus:outline-none 
+               focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+    onClick={() => setProfile(!profile)}
+    width={35}
+    height={35}
+    src={dp}
+    alt="Profile"
+  />
+<div className="text-lg font-semibold text-gray-900 tracking-wide">
+    {secureLocalStorage.getItem(
+        sessionStorage.getItem("sessionId") + "username"
+    )}
+</div>
 
-                    {profile && <Profile
-                        dp={dp}
-                        setProfile={setProfile}
-                        items={allowedPages.filter((page) => page.type === "AdminAccess")}
-                        setLogout={setLogout}  logout={logout}
-                        />}
+</div>
 
-                </div>
+    {profile && (
+        <Profile
+            dp={dp}
+            setProfile={setProfile}
+            items={allowedPages.filter((page) => page.type === "AdminAccess")}
+            setLogout={setLogout}
+            logout={logout}
+        />
+    )}
+</div>
+
             </div>
 
         </div>

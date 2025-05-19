@@ -15,8 +15,7 @@ import {
   getCommonParams,
   getDateFromDateTime,
 } from "../../../Utils/helper";
-import FormHeader from "../../../Basic/components/FormHeader";
-import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
+
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
