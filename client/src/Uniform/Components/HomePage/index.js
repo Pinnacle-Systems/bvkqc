@@ -31,7 +31,7 @@ export default function Form() {
   const [form, setForm] = useState(false)
   const [mailForm, setMailform] = useState(false)
   const [emailId, setEmailId] = useState("")
-  const [currentId, setCurrentId] = useState("")  
+  const [currentId, setCurrentId] = useState("")
   const [partyId, setPartyId] = useState("")
   const [attachments, setattachments] = useState([]);
 
@@ -78,7 +78,9 @@ export default function Form() {
       <div className="flex font-sans  px-0  w-full mt-3 first-line:" >
 
 
-        <aside className="flex flex-col items-center py-4  bg-[#F1F1F0] backdrop-blur-md w-20 h-full border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
+        <aside className="flex flex-col items-center 
+          bg-[#F1F1F0] backdrop-blur-md w-20 h-[87vh]
+           border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
           {menuItems.map(({ name, label, icon, action }) => (
             <button
               key={name}
@@ -126,14 +128,14 @@ export default function Form() {
         <main className="flex-1 flex flex-col   shadow-2xl  bg-[#F1F1F0]  pb-2  h-full  w-[70%] ">
 
 
-        <div style={{ backgroundColor: '#F1F1F0' }}>
+          <div style={{ backgroundColor: '#F1F1F0' }}>
 
             {active === "home" && <HomePage />}
             {active === "Mail" && <MailForm
               setPoSentForApproval={setPoSentForApproval}
               poSentForApproval={poSentForApproval}
-              emailId={emailId}  setEmailId={setEmailId} currentId={currentId} userRole={userRole}
-              singleUserPartyData={singleUserPartyData} 
+              emailId={emailId} setEmailId={setEmailId} currentId={currentId} userRole={userRole}
+              singleUserPartyData={singleUserPartyData}
               setActive={setActive} setForm={setForm}
               isSave={isSave} setIsSave={setIsSave} setCurrentId={setCurrentId}
             />}

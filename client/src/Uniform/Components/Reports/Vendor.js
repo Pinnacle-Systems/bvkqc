@@ -307,7 +307,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             />
           </div>
 
-                     {/* <div className="w-18 h-5 flex flex-col px-2">
+          {/* <div className="w-18 h-5 flex flex-col px-2">
                               <label className="text-xs font-semibold  ">
                               Approval status
                             </label>
@@ -349,7 +349,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         </div >
 
 
-        <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
+        <div className="w-full my-2   h-[70vh] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
             <thead className="bg-white text-gray-800 border-b border-gray-300">
               <tr>

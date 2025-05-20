@@ -39,10 +39,8 @@ export default function Manufactureform({
   setIsApproved,
   mailConvert,
   userRole,
-  PoStatus, setPoStatus, setReason, reason
+  PoStatus, setPoStatus, setReason, reason, refetch, setId
 }) {
-
-
   const [formReport, setFormReport] = useState(false);
 
   const [upload] = useUploadMutation();
@@ -128,7 +126,7 @@ export default function Manufactureform({
     }
   };
 
-  // Called onChange: updates value in state
+
   const handleQtyChange = (field, index, value) => {
     setPoItems((prev) => {
       let newItems = structuredClone(prev);
@@ -238,7 +236,7 @@ export default function Manufactureform({
   );
   return (
     <>
-      <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: 'white' }}>
+      <div className="bg-[f1f1fo]  flex items-center justify-between p-2 flex-row " >
         <Modal
           isOpen={formReport}
           onClose={() => setFormReport(false)}
@@ -277,6 +275,7 @@ export default function Manufactureform({
                 onClick={() => {
                   setForm(false);
                   setActive("order");
+                  setId(null)
                 }}
                 className="group flex items-center bg-white text-[#E4002B] border border-[#E4002B] hover:bg-[#E4002B] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E4002B] focus:ring-offset-1"
               >
@@ -302,7 +301,8 @@ export default function Manufactureform({
           {!data?.isSave && (
             <button
               onClick={() => {
-                saveData(!isMailForm);
+                saveData(!isMailForm, isManufacture);
+
               }}
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
@@ -486,7 +486,7 @@ export default function Manufactureform({
             : ""}
         </div>
 
-        <div className="w-full my-2  h-[90%] overflow-y-auto overflow-x-auto ">
+        <div className="w-full my-2  h-[70vh] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
             <thead className="bg-white text-gray-800 border-b border-gray-300">
               <tr>
