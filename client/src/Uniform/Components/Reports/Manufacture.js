@@ -263,9 +263,11 @@ export default function Manufactureform({
 
           />
         </Modal>
-        <div className="text-md font-semibold">
-          <span className="">{model} : </span>&nbsp;
-          <span className="text-[#303AB2]">{data?.docId}</span>
+        <div className="text-sm font-semibold flex items-center gap-2">
+          <span className="text-gray-600">{model}:</span>
+          <span className="text-white bg-[#303AB2] px-2 py-0.5 rounded-md font-bold shadow-md">
+            {data?.docId}
+          </span>
         </div>
 
         <div className=" flex  justify-end gap-3">
