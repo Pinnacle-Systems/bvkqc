@@ -125,7 +125,7 @@ async function get(req) {
     let finYearDate = await getFinYearStartTimeEndTime(finYearId);
     const shortCode = finYearDate ? getYearShortCodeForFinYear(finYearDate?.startDateStartTime, finYearDate?.endDateEndTime) : "";
     let newDocId = finYearDate ? (await getNextDocId(branchId, shortCode, finYearDate?.startDateStartTime, finYearDate?.endDateEndTime, isTaxBill)) : "";
-    return { statusCode: 0, nextDocId: newDocId, data, totalCount };
+    return { statusCode: 0, nextDocId: newDocId, data, totalCount  };
 }
 
 
@@ -398,17 +398,16 @@ async function update(id, body) {
     const { branchId, userId, isSave, excessQty, attachments, isManufactureAttachments,
         excessQtyAmount, date, orderDetails, vendor, orderId, cc,
         ponumber, isAttachments, isApproved, mailTransaction, poSentForApproval, fromAddress, sendorName, sendorId, toEmail,
-        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate, userRole
+        receiverName, receiverId, subject, message, ccList, fileName, deliveryDate, docDate, userRole ,reason , PoStatus  ,  userName , userRoleId
     } = await body
 
 
+    console.log(userName,"userName",userId)
 
-    console.log(typeof (isSave), isSave)
 
 
     const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ? true : false;
 
-    console.log(typeof (parsedIsSave), parsedIsSave)
 
     const dataFound = await prisma.order.findUnique({
         where: {
@@ -455,6 +454,8 @@ async function update(id, body) {
                     receiverName, to: receiverName,
                     receiverId: receiverId ? parseInt(receiverId) : null, subject, messages: message,
                     senderId: parseInt(sendorId),
+                    userName : userName ? userName : undefined,
+                    userId : userId ? parseInt(userId)  : undefined,
                     mailTransAttachments: {
                         createMany: attachments ? {
                             data: JSON.parse(attachments || []).map(temp => ({
@@ -525,6 +526,9 @@ async function update(id, body) {
                 isApproved: isApproved ?? undefined,
                 deliverydate: deliveryDate ? new Date(deliveryDate) : undefined,
                 docDate: docDate == null ? new Date(docDate) : undefined,
+                approvalstatusReason : reason  ? reason : undefined ,
+                poStatus :  PoStatus  ?  PoStatus   :  undefined,
+                userRoleId :  userRoleId  ? parseInt(userRoleId)  : undefined,
 
 
 

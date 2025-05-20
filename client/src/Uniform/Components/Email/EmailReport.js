@@ -6,7 +6,6 @@ export default function EmailReport(attachments){
   
 
   const { data: orderData } = useGetOrderQuery({ params: { branchId:1 } });
-  console.log(orderData,'orderData')
 
     return(
 
@@ -14,18 +13,7 @@ export default function EmailReport(attachments){
 
         <div className="flex  flex-col">
             <FormHeaderNew  model={"Email Report"}  />
-            {/* {orderData?.data?.map((item, index) => (
-                <div key={item.id}>
-                    <h4> {item.id}</h4>
-                    <ul>
-                    {item.mailTransaction?.map((mailTransaction, idx) => (
-                        <li key={mailTransaction.id}>
-                         {attachment.fileName }
-                        </li>
-                    ))}
-                    </ul>
-                </div>
-                ))} */}
+        
 
      
 
@@ -33,7 +21,6 @@ export default function EmailReport(attachments){
   <thead className="bg-gray-300 text-gray-600 uppercase text-xs leading-normal border border-black-100">
     <tr>
 
-     {/* <th className="py-1 px-6">S No</th> */}
           <th className="py-1 px-6">po Number</th>
       <th className="py-1 px-6">From</th>
             <th className="py-1 px-6">To</th>
@@ -54,9 +41,7 @@ export default function EmailReport(attachments){
           onClick={() => {
           }}
         >        
-        {console.log(item.mailTransaction,"item.mailTransaction")}
-        {console.log(mailTransaction,"mailTransaction")}
-
+  
           {/* <td  className="p-1 "> {(idx) + parseInt(1)}</td> */}
             <td className="p-3 ">{item?.docId}</td>
           <td className="p-3 ">{mailTransaction?.senderName}</td>

@@ -24,7 +24,7 @@ const ArtDesignReport = ({ item, index, readOnly, userRole, setFormReport, formR
   useEffect(() => {
     if (attachments?.length >= 1) return
     setAttachments(prev => {
-      let newArray = Array.from({ length: 1 - prev.length }, () => {
+      let newArray = Array.from({ length: 1 - prev?.length }, () => {
         return { date: today, filePath: "", log: "" }
       })
       return [...prev, ...newArray]
