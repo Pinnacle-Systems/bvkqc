@@ -283,27 +283,34 @@ export default function Manufactureform({
               </span>
             </button>
           )}
-       {(allData?.data[0]?.selectedApprover === "MANUFACTURE" || !data?.isSave) && (<button
-            onClick={() => {
-              saveData(isMailForm, isManufacture);
+          {(allData?.data[0]?.selectedApprover === "MANUFACTURE" ||
+            !data?.isSave) && (
+            <button
+              onClick={() => {
+                saveData(isMailForm, isManufacture);
 
-              exportAndUploadExcel(data, poItems);
-            }}
-            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-          >
-            <svg
-              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
+                exportAndUploadExcel(data, poItems);
+              }}
+              className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
-            </svg>
-            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-              Save & Send
-            </span>
-          </button>)}
+              <svg
+                className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 4v16h16V4H4zm4 8l4 4 4-4"
+                />
+              </svg>
+              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                Save & Send
+              </span>
+            </button>
+          )}
         </div>
               </div>
        
@@ -312,7 +319,8 @@ export default function Manufactureform({
           className="flex flex-wrap  border  rounded item-center p-1"
           style={{ backgroundColor: "white" }}
         >
-          <div className="flex flex-wrap m-1 gap-1 border bg-white rounded item-center p-1">
+        <div className="flex flex-wrap gap-1 border  rounded item-center p-1" style={{ backgroundColor: "white" }}>
+
             <div className="flex flex-col mr-1">
               <label className="text-xs font-semibold">Customer</label>
               <input

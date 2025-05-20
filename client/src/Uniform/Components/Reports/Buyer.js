@@ -122,29 +122,31 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
 
         <div className="flex items-center gap-2 ml-4">
           {active === "order" && form === true && (
-            <button
-              onClick={() => {
-                setForm(false);
-                setActive("order");
-                setId('')
-              }}
-              className="group flex items-center bg-white text-[#E4002B] border border-[#E4002B] hover:bg-[#E4002B] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E4002B] focus:ring-offset-1"
-            >
-              <svg
-                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
+               <button
+                onClick={() => {
+                  setForm(false);
+                  setActive("order");
+                     setId('')
+                }}
+                className="group flex items-center bg-white text-[#E4002B] border border-[#E4002B] hover:bg-[#E4002B] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E4002B] focus:ring-offset-1"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              <span className="ml-1.5 text-xs font-medium">Back</span>
-            </button>
+                <svg
+                  className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                  Back
+                </span>
+              </button>
           )}
 
           {data?.poSentForApproval && (
@@ -176,14 +178,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
         >
           <div>
             <div className="flex flex-wrap gap-1 border  rounded item-center p-1" style={{ backgroundColor: "white" }}>
-              {/* <div className="flex flex-col ">
-              <label className="text-xs font-semibold ">Po Number</label>
-              <input
-                type="text"
-                className="border-2  rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 border-blue-400 font-bold text-black"
-                value={data?.docId}
-              />
-            </div> */}
+            
               <div className="col-span-2 flex flex-col">
                 <label className="text-xs font-semibold ">Manufacture</label>
                 <input
