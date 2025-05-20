@@ -12,6 +12,7 @@ import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 import secureLocalStorage from "react-secure-storage";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import Swal from "sweetalert2";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
@@ -27,7 +28,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
   const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
 
 
-  const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
+  const { data: percentageData, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
   let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
   let data = singleData?.data
@@ -105,35 +106,65 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
 
 
-  const handleQtyChange = (field, index, value, orderQty) => {
-
-    let percentageValue = percentage?.data?.find(i => i.active)?.qty
-
-
+  // Called onChange: updates value in state
+  const handleQtyChange = (field, index, value) => {
     setPoItems((prev) => {
       let newItems = structuredClone(prev);
+      newItems[index][field] = value;
+      return newItems;
+    });
+  };
 
-      if (field === 'excessQty') {
+  const handleExcessQtyBlur = (index, value, orderQty, inputRef) => {
+    const allowedPercentage = parseInt(percentageData?.data?.find(i => i.active)?.qty || 0);
+    const enteredPercentage = parseInt(value);
 
-        if (parseInt(value) > parseInt(percentageValue)) {
-          toast.error("Excess % is Too High", {
-            autoClose: 1000
-          });
-          return newItems
-        }
+    setPoItems((prev) => {
+      const newItems = structuredClone(prev);
 
-        newItems[index]['excessQty'] = value;
-        const percentage = Math.round((orderQty * value) / 100);
-        const updatedQty = Math.round(orderQty + percentage);
+      if (enteredPercentage > allowedPercentage) {
+        Swal.fire({
+          icon: "info",
+          title: `Excess Qty must be up to ${allowedPercentage}`,
+          html: `
+          <div class="payment-box">
+            <div class="payment-icon">
+              <i class="fas fa-paper-plane"></i>
+            </div>
+            <div class="payment-text">Resetting to allowed value</div>
+          </div>
+        `,
+          timer: 1500,
+          timerProgressBar: true,
+          customClass: {
+            popup: "payment-swal-popup",
+          },
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        }).then(() => {
+          if (inputRef?.current) {
+            inputRef.current.focus();
+            inputRef.current.select();
+          }
+        });
 
-        newItems[index]['qty'] = updatedQty;
+        // Reset the value to the max allowed percentage
+        newItems[index]['excessQty'] = allowedPercentage;
+        const adjustedQty = Math.round(orderQty + (orderQty * allowedPercentage) / 100);
+        newItems[index]['qty'] = adjustedQty;
       } else {
-        newItems[index][field] = value;
+        // If within limit, update as usual
+        newItems[index]['excessQty'] = enteredPercentage;
+        const adjustedQty = Math.round(orderQty + (orderQty * enteredPercentage) / 100);
+        newItems[index]['qty'] = adjustedQty;
       }
 
       return newItems;
     });
   };
+
+
 
   useEffect(() => {
     if (!id) return;
@@ -412,6 +443,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                       value={item?.excessQty}
                       onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
                       className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                      onBlur={(e) =>
+                        handleExcessQtyBlur(index, e.target.value, poItems[index].orderQty,)
+                      }
                       disabled={data?.isSave || item?.orderQty == ""}
                     />
                   </td>
