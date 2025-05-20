@@ -31,26 +31,26 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
 
   const [isSave, setIsSave] = useState(true)
-  const [mailConvert,setMailConvert] = useState(false)
+  const [mailConvert, setMailConvert] = useState(false)
 
   const { branchId, finYearId, userId } = getCommonParams()
   const [docDate, setDocDate] = useState(getDateFromDateTime(today));
-  
+
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
   const userRole = singleuserData?.data?.userType || ""
-  
-  
-  
-  
-  
 
-  const { data: allData, refetch , isLoading , isFetching } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
-  
-  const { data: singleData, isFetching:isSingleFetching, isLoading:isSingleLoading, } = useGetOrderByIdQuery(id , { skip: !id });
+
+
+
+
+
+  const { data: allData, refetch, isLoading, isFetching } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
+
+  const { data: singleData, isFetching: isSingleFetching, isLoading: isSingleLoading, } = useGetOrderByIdQuery(id, { skip: !id });
   const [addData] = useAddOrderMutation();
   const [updateData] = useUpdateOrderMutation();
 
@@ -90,7 +90,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   }
 
   const dispatch = useDispatch()
-  const handleSubmitCustom = async (callback, data, text , isManufacture=false) => {
+  const handleSubmitCustom = async (callback, data, text, isManufacture = false) => {
 
     try {
       const formData = new FormData();
@@ -121,16 +121,16 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       }
       if (returnData.statusCode === 0) {
 
-      if(isManufacture){
-        toast.success(text + "Successfully", {
-                autoClose: 1000
-              });
-      }
-      dispatch({
-        type: `Order/invalidateTags`,
-        payload: ['Order'],
-      });
-      
+        if (isManufacture) {
+          toast.success(text + "Successfully", {
+            autoClose: 1000
+          });
+        }
+        dispatch({
+          type: `Order/invalidateTags`,
+          payload: ['Order'],
+        });
+
       } else {
         toast.error(returnData?.message, {
           autoClose: 1000
@@ -176,7 +176,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
     if (id) {
 
-      handleSubmitCustom(updateData, data, "Updated",isManufacture)
+      handleSubmitCustom(updateData, data, "Updated", isManufacture)
 
     } else {
 
@@ -188,28 +188,28 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
 
- if (isFetching || isLoading) return <Loader />
+  if (isFetching || isLoading) return <Loader />
 
 
 
   return (
 
- 
+
     <React.Fragment >
       {
         form === true && userRole === "MANUFACTURE" ?
 
           <Manufactureform
-
+            userRole={userRole}
             setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
 
             vendor={vendor} setVendor={setVendor} saveData={saveData}
 
             orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
 
-            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}  mailConvert={mailConvert}
+            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId} mailConvert={mailConvert}
 
-            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
+            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate} isApproved={isApproved} setIsApproved={setIsApproved}
 
           />
 
@@ -248,7 +248,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
                 id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active} userRole={userRole}
-
+                setId={setId}
               />
 
               :
@@ -271,7 +271,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
                           setForm={setForm}
                           setId={setId}
                           setPoNo={setPoNo}
-                          // partyData={partyData}
+                        // partyData={partyData}
                         />
                       </>
                       :
@@ -284,7 +284,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
                             setForm={setForm}
                             setId={setId}
                             setPoNo={setPoNo}
-                            // partyData={partyData}
+                          // partyData={partyData}
 
                           />
                         </>

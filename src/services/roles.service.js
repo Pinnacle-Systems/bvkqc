@@ -9,7 +9,7 @@ async function get(req) {
         where: {
             companyId: companyId ? parseInt(companyId) : undefined,
             active: active ? Boolean(active) : undefined,
-            defaultRole: defaultRole ?  JSON.parse(defaultRole) : undefined
+            defaultRole: defaultRole ? JSON.parse(defaultRole) : undefined
         }
     });
     return { statusCode: 0, data };
@@ -30,7 +30,7 @@ async function getOne(id) {
         }
     })
     if (!data) return NoRecordFound("role");
-    return { statusCode: 0, data: {...data, ...{childRecord}} };
+    return { statusCode: 0, data: { ...data, ...{ childRecord } } };
 }
 
 async function getSearch(req) {
@@ -40,7 +40,7 @@ async function getSearch(req) {
         where: {
             companyId: companyId ? parseInt(companyId) : undefined,
             active: active ? Boolean(active) : undefined,
-            defaultRole: defaultRole ?  JSON.parse(defaultRole) : undefined,
+            defaultRole: defaultRole ? JSON.parse(defaultRole) : undefined,
             OR: [
                 {
                     name: {
@@ -55,7 +55,7 @@ async function getSearch(req) {
 
 async function create(body) {
     const { name, companyId, pages, active } = await body
-   
+
     const data = await prisma.role.create({
         data: {
             name,
@@ -72,14 +72,25 @@ async function create(body) {
 }
 
 async function update(id, body) {
-    const { name, companyId, pages, active } = await body
+    const { name, companyId, pages, active, selectedApprover, controlPanel } = await body
     const dataFound = await prisma.role.findUnique({
         where: {
             id: parseInt(id)
         }
     })
+    let data;
+    if (controlPanel) {
+        data = await prisma.role.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {
+                seletedApprover: selectedApprover ?? undefined
+            },
+        })
+    }
     if (!dataFound) return NoRecordFound("role");
-    const data = await prisma.role.update({
+    data = await prisma.role.update({
         where: {
             id: parseInt(id),
         },

@@ -69,7 +69,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             <th className="py-1 px-1 border-r-2">PO Status</th>
           </tr>
         </thead>
-        <tbody className="text-gray-700 text-xs">
+            <tbody className="text-gray-700 text-xs">
           {(allData?.data || []).map((item, index) => {
             console.log(typeof (item?.isSave, "AlldatIsSave"))
             const completedStages = stageDefinitions
@@ -88,7 +88,9 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             return (
               <tr
                 key={item?.id}
-                className="border-b transition-all duration-300 hover:shadow-lg hover:bg-gray-200 cursor-pointer table-row"
+                   className={`border-b transition-all duration-300 hover:shadow-lg transform table-row px-2 ${
+                    index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
+                  }`}
                 onClick={() => {
                   setForm(true);
                   setId(item?.id);

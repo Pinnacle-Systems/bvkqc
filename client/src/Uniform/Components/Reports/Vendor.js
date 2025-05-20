@@ -193,14 +193,14 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           setSearchValue={setSearchValue}
         />
       </Modal>
-      <div className="flex items-center justify-between p-2 md:flex-row bg-gray-300">
+      <div className="flex items-center p-2 md:flex-row bg-gray-300 justify-between">
         <div className="text-md font-semibold">
           <span className="">{model} : </span>&nbsp;
           <span className="text-[#303AB2]">{orderData?.docId}</span>
         </div>
 
 
-        {active === "order" && form === true && (
+        <div className="flex gap-2"> {active === "order" && form === true && (
           <div className="flex items-center space-x-1">
 
             <button
@@ -228,8 +228,32 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               </span>
             </button>
 
+
           </div>
         )}
+          <button
+            onClick={() => {
+              saveData();
+              exportAndUploadExcel(orderData, poItems);
+
+            }}
+            className="group flex items-center bg-white text-[#303AB2] border border-[#303AB2] hover:bg-[#303AB2] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#303AB2] focus:ring-offset-1"
+          >
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 4v16h16V4H4zm4 8l4 4 4-4"
+              />
+            </svg>
+            <span className="ml-1.5 text-xs font-medium">SEND MAIL</span>
+          </button></div>
       </div>
       <div className="flex flex-col w-full bg-white  h-full overflow-auto p-1">
 
@@ -301,109 +325,81 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
         <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
-          <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
-            <thead className="bg-gray-200 text-gray-700 ">
-              <tr className="p-1">
-                <th className="w-[50px] p-1">S No</th>
-                <th className="w-[120px] p-1">Department</th>
-                <th className="w-[150px]">Class-SubClass</th>
-                <th className="w-[120px]">ItemCode</th>
-                <th className="w-[120px]">BarCode</th>
-                <th className="w-[120px]">SeasonSupplierCode</th>
-                <th className="w-[120px]">StyleCodeGroup</th>
-                <th className="w-[150px]">SizeDesc</th>
-                <th className="w-[50px]">Size</th>
-                <th className="w-[90px]">Color</th>
-                <th className="w-[50px]">MRP</th>
-                <th className="w-[50px]">Po Qty</th>
-                {
-                  orderData?.isSave && (
-
-
-                    <>
-                      <th className="w-[50px]">Excess %</th>
-                      <th className="w-[50px]">Order Qty</th>
-                    </>
-                  )
-                }
-
-
+          <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+            <thead className="bg-white text-gray-800 border-b border-gray-300">
+              <tr>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">Department</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">Class-SubClass</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">ItemCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">BarCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">SeasonSupplierCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">StyleCodeGroup</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">SizeDesc</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Size</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
+                {orderData?.isSave && (
+                  <>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
+                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
+                  </>
+                )}
               </tr>
             </thead>
 
-            <tbody className="">
+            <tbody>
               {(poItems || []).map((item, index) => (
-                <tr key={index} className=" table-row ">
-                  <td className="border border-gray-300 text-center p-1">{index + 1}</td>
-                  <td className="border border-gray-300 text-left ">{item?.department}</td>
-                  <td className="border border-gray-300 text-left ">{item?.class}</td>
-
-                  <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.barCode}</td>
-
-                  <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
-
-                  <td className="border border-gray-300 text-center ">{item?.size}</td>
-                  <td className="border border-gray-300 text-center ">{item?.color}</td>
-
-                  <td className="border border-gray-300 text-right ">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right ">{Math.round(item?.orderQty) || ""}</td>
-
-                  {
-
-                    orderData?.isSave && (
-                      <>
-                        <td className="border border-gray-300 text-right ">{item?.excessQty || ""}</td>
-                        <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
-                      </>
-                    )
-
-                  }
-
-
-
+                <tr
+                  key={index}
+                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                    } hover:bg-gray-200`}
+                >
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">
+                    {Math.round(item?.orderQty) || ""}
+                  </td>
+                  {orderData?.isSave && (
+                    <>
+                      <td className="border border-gray-300 text-right p-1 text-[11px]">
+                        {item?.excessQty || ""}
+                      </td>
+                      <td className="border border-gray-300 text-right p-1 text-[11px]">
+                        {Math.round(item?.qty) || ""}
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
-              <tr className="border-2  border-gray-400 bg-gray-200 p-1">
-                <td className="border-b border-gray-300 text-center w-2"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32 text-xl text-gray-800  font-extrabold">
-                  Total
-                </td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-16"></td>
-                <td className="border-b border-gray-300 text-center w-2"></td>
-                <td className="border-b border-gray-300 text-right w-32"></td>
-                <td className="border-b border-gray-300 text-right w-32"></td>
 
-                <td className="border-b border-gray-300 text-right w-32"></td>
-                <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
+              {/* Total Row */}
+              <tr className="bg-white font-bold text-gray-800">
+                <td colSpan={10} className="border border-gray-300 p-2 text-left">Total</td>
+                <td className="border border-gray-300 p-2 text-right"></td>
+                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
                   {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
-
                 {orderData?.isSave && (
-
                   <>
-                    <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
-                    </td>
-                    <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
+                    <td className="border border-gray-300 p-2 text-right"></td>
+                    <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
                       {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-
                     </td>
                   </>
                 )}
-
-
-
               </tr>
-
             </tbody>
-
-
           </table>
         </div>
 
@@ -416,7 +412,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
         <div className="flex justify-end gap-3 ">
 
-
+          {/* 
           <button
             onClick={() => {
               saveData();
@@ -435,9 +431,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
             </svg>
             <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-             SEND MAIL
+              SEND MAIL
             </span>
-          </button>
+          </button> */}
         </div>
 
       </div>

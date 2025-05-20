@@ -74,7 +74,9 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                
                   {/* {item?.isSave && ( */}
 
-                    <tr className="border-b transition-all duration-300 hover:shadow-lg  hover:bg-gray-300 transform  table-row "
+                    <tr      className={`border-b transition-all duration-300 hover:shadow-lg transform table-row px-2 ${
+                    index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
+                  }`}
                       onClick={() => {
                         setForm(true)
                         setId(item?.id)

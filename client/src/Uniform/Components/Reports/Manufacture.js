@@ -1,4 +1,4 @@
-import { DateInput, DateInputNew, DropdownWithSearch } from "../../../Inputs"
+import { DateInput, DateInputNew, DropdownWithSearch, Modal } from "../../../Inputs"
 import { useEffect, useState } from "react";
 
 import { saveAs } from 'file-saver';
@@ -10,13 +10,15 @@ import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
+import secureLocalStorage from "react-secure-storage";
+import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active , mailConvert
+  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active, isApproved, setIsApproved, mailConvert, userRole
 }) {
 
-
+  const [formReport, setFormReport] = useState(false);
 
   const [upload] = useUploadMutation();
 
@@ -133,61 +135,144 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     });
   };
 
-
   useEffect(() => {
-    if (poItems?.length >= 14) return
+    if (!id) return;
+    setAttachments(singleData?.data?.attachments);
+    setCurrentId(singleData?.data?.id);
+  }, [id, singleData]);
+  useEffect(() => {
+    if (poItems?.length >= 10) return
     setPoItems(prev => {
-      let newArray = Array.from({ length: 14 - prev.length }, () => {
+      let newArray = Array.from({ length: 10 - prev.length }, () => {
         return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
       })
       return [...prev, ...newArray]
     }
     )
   }, [setPoItems, poItems])
-
+  const params = {
+    companyId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userCompanyId"
+    ),
+    branchId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "currentBranchId"
+    ),
+    userId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userId"
+    ),
+    finYearId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + 'currentFinYear')
+    , approverData: true
+  };
+  const [attachments, setAttachments] = useState([]);
+  const { data: allData } = useGetPercentageQuery({ params });
+  console.log(allData?.data[0]?.selectedApprover, 'allData?.data[0]?.selectedApprover');
   return (
     <>
-      <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: '#F1F1F0' }}>
+      <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: 'white' }}>
+        <Modal
+          isOpen={formReport}
+          onClose={() => setFormReport(false)}
+          widthClass={"px-2 h-[90%] w-[70%]"}
+        >
+          <ArtDesignReport
+            tableWidth="100%"
+            userRole={userRole}
+            setAttachments={setAttachments}
+            attachments={attachments}
+
+          />
+        </Modal>
         <div className="text-md font-semibold">
           <span className="">{model} : </span>&nbsp;
           <span className="text-[#303AB2]">{data?.docId}</span>
         </div>
 
 
-        {active === "order" && form === true && (
-          <div className="flex items-center space-x-1">
+
+        <div className=" flex  justify-end gap-3">
+          {active === "order" && form === true && (
+            <div className="flex items-center space-x-1">
+
+              <button
+                onClick={() => {
+                  setForm(false);
+                  setActive("order");
+                }}
+                className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+              >
+                <svg
+                  className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                  Back
+                </span>
+              </button>
+
+            </div>
+
+          )}
+          {!data?.isSave && (
 
             <button
               onClick={() => {
-                setForm(false);
-                setActive("order");
+                saveData(!isMailForm, isManufacture);
               }}
-              className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+              className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
               <svg
-                className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                Back
+                Save
               </span>
             </button>
+          )}
+          {(allData?.data[0]?.selectedApprover === "MANUFACTURE" || !data?.isSave) && (<button
+            onClick={() => {
+              saveData(isMailForm, isManufacture);
 
-          </div>
-        )}
+              exportAndUploadExcel(data, poItems);
+            }}
+            className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+          >
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
+            </svg>
+            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+              Save & Send
+            </span>
+          </button>)}
+
+
+
+
+        </div>
       </div>
 
 
-      <div className="flex flex-col w-full bg-white p-1 h-full overflow-auto">
+      <div className="flex flex-col w-full bg-[#F1F1F0] p-1 h-screen  overflow-auto">
 
 
         <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
@@ -236,163 +321,122 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
             <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"} />
           </div>
+          {allData?.data[0]?.selectedApprover === "MANUFACTURE" ? <>
+            {singleData?.data?.poSentForApproval && (
+              <div className=" w-18 h-2 flex flex-col px-2">
+                <label className="text-xs font-semibold  pb-1">
+                  Approval status
+                </label>
+                <select
+                  className={`h-6 border rounded text-xs 
+             ${isApproved === "Approve"
+                      ? "border-green-500 text-white-600  text-green-500"
+                      : ""
+                    }
+              ${isApproved === "Reject" ? "border-red-500 text-red-600" : ""}
+              ${isApproved === "hold" ? "border-yellow-500 text-yellow-600" : ""
+                    }
+              ${isApproved === "" ? "border-gray-300 text-gray-500" : ""}
+                          `}
+                  value={isApproved}
+                  onChange={(e) => setIsApproved(e.target.value)}
+                  disabled={!data?.deliverydate || !data?.vendorId}
+                >
+                  <option value="">Select status</option>
+                  <option value="Approve">Approve</option>
+                  <option value="Reject">Reject</option>
+                  <option value="Hold">Hold</option>
+                </select>
+              </div>
+            )}
 
+            {singleData?.data?.poSentForApproval && (
+              <div className="flex pt-3">
+                <button
+                  className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
+      rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
+      duration-300 ease-in-out focus:outline-none focus:ring-2 
+      focus:ring-blue-400 focus:ring-offset-2"
+                  onClick={() => setFormReport(true)}
+                >
+                  <span className="text-[13px]">View Art Design</span>
+                </button>
+              </div>
+            )}
+          </> : ''}
         </div >
 
         <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
-          <table className="table-fixed w-full text-xs rounded-lg border border-gray-200 h-[90%]">
-            <thead className="bg-gray-200 text-gray-700 ">
-              <tr className="p-1">
-                <th className="w-[50px] p-1">S No</th>
-                <th className="w-[120px] p-1">Department</th>
-                <th className="w-[150px]">Class-SubClass</th>
-                <th className="w-[120px]">ItemCode</th>
-                <th className="w-[120px]">BarCode</th>
-                <th className="w-[120px]">SeasonSupplierCode</th>
-                <th className="w-[120px]">StyleCodeGroup</th>
-                <th className="w-[150px]">SizeDesc</th>
-                <th className="w-[50px]">Size</th>
-                <th className="w-[90px]">Color</th>
-                <th className="w-[50px]">MRP</th>
-                <th className="w-[50px]">Po Qty</th>
-                <th className="w-[50px]">Excess %</th>
-                <th className="w-[50px]">Order Qty</th>
+          <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+            <thead className="bg-white text-gray-800 border-b border-gray-300">
+              <tr>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">Department</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">Class-SubClass</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">ItemCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">BarCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">SeasonSupplierCode</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">StyleCodeGroup</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">SizeDesc</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Size</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
+                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
               </tr>
             </thead>
 
-            <tbody className="">
+            <tbody>
               {(poItems || []).map((item, index) => (
-                <tr key={index} className=" table-row ">
-                  <td className="border border-gray-300 text-center p-1">{index + 1}</td>
-                  <td className="border border-gray-300 text-left ">{item?.department}</td>
-                  <td className="border border-gray-300 text-left ">{item?.class}</td>
-
-                  <td className="border border-gray-300 text-left " >{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.barCode}</td>
-
-                  <td className="border border-gray-300 text-left ">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left ">{item?.sizeDesc}</td>
-
-                  <td className="border border-gray-300 text-center ">{item?.size}</td>
-                  <td className="border border-gray-300 text-center ">{item?.color}</td>
-
-                  <td className="border border-gray-300 text-right ">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right ">{item?.orderQty || ""}</td>
-                  <td className="border border-gray-300 w-16">
+                <tr
+                  key={index}
+                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                    } hover:bg-gray-200`}
+                >
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
+                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
+                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.orderQty || ""}</td>
+                  <td className="border border-gray-300 p-1">
                     <input
                       type="number"
                       value={item?.excessQty}
                       onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-                      className="w-full p-1   rounded-md text-right focus:ring-blue-400"
+                      className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
                       disabled={data?.isSave || item?.orderQty == ""}
-
                     />
-
                   </td>
-
-                  <td className="border border-gray-300 text-right w-32 " key={index}>{Math.round(item?.qty) || ""} </td>
-
+                  <td className="border border-gray-300 text-right p-1 text-[11px]">
+                    {Math.round(item?.qty) || ""}
+                  </td>
                 </tr>
               ))}
-              <tr className="border-2  border-gray-400 bg-gray-200 p-1">
-                <td className="border-b border-gray-300 text-center w-2"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-32 text-xl text-gray-800  font-extrabold">
-                  Total
-                </td>
-                <td className="border-b border-gray-300 text-left w-32"></td>
-                <td className="border-b border-gray-300 text-left w-16"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
-                <td className="border-b border-gray-300 text-left w-52"></td>
 
-
-
-
-                <td className="border-b border-gray-300 text-right w-32"></td>
-                <td className="border-x border-gray-500 text-right w-32 text-lg  text-gray-800 font-bold ">
+              {/* Total Row */}
+              <tr className="bg-white font-bold text-gray-800">
+                <td colSpan={10} className="border border-gray-300 p-2 text-left">Total</td>
+                <td className="border border-gray-300 p-2 text-right"></td>
+                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
                   {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                 </td>
-
-
-                <td className="border-b border-gray-300 text-right w-32 text-lg text-gray-800  font-bold">
-                </td>
-                <td className="border-x border-gray-500 text-right w-32 text-lg text-gray-800 font-bold  ">
+                <td className="border border-gray-300 p-2 text-right"></td>
+                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
                   {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-
                 </td>
-
-
               </tr>
-
             </tbody>
-
-
           </table>
         </div>
 
-
-
-
-
-
-
-
-        <div className=" flex  justify-end gap-3">
-
-
-          {!data?.isSave && (
-            <>
-
-              <button
-                onClick={() => {
-                  saveData(!isMailForm, isManufacture);
-                }}
-                className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-              >
-                <svg
-                  className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                  Save
-                </span>
-              </button>
-
-
-              <button
-                onClick={() => {
-                  saveData(isMailForm, isManufacture);
-                    
-                  exportAndUploadExcel(data, poItems);
-                }}
-                className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-              >
-                <svg
-                  className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
-                </svg>
-                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                  Save & Send
-                </span>
-              </button>
-
-            </>
-          )}
-        </div>
       </div>
 
 
