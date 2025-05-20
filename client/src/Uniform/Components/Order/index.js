@@ -178,7 +178,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     }
 
 
-    if (isManufacture) {
+    if (isMailForm) {
       setForm(false);
       setActive("Mail");
     }
