@@ -36,9 +36,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
   return (
     <>
-    <StatusSidebar />
-      <div className=" bg-[#F1F1F0]  shadow rounded-lg  ">
-        <table className="table-fixed w-full text-[11px] rounded-lg border border-gray-300">
+      <StatusSidebar />
+      <div className=" bg-[#F1F1F0]  shadow rounded-lg h-[76vh] ">
+        <table className="table-fixed w-full text-[11px] rounded-lg border border-gray-300 ">
           <thead className="bg-white text-gray-800 border-b border-gray-300">
             <tr>
               <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[50px]">
@@ -115,7 +115,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                   </td>
 
                   <td className="p-1 border text-center">
-                    { item?.Vendor?.name }
+                    {item?.Vendor?.name}
                   </td>
                   <td className="p-1 text-center border">
                     {item?.isSave && item?.updatedAt
@@ -123,8 +123,8 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                       : ""}
                   </td>
                   <td className="p-1 text-center border">
-                    { item?.deliverydate ? getDateFromDateTime(item?.deliverydate)
-                       :  ""}
+                    {item?.deliverydate ? getDateFromDateTime(item?.deliverydate)
+                      : ""}
                   </td>
                   <td className="p-1 border">
                     <div className="flex items-center space-x-0">
@@ -176,9 +176,8 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                                 }`
                                 : stage.title
                             }
-                            className={`relative flex items-center justify-center text-[11px] font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${
-                              i !== 0 ? "mr-[-10px]" : ""
-                            }`}
+                            className={`relative flex items-center justify-center text-[11px] font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${i !== 0 ? "mr-[-10px]" : ""
+                              }`}
                             style={{
                               clipPath:
                                 "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",

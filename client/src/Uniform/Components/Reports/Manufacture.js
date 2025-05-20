@@ -236,7 +236,7 @@ export default function Manufactureform({
   );
   return (
     <>
-      <div className="flex items-center justify-between p-2 md:flex-row ml-1 " style={{ backgroundColor: 'white' }}>
+      <div className="flex items-center justify-between  md:flex-row ml-1 " style={{ backgroundColor: 'white' }}>
         <Modal
           isOpen={formReport}
           onClose={() => setFormReport(false)}
@@ -356,11 +356,11 @@ export default function Manufactureform({
               </button>
             )}
         </div>
-              </div>
-        <div
-          className="flex flex-wrap  border  rounded item-center p-1"
-          style={{ backgroundColor: "#F1F1F0" }}
-        >
+      </div>
+      <div
+        className="flex flex-wrap  border  rounded item-center p-1"
+        style={{ backgroundColor: "#F1F1F0" }}
+      >
         <div className="flex flex-wrap gap-1 border  rounded item-center p-1 w-full" style={{ backgroundColor: "white" }}>
 
           <div className="flex flex-col mr-1">
@@ -484,7 +484,7 @@ export default function Manufactureform({
             : ""}
         </div>
 
-        <div className="w-full my-2  h-[70vh] overflow-y-auto overflow-x-auto ">
+        <div className="w-full h-[74vh] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
             <thead className="bg-white text-gray-800 border-b border-gray-300">
               <tr>
