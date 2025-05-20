@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { findFromList, getDateFromDateTime } from "../../../Utils/helper";
 import { Modal } from "../../../Inputs";
+import StatusSidebar from "../StatusSideBar";
 
 export default function Buyer({ allData, setForm, setId, setPoNo }) {
   const stageDefinitions = [
@@ -35,16 +36,16 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
 
   return (
     <>
+    <StatusSidebar />
       <div className=" bg-[#F1F1F0] h-screen shadow rounded-lg  ">
-        <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+        <table className="table-fixed w-full text-[12px] rounded-lg border border-gray-300">
           <thead className="bg-white text-gray-800 border-b border-gray-300">
             <tr>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[30px]">
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
                 S No
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300">
-                Po Number{" "}
-              </th>
+              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[160px]">
+                Po Number              </th>
               <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
                 Po Date
               </th>
@@ -69,7 +70,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
             </tr>
           </thead>
 
-          <tbody className="text-gray-700 text-xs">
+          <tbody className="text-gray-700">
             {(allData ? allData?.data : [])?.map((item, index) => {
               const rawStatus = item?.isApproved || "In Progress";
 
@@ -93,40 +94,40 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                     handleClick(item);
                   }}
                 >
-                  <td className="border p-1 text-center text-[11px]">
+                  <td className="border p-1 text-center text-[12px]">
                     {parseInt(index) + 1}
                   </td>
-                  <td className="border p-1 text-center text-[11px]">
+                  <td className="border p-1 text-center text-[12px]">
                     {item?.docId}
                   </td>
-                  <td className="border p-1 text-center text-[11px]">
+                  <td className="border p-1 text-center text-[12px]">
                     {item?.orderdate
                       ? getDateFromDateTime(item?.orderdate)
                       : ""}
                   </td>
-                  <td className="border p-1 text-center text-[11px]">
+                  <td className="p-1 border-r-2 text-center text-[12px]">
                     {item?.Manufacture?.name}
                   </td>
-                  <td className="border p-1 text-center text-[11px]">
+                  <td className="border p-1 text-center text-[12px]">
                     {item?.createdAt
                       ? getDateFromDateTime(item?.createdAt)
-                      : ""}{" "}
+                      : ""}
                   </td>
 
-                  <td className="p-1">
-                    {item?.Vendor?.name}
+                  <td className="p-1 border text-center">
+                    {item?.isSave ? item?.Vendor?.name : ""}
                   </td>
-                  <td className="p-1 text-center">
+                  <td className="p-1 text-center border">
                     {item?.isSave && item?.updatedAt
                       ? getDateFromDateTime(item?.updatedAt)
                       : ""}
                   </td>
-                  <td className="p-1 text-center">
-                    {item?.deliverydate
+                  <td className="p-1 text-center border">
+                    {item?.isSave && item?.deliverydate
                       ? getDateFromDateTime(item?.deliverydate)
                       : ""}
                   </td>
-                  <td className="p-1">
+                  <td className="p-1 border">
                     <div className="flex items-center space-x-0">
                       {stageDefinitions.map((stage, i) => {
                         const progressIndex = getProgressIndex(item);
@@ -176,8 +177,9 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                                 }`
                                 : stage.title
                             }
-                            className={`relative flex items-center justify-center text-xs font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${i !== 0 ? "mr-[-10px]" : ""
-                              }`}
+                            className={`relative flex items-center justify-center text-[12px] font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${
+                              i !== 0 ? "mr-[-10px]" : ""
+                            }`}
                             style={{
                               clipPath:
                                 "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",

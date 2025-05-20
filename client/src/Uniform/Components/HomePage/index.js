@@ -31,7 +31,7 @@ export default function Form() {
   const [form, setForm] = useState(false)
   const [mailForm, setMailform] = useState(false)
   const [emailId, setEmailId] = useState("")
-  const [currentId, setCurrentId] = useState("")   // current id is a  Order Id
+  const [currentId, setCurrentId] = useState("")  
   const [partyId, setPartyId] = useState("")
   const [attachments, setattachments] = useState([]);
 

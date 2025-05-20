@@ -54,19 +54,19 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
   };
 
   return (
-    <div className="bg-white shadow rounded-lg">
-      <table className="min-w-full text-left overflow-x-auto">
-        <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
+    <div className="bg-[#F1F1F0] h-screen shadow rounded-lg">
+      <table className="table-fixed w-full text-xs rounded-lg border border-gray-300 mt-6">
+          <thead className="bg-white text-gray-800 border-b border-gray-300">
           <tr>
-            <th className="py-1 px-1 border-r-2">S No</th>
-            <th className="py-1 px-1 border-r-2">PO Number</th>
-            <th className="py-1 px-1 border-r-2">Po Date</th>
-            <th className="py-1 px-1 border-r-2">Manufacture</th>
-            <th className="py-1 px-1 border-r-2">Received Date</th>
-            <th className="py-1 px-1 border-r-2">Vendor</th>
-           <th className="py-1 px-1  border-r-2">Assigned Date</th>
-            <th className="py-1 px-6 border-r-2">Delivery Date</th>
-            <th className="py-1 px-1 border-r-2">PO Status</th>
+           <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+           <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[160px]">Po Number</th>
+            <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Po Date</th>
+           <th className="text-[12px] font-semibold p-1 border border-gray-300">Manufacture</th>
+            <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Received Date</th>
+           <th className="text-[12px] font-semibold p-1 border border-gray-300">Vendor</th>
+           <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Assigned Date</th>
+          <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">Delivery Date</th>
+           <th className="text-[12px] font-semibold p-1 border border-gray-300">PO Status</th>
           </tr>
         </thead>
             <tbody className="text-gray-700 text-xs">
@@ -88,7 +88,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
             return (
               <tr
                 key={item?.id}
-                   className={`border-b transition-all duration-300 hover:shadow-lg transform table-row px-2 ${
+                   className={`border-b transition-all duration-300 text-[12px] hover:shadow-lg transform table-row px-2 ${
                     index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
                   }`}
                 onClick={() => {
@@ -97,16 +97,15 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
                   setPoNo(item?.docId);
                 }}
               >
-                <td className="p-1 font-semibold border-r-2">{index + 1}</td>
-                <td className="p-1 border-r-2">{item?.docId}</td>
-                <td className="p-1 border-r-2">{getDateFromDateTime(item?.orderdate)}</td>
-                <td className="p-1 border-r-2">{item?.Manufacture?.name}</td>
-                <td className="p-1 border-r-2">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
-                <td className="p-1 border-r-2">{ item?.Vendor?.name }</td>
-                <td className="p-1 border-r-2">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                <td className="p-1 border-r-2">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
+                <td className="p-1 font-semibold text-center border-r-2 text-[12px]">{index + 1}</td>
+                <td className="p-1 border-r-2 text-center text-[12px]">{item?.docId}</td>
+                <td className="p-1 border-r-2 text-center text-[12px]">{getDateFromDateTime(item?.orderdate)}</td>
+                <td className="p-1 border-r-2 text-center text-[12px]">{item?.Manufacture?.name}</td>
+                <td className="p-1 border-r-2 text-center text-[12px]">{item?.createdAt ? getDateFromDateTime(item?.createdAt) : ""}</td>
+                <td className="p-1 border-r-2 text-center text-[12px]">{ item?.Vendor?.name }</td>
+                <td className="p-1 border-r-2 text-center text-[12px]">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                <td className="p-1 border-r-2 text-center text-[12px]">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""}</td>
                 
-
                 <td className="p-1">
                   <div className="flex items-center space-x-0">
                     {stageDefinitions.map((stage, i) => {
