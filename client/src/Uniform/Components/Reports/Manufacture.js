@@ -37,7 +37,7 @@ export default function Manufactureform({
   isApproved,
   setIsApproved,
   mailConvert,
-  userRole, ,
+  userRole, 
   PoStatus ,  setPoStatus  , setReason , reason
 }) { 
 
@@ -272,7 +272,7 @@ export default function Manufactureform({
           {!data?.isSave && (
             <button
               onClick={() => {
-                saveData(!isMailForm, isManufacture);
+                saveData(!isMailForm);
               }}
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
@@ -454,9 +454,7 @@ export default function Manufactureform({
                   </div>
                 )}
               </>
-            ) : (
-              ""
-            )}
+            :   ""  }
           </div>
 
           <div className="w-full my-2  h-[90%] overflow-y-auto overflow-x-auto ">
@@ -599,7 +597,7 @@ export default function Manufactureform({
             </table>
           </div>
         </div>
-      </div>
+     
     </>
   );
 }
