@@ -294,7 +294,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
       <div className="flex flex-col w-full bg-[#F1F1F0] p-1 h-screen  overflow-auto">
 
 
-        <div className="flex flex-wrap gap-1 border  rounded item-center p-1"  >
+        <div className="flex flex-wrap m-1 border bg-white rounded item-center p-1"  >
           <div className="flex flex-col ">
             <label className="text-xs font-semibold">Customer</label>
             <input
