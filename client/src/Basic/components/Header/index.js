@@ -158,7 +158,7 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
                     <Bell size={17}  />
                 </div> */}
         <div className="text-sm text-black my-0 px-3">
-          {userName.toUpperCase()}
+          {userName?.toUpperCase()}
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center space-x-2">
