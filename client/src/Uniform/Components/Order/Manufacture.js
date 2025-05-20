@@ -57,7 +57,7 @@ export default function Manufacture({ allData, setForm, setId, setPoNo }) {
   return (
     <>
       <StatusSidebar />
-        <div className="bg-[#F1F1F0] h-screen shadow rounded-lg">
+        <div className="bg-[#F1F1F0] shadow rounded-lg">
       <table className="table-fixed w-full text-xs rounded-lg border border-gray-300 mt-6">
           <thead className="bg-white text-gray-800 border-b border-gray-300">
           <tr>

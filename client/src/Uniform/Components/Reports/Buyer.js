@@ -110,7 +110,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
           setFormReport={setFormReport}
         />
       </Modal>
-      <div className="h-screen flex flex-col bg-[#F1F1F0]">
+      <div className="flex flex-col bg-[#F1F1F0]">
         <div
           className="flex m-2 items-center justify-between p-2 md:px-4"
           style={{ backgroundColor: "white" }}
