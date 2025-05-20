@@ -356,14 +356,12 @@ export default function Manufactureform({
               </button>
             )}
         </div>
-      </div>
-
-
-      <div
-        className="flex flex-wrap  border  rounded item-center p-1"
-        style={{ backgroundColor: "white" }}
-      >
-        <div className="flex flex-wrap gap-1 border  rounded item-center p-1" style={{ backgroundColor: "white" }}>
+              </div>
+        <div
+          className="flex flex-wrap  border  rounded item-center p-1"
+          style={{ backgroundColor: "#F1F1F0" }}
+        >
+        <div className="flex flex-wrap gap-1 border  rounded item-center p-1 w-full" style={{ backgroundColor: "white" }}>
 
           <div className="flex flex-col mr-1">
             <label className="text-xs font-semibold">Customer</label>
