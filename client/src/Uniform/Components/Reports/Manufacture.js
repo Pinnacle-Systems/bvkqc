@@ -238,7 +238,7 @@ export default function Manufactureform({
   );
   return (
     <>
-      <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: 'white' }}>
+      <div className="flex items-center justify-between p-2 md:flex-row ml-1 " style={{ backgroundColor: 'white' }}>
         <Modal
           isOpen={formReport}
           onClose={() => setFormReport(false)}

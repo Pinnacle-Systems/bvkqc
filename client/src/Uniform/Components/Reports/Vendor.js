@@ -39,9 +39,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
   useEffect(() => {
-    if (poItems?.length >= 14) return
+    if (poItems?.length >= 10) return
     setPoItems(prev => {
-      let newArray = Array.from({ length: 14 - prev.length }, () => {
+      let newArray = Array.from({ length: 10 - prev.length }, () => {
         return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
       })
       return [...prev, ...newArray]
@@ -193,10 +193,16 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           setSearchValue={setSearchValue}
         />
       </Modal>
-      <div className="flex items-center p-2 md:flex-row bg-gray-300 justify-between">
-        <div className="text-md font-semibold">
-          <span className="">{model} : </span>&nbsp;
-          <span className="text-[#303AB2]">{orderData?.docId}</span>
+      <div className="h-screen flex flex-col bg-[#F1F1F0]">  
+    <div
+        className="flex m-2 items-center justify-between p-2 md:px-4"
+        style={{ backgroundColor: "white" }}
+      >      
+         <div className="text-sm font-semibold flex items-center gap-2">
+          <span className="text-gray-600">{model}:</span>
+          <span className="text-white bg-[#303AB2] px-2 py-0.5 rounded-md font-bold shadow-md">
+           {orderData?.docId}
+          </span>
         </div>
 
 
@@ -258,8 +264,11 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
       <div className="flex flex-col w-full bg-white  h-full overflow-auto p-1">
 
 
-
-        <div className="flex flex-wrap gap-1 border  rounded item-center p-2"  >
+  <div
+          className="flex flex-col w-full p-1  overflow-auto justify-between item-end bg-white gap-4"
+          style={{ backgroundColor: "#F1F1F0" }}
+        >
+        <div className="flex flex-wrap gap-1 border bg-white  rounded item-center p-2"  >
           <div className="flex flex-col ">
             <label className="text-xs font-semibold">Customer</label>
             <input
@@ -335,18 +344,29 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                       </div> */}
 
 
-          <div className="flex pt-4">
-            <button
-              className="relative  h-6 px-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white
-              rounded shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out overflow-hidden"
-              onClick={() => setFormReport(true)}
-            >
-              <span className="absolute  bg-white opacity-10 "></span>
-              <span className="relative z-10 text-[12px]"> Attach Art Design</span>
-            </button>
-          </div>
+         <div className="flex pt-4">
+  <button
+    onClick={() => setFormReport(true)}
+    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-[12px] font-medium 
+               rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg transition-transform 
+               transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4 text-white"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+    </svg>
+    Attach Art Design
+  </button>
+</div>
+
 
         </div >
+        </div>
 
 
         <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
@@ -461,6 +481,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           </button> */}
         </div>
 
+      </div>
       </div>
     </>
   )
