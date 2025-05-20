@@ -401,18 +401,18 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
                     } hover:bg-gray-200`}
                 >
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">
+                  <td className="border border-gray-300 text-center p-2 text-[11px]">{index + 1}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.department}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.class}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.itemCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.barCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.supplierCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.styleCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.sizeDesc}</td>
+                  <td className="border border-gray-300 text-center p-2 text-[11px]">{item?.size}</td>
+                  <td className="border border-gray-300 text-center p-2 text-[11px]">{item?.color}</td>
+                  <td className="border border-gray-300 text-right p-2 text-[11px]">{item?.mrp}</td>
+                  <td className="border border-gray-300 text-right p-2 text-[11px]">
                     {Math.round(item?.orderQty) || ""}
                   </td>
                   {orderData?.isSave && (
