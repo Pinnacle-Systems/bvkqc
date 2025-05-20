@@ -208,7 +208,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                 }
                 disabled={true}
               />
-            </div>{console.log( data?.deliverydate," data?.deliverydate")}
+            </div>
 
             {singleData?.data?.poSentForApproval && (
               <div className=" w-18 flex flex-col ">
