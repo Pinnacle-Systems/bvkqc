@@ -1,5 +1,6 @@
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { useState } from 'react';
-import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+
 
 const StatusSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,9 +36,8 @@ const StatusSidebar = () => {
         </button>
 
         <div
-          className={`transition-all duration-300 ease-in-out ${
-            isOpen ? 'max-h-88 opacity-100 py-4 px-5' : 'max-h-0 opacity-0 overflow-hidden'
-          }`}
+          className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-88 opacity-100 py-4 px-5' : 'max-h-0 opacity-0 overflow-hidden'
+            }`}
         >
           <div className="space-y-1">
             {statusItems.map((item) => (
@@ -47,9 +47,8 @@ const StatusSidebar = () => {
               >
                 <p className="text-sm font-medium text-gray-700">{item.title}</p>
                 <span
-                  className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                    statusColorMap[item.code] || 'bg-gray-100 text-gray-700'
-                  }`}
+                  className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColorMap[item.code] || 'bg-gray-100 text-gray-700'
+                    }`}
                 >
                   {item.status}
                 </span>
