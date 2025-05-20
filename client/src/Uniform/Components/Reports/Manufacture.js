@@ -1,4 +1,4 @@
-import { DateInput, DateInputNew, DropdownWithSearch, Modal } from "../../../Inputs"
+import { DateInput, DateInputNew, DropdownWithSearch, Modal, TextArea } from "../../../Inputs"
 import { useEffect, useState } from "react";
 
 import { saveAs } from 'file-saver';
@@ -15,8 +15,11 @@ import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
 
 export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active, isApproved, setIsApproved, mailConvert, userRole
-}) {
+  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active, isApproved, setIsApproved, mailConvert, userRole ,
+  PoStatus ,  setPoStatus  , setReason , reason
+}) { 
+
+
 
   const [formReport, setFormReport] = useState(false);
 
@@ -182,6 +185,19 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
 
           />
         </Modal>
+            <Modal
+          isOpen={formReport}
+          onClose={() => setFormReport(false)}
+          widthClass={"px-2 h-[90%] w-[70%]"}
+        >
+          <ArtDesignReport
+            tableWidth="100%"
+            userRole={userRole}
+            setAttachments={setAttachments}
+            attachments={attachments}
+
+          />
+        </Modal>
         <div className="text-md font-semibold">
           <span className="">{model} : </span>&nbsp;
           <span className="text-[#303AB2]">{data?.docId}</span>
@@ -245,10 +261,13 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           )}
           {(allData?.data[0]?.selectedApprover === "MANUFACTURE" || !data?.isSave) && (<button
             onClick={() => {
-              saveData(isMailForm, isManufacture);
+                 saveData(isMailForm, isManufacture);
+                 exportAndUploadExcel(data, poItems);
+                }}
+ 
+                
 
-              exportAndUploadExcel(data, poItems);
-            }}
+            
             className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
           >
             <svg
@@ -297,7 +316,7 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
             />
 
           </div>
-          <div className="flex flex-col ">
+          <div className="flex flex-col w-24">
             <label className="text-xs font-semibold ">Po Date</label>
             <input
               type="text"
@@ -320,6 +339,32 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           <div className=''>
 
             <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"} />
+          </div>
+          <div className="w-18 h-5 flex flex-col px-2">
+                  <label className="text-xs font-semibold  ">
+                  Approval status
+                </label>
+                <select 
+                className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
+                value={PoStatus}
+                  onChange={(e) => setPoStatus(e.target.value)}
+                >
+                  <option value="">Select Status</option>
+                  <option value="Accept">Accept</option>
+                  <option value="Cancel">Cancel</option>
+
+                </select>
+          </div>
+          <div className="w-18  flex flex-col "> 
+            <label className="text-xs font-semibold  ">
+          Reason
+        </label>
+          <textarea 
+               className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
+                value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  cols={18} rows={1}
+          ></textarea>
           </div>
           {allData?.data[0]?.selectedApprover === "MANUFACTURE" ? <>
             {singleData?.data?.poSentForApproval && (

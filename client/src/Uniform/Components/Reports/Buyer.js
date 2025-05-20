@@ -21,7 +21,9 @@ import secureLocalStorage from "react-secure-storage";
 
 
 export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
-  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active, setId }) {
+  setActive, setForm, saveData, id, setCurrentId, isApproved, setIsApproved, form, active, setId  ,  PoStatus , setPoStatus ,
+  setReason , reason
+} ) {
 
 
   const [formReport, setFormReport] = useState(false);
@@ -30,7 +32,6 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
   const [attachments, setAttachments] = useState([]);
 
 
-  console.log(id, 'id26');
 
 
   let data = singleData?.data
@@ -106,6 +107,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
           attachments={attachments}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
+          setFormReport={setFormReport}
         />
       </Modal>
       <div className="h-screen flex flex-col bg-[#F1F1F0]">           <div
@@ -145,7 +147,25 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
               <span className="ml-1.5 text-xs font-medium">Back</span>
             </button>
           )}
-
+  <button
+              onClick={() => {
+                saveData(!isMailForm, isBuyer);
+              }}
+              className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
+            >
+              <svg
+                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-y-0.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                Save
+              </span>
+            </button>
           {data?.poSentForApproval && (
             <button
               onClick={() => saveData(isMailForm, false, isBuyer)}
@@ -226,7 +246,33 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   disabled={true}
                 />
               </div>
-              {allData?.data[0]?.selectedApprover === "BUYER" ? <>
+                 <div className="w-18 h-5 flex flex-col px-2">
+                  <label className="text-xs font-semibold  ">
+                  Approval status
+                </label>
+                <select 
+                className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
+                value={PoStatus}
+                  onChange={(e) => setPoStatus(e.target.value)}
+                >
+                  <option value="">Select Status</option>
+                  <option value="Accept">Accept</option>
+                  <option value="Cancel">Cancel</option>
+
+                </select>
+          </div>
+          <div className="w-18  flex flex-col "> 
+            <label className="text-xs font-semibold  ">
+          Reason
+        </label>
+          <textarea 
+               className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
+                value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  cols={18} rows={1}
+          ></textarea>
+          </div>
+              {allData?.data[0]?.selectedApprover === "ADMIN" ? <>
                 {singleData?.data?.poSentForApproval && (
                   <div className=" w-18 flex flex-col ">
                     <label className="text-xs font-semibold  ">

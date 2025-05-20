@@ -43,7 +43,7 @@ export default function Form() {
 
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
   const userRole = singleuserData?.data?.userType || ""
-  const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !userId });
+  const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !partyId });
   const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(currentId, { skip: !currentId });
 
   useEffect(() => {

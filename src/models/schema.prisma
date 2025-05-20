@@ -109,8 +109,9 @@ model Role {
   RoleOnPage  RoleOnPage[]
   active      Boolean      @default(true)
   defaultRole Boolean      @default(false)
-
+  
   @@unique([companyId, name])
+  order         order[]
 }
 
 model RoleOnPage {
@@ -163,6 +164,7 @@ model User {
   AttachmentsUpdatedBy        Attachments[]        @relation(name: "updatedBy")
   MailTransaction             MailTransaction[]    @relation(name: "createdBy")
   MailTransactionUpdatedBy    MailTransaction[]    @relation(name: "updatedBy")
+  user                        MailTransaction[]      @relation(name: "user")
 }
 
 model Employee {
@@ -544,6 +546,11 @@ model order {
   isMailSent         Boolean?
   poSentForApproval  Boolean?
   docDate            DateTime?
+  poStatus         String?
+  approvalstatusReason      String?
+  tagType             String?
+  userRole           Role?                        @relation(fields: [userRoleId], references: [id], onDelete: Cascade) 
+  userRoleId         Int?                 
   Email              Email[]
   orderBillItems     orderBillItems[]
   attachments        Attachments[]
@@ -704,6 +711,10 @@ model MailTransaction {
   createdById          Int?
   updatedBy            User?                  @relation("updatedBy", fields: [updatedById], references: [id])
   updatedById          Int?
+  previousMailId       Int?     
+  userName             String?     
+  user                 User?                  @relation("user", fields: [userId], references: [id])         
+  userId               Int?                       
   mailTransAttachments MailTransAttachments[]
 }
 

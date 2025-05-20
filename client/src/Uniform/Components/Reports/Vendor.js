@@ -85,7 +85,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
       }
       if (returnData.statusCode === 0) {
 
-        toast.success(text + "Successfully");
+        // toast.success(text + "Successfully");
 
         setActive("Mail")
       } else {
@@ -100,9 +100,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
   const saveData = () => {
 
-    if (!window.confirm("Are you sure save the details ...?")) {
-      return;
-    }
+    // if (!window.confirm("Are you sure save the details ...?")) {
+    //   return;
+    // }
     if (id) {
       handleSubmitCustom(updateData, data, "Updated");
     } else {
@@ -307,7 +307,32 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             />
           </div>
 
-
+                     {/* <div className="w-18 h-5 flex flex-col px-2">
+                              <label className="text-xs font-semibold  ">
+                              Approval status
+                            </label>
+                            <select 
+                            className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
+                            value={isManufactuerPoStatus}
+                              onChange={(e) => setIsManufactuerPoStatus(e.target.value)}
+                            >
+                              <option value="">Select Status</option>
+                              <option value="Approve">Approve</option>
+                              <option value="Cancel">Cancel</option>
+            
+                            </select>
+                      </div>
+                      <div className="w-18  flex flex-col "> 
+                        <label className="text-xs font-semibold  ">
+                      Reason
+                    </label>
+                      <textarea 
+                           className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
+                            value={reason}
+                              onChange={(e) => setReason(e.target.value)}
+                              cols={18} rows={1}
+                      ></textarea>
+                      </div> */}
 
 
           <div className="flex pt-4">

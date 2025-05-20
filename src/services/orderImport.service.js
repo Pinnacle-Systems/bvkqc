@@ -277,6 +277,7 @@ async function findFromList(id, list, property) {
 
 
     if (!list) return ""
+
     let data = list?.find(i => i.mailId == id)?.id
 
 
@@ -297,7 +298,6 @@ function excelDateToJSDate(serial) {
     const [day, month, year] = date.split("-");
     date = new Date(+year, +month - 1, +day + 1); // month is 0-indexed
 
-    console.log(date, "dateeee", typeof (date))
     return date
 
     // return date.toISOString().split('T')[0]; 
@@ -325,7 +325,6 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
             orderImportItems: true,
         }
     })
-
 
     let isSave = false;
     let vendor;
