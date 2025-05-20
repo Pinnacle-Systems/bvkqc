@@ -40,7 +40,9 @@ export default function MailForm({
   setActive,
   setForm,
   isSave,
-  setIsSave, setCurrentId,setEmailId
+  setIsSave,
+  setCurrentId,
+  setEmailId,
 }) {
   const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId"
@@ -75,8 +77,7 @@ export default function MailForm({
     setReceiverName("");
   };
 
-
-  console.log(singleUserPartyData,"singleUserPartyData")
+  console.log(singleUserPartyData, "singleUserPartyData");
   const {
     data: Emaildata,
     isLoading: isEmailLoading,
@@ -96,8 +97,6 @@ export default function MailForm({
 
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode;
 
-
-
   useEffect(() => {
     const singleAttachments = SigleOrderdata?.data?.attachments || [];
     const emailAttachment = Emaildata?.data?.poExcelFileName
@@ -114,11 +113,14 @@ export default function MailForm({
     setSendorName(SigleOrderdata?.data?.Manufacture?.name);
     setSendorId(SigleOrderdata?.data?.Manufacture?.id);
     setReceiverId(SigleOrderdata?.data?.Vendor?.id);
-  }, [SigleOrderdata, Emaildata, isLoading, isFetching, isEmailLoading, isEmailFetching]);
-
-
-  
-
+  }, [
+    SigleOrderdata,
+    Emaildata,
+    isLoading,
+    isFetching,
+    isEmailLoading,
+    isEmailFetching,
+  ]);
 
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId);
@@ -150,11 +152,22 @@ export default function MailForm({
   // };
 
   const data = {
-    mailTransaction: true, orderId: id,
-    fromAddress, sendorName, sendorId, toEmail, receiverName, receiverId, subject, message,
+    mailTransaction: true,
+    orderId: id,
+    fromAddress,
+    sendorName,
+    sendorId,
+    toEmail,
+    receiverName,
+    receiverId,
+    subject,
+    message,
     userRole,
-    cc: ccList.map(item => item).join(','), attachments, fileName, userId,
-  }
+    cc: ccList.map((item) => item).join(","),
+    attachments,
+    fileName,
+    userId,
+  };
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
@@ -173,8 +186,8 @@ export default function MailForm({
       let returnData;
       if (text === "Updated") {
         returnData = await callback({ id, body: formData }).unwrap();
-        setCurrentId('')
-        SyncformwithDb()
+        setCurrentId("");
+        SyncformwithDb();
       } else {
         returnData = await callback(formData).unwrap();
       }
@@ -201,49 +214,46 @@ export default function MailForm({
     </svg>
   );
 
-
-
   const saveData = () => {
     if (id) {
       handleSubmitCustom(updateData, data, "Updated");
     }
   };
 
-
-   
-
   const [loading, setLoading] = useState(false);
-const handleSubmit = async () => {
-  setLoading(true); 
-  try {
-    await handleMailSendWithMultipleAttachments(
-      FromEmailAddress,
-      toEmail,
-      passskey,
-      subject,
-      message,
-      fileName,
-      attachments,
-      ccList,
-      setActive,
-      setForm,
-      setLoading
-    );
-  } catch (error) {
-    console.error("Email sending failed:", error);
-  }
-}
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await handleMailSendWithMultipleAttachments(
+        FromEmailAddress,
+        toEmail,
+        passskey,
+        subject,
+        message,
+        fileName,
+        attachments,
+        ccList,
+        setActive,
+        setForm,
+        setLoading
+      );
+    } catch (error) {
+      console.error("Email sending failed:", error);
+    }
+  };
 
- if (isFetching || isLoading) return <Loader />
+  if (isFetching || isLoading) return <Loader />;
 
   return (
     <>
-    {loading && (
-  <div className="fixed inset-0 z-50 bg-white bg-opacity-70 flex items-center justify-center">
-    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-    <span className="ml-3 text-sm font-medium text-gray-700">Sending Mail...</span>
-  </div>
-)}
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-white bg-opacity-70 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+          <span className="ml-3 text-sm font-medium text-gray-700">
+            Sending Mail...
+          </span>
+        </div>
+      )}
       <div className="flex items-end gap-2 p-2 ml-2 justify-end bg-white">
         <button
           onClick={() => {
@@ -269,13 +279,12 @@ const handleSubmit = async () => {
         </button>
         <button
           onClick={() => {
-    
-              handleSubmit()
+            handleSubmit();
 
             if (userRole === "VENDOR") {
               setPoSentForApproval(true);
             }
-          
+
             if (userRole === "MANUFACTURE") {
               setIsSave(true);
             }
@@ -284,8 +293,6 @@ const handleSubmit = async () => {
             setattachments([""]);
             setEmailId("");
           }}
-
-
           className="group flex items-center bg-white text-[#303AB2] mr-5 border border-[#303AB2] hover:bg-[#303AB2] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#303AB2] focus:ring-offset-1"
         >
           <svg
@@ -296,7 +303,7 @@ const handleSubmit = async () => {
             viewBox="0 0 24 24"
           >
             <path
-              strokeLinecap="round" 
+              strokeLinecap="round"
               strokeLinejoin="round"
               d="M4 4v16h16V4H4zm4 8l4 4 4-4"
             />
@@ -322,12 +329,12 @@ const handleSubmit = async () => {
         <div className="col-span-2 h-[533px] flex flex-col gap-2 overflow-hidden">
           <div className="flex-1 bg-white rounded-lg shadow-sm p-3 overflow-y-auto">
             <div className="flex items-center space-x-1.5 pb-2 border-b border-gray-200 mb-3">
-              <div className="p-1 bg-blue-50 rounded-full">
+              <div className="flex items-center gap-2 p-1 bg-blue-50 rounded-full">
                 <MailIcon className="w-4 h-4 text-blue-600" />
+                <span className="text-blue-600">Compose Mail</span>
               </div>
-              <h2 className="text-base font-semibold text-gray-800">
-                
-              </h2>
+
+              <h2 className="text-base font-semibold text-gray-800"></h2>
             </div>
 
             <div className="space-y-3">

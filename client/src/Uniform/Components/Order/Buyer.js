@@ -38,33 +38,33 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
     <>
     <StatusSidebar />
       <div className=" bg-[#F1F1F0] h-screen shadow rounded-lg  ">
-        <table className="table-fixed w-full text-[12px] rounded-lg border border-gray-300">
+        <table className="table-fixed w-full text-[11px] rounded-lg border border-gray-300">
           <thead className="bg-white text-gray-800 border-b border-gray-300">
             <tr>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[50px]">
                 S No
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[160px]">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[160px]">
                 Po Number              </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">
                 Po Date
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300">
                 Manufacture
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">
                 Received Date
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300">
                 Vendor
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">
                 Assigned Date
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[100px]">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">
                 Delivery Date
               </th>
-              <th className="text-[12px] font-semibold p-1 border border-gray-300">
+              <th className="text-[11px] font-semibold p-1 border border-gray-300">
                 Po Status
               </th>
             </tr>
@@ -94,21 +94,21 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                     handleClick(item);
                   }}
                 >
-                  <td className="border p-1 text-center text-[12px]">
+                  <td className="border p-1 text-center text-[11px]">
                     {parseInt(index) + 1}
                   </td>
-                  <td className="border p-1 text-center text-[12px]">
+                  <td className="border p-1 text-center text-[11px]">
                     {item?.docId}
                   </td>
-                  <td className="border p-1 text-center text-[12px]">
+                  <td className="border p-1 text-center text-[11px]">
                     {item?.orderdate
                       ? getDateFromDateTime(item?.orderdate)
                       : ""}
                   </td>
-                  <td className="p-1 border-r-2 text-center text-[12px]">
+                  <td className="p-1 border-r-2 text-center text-[11px]">
                     {item?.Manufacture?.name}
                   </td>
-                  <td className="border p-1 text-center text-[12px]">
+                  <td className="border p-1 text-center text-[11px]">
                     {item?.createdAt
                       ? getDateFromDateTime(item?.createdAt)
                       : ""}
@@ -177,7 +177,7 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                                 }`
                                 : stage.title
                             }
-                            className={`relative flex items-center justify-center text-[12px] font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${
+                            className={`relative flex items-center justify-center text-[11px] font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${
                               i !== 0 ? "mr-[-10px]" : ""
                             }`}
                             style={{

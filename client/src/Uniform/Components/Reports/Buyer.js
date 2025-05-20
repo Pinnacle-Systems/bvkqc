@@ -304,18 +304,18 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                       className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
                         } hover:bg-gray-200`}
                     >
-                      <td className="border p-1 text-center text-[11px]">{index + 1}</td>
-                      <td className="border p-1 text-left text-[11px]">{item?.department}</td>
-                      <td className="border p-1 text-left text-[11px]">{item?.class}</td>
-                      <td className="border p-1 text-left text-[11px]">{item?.itemCode}</td>
-                      <td className="border p-1 text-left text-[11px]">{item?.barCode}</td>
-                      <td className="border p-1 text-left text-[11px]">{item?.supplierCode}</td>
-                      <td className="border p-1 text-left text-[11px]">{item?.styleCode}</td>
-                      <td className="border p-1 text-left text-[11px]">{item?.sizeDesc}</td>
-                      <td className="border p-1 text-center text-[11px]">{item?.size}</td>
-                      <td className="border p-1 text-center text-[11px]">{item?.color}</td>
-                      <td className="border p-1 text-right text-[11px]">{item?.mrp}</td>
-                      <td className="border p-1 text-right text-[11px]">
+                      <td className="border p-2 text-center text-[11px]">{index + 1}</td>
+                      <td className="border p-2 text-left text-[11px]">{item?.department}</td>
+                      <td className="border p-2 text-left text-[11px]">{item?.class}</td>
+                      <td className="border p-2 text-left text-[11px]">{item?.itemCode}</td>
+                      <td className="border p-2 text-left text-[11px]">{item?.barCode}</td>
+                      <td className="border p-2 text-left text-[11px]">{item?.supplierCode}</td>
+                      <td className="border p-2 text-left text-[11px]">{item?.styleCode}</td>
+                      <td className="border p-2 text-left text-[11px]">{item?.sizeDesc}</td>
+                      <td className="border p-2 text-center text-[11px]">{item?.size}</td>
+                      <td className="border p-2 text-center text-[11px]">{item?.color}</td>
+                      <td className="border p-2 text-right text-[11px]">{item?.mrp}</td>
+                      <td className="border p-2 text-right text-[11px]">
                         {Math.round(item?.orderQty) || ""}
                       </td>
 

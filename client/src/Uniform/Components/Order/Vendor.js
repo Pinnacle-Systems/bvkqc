@@ -1,5 +1,5 @@
 import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
-
+import StatusSidebar from "../StatusSideBar";
 export default function Vendor({ allData, setForm, setId, setPoNo, partyData, poSentForApproval }) {
 
   const stageDefinitions = [
@@ -30,20 +30,20 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
   return (
     <>
 
-
+  <StatusSidebar />
 
       <div className=" bg-white shadow rounded-lg">
-        <table className="min-w-full text-left overflow-x-auto" >
-          <thead className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal border border-black-100">
-            <tr >
-              <th className="py-1 px-6 border-r-2">S No</th>
-              <th className="py-1 px-6 border-r-2">PO Number </th>
-              <th className="py-1 px-6 border-r-2">Po date</th>
-              <th className="py-1 px-6 border-r-2 ">Manufacture</th>
-              <th className="py-1 px-6 border-r-2">Vendor</th>
-              <th className="py-1 px-6 border-r-2">Assigned date</th>
-              <th className="py-1 px-6 border-r-2">Delivery date</th>
-              <th className="py-1 px-6 border-r-2">PO Status</th>
+         <table className="table-fixed w-full text-[11px] rounded-lg border border-gray-300">
+          <thead className="bg-white text-gray-800 border-b border-gray-300">
+             <tr >
+            <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+             <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[160px]">PO Number </th>
+               <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">Po date</th>
+            <th className="text-[11px] font-semibold p-1 border border-gray-300">Manufacture</th>
+              <th className="text-[11px] font-semibold p-1 border border-gray-300">Vendor</th>
+              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">Assigned date</th>
+               <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">Delivery date</th>
+              <th className="text-[11px] font-semibold p-1 border border-gray-300">PO Status</th>
 
 
 
@@ -83,14 +83,14 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                         setPoNo(item?.docId)
                       }}
                     >
-                      <td className="p-1 border-r-2 font-semibold ">{parseInt(index) + 1}</td>
-                      <td className="p-1 border-r-2">{item?.docId}</td>
-                      <td className="p-1 border-r-2">{getDateFromDateTime(item?.orderdate)}</td>
-                      <td className="p-1 border-r-2">{item?.Manufacture?.name}</td>
-                      <td className="p-1 border-r-2" >{ item?.Vendor?.name }</td>
-                      <td className="p-1 border-r-2">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                      <td className="p-1 border-r-2">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
-                      <td className="p-1 border-r-2 ">
+                     <td className="border p-1 text-center text-[11px]">{parseInt(index) + 1}</td>
+                      <td className="border p-1 text-center text-[11px]">{item?.docId}</td>
+                      <td className="border p-1 text-center text-[11px]">{getDateFromDateTime(item?.orderdate)}</td>
+                     <td className="border p-1 text-center text-[11px]">{item?.Manufacture?.name}</td>
+                      <td className="border p-1 text-center text-[11px]">{ item?.Vendor?.name }</td>
+                      <td className="border p-1 text-center text-[11px]">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
+                      <td className="border p-1 text-center text-[11px]">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
+                      <td className="border p-1 text-center text-[11px]">
                         <div className="flex items-center space-x-0">
                           {stageDefinitions.map((stage, i) => {
                             const progressIndex = getProgressIndex(item);
