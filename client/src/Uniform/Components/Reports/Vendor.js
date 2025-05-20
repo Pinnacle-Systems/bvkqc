@@ -303,7 +303,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               type="text"
               className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={getDateFromDateTime(data?.deliverydate)}
-
+                 disabled={true}
             />
           </div>
 

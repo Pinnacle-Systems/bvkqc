@@ -152,7 +152,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
           )}
   <button
               onClick={() => {
-                saveData(!isMailForm, isBuyer);
+                saveData();
               }}
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
