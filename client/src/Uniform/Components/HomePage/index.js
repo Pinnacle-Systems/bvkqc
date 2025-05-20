@@ -43,7 +43,7 @@ export default function Form() {
 
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
   const userRole = singleuserData?.data?.userType || ""
-  const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !userId });
+  const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !partyId });
   const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(currentId, { skip: !currentId });
 
   useEffect(() => {
@@ -75,10 +75,10 @@ export default function Form() {
   return (
 
     <>
-      <div className="flex font-sans bg-gary-300 px-0  h-[85%] w-full mt-3 first-line:" >
+      <div className="flex font-sans  px-0  w-full mt-3 first-line:" >
 
 
-        <aside className="flex flex-col items-center py-4 bg-gray-100 backdrop-blur-md w-20 h-full border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
+        <aside className="flex flex-col items-center py-4  bg-[#F1F1F0] backdrop-blur-md w-20 h-full border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
           {menuItems.map(({ name, label, icon, action }) => (
             <button
               key={name}
@@ -123,7 +123,7 @@ export default function Form() {
             </button>
           ))}
         </aside>
-        <main className="flex-1 flex flex-col   shadow-2xl bg-white  pb-2  h-full  w-[70%] ">
+        <main className="flex-1 flex flex-col   shadow-2xl  bg-[#F1F1F0]  pb-2  h-full  w-[70%] ">
 
 
         <div style={{ backgroundColor: '#F1F1F0' }}>

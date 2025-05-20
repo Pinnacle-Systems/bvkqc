@@ -393,10 +393,10 @@ export const DateInputNew = ({ name, value, setValue, readOnly, required = false
 
     const today = new Date().toISOString().split("T")[0];
     return (
-        <div className='   grid-cols-1 md:grid-cols-3 items-center  md:px-1 w-32'>
+        <div className='   grid-cols-1 md:grid-cols-3 items-center  md:px-1 w-24'>
             <label htmlFor="id" className={`md:text-start flex  pb-[3px] text-xs ${inputHead} font-semibold group-hover:text-blue-600`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
             <input tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={disabled} required={required} min={type === "date" ? today : undefined}
-                className={`focus:outline-none md:col-span-2 border border-gray-400 text-xs p-0.5  rounded-md w-32 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
+                className={`focus:outline-none md:col-span-2 border border-gray-400 text-xs p-0.5  rounded-md w-24 ${inputClass}`} id='id' value={value} onChange={(e) => { setValue(e.target.value); }} readOnly={readOnly} />
         </div>
     )
 }

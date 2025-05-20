@@ -32,17 +32,23 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
   const [isSave, setIsSave] = useState(true)
   const [mailConvert, setMailConvert] = useState(false)
-
-  const { branchId, finYearId, userId } = getCommonParams()
   const [docDate, setDocDate] = useState(getDateFromDateTime(today));
+  const { branchId, finYearId, userId } = getCommonParams()
+  const [PoStatus,setPoStatus]  =  useState('')
+  const [reason,setReason] =  useState('')
 
   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
+  
+  const userRoleId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userRoleId"
+
+  )
+  
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
   const userRole = singleuserData?.data?.userType || ""
-
 
 
 
@@ -65,8 +71,9 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       setDeliveryDate(data?.deliverydate ? moment(data?.deliverydate).format('YYYY-MM-DD') : null)
       setDocDate(data?.docDate ? moment(data?.docDate).format('YYYY-MM-DD') : null)
       setIsApproved(data?.isApproved || '');
-      // setPoSentForApproval(data?.poSentForApproval  ||  "")
-    },
+      setPoStatus(data?.poStatus  ||  "");
+      setReason(data?.approvalstatusReason  || "")
+    },  
     [id]
   );
   useEffect(() => {
@@ -85,8 +92,8 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     vendor,
     excessQty,
     excessQtyAmount,
-    isApproved,
-    deliveryDate, docDate
+    isApproved, 
+    deliveryDate, docDate , reason ,  PoStatus  , userRoleId
   }
 
   const dispatch = useDispatch()
@@ -144,15 +151,17 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
 
 
   const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
+   
 
     if (isMailForm) {
-      if (!window.confirm("Are you sure you want to save And Send Mail The details?")) {
+      if (!window.confirm("Are you sure you want to save And Send The Mail Details?")) {
         return;
       }
 
     }
-
+     
     if (isManufacture && userRole === "MANUFACTURE") {
+  
       if (!deliveryDate) {
         toast.info("Choose The Delivery Date", {
           autoClose: 1000
@@ -165,26 +174,27 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
         })
         return;
       }
-      setMailConvert(true)
+ 
     }
 
 
-    if (isMailForm) {
+    if (isManufacture) {
       setForm(false);
       setActive("Mail");
     }
 
     if (id) {
-
       handleSubmitCustom(updateData, data, "Updated", isManufacture)
-
+      
     } else {
 
       handleSubmitCustom(addData, data, "Added")
-
     }
 
   }
+
+
+
 
 
 
@@ -210,6 +220,8 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
             id={id} setEmailId={setEmailId} setCurrentId={setCurrentId} mailConvert={mailConvert}
 
             deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate} isApproved={isApproved} setIsApproved={setIsApproved}
+
+            PoStatus={PoStatus} setPoStatus={setPoStatus}  setReason={setReason}  reason={reason}
 
           />
 
@@ -248,7 +260,9 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
                 orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
 
                 id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active} userRole={userRole}
-                setId={setId}
+                
+                setId={setId}  PoStatus={PoStatus}   setPoStatus={setPoStatus}
+                setReason={setReason}  reason={reason}
               />
 
               :

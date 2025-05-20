@@ -41,8 +41,14 @@ export default function MailForm({
   setCurrentId,
   setEmailId,
 }) {
-  const userId = secureLocalStorage.getItem(
+  const userName = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "username"
+  );
+    const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId"
+  );
+     const partyId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userType"
   );
   const [toEmail, setToEmail] = useState(["manojbharathi00@gmail.com"]);
   const [subject, setSubject] = useState("");
@@ -74,6 +80,7 @@ export default function MailForm({
     setReceiverName("");
   };
 
+
   console.log(singleUserPartyData, "singleUserPartyData");
   const {
     data: Emaildata,
@@ -86,8 +93,9 @@ export default function MailForm({
     isLoading,
     isFetching,
   } = useGetOrderByIdQuery(id, { skip: !id });
-  const { data: partyData } = useGetPartyByIdQuery(userId, { skip: !userId });
-  const FromEmailAddress = partyData?.data?.email;
+  const { data: partyData } = useGetPartyByIdQuery(partyId, { skip: !partyId });
+  // console.log()
+  const FromEmailAddress = partyData?.data?.mailId;
   const passskey = SigleOrderdata?.data?.passKey;
 
   const [updateData] = useUpdateOrderMutation();
@@ -97,10 +105,11 @@ export default function MailForm({
   useEffect(() => {
     const singleAttachments = SigleOrderdata?.data?.attachments || [];
     const emailAttachment = Emaildata?.data?.poExcelFileName
-      ? [{ filePath: Emaildata.data.poExcelFileName }]
+      ? [{ filePath: Emaildata.data.poExcelFileName , fileName : Emaildata.data.poExcelFileName }]
       : [];
 
-    const combined = [...singleAttachments, ...emailAttachment];
+    const combined = [...singleAttachments, ...emailAttachment]
+    console.log(combined,'combined')
 
     setPoNumber(SigleOrderdata?.data?.docId);
     setSubject(SigleOrderdata?.data?.docId);
@@ -118,7 +127,7 @@ export default function MailForm({
     isEmailLoading,
     isEmailFetching,
   ]);
-
+console.log(singleUserPartyData,"singleUserPartyData")
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId);
   }, [singleUserPartyData]);
@@ -136,17 +145,7 @@ export default function MailForm({
     setCcList(updated);
   };
 
-  // const removeCcField = (index) => {
-  //   const updated = ccList.filter((_, i) => i !== index);
-  //   setCcList(updated);
-  // };
-
-  // const handleFileChange = (event) => {
-  //   const selectedFiles = Array.from(event.target.files).map(file => ({
-  //     filePath: file.name,
-  //   })); setattachments((prevFiles) => [...prevFiles, ...selectedFiles]);
-  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-  // };
+ 
 
   const data = {
     mailTransaction: true,
@@ -163,7 +162,7 @@ export default function MailForm({
     cc: ccList.map((item) => item).join(","),
     attachments,
     fileName,
-    userId,
+    userId, userName
   };
 
   const handleSubmitCustom = async (callback, data, text) => {
@@ -463,8 +462,9 @@ export default function MailForm({
                 Attachments
               </h3>
 
-              <div className="flex flex-col gap-2  h-[380px] overflow-y-auto">
-                {attachments?.map((item, index) => {
+              <div className="flex flex-col gap-2  h-[380px] overflow-y-auto">{console.log(attachments,"attachments")}
+              
+                {attachments?.filter?.(file =>  file?.fileName)?.map((item, index) => {
                   const fileName = item.filePath?.split("/").pop();
                   return (
                     <div
