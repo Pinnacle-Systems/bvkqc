@@ -39,9 +39,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
   useEffect(() => {
-    if (poItems?.length >= 14) return
+    if (poItems?.length >= 10) return
     setPoItems(prev => {
-      let newArray = Array.from({ length: 14 - prev.length }, () => {
+      let newArray = Array.from({ length: 10 - prev.length }, () => {
         return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
       })
       return [...prev, ...newArray]
@@ -177,10 +177,11 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
   return (
-    <>
+ 
+  <div className = "bg-[F1F1F0] h-screen"> 
 
       <Modal isOpen={formReport}
-        onClose={() => setFormReport(false)} widthClass={"px-2 h-[90%] w-[70%]"}
+        onClose={() => setFormReport(false)} widthClass={"px-2 h-[100%] w-[70%]"}
       >
         <ArtDesignReport
           userRole={userRole}
@@ -193,10 +194,13 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           setSearchValue={setSearchValue}
         />
       </Modal>
-      <div className="flex items-center p-2 md:flex-row bg-gray-300 justify-between">
-        <div className="text-md font-semibold">
-          <span className="">{model} : </span>&nbsp;
-          <span className="text-[#303AB2]">{orderData?.docId}</span>
+      <div className=" bg-[F1F1F0] h-screen">
+  <div className="flex items-center p-2 md:flex-row justify-between bg-white">
+          <div className="text-sm font-semibold flex items-center ml-2 gap-2">
+          <span className="text-gray-600">{model}:</span>
+          <span className="text-white bg-[#303AB2] px-2 py-0.5 rounded-md font-bold shadow-md">
+           {orderData?.docId}
+          </span>
         </div>
 
 
@@ -255,7 +259,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             <span className="ml-1.5 text-xs font-medium">SEND MAIL</span>
           </button></div>
       </div>
-      <div className="flex flex-col w-full bg-white  h-full overflow-auto p-1">
+      <div className="flex flex-col w-full bg-white overflow-auto p-1">
 
 
 
@@ -349,7 +353,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         </div >
 
 
-        <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
+        <div className="w-full my-2 h-[80%] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
             <thead className="bg-white text-gray-800 border-b border-gray-300">
               <tr>
@@ -381,18 +385,18 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
                     } hover:bg-gray-200`}
                 >
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">
+                  <td className="border border-gray-300 text-center p-2 text-[11px]">{index + 1}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.department}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.class}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.itemCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.barCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.supplierCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.styleCode}</td>
+                  <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.sizeDesc}</td>
+                  <td className="border border-gray-300 text-center p-2 text-[11px]">{item?.size}</td>
+                  <td className="border border-gray-300 text-center p-2 text-[11px]">{item?.color}</td>
+                  <td className="border border-gray-300 text-right p-2 text-[11px]">{item?.mrp}</td>
+                  <td className="border border-gray-300 text-right p-2 text-[11px]">
                     {Math.round(item?.orderQty) || ""}
                   </td>
                   {orderData?.isSave && (
@@ -427,14 +431,6 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             </tbody>
           </table>
         </div>
-
-
-
-
-
-
-
-
         <div className="flex justify-end gap-3 ">
 
           {/* 
@@ -462,7 +458,11 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         </div>
 
       </div>
-    </>
+      </div>
+
+  </div>
+
+
   )
 
 

@@ -57,7 +57,7 @@ const Home = () => {
               setIsGlobalOpen={setIsGlobalOpen}
               setLogout={setLogout}
             />
-            <div className="">
+            <div className=" bg-[#F1F1F0]">
               <ActiveTabList />
 
             </div>

@@ -1,8 +1,13 @@
-import { DateInput, DateInputNew, DropdownWithSearch, Modal, TextArea } from "../../../Inputs"
+import {
+  DateInput,
+  DateInputNew,
+  DropdownWithSearch,
+  Modal,
+} from "../../../Inputs";
 import { useEffect, useState } from "react";
 
-import { saveAs } from 'file-saver';
-import * as XLSX from "xlsx"
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 
 import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
@@ -13,42 +18,65 @@ import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 import secureLocalStorage from "react-secure-storage";
 import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
 
-
-export default function Manufactureform({ singleData, setForm, vendor, setVendor, poItems, setPoItems,
-  setActive, saveData, id, setEmailId, setCurrentId, deliveryDate, setDeliveryDate, form, active, isApproved, setIsApproved, mailConvert, userRole ,
+export default function Manufactureform({
+  singleData,
+  setForm,
+  vendor,
+  setVendor,
+  poItems,
+  setPoItems,
+  setActive,
+  saveData,
+  id,
+  setEmailId,
+  setCurrentId,
+  deliveryDate,
+  setDeliveryDate,
+  form,
+  active,
+  isApproved,
+  setIsApproved,
+  mailConvert,
+  userRole, ,
   PoStatus ,  setPoStatus  , setReason , reason
 }) { 
-
 
 
   const [formReport, setFormReport] = useState(false);
 
   const [upload] = useUploadMutation();
 
-  const { branchId, finYearId, userId } = getCommonParams()
+  const { branchId, finYearId, userId } = getCommonParams();
 
-  const { data: Partydata } = useGetPartyQuery({ params: { branchId, finYearId, userId } });
+  const { data: Partydata } = useGetPartyQuery({
+    params: { branchId, finYearId, userId },
+  });
 
+  const {
+    data: percentage,
+    isPercentageLoading,
+    isPercentageFetching,
+  } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
 
-  const { data: percentage, isPercentageLoading, isPercentageFetching } = useGetPercentageQuery({ params: { branchId, finYearId, userId } });
-
-  let partyOptions = Partydata?.data?.filter(item => item?.partyType === "VENDOR")
-  let data = singleData?.data
-  const isMailForm = true
-  const model = "Po Number"
+  let partyOptions = Partydata?.data?.filter(
+    (item) => item?.partyType === "VENDOR"
+  );
+  let data = singleData?.data;
+  const isMailForm = true;
+  const model = "Po Number";
   const isManufacture = true;
-  console.log(data, "data")
+  console.log(data, "data");
 
   useEffect(() => {
-    if (!id) return
-    setCurrentId(singleData?.data?.id)
+    if (!id) return;
+    setCurrentId(singleData?.data?.id);
   }, [id, singleData]);
-
-
 
   const exportAndUploadExcel = async (data, poItemsData) => {
     // console.log(poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""),"Poitems")
-    const filterdPoItems = poItemsData?.filter(obj => obj?.orderQty != null && obj?.orderQty.toString().trim() !== "")
+    const filterdPoItems = poItemsData?.filter(
+      (obj) => obj?.orderQty != null && obj?.orderQty.toString().trim() !== ""
+    );
     try {
       const combinedData = (filterdPoItems || [])?.map((item, index) => ({
         SrNo: index + 1,
@@ -67,29 +95,27 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         Product: item.product,
         PoQty: item.orderQty,
         excessPercentage: item.excessQty,
-        OrderQty: Math.round(item.qty)
+        OrderQty: Math.round(item.qty),
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(combinedData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const excelBlob = new Blob(
-        [excelBuffer],
-        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-      );
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const excelBlob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
 
       const fileName = `Order_${Date.now()}.xlsx`;
       const formData = new FormData();
-      formData.append('file', excelBlob, fileName);
-      formData.append('id', id);
+      formData.append("file", excelBlob, fileName);
+      formData.append("id", id);
       const response = await upload({ body: formData, id }).unwrap();
-      setEmailId(response?.data?.id)
-
-
-
-
+      setEmailId(response?.data?.id);
     } catch (error) {
       console.error("Error during Export and Upload:", error);
       toast.error("Something went wrong!", {
@@ -101,35 +127,29 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
         draggable: true,
         progress: undefined,
         theme: "light",
-
       });
     }
   };
 
-
-
   const handleQtyChange = (field, index, value, orderQty) => {
-
-    let percentageValue = percentage?.data?.find(i => i.active)?.qty
-
+    let percentageValue = percentage?.data?.find((i) => i.active)?.qty;
 
     setPoItems((prev) => {
       let newItems = structuredClone(prev);
 
-      if (field === 'excessQty') {
-
+      if (field === "excessQty") {
         if (parseInt(value) > parseInt(percentageValue)) {
           toast.error("Excess % is Too High", {
-            autoClose: 1000
+            autoClose: 1000,
           });
-          return newItems
+          return newItems;
         }
 
-        newItems[index]['excessQty'] = value;
+        newItems[index]["excessQty"] = value;
         const percentage = Math.round((orderQty * value) / 100);
         const updatedQty = Math.round(orderQty + percentage);
 
-        newItems[index]['qty'] = updatedQty;
+        newItems[index]["qty"] = updatedQty;
       } else {
         newItems[index][field] = value;
       }
@@ -144,15 +164,27 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     setCurrentId(singleData?.data?.id);
   }, [id, singleData]);
   useEffect(() => {
-    if (poItems?.length >= 10) return
-    setPoItems(prev => {
+    if (poItems?.length >= 10) return;
+    setPoItems((prev) => {
       let newArray = Array.from({ length: 10 - prev.length }, () => {
-        return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
-      })
-      return [...prev, ...newArray]
-    }
-    )
-  }, [setPoItems, poItems])
+        return {
+          department: "",
+          ProcessMasterId: "",
+          itemId: "",
+          stockQty: "0",
+          orderQty: "",
+          price: "0.00",
+          amount: "0.000",
+          pcsQty: "0",
+          sacCode: "0.00",
+          tax: 0,
+          sizeType: "Fixed",
+          particular: "",
+        };
+      });
+      return [...prev, ...newArray];
+    });
+  }, [setPoItems, poItems]);
   const params = {
     companyId: secureLocalStorage.getItem(
       sessionStorage.getItem("sessionId") + "userCompanyId"
@@ -163,12 +195,17 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
     userId: secureLocalStorage.getItem(
       sessionStorage.getItem("sessionId") + "userId"
     ),
-    finYearId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + 'currentFinYear')
-    , approverData: true
+    finYearId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "currentFinYear"
+    ),
+    approverData: true,
   };
   const [attachments, setAttachments] = useState([]);
   const { data: allData } = useGetPercentageQuery({ params });
-  console.log(allData?.data[0]?.selectedApprover, 'allData?.data[0]?.selectedApprover');
+  console.log(
+    allData?.data[0]?.selectedApprover,
+    "allData?.data[0]?.selectedApprover"
+  );
   return (
     <>
       <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: 'white' }}>
@@ -203,18 +240,15 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
           <span className="text-[#303AB2]">{data?.docId}</span>
         </div>
 
-
-
         <div className=" flex  justify-end gap-3">
           {active === "order" && form === true && (
             <div className="flex items-center space-x-1">
-
               <button
                 onClick={() => {
                   setForm(false);
                   setActive("order");
                 }}
-                className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
+                className="group flex items-center bg-white text-[#E4002B] border border-[#E4002B] hover:bg-[#E4002B] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E4002B] focus:ring-offset-1"
               >
                 <svg
                   className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
@@ -233,12 +267,9 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                   Back
                 </span>
               </button>
-
             </div>
-
           )}
           {!data?.isSave && (
-
             <button
               onClick={() => {
                 saveData(!isMailForm, isManufacture);
@@ -252,87 +283,100 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               <span className="ml-2 text-xs font-medium tracking-wide uppercase">
                 Save
               </span>
             </button>
           )}
-          {(allData?.data[0]?.selectedApprover === "MANUFACTURE" || !data?.isSave) && (<button
-            onClick={() => {
-                 saveData(isMailForm, isManufacture);
-                 exportAndUploadExcel(data, poItems);
-                }}
- 
+          {(allData?.data[0]?.selectedApprover === "MANUFACTURE" ||
+            !data?.isSave) && (
+            <button
+              onClick={() => {
+                   saveData(isMailForm, isManufacture);
+                   exportAndUploadExcel(data, poItems);
+                  }}
+   
                 
 
             
             className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-          >
-            <svg
-              className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16h16V4H4zm4 8l4 4 4-4" />
-            </svg>
-            <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-              Save & Send
-            </span>
-          </button>)}
-
-
-
-
+              <svg
+                className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 4v16h16V4H4zm4 8l4 4 4-4"
+                />
+              </svg>
+              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                Save & Send
+              </span>
+            </button>
+          )}
         </div>
-      </div>
+              </div>
+       
 
+        <div
+          className="flex flex-wrap  border  rounded item-center p-1"
+          style={{ backgroundColor: "white" }}
+        >
+        <div className="flex flex-wrap gap-1 border  rounded item-center p-1" style={{ backgroundColor: "white" }}>
 
-      <div className="flex flex-col w-full bg-[#F1F1F0] p-1 h-screen  overflow-auto">
+            <div className="flex flex-col mr-1">
+              <label className="text-xs font-semibold">Customer</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={"MAX"}
+                disabled={true}
+              />
+            </div>
 
+            <div className="col-span-2 flex flex-col mr-1">
+              <label className="text-xs font-semibold ">Manufacture </label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                value={data?.Manufacture?.name}
+                disabled={true}
+              />
+            </div>
+            <div className="flex flex-col w-24 mr-1 ">
+              <label className="text-xs font-semibold ">Po Date</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={getDateFromDateTime(data?.orderdate)}
+                disabled={true}
+              />
+            </div>
 
-        <div className="flex flex-wrap m-1 border bg-white rounded item-center p-1"  >
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold">Customer</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={"MAX"}
-              disabled={true}
-            />
-          </div>
-
-          <div className="col-span-2 flex flex-col">
-            <label className="text-xs font-semibold ">Manufacture </label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-              value={data?.Manufacture?.name}
-              disabled={true}
-
-            />
-
-          </div>
-          <div className="flex flex-col w-24">
-            <label className="text-xs font-semibold ">Po Date</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={getDateFromDateTime(data?.orderdate)}
-              disabled={true}
-
-
-            />
-          </div>
-
-          <div className="flex flex-col w-72 ">
-            <label className="text-xs font-semibold ">Tag vendor  <span className="text-red-500">*</span></label>
-            <DropdownWithSearch className={"w-72 text-xs border-gray-300"} value={vendor} setValue={setVendor} options={partyOptions} optionName={"Tag vendor From Party Master"} masterName={"PARTY MASTER"} />
-
-          </div>
+            <div className="flex flex-col w-72 ">
+              <label className="text-xs font-semibold ">
+                Tag vendor <span className="text-red-500">*</span>
+              </label>
+              <DropdownWithSearch
+                className={"w-72 text-xs border-gray-300"}
+                value={vendor}
+                setValue={setVendor}
+                options={partyOptions}
+                optionName={"Tag vendor From Party Master"}
+                masterName={"PARTY MASTER"}
+              />
+            </div>
 
 
 
@@ -379,123 +423,183 @@ export default function Manufactureform({ singleData, setForm, vendor, setVendor
                       : ""
                     }
               ${isApproved === "Reject" ? "border-red-500 text-red-600" : ""}
-              ${isApproved === "hold" ? "border-yellow-500 text-yellow-600" : ""
-                    }
+              ${
+                isApproved === "hold" ? "border-yellow-500 text-yellow-600" : ""
+              }
               ${isApproved === "" ? "border-gray-300 text-gray-500" : ""}
                           `}
-                  value={isApproved}
-                  onChange={(e) => setIsApproved(e.target.value)}
-                  disabled={!data?.deliverydate || !data?.vendorId}
-                >
-                  <option value="">Select status</option>
-                  <option value="Approve">Approve</option>
-                  <option value="Reject">Reject</option>
-                  <option value="Hold">Hold</option>
-                </select>
-              </div>
-            )}
+                      value={isApproved}
+                      onChange={(e) => setIsApproved(e.target.value)}
+                      disabled={!data?.deliverydate || !data?.vendorId}
+                    >
+                      <option value="">Select status</option>
+                      <option value="Approve">Approve</option>
+                      <option value="Reject">Reject</option>
+                      <option value="Hold">Hold</option>
+                    </select>
+                  </div>
+                )}
 
-            {singleData?.data?.poSentForApproval && (
-              <div className="flex pt-3">
-                <button
-                  className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
+                {singleData?.data?.poSentForApproval && (
+                  <div className="flex pt-3">
+                    <button
+                      className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
       rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
       duration-300 ease-in-out focus:outline-none focus:ring-2 
       focus:ring-blue-400 focus:ring-offset-2"
-                  onClick={() => setFormReport(true)}
-                >
-                  <span className="text-[13px]">View Art Design</span>
-                </button>
-              </div>
+                      onClick={() => setFormReport(true)}
+                    >
+                      <span className="text-[13px]">View Art Design</span>
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              ""
             )}
-          </> : ''}
-        </div >
+          </div>
 
-        <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
-          <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
-            <thead className="bg-white text-gray-800 border-b border-gray-300">
-              <tr>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">Department</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">Class-SubClass</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">ItemCode</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">BarCode</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">SeasonSupplierCode</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">StyleCodeGroup</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">SizeDesc</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Size</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
-              </tr>
-            </thead>
+          <div className="w-full my-2  h-[90%] overflow-y-auto overflow-x-auto ">
+            <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+              <thead className="bg-white text-gray-800 border-b border-gray-300">
+                <tr>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
+                    S No
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">
+                    Department
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">
+                    Class-SubClass
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">
+                    ItemCode
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">
+                    BarCode
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">
+                    SeasonSupplierCode
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">
+                    StyleCodeGroup
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">
+                    SizeDesc
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
+                    Size
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">
+                    Color
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
+                    MRP
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
+                    Po Qty
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
+                    Excess %
+                  </th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">
+                    Order Qty
+                  </th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {(poItems || []).map((item, index) => (
-                <tr
-                  key={index}
-                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
+              <tbody>
+                {(poItems || []).map((item, index) => (
+                  <tr
+                    key={index}
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-100" : "bg-white"
                     } hover:bg-gray-200`}
-                >
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.orderQty || ""}</td>
-                  <td className="border border-gray-300 p-1">
-                    <input
-                      type="number"
-                      value={item?.excessQty}
-                      onChange={(e) => handleQtyChange("excessQty", index, e.target.value, item?.orderQty)}
-                      className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                      disabled={data?.isSave || item?.orderQty == ""}
-                    />
+                  >
+                    <td className="border border-gray-300 text-center p-1 text-[11px]">
+                      {index + 1}
+                    </td>
+                    <td className="border border-gray-300 text-left p-1 text-[11px]">
+                      {item?.department}
+                    </td>
+                    <td className="border border-gray-300 text-left p-1 text-[11px]">
+                      {item?.class}
+                    </td>
+                    <td className="border border-gray-300 text-left p-1 text-[11px]">
+                      {item?.itemCode}
+                    </td>
+                    <td className="border border-gray-300 text-left p-1 text-[11px]">
+                      {item?.barCode}
+                    </td>
+                    <td className="border border-gray-300 text-left p-1 text-[11px]">
+                      {item?.supplierCode}
+                    </td>
+                    <td className="border border-gray-300 text-left p-1 text-[11px]">
+                      {item?.styleCode}
+                    </td>
+                    <td className="border border-gray-300 text-left p-1 text-[11px]">
+                      {item?.sizeDesc}
+                    </td>
+                    <td className="border border-gray-300 text-center p-1 text-[11px]">
+                      {item?.size}
+                    </td>
+                    <td className="border border-gray-300 text-center p-1 text-[11px]">
+                      {item?.color}
+                    </td>
+                    <td className="border border-gray-300 text-right p-1 text-[11px]">
+                      {item?.mrp}
+                    </td>
+                    <td className="border border-gray-300 text-right p-1 text-[11px]">
+                      {item?.orderQty || ""}
+                    </td>
+                    <td className="border border-gray-300 p-1">
+                      <input
+                        type="number"
+                        value={item?.excessQty}
+                        onChange={(e) =>
+                          handleQtyChange(
+                            "excessQty",
+                            index,
+                            e.target.value,
+                            item?.orderQty
+                          )
+                        }
+                        className="w-full p-1 text-right text-[11px] focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                        disabled={data?.isSave || item?.orderQty == ""}
+                      />
+                    </td>
+                    <td className="border border-gray-300 text-right p-1 text-[11px]">
+                      {Math.round(item?.qty) || ""}
+                    </td>
+                  </tr>
+                ))}
+
+                {/* Total Row */}
+                <tr className="bg-white font-bold text-gray-800">
+                  <td
+                    colSpan={10}
+                    className="border border-gray-300 p-2 text-left"
+                  >
+                    Total
                   </td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">
-                    {Math.round(item?.qty) || ""}
+                  <td className="border border-gray-300 p-2 text-right"></td>
+                  <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                    {poItems?.reduce(
+                      (a, c) => a + Math.round(c.orderQty || 0),
+                      0
+                    ) || ""}
+                  </td>
+                  <td className="border border-gray-300 p-2 text-right"></td>
+                  <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                    {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) ||
+                      ""}
                   </td>
                 </tr>
-              ))}
-
-              {/* Total Row */}
-              <tr className="bg-white font-bold text-gray-800">
-                <td colSpan={10} className="border border-gray-300 p-2 text-left">Total</td>
-                <td className="border border-gray-300 p-2 text-right"></td>
-                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
-                  {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
-                </td>
-                <td className="border border-gray-300 p-2 text-right"></td>
-                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
-                  {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
-
       </div>
-
-
-
-
-
-
-
-
     </>
-  )
-
-
-
-
-
-};
+  );
+}

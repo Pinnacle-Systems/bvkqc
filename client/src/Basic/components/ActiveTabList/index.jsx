@@ -120,9 +120,9 @@ const ActiveTabList = () => {
           }
         </div>
         {showHidden &&
-          <ul ref={ref} className="absolute right-0 top-5 bg-gray-200 z-50 text-xs p-1">
+          <ul ref={ref} className="absolute right-0 top-5 bg-[#F1F1F0] h-screen  z-50 text-xs p-1">
             {hiddenTabs.map(tab =>
-              <li key={tab.name} className={`flex justify-between  ${tab.active ? "bg-green-300" : "bg-gray-300"
+              <li key={tab.name} className={`flex justify-between  ${tab.active ? " bg-[#F1F1F0]" : " bg-[#F1F1F0]"
                 } `}>
                 <button
                   onClick={() => {

@@ -32,7 +32,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
 
   <StatusSidebar />
 
-      <div className=" bg-white shadow rounded-lg">
+      <div className="bg-[F1F1F0] h-screen shadow rounded-lg">
          <table className="table-fixed w-full text-[11px] rounded-lg border border-gray-300">
           <thead className="bg-white text-gray-800 border-b border-gray-300">
              <tr >
@@ -158,15 +158,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                             );
                           })}
                         </div>
-
-
                       </td>
-
-
-
-
-
-
                     </tr>
                    {/* )} */}
                 </>
