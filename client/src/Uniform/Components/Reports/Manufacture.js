@@ -311,7 +311,10 @@ export default function Manufactureform({
             <button
               onClick={() => {
                 saveData(!isMailForm,isManufacture);
+
               }}
+              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
               <svg
@@ -339,7 +342,9 @@ export default function Manufactureform({
                     saveData(isMailForm, isManufacture);
                     exportAndUploadExcel(data, poItems);
                   }}
+              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
 
+               disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
 
 
 
@@ -417,7 +422,8 @@ export default function Manufactureform({
 
           <div className=''>
 
-            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"} />
+            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"}     
+           disabled={PoStatus === "Cancel"  &&  data?.userRoleId} />
           </div>
           <div className="w-18 h-5 flex flex-col px-2">
             <label className="text-xs font-semibold  ">
@@ -427,7 +433,7 @@ export default function Manufactureform({
               className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
               value={PoStatus}
               onChange={(e) => setPoStatus(e.target.value)}
-              // disabled={PoStatus === "Cancel"}
+              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
             >
               <option value="">Select Status</option>
               <option value="Accept">Accept</option>
@@ -445,7 +451,7 @@ export default function Manufactureform({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               cols={18} rows={1}               
-              //  disabled={PoStatus === "Cancel"}
+              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
 
             ></textarea>
           </div>

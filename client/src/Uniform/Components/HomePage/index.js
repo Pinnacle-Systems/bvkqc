@@ -19,8 +19,9 @@ import MailForm from "../Email";
 import { OrderImport } from "..";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
-import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
+import { useGetOrderByIdQuery, useGetOrderQuery } from "../../../redux/uniformService/OrderService";
 import EmailReport from "../Email/EmailReport";
+import { getCommonParams } from "../../../Utils/helper";
 export default function Form() {
   const user = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
@@ -34,18 +35,20 @@ export default function Form() {
   const [currentId, setCurrentId] = useState("")
   const [partyId, setPartyId] = useState("")
   const [attachments, setattachments] = useState([]);
+  const { branchId, finYearId, userId } = getCommonParams()
 
   const [poSentForApproval, setPoSentForApproval] = useState(false)
 
   const [isSave, setIsSave] = useState(false)
-  const userId = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userId")
+  // const userId = secureLocalStorage.getItem(
+  //   sessionStorage.getItem("sessionId") + "userId")
 
+  
   const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
   const userRole = singleuserData?.data?.userType || ""
   const { data: singleUserPartyData } = useGetPartyByIdQuery(partyId, { skip: !partyId });
-  const { data: SigleOrderdata, isLoading, isFetching } = useGetOrderByIdQuery(currentId, { skip: !currentId });
-
+  const { data: SigleOrderdata, isLoading:isSingleloading , isFetching :isSinglefetching } = useGetOrderByIdQuery(currentId, { skip: !currentId });
+  
   useEffect(() => {
     setPartyId(singleuserData?.data?.partyType)
   }, [singleUserPartyData])
@@ -85,6 +88,9 @@ export default function Form() {
             <button
               key={name}
               onClick={() => {
+                if(form){
+                  setForm(false)
+                }
                 setActive(name);
                 action?.();
               }}
@@ -141,7 +147,7 @@ export default function Form() {
             />}
             {active === "Report" && <EmailReport attachments={attachments} />}
             {active === "More" && userRole === "" ? <OrderImport /> : ''}
-            {active === "order" && <Order setEmailId={setEmailId} active={active}
+            {active === "order" && <Order setEmailId={setEmailId} active={active} 
               setActive={setActive} setForm={setForm} form={form} setMailform={setMailform} setCurrentId={setCurrentId}
 
             />}

@@ -377,7 +377,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
                   <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
                   <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
-                  {orderData?.isSave && (
+                  {orderData?.deliverydate && (
                     <>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
@@ -407,7 +407,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                     <td className="border border-gray-300 text-right p-2 text-[11px]">
                       {Math.round(item?.orderQty) || ""}
                     </td>
-                    {orderData?.isSave && (
+                    {orderData?.deliverydate && (
                       <>
                         <td className="border border-gray-300 text-right p-1 text-[11px]">
                           {item?.excessQty || ""}
@@ -427,7 +427,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                   <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
                     {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                   </td>
-                  {orderData?.isSave && (
+                  {orderData?.deliverydate && (
                     <>
                       <td className="border border-gray-300 p-2 text-right"></td>
                       <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">

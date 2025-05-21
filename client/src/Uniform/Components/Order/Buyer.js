@@ -81,7 +81,6 @@ export default function Buyer({ allData, setForm, setId, setPoNo }) {
                 "In Progress": "In Progress",
               };
 
-              const approvalStatus = approvalStatusMap[rawStatus] || "In Progress";
 
 
 

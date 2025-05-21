@@ -156,6 +156,9 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
               onClick={() => {
                 saveData(isBuyer);
               }}
+              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
+
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
               <svg
@@ -174,6 +177,9 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
             {data?.poSentForApproval && (
               <button
                 onClick={() => saveData(isMailForm, false, isBuyer)}
+                disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
+
                 className="group flex items-center bg-white text-[#303AB2] border border-[#303AB2] hover:bg-[#303AB2] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#303AB2] focus:ring-offset-1"
               >
                 <svg
@@ -252,6 +258,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
                   value={PoStatus}
                   onChange={(e) => setPoStatus(e.target.value)}
+                  disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+
                 >
                   <option value="">Select Status</option>
                   <option value="Accept">Accept</option>
@@ -266,9 +274,11 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
         </label>
           <textarea 
                className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
-                value={reason}
+                  value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   cols={18} rows={1}
+                 disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+
           ></textarea>
           </div>
            }
@@ -335,7 +345,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
-                    {singleData?.data?.vendorId && (<>
+                    {singleData?.data?.deliverydate && (<>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th></>)}
 
@@ -365,7 +375,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                         {Math.round(item?.orderQty) || ""}
                       </td>
 
-                      {singleData?.data?.vendorId && (<>
+                      {singleData?.data?.deliverydate && (<>
                         <td className="border p-1 text-right text-[11px]">
                           {item?.excessQty || ""}
                         </td>
@@ -384,7 +394,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
                       {poItems.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                     </td>
-                    {singleData?.data?.vendorId && (<> <td className="border p-2 text-right"></td>
+                    {singleData?.data?.deliverydate && (<> <td className="border p-2 text-right"></td>
                       <td className="border p-2 text-right text-sm font-extrabold text-[#303AB2]">
                         {poItems.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
                       </td></>)}

@@ -36,8 +36,8 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const { branchId, finYearId, userId } = getCommonParams()
   const [PoStatus, setPoStatus] = useState('')
   const [reason, setReason] = useState('')
-
-  const partyId = secureLocalStorage.getItem(
+  const [userRoleInOrderStatus,setUserRoleInOrderStatus]  = useState("")
+   const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
@@ -73,6 +73,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       setIsApproved(data?.isApproved || '');
       setPoStatus(data?.poStatus || "");
       setReason(data?.approvalstatusReason || "")
+
     },
     [id]
   );
@@ -93,7 +94,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     excessQty,
     excessQtyAmount,
     isApproved,
-    deliveryDate, docDate, reason, PoStatus, userRoleId
+    deliveryDate, docDate, reason, PoStatus,  userRoleId : PoStatus  ?  userRoleId : undefined
   }
 
   const dispatch = useDispatch()
@@ -182,7 +183,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     }
 
 
-    if (isManufacture) {
+    if (isMailForm) {
       setForm(false);
       setActive("Mail");
     }

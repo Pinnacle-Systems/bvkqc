@@ -402,9 +402,9 @@ async function update(id, body) {
     } = await body
 
 
-    console.log(userName,"userName",userId)
+    console.log(typeof(userRoleId),"userName")
 
-
+    let tempuserId = userRoleId ===  "undefined" ?   ""  :  userRoleId
 
     const parsedIsSave = isSave?.trim()?.toLowerCase() === 'true' ? true : false;
 
@@ -528,7 +528,7 @@ async function update(id, body) {
                 docDate: docDate == null ? new Date(docDate) : undefined,
                 approvalstatusReason : reason  ? reason : undefined ,
                 poStatus :  PoStatus  ?  PoStatus   :  undefined,
-                userRoleId :  userRoleId  ? parseInt(userRoleId)  : undefined,
+                userRoleId :  tempuserId  ? parseInt(tempuserId)  : undefined,
 
 
 

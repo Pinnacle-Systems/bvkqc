@@ -65,6 +65,7 @@ export default function MailForm({
   const [receiverId, setReceiverId] = useState("");
   const [formReport, setFormReport] = useState(false);
   const [poNumber, setPoNumber] = useState();
+  // const [form,setForm] = useState("")
 
   const id = currentId;
 
