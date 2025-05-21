@@ -39,7 +39,7 @@ export default function Manufactureform({
   setIsApproved,
   mailConvert,
   userRole,
-  PoStatus, setPoStatus, setReason, reason
+  PoStatus, setPoStatus, setReason, reason, refetch, setId
 }) {
 
   console.log(PoStatus,"PoStatus")
@@ -129,7 +129,7 @@ export default function Manufactureform({
     }
   };
 
-  // Called onChange: updates value in state
+
   const handleQtyChange = (field, index, value) => {
     setPoItems((prev) => {
       let newItems = structuredClone(prev);
@@ -239,7 +239,7 @@ export default function Manufactureform({
   );
   return (
     <>
-      <div className="flex items-center justify-between p-2 md:flex-row " style={{ backgroundColor: 'white' }}>
+      <div className="flex items-center   md:flex-row ml-1 " style={{ backgroundColor: 'white' }}>
         <Modal
           isOpen={formReport}
           onClose={() => setFormReport(false)}
@@ -266,41 +266,48 @@ export default function Manufactureform({
 
           />
         </Modal>
-        <div className="text-md font-semibold">
-          <span className="">{model} : </span>&nbsp;
-          <span className="text-[#303AB2]">{data?.docId}</span>
-        </div>
+        <div
+          className="flex m-2 items-center justify-between w-full p-2 md:px-4"
+          style={{ backgroundColor: "white" }}
+        >
+          <div className="text-sm font-semibold flex items-center gap-2">
+            <span className="text-gray-600">{model}:</span>
+            <span className="text-white bg-[#303AB2] px-2 py-0.5 rounded-md font-bold shadow-md">
+              {data?.docId}
+            </span>
+          </div>
 
-        <div className=" flex  justify-end gap-3">
-          {active === "order" && form === true && (
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={() => {
-                  setForm(false);
-                  setActive("order");
-                }}
-                className="group flex items-center bg-white text-[#E4002B] border border-[#E4002B] hover:bg-[#E4002B] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E4002B] focus:ring-offset-1"
-              >
-                <svg
-                  className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
+          <div className=" flex  justify-end gap-3">
+            {active === "order" && form === true && (
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => {
+                    setForm(false);
+                    setActive("order");
+                    setId(null)
+                  }}
+                  className="group flex items-center bg-white text-[#E4002B] border border-[#E4002B] hover:bg-[#E4002B] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E4002B] focus:ring-offset-1"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                  Back
-                </span>
-              </button>
-            </div>
-          )}
-          {!data?.isSave && (
+                  <svg
+                    className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                    Back
+                  </span>
+                </button>
+              </div>
+            )}
+
             <button
               onClick={() => {
                 saveData(!isMailForm,isManufacture);
@@ -324,44 +331,45 @@ export default function Manufactureform({
                 Save
               </span>
             </button>
-          )}
-          {(allData?.data[0]?.selectedApprover === "MANUFACTURE" ||
-            !data?.isSave) && (
-              <button
-                onClick={() => {
-                  saveData(isMailForm, isManufacture);
-                  exportAndUploadExcel(data, poItems);
-                }}
+
+            {(allData?.data[0]?.selectedApprover === "MANUFACTURE" ||
+              !data?.isSave) && (
+                <button
+                  onClick={() => {
+                    saveData(isMailForm, isManufacture);
+                    exportAndUploadExcel(data, poItems);
+                  }}
 
 
 
 
-                className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
-              >
-                <svg
-                  className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
+                  className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 4v16h16V4H4zm4 8l4 4 4-4"
-                  />
-                </svg>
-                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                  Save & Send
-                </span>
-              </button>
-            )}
+                  <svg
+                    className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 4v16h16V4H4zm4 8l4 4 4-4"
+                    />
+                  </svg>
+                  <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                    Save & Send
+                  </span>
+                </button>
+              )}
+          </div>
         </div>
-              </div>
-        <div
-          className="flex flex-wrap  border  rounded item-center p-1"
-          style={{ backgroundColor: "#F1F1F0" }}
-        >
+      </div>
+      <div
+        className="flex flex-wrap  border  rounded item-center p-1"
+        style={{ backgroundColor: "#F1F1F0" }}
+      >
         <div className="flex flex-wrap gap-1 border  rounded item-center p-1 w-full" style={{ backgroundColor: "white" }}>
 
           <div className="flex flex-col mr-1">
@@ -488,7 +496,7 @@ export default function Manufactureform({
             : ""}
         </div>
 
-        <div className="w-full my-2  h-[90%] overflow-y-auto overflow-x-auto ">
+        <div className="w-full h-[74vh] overflow-y-auto overflow-x-auto ">
           <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
             <thead className="bg-white text-gray-800 border-b border-gray-300">
               <tr>

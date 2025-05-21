@@ -39,9 +39,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
   useEffect(() => {
-    if (poItems?.length >= 14) return
+    if (poItems?.length >= 10) return
     setPoItems(prev => {
-      let newArray = Array.from({ length: 14 - prev.length }, () => {
+      let newArray = Array.from({ length: 10 - prev.length }, () => {
         return { department: "", ProcessMasterId: "", itemId: "", stockQty: "0", orderQty: "", price: "0.00", amount: "0.000", pcsQty: "0", sacCode: "0.00", tax: 0, sizeType: "Fixed", particular: '' }
       })
       return [...prev, ...newArray]
@@ -193,40 +193,46 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
           setSearchValue={setSearchValue}
         />
       </Modal>
-      <div className="flex items-center p-2 md:flex-row bg-gray-300 justify-between">
-        <div className="text-md font-semibold">
-          <span className="">{model} : </span>&nbsp;
-          <span className="text-[#303AB2]">{orderData?.docId}</span>
-        </div>
+      <div className="flex flex-col bg-[#F1F1F0]">
+        <div
+          className="flex m-2 items-center justify-between p-2 md:px-4"
+          style={{ backgroundColor: "white" }}
+        >
+          <div className="text-sm font-semibold flex items-center gap-2">
+            <span className="text-gray-600">{model}:</span>
+            <span className="text-white bg-[#303AB2] px-2 py-0.5 rounded-md font-bold shadow-md">
+              {orderData?.docId}
+            </span>
+          </div>
 
 
-        <div className="flex gap-2"> {active === "order" && form === true && (
-          <div className="flex items-center space-x-1">
+          <div className="flex gap-2"> {active === "order" && form === true && (
+            <div className="flex items-center space-x-1">
 
-            <button
-              onClick={() => {
-                setForm(false);
-                setActive("order");
-              }}
-              className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
-            >
-              <svg
-                className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
+              <button
+                onClick={() => {
+                  setForm(false);
+                  setActive("order");
+                }}
+                className="group flex items-center text-[#E4002B] hover:text-white border border-[#E4002B] hover:bg-[#E4002B] transition-all duration-200 ease-in-out px-3 py-1 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#E4002B] focus:ring-offset-2"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              <span className="ml-2 text-xs font-medium tracking-wide uppercase">
-                Back
-              </span>
-            </button>
+                <svg
+                  className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span className="ml-2 text-xs font-medium tracking-wide uppercase">
+                  Back
+                </span>
+              </button>
 
 
           </div>
@@ -261,56 +267,59 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
       <div className="flex flex-col w-full bg-white  h-full overflow-auto p-1">
 
 
+          <div
+            className="flex flex-col w-full p-1  overflow-auto justify-between item-end bg-white gap-4"
+            style={{ backgroundColor: "#F1F1F0" }}
+          >
+            <div className="flex flex-wrap gap-1 border bg-white  rounded item-center p-2"  >
+              <div className="flex flex-col ">
+                <label className="text-xs font-semibold">Customer</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={"MAX"}
+                  disabled={true}
 
-        <div className="flex flex-wrap gap-1 border  rounded item-center p-2"  >
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold">Customer</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={"MAX"}
-              disabled={true}
-
-            />
-          </div>
-
-
-          <div className="col-span-2 flex flex-col">
-            <label className="text-xs font-semibold ">Manufacture</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
-              value={orderData?.Manufacture?.name}
-              disabled={true}
-
-            />
-
-          </div>
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold ">Po Date</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={getDateFromDateTime(orderData?.orderdate)}
-              disabled={true}
+                />
+              </div>
 
 
-            />
-          </div>
+              <div className="col-span-2 flex flex-col">
+                <label className="text-xs font-semibold ">Manufacture</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-80"
+                  value={orderData?.Manufacture?.name}
+                  disabled={true}
+
+                />
+
+              </div>
+              <div className="flex flex-col ">
+                <label className="text-xs font-semibold ">Po Date</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={getDateFromDateTime(orderData?.orderdate)}
+                  disabled={true}
+
+
+                />
+              </div>
 
 
 
-          <div className="flex flex-col ">
-            <label className="text-xs font-semibold ">Delivery Date</label>
-            <input
-              type="text"
-              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={getDateFromDateTime(data?.deliverydate)}
-                 disabled={true}
-            />
-          </div>
+              <div className="flex flex-col ">
+                <label className="text-xs font-semibold ">Delivery Date</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={getDateFromDateTime(data?.deliverydate)}
+                  disabled={true}
+                />
+              </div>
 
-                     {/* <div className="w-18 h-5 flex flex-col px-2">
+              {/* <div className="w-18 h-5 flex flex-col px-2">
                               <label className="text-xs font-semibold  ">
                               Approval status
                             </label>
@@ -352,84 +361,84 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
         </div >
 
 
-        <div className="w-full my-2  h-[80%] overflow-y-auto overflow-x-auto ">
-          <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
-            <thead className="bg-white text-gray-800 border-b border-gray-300">
-              <tr>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">Department</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">Class-SubClass</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">ItemCode</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">BarCode</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">SeasonSupplierCode</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">StyleCodeGroup</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">SizeDesc</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Size</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
-                <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
-                {orderData?.isSave && (
-                  <>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
-                    <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
-                  </>
-                )}
-              </tr>
-            </thead>
+          <div className="w-full my-2 h-[65vh] overflow-y-auto overflow-x-auto ">
+            <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
+              <thead className="bg-white text-gray-800 border-b border-gray-300">
+                <tr>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">Department</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">Class-SubClass</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">ItemCode</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">BarCode</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">SeasonSupplierCode</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[120px]">StyleCodeGroup</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[150px]">SizeDesc</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Size</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[90px]">Color</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
+                  <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
+                  {orderData?.isSave && (
+                    <>
+                      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Excess %</th>
+                      <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Order Qty</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
 
-            <tbody>
-              {(poItems || []).map((item, index) => (
-                <tr
-                  key={index}
-                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
-                    } hover:bg-gray-200`}
-                >
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{index + 1}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.department}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.class}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.itemCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.barCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.supplierCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.styleCode}</td>
-                  <td className="border border-gray-300 text-left p-1 text-[11px]">{item?.sizeDesc}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.size}</td>
-                  <td className="border border-gray-300 text-center p-1 text-[11px]">{item?.color}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">{item?.mrp}</td>
-                  <td className="border border-gray-300 text-right p-1 text-[11px]">
-                    {Math.round(item?.orderQty) || ""}
+              <tbody>
+                {(poItems || []).map((item, index) => (
+                  <tr
+                    key={index}
+                    className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                      } hover:bg-gray-200`}
+                  >
+                    <td className="border border-gray-300 text-center p-2 text-[11px]">{index + 1}</td>
+                    <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.department}</td>
+                    <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.class}</td>
+                    <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.itemCode}</td>
+                    <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.barCode}</td>
+                    <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.supplierCode}</td>
+                    <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.styleCode}</td>
+                    <td className="border border-gray-300 text-left p-2 text-[11px]">{item?.sizeDesc}</td>
+                    <td className="border border-gray-300 text-center p-2 text-[11px]">{item?.size}</td>
+                    <td className="border border-gray-300 text-center p-2 text-[11px]">{item?.color}</td>
+                    <td className="border border-gray-300 text-right p-2 text-[11px]">{item?.mrp}</td>
+                    <td className="border border-gray-300 text-right p-2 text-[11px]">
+                      {Math.round(item?.orderQty) || ""}
+                    </td>
+                    {orderData?.isSave && (
+                      <>
+                        <td className="border border-gray-300 text-right p-1 text-[11px]">
+                          {item?.excessQty || ""}
+                        </td>
+                        <td className="border border-gray-300 text-right p-1 text-[11px]">
+                          {Math.round(item?.qty) || ""}
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+
+                {/* Total Row */}
+                <tr className="bg-white font-bold text-gray-800">
+                  <td colSpan={10} className="border border-gray-300 p-2 text-left">Total</td>
+                  <td className="border border-gray-300 p-2 text-right"></td>
+                  <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                    {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
                   </td>
                   {orderData?.isSave && (
                     <>
-                      <td className="border border-gray-300 text-right p-1 text-[11px]">
-                        {item?.excessQty || ""}
-                      </td>
-                      <td className="border border-gray-300 text-right p-1 text-[11px]">
-                        {Math.round(item?.qty) || ""}
+                      <td className="border border-gray-300 p-2 text-right"></td>
+                      <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
+                        {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
                       </td>
                     </>
                   )}
                 </tr>
-              ))}
-
-              {/* Total Row */}
-              <tr className="bg-white font-bold text-gray-800">
-                <td colSpan={10} className="border border-gray-300 p-2 text-left">Total</td>
-                <td className="border border-gray-300 p-2 text-right"></td>
-                <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
-                  {poItems?.reduce((a, c) => a + Math.round(c.orderQty || 0), 0) || ""}
-                </td>
-                {orderData?.isSave && (
-                  <>
-                    <td className="border border-gray-300 p-2 text-right"></td>
-                    <td className="border border-gray-300 p-2 text-right text-sm font-extrabold text-[#303AB2]">
-                      {poItems?.reduce((a, c) => a + Math.round(c.qty || 0), 0) || ""}
-                    </td>
-                  </>
-                )}
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
 
 
 
@@ -438,9 +447,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
 
-        <div className="flex justify-end gap-3 ">
+          <div className="flex justify-end gap-3 ">
 
-          {/* 
+            {/* 
           <button
             onClick={() => {
               saveData();
@@ -462,8 +471,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               SEND MAIL
             </span>
           </button> */}
-        </div>
+          </div>
 
+        </div>
       </div>
     </>
   )
