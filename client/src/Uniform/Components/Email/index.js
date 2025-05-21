@@ -114,7 +114,7 @@ export default function MailForm({
 
     setPoNumber(SigleOrderdata?.data?.docId);
     setSubject(SigleOrderdata?.data?.docId);
-    setattachments(...combined);
+    setattachments(combined);
     setfileName(Emaildata?.data?.poExcelFileName);
     setReceiverName(SigleOrderdata?.data?.Vendor?.name);
     setSendorName(SigleOrderdata?.data?.Manufacture?.name);
