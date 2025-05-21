@@ -48,6 +48,7 @@ import ContentMasterApi from "./uniformService/ContentMasterServices";
 import CountsMasterApi from "./uniformService/CountsMasterServices";
 import PercentageApi from "./uniformService/Percentage";
 import EmailApi from "./uniformService/Email.Services";
+import tagTypeMasterApi from "./uniformService/TagTypeMasterServices";
 
 
 
@@ -134,7 +135,9 @@ const commonReducers = {
   machineMaster: machineMasterApi.reducer,
   percentageMaster : PercentageApi.reducer,
   Email : EmailApi.reducer,
+  tagTypeMaster : tagTypeMasterApi.reducer,
   [ProductionReceiptApi.reducerPath]: ProductionReceiptApi.reducer
+
 
 }
 const commonMiddleware = [countryMasterApi.middleware,
@@ -219,6 +222,7 @@ CountsMasterApi.middleware,
 machineMasterApi.middleware,
 PercentageApi.middleware,
 EmailApi.middleware,
+tagTypeMasterApi.middleware,
 ];
 
 

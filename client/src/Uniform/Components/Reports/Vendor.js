@@ -9,7 +9,7 @@ import FormHeader from "../../../Basic/components/FormHeader";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useAddOrderMutation, useAttachOrderMutation, useGetOrderByIdQuery, useUpdateOrderMutation, useUploadMutation } from "../../../redux/uniformService/OrderService";
 import MailForm from "../Email";
-import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import ArtDesignReport from "../ArtDesign/ArtDesignReport";
 
 
 export default function VendorForm({ singleData, setForm, poItems, setPoItems,

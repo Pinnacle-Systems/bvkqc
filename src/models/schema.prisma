@@ -732,3 +732,11 @@ model ApprovalDoneBy {
   id               Int     @id @default(autoincrement())
   selectedApprover String?
 }
+
+
+model TagType {
+  id              Int       @id @default(autoincrement())
+  name            String?    
+  fileName        String?
+  active          Boolean?   @default(false)
+}
