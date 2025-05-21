@@ -661,6 +661,7 @@ model OrderImportItems {
   po_number            String?
   class                String?
   manufacturer_mail_id String?
+   vendor_mail_id   String?
 }
 
 model Attachments {

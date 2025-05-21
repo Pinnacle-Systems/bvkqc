@@ -31,7 +31,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
   const { branchId, finYearId, userId } = getCommonParams();
   const [attachments, setAttachments] = useState([]);
 
-
+{console.log(PoStatus,"PoStatus")}
 
 
   let data = singleData?.data
@@ -93,6 +93,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
   };
 
   const { data: allData } = useGetPercentageQuery({ params });
+  
   return (
     <>
       <Modal
@@ -152,7 +153,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
           )}
   <button
               onClick={() => {
-                saveData();
+                saveData(isBuyer);
               }}
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
@@ -257,6 +258,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
 
                 </select>
           </div>
+          {(PoStatus ===  "Accept"  || PoStatus ===  "Cancel" )    && 
           <div className="w-18  flex flex-col "> 
             <label className="text-xs font-semibold  ">
           Reason
@@ -268,6 +270,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   cols={18} rows={1}
           ></textarea>
           </div>
+           }
               {allData?.data[0]?.selectedApprover === "ADMIN" ? <>
                 {singleData?.data?.poSentForApproval && (
                   <div className=" w-18 flex flex-col ">

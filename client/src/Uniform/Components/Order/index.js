@@ -159,7 +159,11 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       }
 
     }
-     
+     if(isBuyer) {
+            if (!window.confirm("Are you sure you want to save  Details?")) {
+        return;
+      }
+     }
     if (isManufacture && userRole === "MANUFACTURE") {
   
       if (!deliveryDate) {
@@ -168,17 +172,17 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
         })
         return;
       }
-      if (!vendor) {
-        toast.info("Choose The Vendor", {
-          autoClose: 1000
-        })
-        return;
-      }
+      // if (!vendor) {
+      //   toast.info("Choose The Vendor", {
+      //     autoClose: 1000
+      //   })
+      //   return;
+      // }
  
     }
 
 
-    if (isManufacture) {
+    if (isMailForm) {
       setForm(false);
       setActive("Mail");
     }

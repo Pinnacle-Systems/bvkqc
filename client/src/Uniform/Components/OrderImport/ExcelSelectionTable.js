@@ -88,7 +88,8 @@ const ExcelSelectionTable = ({ file, setFile, pres, setPres }) => {
     "qty",
     "order_qty",
     "po_number",
-    "manufacturer_mail_id"
+    "manufacturer_mail_id",
+     "vendor_mail_id"
   ]
 
   return (

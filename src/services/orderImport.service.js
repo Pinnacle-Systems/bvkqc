@@ -332,6 +332,7 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
     let date = excelDateToJSDate(orderImport?.orderImportItems[0]?.month_year)
 
     let manufactureId = await findFromList(orderImport?.orderImportItems[0]?.manufacturer_mail_id, partyData)
+    let vendorIdData = await findFromList(orderImport?.orderImportItems[0]?.vendor_mail_id, partyData)
     let isMailSent = false;
 
 
@@ -373,8 +374,9 @@ async function createOrder(importdata, finYearId, branchId, userId, companyId) {
                 orderdate: date ? new Date(date) : null,
                 poNumber: ponumber ? ponumber : null,
                 isSave, isMailSent,
-                vendorId: vendor ? parseInt(vendor) : null,
+                vendorId: vendorIdData ? parseInt(vendorIdData) : null,
                 manufactureId: manufactureId ? parseInt(manufactureId) : null,
+              
                 orderBillItems: orderDetails ? {
                     createMany: {
                         data: orderDetails?.map(item => ({

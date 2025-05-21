@@ -231,6 +231,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
           </div>
         )}
+        {(orderData?.isSave &&  !orderData?.poSentForApproval) &&
           <button
             onClick={() => {
               saveData();
@@ -253,7 +254,9 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               />
             </svg>
             <span className="ml-1.5 text-xs font-medium">SEND MAIL</span>
-          </button></div>
+          </button>
+          }
+          </div>
       </div>
       <div className="flex flex-col w-full bg-white  h-full overflow-auto p-1">
 
@@ -334,7 +337,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
                       ></textarea>
                       </div> */}
 
-
+{(orderData?.isSave   &&  !orderData?.poSentForApproval )  && 
           <div className="flex pt-4">
             <button
               className="relative  h-6 px-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white
@@ -345,7 +348,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
               <span className="relative z-10 text-[12px]"> Attach Art Design</span>
             </button>
           </div>
-
+ }
         </div >
 
 

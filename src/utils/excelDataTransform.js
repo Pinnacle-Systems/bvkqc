@@ -17,6 +17,7 @@ export function convertToImportFormat(importedData) {
         "order_qty",
         "po_number",
         "manufacturer_mail_id",
+         "vendor_mail_id"
     ]
     let transformedData = importedData.map((row) => {
         let newRow = {};

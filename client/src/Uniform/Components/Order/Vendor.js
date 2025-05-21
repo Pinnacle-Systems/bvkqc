@@ -160,7 +160,7 @@ export default function Vendor({ allData, setForm, setId, setPoNo, partyData, po
                         </div>
                       </td>
                     </tr>
-                   {/* )} */}
+                    {/* )} */}
                 </>
 
               )
