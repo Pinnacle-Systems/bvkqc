@@ -42,7 +42,7 @@ export default function Manufactureform({
   PoStatus, setPoStatus, setReason, reason, refetch, setId
 }) {
 
-  console.log(PoStatus,"PoStatus")
+  console.log(PoStatus, "PoStatus")
 
   const [formReport, setFormReport] = useState(false);
 
@@ -310,7 +310,7 @@ export default function Manufactureform({
 
             <button
               onClick={() => {
-                saveData(!isMailForm,isManufacture);
+                saveData(!isMailForm, isManufacture);
               }}
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
@@ -405,7 +405,7 @@ export default function Manufactureform({
             <label className="text-xs font-semibold ">
               Tag vendor <span className="text-red-500">*</span>
             </label>
-          <input
+            <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={data?.Vendor?.name}
@@ -421,13 +421,13 @@ export default function Manufactureform({
           </div>
           <div className="w-18 h-5 flex flex-col px-2">
             <label className="text-xs font-semibold  ">
-              Approval status
+              Order status
             </label>
             <select
               className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
               value={PoStatus}
               onChange={(e) => setPoStatus(e.target.value)}
-              // disabled={PoStatus === "Cancel"}
+            // disabled={PoStatus === "Cancel"}
             >
               <option value="">Select Status</option>
               <option value="Accept">Accept</option>
@@ -435,21 +435,21 @@ export default function Manufactureform({
 
             </select>
           </div>
-              {(PoStatus ===  "Accept"  || PoStatus ===  "Cancel" )    && 
-          <div className="w-18  flex flex-col ">
-            <label className="text-xs font-semibold  ">
-              Reason
-            </label>
-            <textarea
-              className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              cols={18} rows={1}               
+          {(PoStatus === "Accept" || PoStatus === "Cancel") &&
+            <div className="w-18  flex flex-col ">
+              <label className="text-xs font-semibold  ">
+                Reason
+              </label>
+              <textarea
+                className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                cols={18} rows={1}
               //  disabled={PoStatus === "Cancel"}
 
-            ></textarea>
-          </div>
-}
+              ></textarea>
+            </div>
+          }
           {allData?.data[0]?.selectedApprover === "MANUFACTURE" ? <>
             {singleData?.data?.poSentForApproval && (
               <div className=" w-18 h-2 flex flex-col px-2">
