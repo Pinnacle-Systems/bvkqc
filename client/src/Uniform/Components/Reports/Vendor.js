@@ -447,7 +447,7 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
 
 
 
-          <div className="flex justify-end gap-3 ">
+
 
             {/* 
           <button
@@ -470,16 +470,13 @@ export default function VendorForm({ singleData, setForm, poItems, setPoItems,
             <span className="ml-2 text-xs font-medium tracking-wide uppercase">
               SEND MAIL
             </span>
-          </button> */}
-          </div>
+          </button>
+           */}
+       
 
         </div>
       </div>
+       </div>
     </>
   )
-
-
-
-
-
-};
+}
