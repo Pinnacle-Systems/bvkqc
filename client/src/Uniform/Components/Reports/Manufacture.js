@@ -310,11 +310,11 @@ export default function Manufactureform({
 
             <button
               onClick={() => {
-                saveData(!isMailForm,isManufacture);
+                saveData(!isMailForm, isManufacture);
 
               }}
-              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
-              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
+              disabled={PoStatus === "Cancel" && data?.userRoleId}
+              title={PoStatus === "Cancel" && data?.userRoleId ? "The Po Was Cancel" : ''}
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
               <svg
@@ -342,9 +342,9 @@ export default function Manufactureform({
                     saveData(isMailForm, isManufacture);
                     exportAndUploadExcel(data, poItems);
                   }}
-              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
+                  title={PoStatus === "Cancel" && data?.userRoleId ? "The Po Was Cancel" : ''}
 
-               disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+                  disabled={PoStatus === "Cancel" && data?.userRoleId}
 
 
 
@@ -405,8 +405,21 @@ export default function Manufactureform({
               disabled={true}
             />
           </div>
-
           <div className="flex flex-col w-72 ">
+            <label className="text-xs font-semibold ">
+              Tag vendor <span className="text-red-500">*</span>
+            </label>
+            <DropdownWithSearch
+              className={"w-72 text-xs border-gray-300"}
+              value={vendor}
+              setValue={setVendor}
+              options={partyOptions}
+              optionName={"Tag vendor From Party Master"}
+              masterName={"PARTY MASTER"}
+            />
+          </div>
+
+          {/* <div className="flex flex-col w-72 ">
             <label className="text-xs font-semibold ">
               Tag vendor <span className="text-red-500">*</span>
             </label>
@@ -416,14 +429,14 @@ export default function Manufactureform({
               value={data?.Vendor?.name}
               disabled={true}
             />
-          </div>
+          </div> */}
 
 
 
           <div className=''>
 
-            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"}     
-           disabled={PoStatus === "Cancel"  &&  data?.userRoleId} />
+            <DateInputNew name={"Delivery Date"} value={deliveryDate} setValue={setDeliveryDate} required={true} type={"date"}
+              disabled={PoStatus === "Cancel" && data?.userRoleId} />
           </div>
           <div className="w-18 h-5 flex flex-col px-2">
             <label className="text-xs font-semibold  ">
@@ -433,7 +446,7 @@ export default function Manufactureform({
               className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
               value={PoStatus}
               onChange={(e) => setPoStatus(e.target.value)}
-              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+              disabled={PoStatus === "Cancel" && data?.userRoleId}
             >
               <option value="">Select Status</option>
               <option value="Accept">Accept</option>
@@ -441,17 +454,17 @@ export default function Manufactureform({
 
             </select>
           </div>
-              {(PoStatus ===  "Accept"  || PoStatus ===  "Cancel" )    && 
-          <div className="w-18  flex flex-col ">
-            <label className="text-xs font-semibold  ">
-              Reason
-            </label>
-            <textarea
-              className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              cols={18} rows={1}               
-              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+          {(PoStatus === "Accept" || PoStatus === "Cancel") &&
+            <div className="w-18  flex flex-col ">
+              <label className="text-xs font-semibold  ">
+                Reason
+              </label>
+              <textarea
+                className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                cols={18} rows={1}
+                disabled={PoStatus === "Cancel" && data?.userRoleId}
 
               ></textarea>
             </div>

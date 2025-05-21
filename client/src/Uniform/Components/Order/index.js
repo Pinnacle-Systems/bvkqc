@@ -36,8 +36,8 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
   const { branchId, finYearId, userId } = getCommonParams()
   const [PoStatus, setPoStatus] = useState('')
   const [reason, setReason] = useState('')
-  const [userRoleInOrderStatus,setUserRoleInOrderStatus]  = useState("")
-   const partyId = secureLocalStorage.getItem(
+  const [userRoleInOrderStatus, setUserRoleInOrderStatus] = useState("")
+  const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "partyId"
 
   )
@@ -94,7 +94,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
     excessQty,
     excessQtyAmount,
     isApproved,
-    deliveryDate, docDate, reason, PoStatus,  userRoleId : PoStatus  ?  userRoleId : undefined
+    deliveryDate, docDate, reason, PoStatus, userRoleId: PoStatus ? userRoleId : undefined
   }
 
   const dispatch = useDispatch()
@@ -160,11 +160,11 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       }
 
     }
-     if(isBuyer) {
-            if (!window.confirm("Are you sure you want to save  Details?")) {
+    if (isBuyer) {
+      if (!window.confirm("Are you sure you want to save  Details?")) {
         return;
       }
-     }
+    }
     if (isManufacture && userRole === "MANUFACTURE") {
 
       if (!deliveryDate) {
@@ -179,7 +179,7 @@ export default function Order({ setForm, form, setEmailId, active, setActive, se
       //   })
       //   return;
       // }
- 
+
     }
 
 
