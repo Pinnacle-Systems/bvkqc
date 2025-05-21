@@ -1,9 +1,9 @@
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useGetOrderQuery } from "../../../redux/uniformService/OrderService";
 
-export default function EmailReport(attachments){
+export default function EmailReport(attachments) {
 
-  
+
 
   const { data: orderData } = useGetOrderQuery({ params: { branchId:1 } });
 
@@ -14,15 +14,15 @@ export default function EmailReport(attachments){
   // };
 
 
-    return(
+  return (
 
-        <>  
+    <>
 
-        <div className="flex  flex-col">
-            <FormHeaderNew  model={"Email Report"}  />
-        
+      <div className="flex  flex-col">
+        <FormHeaderNew model={"Email Report"} />
 
-     
+
+
 
       <table className="min-w-full text-left overflow-x-auto">
       <thead className="bg-gray-300 text-gray-600 uppercase text-xs leading-normal border border-black-100">
@@ -32,8 +32,8 @@ export default function EmailReport(attachments){
       <th className="py-1 px-6">From</th>
         <th className="py-1 px-6">To</th>
 
-      <th className="py-1 px-6">Subject</th>
-      <th className="py-1 px-6"></th>
+              <th className="py-1 px-6">Order No</th>
+              <th className="py-1 px-6">MAIL</th>
 
       </tr>
       </thead>
@@ -62,8 +62,8 @@ export default function EmailReport(attachments){
       </tbody>
       </table>
 
-        </div>
+      </div>
 
-        </>
-    )
+    </>
+  )
 }

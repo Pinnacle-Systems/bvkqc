@@ -42,7 +42,7 @@ export default function Manufactureform({
   PoStatus, setPoStatus, setReason, reason, refetch, setId
 }) {
 
-  console.log(PoStatus,"PoStatus")
+  console.log(PoStatus, "PoStatus")
 
   const [formReport, setFormReport] = useState(false);
 
@@ -410,7 +410,7 @@ export default function Manufactureform({
             <label className="text-xs font-semibold ">
               Tag vendor <span className="text-red-500">*</span>
             </label>
-          <input
+            <input
               type="text"
               className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={data?.Vendor?.name}
@@ -427,7 +427,7 @@ export default function Manufactureform({
           </div>
           <div className="w-18 h-5 flex flex-col px-2">
             <label className="text-xs font-semibold  ">
-              Approval status
+              Order status
             </label>
             <select
               className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
@@ -453,9 +453,9 @@ export default function Manufactureform({
               cols={18} rows={1}               
               disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
 
-            ></textarea>
-          </div>
-}
+              ></textarea>
+            </div>
+          }
           {allData?.data[0]?.selectedApprover === "MANUFACTURE" ? <>
             {singleData?.data?.poSentForApproval && (
               <div className=" w-18 h-2 flex flex-col px-2">
