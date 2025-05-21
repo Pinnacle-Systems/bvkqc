@@ -416,6 +416,7 @@ export default function Manufactureform({
               options={partyOptions}
               optionName={"Tag vendor From Party Master"}
               masterName={"PARTY MASTER"}
+              readOnly={true}
             />
           </div>
 

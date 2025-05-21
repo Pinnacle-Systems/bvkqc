@@ -510,14 +510,14 @@ export const DropdownWithSearch = ({ className, options, value, setValue, readOn
                 }}
             >
                 {!value && <option value="">Select  {optionName}</option>}
-                {masterName !== "" && (
+                {/* {masterName !== "" && (
                     <option
                         value="create_new_Vendor"
                         className="text-blue-600 font-semibold"
                     >
                         + Create New Vendor
                     </option>
-                )}
+                )} */}
                 {(options || []).map((option) => (
                     <option key={option.id} value={option.id} classname>
                         {option.name}

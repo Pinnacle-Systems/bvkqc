@@ -82,13 +82,12 @@ export default function MailForm({
   };
 
 
-  console.log(singleUserPartyData, "singleUserPartyData");
   const {
     data: Emaildata,
     isLoading: isEmailLoading,
     isFetching: isEmailFetching,
   } = useGetEmailByIdQuery(emailId, { skip: !emailId });
-
+  
   const {
     data: SigleOrderdata,
     isLoading,
@@ -98,15 +97,16 @@ export default function MailForm({
   // console.log()
   const FromEmailAddress = partyData?.data?.mailId;
   const passskey = SigleOrderdata?.data?.passKey;
-
+  
   const [updateData] = useUpdateOrderMutation();
-
+  
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode;
-
+  
   useEffect(() => {
     const singleAttachments = SigleOrderdata?.data?.attachments || [];
+    console.log(singleAttachments, "singleAttachments");
     const emailAttachment = Emaildata?.data?.poExcelFileName
-      ? [{ filePath: Emaildata.data.poExcelFileName , fileName : Emaildata.data.poExcelFileName }]
+      ? [{ filePath: Emaildata?.data?.poExcelFileName , fileName : Emaildata?.data.poExcelFileName }]
       : [];
 
     const combined = [...singleAttachments, ...emailAttachment]
@@ -114,7 +114,7 @@ export default function MailForm({
 
     setPoNumber(SigleOrderdata?.data?.docId);
     setSubject(SigleOrderdata?.data?.docId);
-    setattachments(combined);
+    setattachments(...combined);
     setfileName(Emaildata?.data?.poExcelFileName);
     setReceiverName(SigleOrderdata?.data?.Vendor?.name);
     setSendorName(SigleOrderdata?.data?.Manufacture?.name);
@@ -274,7 +274,7 @@ console.log(singleUserPartyData,"singleUserPartyData")
           </svg>
           <span className="ml-1.5 text-xs font-medium">Back</span>
         </button>
-    {!attachments?.length === 0  &&
+   
         <button
           onClick={() => {
             handleSubmit();
@@ -308,7 +308,7 @@ console.log(singleUserPartyData,"singleUserPartyData")
           </svg>
           <span className="ml-1.5 text-xs font-medium">SEND MAIL</span>
         </button>
-}
+
       </div>
       <div className="grid grid-cols-3 gap-3 h-full bg-gray-100 p-3 overflow-hidden">
         <Modal
@@ -464,10 +464,10 @@ console.log(singleUserPartyData,"singleUserPartyData")
                 Attachments
               </h3>
 
-              <div className="flex flex-col gap-2  h-[380px] overflow-y-auto">{console.log(attachments,"attachments")}
+              <div className="flex flex-col gap-2  h-[380px] overflow-y-auto">
               
-                {attachments?.filter?.(file =>  file?.fileName)?.map((item, index) => {
-                  const fileName = item.filePath?.split("/").pop();
+                {attachments?.map((item, index) => {
+                  const fileName = item?.filePath?.split("/").pop();
                   return (
                     <div
                       key={index}
