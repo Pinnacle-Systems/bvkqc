@@ -274,6 +274,7 @@ console.log(singleUserPartyData,"singleUserPartyData")
           </svg>
           <span className="ml-1.5 text-xs font-medium">Back</span>
         </button>
+    {!attachments?.length === 0  &&
         <button
           onClick={() => {
             handleSubmit();
@@ -307,8 +308,8 @@ console.log(singleUserPartyData,"singleUserPartyData")
           </svg>
           <span className="ml-1.5 text-xs font-medium">SEND MAIL</span>
         </button>
+}
       </div>
-
       <div className="grid grid-cols-3 gap-3 h-full bg-gray-100 p-3 overflow-hidden">
         <Modal
           isOpen={formReport}
