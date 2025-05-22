@@ -36,7 +36,7 @@ const BrowseSingleImage = ({ picture, setPicture, readOnly }) => {
                                     <input type="file" id="profileImage" className='hidden' onChange={(e) => {
                                         setPicture(e.target.files[0])
                                     }}
-                                    // accept='image/png'
+                                 
                                     />
 
                                     <label htmlFor="profileImage" className="text-xs w-full">Browse</label>

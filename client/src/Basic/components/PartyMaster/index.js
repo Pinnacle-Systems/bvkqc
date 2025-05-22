@@ -102,7 +102,7 @@ console.log(projectForm,"projectForm")
         companyId
     };
     const { data: cityList } =
-        useGetCityQuery({ params }); console.log(cityList, "cityList")
+        useGetCityQuery({ params });
 
     const { data: currencyList } =
         useGetCurrencyMasterQuery({ params });
@@ -243,7 +243,7 @@ console.log(projectForm,"projectForm")
             setId(returnData.data.id)
             toast.success(text + "Successfully");
             if(projectForm){
-                            dispatch(push({ name: "ORDER",projectForm: true ,projectId :true}));
+              dispatch(push({ name: "ORDER",projectForm: true ,projectId :true}));
                 
             }
         } catch (error) {

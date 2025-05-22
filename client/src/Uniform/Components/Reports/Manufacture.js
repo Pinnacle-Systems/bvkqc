@@ -16,7 +16,7 @@ import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
 import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
 import { useUploadMutation } from "../../../redux/uniformService/OrderService";
 import secureLocalStorage from "react-secure-storage";
-import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import ArtDesignReport from "../ArtDesign/ArtDesignReport";
 import Swal from "sweetalert2";
 
 export default function Manufactureform({

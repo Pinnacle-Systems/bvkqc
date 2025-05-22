@@ -20,7 +20,7 @@ import {
 import { getImageUrlPath } from "../../../Constants";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { LongDropdownInput } from "../../../Inputs";
-import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import ArtDesignReport from "../ArtDesign/ArtDesignReport";
 import { useDispatch } from "react-redux";
 import { Backpack, DeleteIcon, Send } from "lucide-react";
 import { Loader } from "../../../Basic/components";
@@ -44,10 +44,10 @@ export default function MailForm({
   const userName = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "username"
   );
-    const userId = secureLocalStorage.getItem(
+  const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId"
   );
-     const partyId = secureLocalStorage.getItem(
+  const partyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userType"
   );
   const [toEmail, setToEmail] = useState(["manojbharathi00@gmail.com"]);
@@ -87,7 +87,7 @@ export default function MailForm({
     isLoading: isEmailLoading,
     isFetching: isEmailFetching,
   } = useGetEmailByIdQuery(emailId, { skip: !emailId });
-  
+
   const {
     data: SigleOrderdata,
     isLoading,
@@ -97,20 +97,20 @@ export default function MailForm({
   // console.log()
   const FromEmailAddress = partyData?.data?.mailId;
   const passskey = SigleOrderdata?.data?.passKey;
-  
+
   const [updateData] = useUpdateOrderMutation();
-  
+
   const styleNumber = SigleOrderdata?.data?.orderBillItems?.[0]?.styleCode;
-  
+
   useEffect(() => {
     const singleAttachments = SigleOrderdata?.data?.attachments || [];
     console.log(singleAttachments, "singleAttachments");
     const emailAttachment = Emaildata?.data?.poExcelFileName
-      ? [{ filePath: Emaildata?.data?.poExcelFileName , fileName : Emaildata?.data.poExcelFileName }]
+      ? [{ filePath: Emaildata?.data?.poExcelFileName, fileName: Emaildata?.data.poExcelFileName }]
       : [];
 
     const combined = [...singleAttachments, ...emailAttachment]
-    console.log(combined,'combined')
+    console.log(combined, 'combined')
 
     setPoNumber(SigleOrderdata?.data?.docId);
     setSubject(SigleOrderdata?.data?.docId);
@@ -128,7 +128,6 @@ export default function MailForm({
     isEmailLoading,
     isEmailFetching,
   ]);
-console.log(singleUserPartyData,"singleUserPartyData")
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId);
   }, [singleUserPartyData]);
@@ -146,7 +145,7 @@ console.log(singleUserPartyData,"singleUserPartyData")
     setCcList(updated);
   };
 
- 
+
 
   const data = {
     mailTransaction: true,
@@ -180,13 +179,15 @@ console.log(singleUserPartyData,"singleUserPartyData")
         }
       }
 
+      console.log(formData,"formData");
+      
       let returnData;
       if (text === "Updated") {
         returnData = await callback({ id, body: formData }).unwrap();
         setCurrentId("");
         SyncformwithDb();
       } else {
-        returnData = await callback(formData).unwrap();
+        // returnData = await callback(formData).unwrap();
       }
     } catch (error) {
       alert(`An error occurred: ${error.message}`);
@@ -274,7 +275,7 @@ console.log(singleUserPartyData,"singleUserPartyData")
           </svg>
           <span className="ml-1.5 text-xs font-medium">Back</span>
         </button>
-   
+
         <button
           onClick={() => {
             handleSubmit();
@@ -465,7 +466,7 @@ console.log(singleUserPartyData,"singleUserPartyData")
               </h3>
 
               <div className="flex flex-col gap-2  h-[380px] overflow-y-auto">
-              
+
                 {attachments?.map((item, index) => {
                   const fileName = item?.filePath?.split("/").pop();
                   return (

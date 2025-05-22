@@ -23,7 +23,8 @@ import {
   sendMail,
   excessQty,
   email, orderImport,
-  controlPanel
+  controlPanel,
+  TagType
 
 } from './src/routes/index.js';
 
@@ -94,7 +95,7 @@ app.use("/email", email)
 app.use("/percentage", excessQty);
 app.use("/orderImport", orderImport);
 app.use("/controlPanel", controlPanel);
-
+app.use("/tagType", TagType);
 
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params

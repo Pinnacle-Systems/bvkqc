@@ -117,7 +117,6 @@ export async function upload(req, res, next) {
 export async function attach(req, res, next) {
 
     try {
-        console.log("Hit")
 
         res.json(await _attach(req));
         console.log(res.statusCode);

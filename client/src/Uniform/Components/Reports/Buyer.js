@@ -16,7 +16,7 @@ import {
   getDateFromDateTime,
 } from "../../../Utils/helper";
 
-import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import ArtDesignReport from "../ArtDesign/ArtDesignReport";
 import secureLocalStorage from "react-secure-storage";
 
 
@@ -31,7 +31,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
   const { branchId, finYearId, userId } = getCommonParams();
   const [attachments, setAttachments] = useState([]);
 
-{console.log(PoStatus,"PoStatus")}
+  { console.log(PoStatus, "PoStatus") }
 
 
   let data = singleData?.data
@@ -93,7 +93,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
   };
 
   const { data: allData } = useGetPercentageQuery({ params });
-  
+
   return (
     <>
       <Modal
@@ -156,8 +156,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
               onClick={() => {
                 saveData(isBuyer);
               }}
-              disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
-              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
+              disabled={PoStatus === "Cancel" && data?.userRoleId}
+              title={PoStatus === "Cancel" && data?.userRoleId ? "The Po Was Cancel" : ''}
 
               className="group flex items-center justify-center text-[#303AB2] hover:text-white border border-[#303AB2] hover:bg-[#303AB2] transition-all duration-200 ease-in-out px-4 py-1.5 rounded-full shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#303AB2] focus:ring-offset-2"
             >
@@ -177,8 +177,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
             {data?.poSentForApproval && (
               <button
                 onClick={() => saveData(isMailForm, false, isBuyer)}
-                disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
-              title={PoStatus === "Cancel"  &&  data?.userRoleId  ?  "The Po Was Cancel" : ''}
+                disabled={PoStatus === "Cancel" && data?.userRoleId}
+                title={PoStatus === "Cancel" && data?.userRoleId ? "The Po Was Cancel" : ''}
 
                 className="group flex items-center bg-white text-[#303AB2] border border-[#303AB2] hover:bg-[#303AB2] hover:text-white transition-all duration-200 ease-in-out px-3 py-1 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#303AB2] focus:ring-offset-1"
               >
@@ -258,7 +258,7 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   className="border border-gray-300 text-xs px-2 py-1 rounded-lg"
                   value={PoStatus}
                   onChange={(e) => setPoStatus(e.target.value)}
-                  disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+                  disabled={PoStatus === "Cancel" && data?.userRoleId}
 
                 >
                   <option value="">Select Status</option>
@@ -266,23 +266,23 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   <option value="Cancel">Cancel</option>
 
                 </select>
-          </div>
-          {(PoStatus ===  "Accept"  || PoStatus ===  "Cancel" )    && 
-          <div className="w-18  flex flex-col "> 
-            <label className="text-xs font-semibold  ">
-          Reason
-        </label>
-          <textarea 
-               className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  cols={18} rows={1}
-                 disabled={PoStatus === "Cancel"  &&  data?.userRoleId}
+              </div>
+              {(PoStatus === "Accept" || PoStatus === "Cancel") &&
+                <div className="w-18  flex flex-col ">
+                  <label className="text-xs font-semibold  ">
+                    Reason
+                  </label>
+                  <textarea
+                    className="border border-gray-300 text-xs px-2 py-1 col rounded-lg"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    cols={18} rows={1}
+                    disabled={PoStatus === "Cancel" && data?.userRoleId}
 
-          ></textarea>
-          </div>
-           }
-              {allData?.data[0]?.selectedApprover === "ADMIN" ? <>
+                  ></textarea>
+                </div>
+              }
+              {allData?.data[0]?.selectedApprover === "BUYER" ? <>
                 {singleData?.data?.poSentForApproval && (
                   <div className=" w-18 flex flex-col ">
                     <label className="text-xs font-semibold  ">
@@ -311,23 +311,26 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   </div>
                 )}
 
-                {singleData?.data?.poSentForApproval && (
+              
+                
+                   </> :
+                 ''}
+
+
+            </div>
+  {singleData?.data?.poSentForApproval && (
                   <div className="flex pt-3">
                     <button
                       className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
-      rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
-      duration-300 ease-in-out focus:outline-none focus:ring-2 
-      focus:ring-blue-400 focus:ring-offset-2"
+                        rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
+                        duration-300 ease-in-out focus:outline-none focus:ring-2 
+                        focus:ring-blue-400 focus:ring-offset-2"
                       onClick={() => setFormReport(true)}
                     >
                       <span className="text-[13px]">View Art Design</span>
                     </button>
                   </div>
-                )}</> : ''}
-
-
-            </div>
-
+                )} 
             <div className="w-full   overflow-x-auto  h-[70vh] pt-2">
               <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
                 <thead className="bg-white text-gray-800 border-b border-gray-300">
@@ -345,7 +348,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
-                    {singleData?.data?.deliverydate && (<>
+                    {singleData?.data?.deliverydate && (
+                      <>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th></>)}
 
