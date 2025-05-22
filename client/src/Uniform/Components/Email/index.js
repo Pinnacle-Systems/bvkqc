@@ -179,6 +179,8 @@ export default function MailForm({
         }
       }
 
+      console.log(formData,"formData");
+      
       let returnData;
       if (text === "Updated") {
         returnData = await callback({ id, body: formData }).unwrap();

@@ -1,9 +1,10 @@
 import { Router } from 'express';
 const router = Router();
 import { get, getOne, getSearch,  create, update, remove} from '../controllers/tagType.controller.js';
+import multerUpload from '../utils/multerUpload.js';
 
 
-router.post('/', create);
+router.post('/',multerUpload.single('file'), create);
 
 router.get('/', get);
 

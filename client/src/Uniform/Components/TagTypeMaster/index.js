@@ -70,41 +70,75 @@ export default function Form() {
     syncFormWithDb(singleData?.data);
   }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData])
 
+  const file = fileName?.name
 
-  const data = {
-    name,  active, id
+
+  // const data = {
+  //  name,  active, id , fileName
+  // }
+
+const data = {
+  name: 'John',
+  active: true,
+  id: 123,
+  fileName: 'report.pdf'
+};
+
+const formData = new FormData();
+
+for (const key in data) {
+  if (data.hasOwnProperty(key)) {
+    formData.append(key, data[key]);
   }
+}
 
-  const validateData = (data) => {
-    if (data.name ) {
-      return true;
-    }
-    return false;
-  }
-
+console.log(formData,"formData")  
+// const validateData = (data) => {
+//   if (data.name ) {
+//     return true;
+//   }
+//   return false;
+// }
+ 
   const handleSubmitCustom = async (callback, data, text) => {
-    try {
-      let returnData = await callback(data).unwrap();
+
+  try {
+      const formData = new FormData();
+      for (let key in data) {
+        if (key === "attachments") {
+          formData.append(
+            key,
+            JSON.stringify(data[key].map((i) => ({ ...i })))
+          );
+        } else {
+          formData.append("name","selva");
+        }
+      }
+console.log(formData,"formdata")
+      let returnData = await callback({ id, body: formData }).unwrap();
       setId(returnData.data.id)
       toast.success(text + "Successfully");
 
     } catch (error) {
-      console.log("handle")
+      console.log(error,"handle")
     }
   }
 
+
+
+
   const saveData = () => {
-    console.log("saveData hit")
-    if (!validateData(data)) {
-      toast.error("Please fill all required fields...!", { position: "top-center" })
-      return
-    }
+
+    // if (!validateData(data)) {
+    //   toast.error("Please fill all required fields...!", { position: "top-center" })
+    //   return
+    // }
     if (!window.confirm("Are you sure save the details ...?")) {
       return
     }
     if (id) {
       handleSubmitCustom(updateData, data, "Updated")
-      console.log("updateData hit")
+     
     } else {
       handleSubmitCustom(addData, data, "Added");
     }
@@ -145,6 +179,7 @@ export default function Form() {
     setReadOnly(false);
     setForm(true);
     setSearchValue("");
+    setFileName({})
   };
 
   function onDataClick(id) {
@@ -156,7 +191,6 @@ export default function Form() {
   ]
   const tableDataNames = ["index+1",  "dataObj.name", 'dataObj.active ? ACTIVE : INACTIVE', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
 
-  console.log(fileName?.name ,"fileName")
   return (
     <div onKeyDown={handleKeyDown} className='px-5'>
       <div className='w-full flex justify-between mb-2 items-center px-0.5'>

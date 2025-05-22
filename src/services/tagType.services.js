@@ -53,11 +53,11 @@ async function getSearch(req) {
 }
 
 async function create(body) {
-    const { name, code, companyId, active } = await body
+    const { name, code, file, active } = await body
     const data = await prisma.tagType.create(
         {
             data: {
-                name,active
+                name, active ,fileName : file ? file : undefined
             }
         }
     )
@@ -65,27 +65,27 @@ async function create(body) {
 }
 
 async function update(id, body) {
-    const { name, code, active } = await body
+    const { name, file, active } = await body
     const dataFound = await prisma.tagType.findUnique({
         where: {
             id: parseInt(id)
         }
     })
     if (!dataFound) return NoRecordFound("tagType");
-    const data = await prisma.country.update({
+    const data = await prisma.tagType.update({
         where: {
             id: parseInt(id),
         },
         data:
         {
-         name,active
+         name,active,fileName : file ? file : undefined
         },
     })
     return { statusCode: 0, data };
 };
 
 async function remove(id) {
-    const data = await prisma.country.delete({
+    const data = await prisma.tagType.delete({
         where: {
             id: parseInt(id)
         },
