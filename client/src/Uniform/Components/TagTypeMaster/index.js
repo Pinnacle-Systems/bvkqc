@@ -73,59 +73,37 @@ export default function Form() {
   const file = fileName?.name
 
 
-  // const data = {
-  //  name,  active, id , fileName
-  // }
-
-const data = {
-  name: 'John',
-  active: true,
-  id: 123,
-  fileName: 'report.pdf'
-};
-
-const formData = new FormData();
-
-for (const key in data) {
-  if (data.hasOwnProperty(key)) {
-    formData.append(key, data[key]);
+  const data = {
+   name,  active, id , fileName
   }
-}
 
-console.log(formData,"formData")  
-// const validateData = (data) => {
-//   if (data.name ) {
-//     return true;
-//   }
-//   return false;
-// }
- 
+
+  // const validateData = (data) => {
+  //   if (data.name ) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
   const handleSubmitCustom = async (callback, data, text) => {
+    
+    const formData = new FormData();
 
-  try {
-      const formData = new FormData();
-      for (let key in data) {
-        if (key === "attachments") {
-          formData.append(
-            key,
-            JSON.stringify(data[key].map((i) => ({ ...i })))
-          );
-        } else {
-          formData.append("name","selva");
-        }
-      }
-console.log(formData,"formdata")
+formData.append("name",JSON.stringify(data?.name));
+formData.append("active", JSON.stringify(data?.active)); 
+formData.append("fileName", JSON.stringify(data?.fileName));
+
+
+    console.log(formData,"formData");
+
+    try {
       let returnData = await callback({ id, body: formData }).unwrap();
       setId(returnData.data.id)
       toast.success(text + "Successfully");
 
     } catch (error) {
-      console.log(error,"handle")
+      console.log("handle")
     }
   }
-
-
-
 
   const saveData = () => {
 
