@@ -20,7 +20,7 @@ import {
 import { getImageUrlPath } from "../../../Constants";
 import { useGetPartyByIdQuery } from "../../../redux/services/PartyMasterService";
 import { LongDropdownInput } from "../../../Inputs";
-import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import ArtDesignReport from "../ArtDesign/ArtDesignReport";
 import { useDispatch } from "react-redux";
 import { Backpack, DeleteIcon, Send } from "lucide-react";
 import { Loader } from "../../../Basic/components";
@@ -128,7 +128,6 @@ export default function MailForm({
     isEmailLoading,
     isEmailFetching,
   ]);
-  console.log(singleUserPartyData, "singleUserPartyData")
   useEffect(() => {
     setFromAddress(singleUserPartyData?.data?.mailId);
   }, [singleUserPartyData]);
@@ -186,7 +185,7 @@ export default function MailForm({
         setCurrentId("");
         SyncformwithDb();
       } else {
-        returnData = await callback(formData).unwrap();
+        // returnData = await callback(formData).unwrap();
       }
     } catch (error) {
       alert(`An error occurred: ${error.message}`);

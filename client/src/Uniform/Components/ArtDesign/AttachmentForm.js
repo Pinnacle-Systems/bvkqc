@@ -6,7 +6,6 @@ import { renameFile } from '../../../Utils/helper';
 
 const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userRole, setAttachments, attachments, setDueDate }) => {
 
-    console.log(userRole, "userRole");
 
     const today = new Date();
     function handleInputChange(value, index, field) {
@@ -26,6 +25,7 @@ const AttachementForm = ({ item, index, readOnly, leadId, dueDate, userRole, set
 
     }
 
+    console.log(attachments, "attachments");
 
     // function getImage(fileName) {
 

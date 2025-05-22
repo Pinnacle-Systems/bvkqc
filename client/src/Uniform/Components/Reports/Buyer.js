@@ -16,7 +16,7 @@ import {
   getDateFromDateTime,
 } from "../../../Utils/helper";
 
-import ArtDesignReport from "../MultipleAttachment/ArtDesignReport";
+import ArtDesignReport from "../ArtDesign/ArtDesignReport";
 import secureLocalStorage from "react-secure-storage";
 
 
@@ -311,23 +311,26 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                   </div>
                 )}
 
-                {singleData?.data?.poSentForApproval && (
+              
+                
+                   </> :
+                 ''}
+
+
+            </div>
+  {singleData?.data?.poSentForApproval && (
                   <div className="flex pt-3">
                     <button
                       className="relative h-8 px-4 py-1 bg-blue-600 text-white font-medium 
-      rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
-      duration-300 ease-in-out focus:outline-none focus:ring-2 
-      focus:ring-blue-400 focus:ring-offset-2"
+                        rounded-full shadow-sm hover:bg-blue-700 hover:shadow-md transform transition-all 
+                        duration-300 ease-in-out focus:outline-none focus:ring-2 
+                        focus:ring-blue-400 focus:ring-offset-2"
                       onClick={() => setFormReport(true)}
                     >
                       <span className="text-[13px]">View Art Design</span>
                     </button>
                   </div>
-                )}</> : ''}
-
-
-            </div>
-
+                )} 
             <div className="w-full   overflow-x-auto  h-[70vh] pt-2">
               <table className="table-fixed w-full text-xs rounded-lg border border-gray-300">
                 <thead className="bg-white text-gray-800 border-b border-gray-300">
@@ -345,7 +348,8 @@ export default function BuyerForm({ singleData, poItems, setPoItems, userRole,
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">MRP</th>
                     <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[50px]">Po Qty</th>
 
-                    {singleData?.data?.deliverydate && (<>
+                    {singleData?.data?.deliverydate && (
+                      <>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Excess %</th>
                       <th className="text-[12px] font-semibold p-1 border border-gray-300 w-[60px]">Order Qty</th></>)}
 
