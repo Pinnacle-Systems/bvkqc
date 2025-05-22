@@ -15,7 +15,8 @@ import { getCommonParams } from "../../../Utils/helper";
 import { useDispatch } from "react-redux";
 import { useGetBranchByIdQuery } from "../../../redux/services/BranchMasterService";
 import useLogout from "../../../CustomHooks/useLogout";
-
+import {  Users, Briefcase } from 'lucide-react'; 
+import { push } from "../../../redux/features/opentabs";
 
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
@@ -38,7 +39,7 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
   const handleOutsideClick = () => {
     sethideNavBar(false);
   };
-
+  const dispatch = useDispatch();
   const ref = useOutsideClick(handleOutsideClick);
 
   const { token } = getCommonParams()
@@ -132,65 +133,75 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
   const transactionsGroup = [...new Set(transactions.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
   const reports = allowedPages.filter((page) => page.type === "Reports")
   const reportGroups = [...new Set(reports.map(page => page.pageGroupId))].map(pageId => { return { id: pageId, name: findElement(pageId, pageGroup?.data) } })
-
-  const dispatch = useDispatch()
-
   const { userId, branchId } = getCommonParams()
   const { data: branch } = useGetBranchByIdQuery(branchId, { skip: !branchId });
 
 
 
   return (
-    <div className='py-1  w-full flex justify-between items-center bg-white shadow-sm fixed z-50'>
-      <div className="w-32 ms-3">
-        <img className="rounded-lg"
-          src={logo}
-          alt="" />
-      </div>
-      <div className="mr-9 flex items-center  justify-content-between">
-        <div className='flex items-center text-[12px] border rounded-full relative mr-3'>
-          <input className=' px-2 py-1 w-60 text-[12px] rounded-full' placeholder='search' type='text' name='password' id='password' />
-          <div className='absolute right-2  text-neutral-500'>
-            <Search size={15} />
-          </div>
-        </div>
-        {/* <div className="mr-3 bg-beige p-2 rounded-full ">
-                    <Bell size={17}  />
-                </div> */}
-        <div className="text-sm text-black my-0 px-3">
-          {userName?.toUpperCase()}
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center space-x-2">
-            <img
-              className="rounded-full border-2 border-indigo-500 cursor-pointer 
-               hover:border-indigo-700 transition-all duration-200
-               shadow-sm hover:shadow-md focus:outline-none 
-               focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              onClick={() => setProfile(!profile)}
-              width={35}
-              height={35}
-              src={dp}
-              alt="Profile"
-            />
 
+<div className='py-2 w-full flex justify-between items-center bg-white shadow-sm fixed z-50 px-4'>
+  {/* Logo */}
+  <div className="w-32">
+    <img className="rounded-lg" src={logo} alt="Logo" />
+  </div>
 
-          </div>
-
-          {profile && (
-            <Profile
-              dp={dp}
-              setProfile={setProfile}
-              items={allowedPages.filter((page) => page.type === "AdminAccess")}
-              setLogout={setLogout}
-              logout={logout}
-            />
-          )}
-        </div>
-
-      </div>
-
+  {/* Center Search Bar */}
+  <div className="flex items-center space-x-3">
+    <div className='relative'>
+      <input
+        className='pl-3 pr-8 py-1 w-60 text-sm rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400'
+        placeholder='Search'
+        type='text'
+      />
+      <Search className='absolute right-2 top-1.5 text-neutral-500' size={16} />
     </div>
+
+    {/* Party Icon */}
+   <button
+  className="flex items-center space-x-1 text-sm px-3 py-1 bg-gray-100 hover:bg-indigo-100 text-indigo-600 rounded-full shadow-sm transition"
+  title="Party"
+  onClick={() => dispatch(push({ name: "PARTY MASTER" }))}
+>
+  <Users size={16} />
+  <span>Party</span>
+</button>
+
+
+    {/* Employee Icon */}
+    <button
+      className="flex items-center space-x-1 text-sm px-3 py-1 bg-gray-100 hover:bg-indigo-100 text-indigo-600 rounded-full shadow-sm transition"
+      title="Employee"
+    >
+      <Briefcase size={16} />
+      <span>Employee</span>
+    </button>
+  </div>
+
+  {/* Right Side */}
+  <div className="flex items-center space-x-4 text-sm">
+    <div className="text-black">{userName?.toUpperCase()}</div>
+    <img
+      className="rounded-full border-2 border-indigo-500 cursor-pointer hover:border-indigo-700 transition-all duration-200 shadow-sm"
+      onClick={() => setProfile(!profile)}
+      width={35}
+      height={35}
+      src={dp}
+      alt="Profile"
+    />
+
+    {profile && (
+      <Profile
+        dp={dp}
+        setProfile={setProfile}
+        items={allowedPages.filter((page) => page.type === "AdminAccess")}
+        setLogout={setLogout}
+        logout={logout}
+      />
+    )}
+  </div>
+</div>
+
   )
 }
 

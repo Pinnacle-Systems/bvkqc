@@ -1,332 +1,298 @@
-import { useAddOrderMutation, useGetOrderByIdQuery, useGetOrderQuery, useUpdateOrderMutation } from "../../../redux/uniformService/OrderService";
-import secureLocalStorage from "react-secure-storage";
-import React, { useCallback, useEffect, useState } from "react";
-import GeneralSummary from "./GeneralSummary";
-import { getCommonParams, getDateFromDateTime } from "../../../Utils/helper";
-import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
-import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
-import Manufacture from "./Manufacture";
-import Vendor from "./Vendor";
-import Buyer from "./Buyer";
-import Manufactureform from "../Reports/Manufacture";
-import VendorForm from "../Reports/Vendor";
-import BuyerForm from "../Reports/Buyer";
-import FormHeaderNew from "../../../Basic/components/FormHeaderNew";
-import { useGetUserByIdQuery } from "../../../redux/services/UsersMasterService";
-import { useGetPercentageQuery } from "../../../redux/uniformService/Percentage";
-import moment from 'moment';
-import { Loader } from "../../../Basic/components";
+import { useState } from 'react';
+import { FaPlus, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
+const PurchaseOrders = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState('this-month');
+  const [selectedFinYear, setSelectedFinYear] = useState('2023-2024');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
-export default function Order({ setForm, form, setEmailId, active, setActive, setCurrentId }) {
-  const today = new Date()
-  console.log(today, "today")
-  const [id, setId] = useState("");
-  const [refreshPage, setRefreshPage] = useState(false)
-  const [fileName, setFileName] = useState("");
-  const [poItems, setPoItems] = useState([]);
-  const [poNo, setPoNo] = useState(null)
-  const [vendor, setVendor] = useState('')
-  const [deliveryDate, setDeliveryDate] = useState(moment.utc().format('YYYY-MM-DD'));
-
-  const [isSave, setIsSave] = useState(true)
-  const [mailConvert, setMailConvert] = useState(false)
-  const [docDate, setDocDate] = useState(getDateFromDateTime(today));
-  const { branchId, finYearId, userId } = getCommonParams()
-  const [PoStatus, setPoStatus] = useState('')
-  const [reason, setReason] = useState('')
-  const [userRoleInOrderStatus, setUserRoleInOrderStatus] = useState("")
-  const partyId = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "partyId"
-
-  )
-
-  const userRoleId = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userRoleId"
-
-  )
-
-  const { data: singleuserData } = useGetUserByIdQuery(userId, { skip: !userId });
-  const userRole = singleuserData?.data?.userType || ""
-
-
-
-
-
-  const { data: allData, refetch, isLoading, isFetching } = useGetOrderQuery({ params: { branchId, finYearId, partyId, userRole } });
-
-  const { data: singleData, isFetching: isSingleFetching, isLoading: isSingleLoading, } = useGetOrderByIdQuery(id, { skip: !id });
-  const [addData] = useAddOrderMutation();
-  const [updateData] = useUpdateOrderMutation();
-
-
-
-
-  const syncFormWithDb = useCallback(
-    (data) => {
-      setPoItems(data?.orderBillItems || []);
-      setIsSave(data?.isSave)
-      setVendor(data?.vendorId)
-      setDeliveryDate(data?.deliverydate ? moment(data?.deliverydate).format('YYYY-MM-DD') : null)
-      setDocDate(data?.docDate ? moment(data?.docDate).format('YYYY-MM-DD') : null)
-      setIsApproved(data?.isApproved || '');
-      setPoStatus(data?.poStatus || "");
-      setReason(data?.approvalstatusReason || "")
-
+  // Sample data with only 2 entries
+  const sampleData = [
+    {
+      id: 1,
+      supplier: 'Anugraha Fashion',
+      contact: 'manoj - manojpinnaclesystems.co.in',
+      orderNo: 'PO-2023-001',
+      orderDate: '2023-07-15',
+      taxable: '₹45,000',
+      amount: '₹53,100',
+      status: 'pending'
     },
-    [id]
-  );
-  useEffect(() => {
-    syncFormWithDb(singleData?.data);
-  }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
+    {
+      id: 2,
+      supplier: 'Jiwin Supplier',
+      contact: 'tamil - tamilpinnaclesystems.co.in',
+      orderNo: 'PO-2023-002',
+      orderDate: '2023-07-18',
+      taxable: '₹12,500',
+      amount: '₹14,750',
+      status: 'processed'
+    },
+     {
+      id: 1,
+      supplier: 'Anugraha Fashion',
+      contact: 'manoj - manojpinnaclesystems.co.in',
+      orderNo: 'PO-2023-001',
+      orderDate: '2023-07-15',
+      taxable: '₹45,000',
+      amount: '₹53,100',
+      status: 'pending'
+    },
+    {
+      id: 2,
+      supplier: 'Jiwin Supplier',
+      contact: 'tamil - tamilpinnaclesystems.co.in',
+      orderNo: 'PO-2023-002',
+      orderDate: '2023-07-18',
+      taxable: '₹12,500',
+      amount: '₹14,750',
+      status: 'processed'
+    },
+     {
+      id: 1,
+      supplier: 'Anugraha Fashion',
+      contact: 'manoj - manojpinnaclesystems.co.in',
+      orderNo: 'PO-2023-001',
+      orderDate: '2023-07-15',
+      taxable: '₹45,000',
+      amount: '₹53,100',
+      status: 'pending'
+    },
+    {
+      id: 2,
+      supplier: 'Jiwin Supplier',
+      contact: 'tamil - tamilpinnaclesystems.co.in',
+      orderNo: 'PO-2023-002',
+      orderDate: '2023-07-18',
+      taxable: '₹12,500',
+      amount: '₹14,750',
+      status: 'processed'
+    },
+     {
+      id: 1,
+      supplier: 'Anugraha Fashion',
+      contact: 'manoj - manojpinnaclesystems.co.in',
+      orderNo: 'PO-2023-001',
+      orderDate: '2023-07-15',
+      taxable: '₹45,000',
+      amount: '₹53,100',
+      status: 'pending'
+    },
+    {
+      id: 2,
+      supplier: 'Jiwin Supplier',
+      contact: 'tamil - tamilpinnaclesystems.co.in',
+      orderNo: 'PO-2023-002',
+      orderDate: '2023-07-18',
+      taxable: '₹12,500',
+      amount: '₹14,750',
+      status: 'processed'
+    },
+   
+  
+ 
+  ];
 
-  const excessQty = poItems?.reduce((a, c) => a + parseFloat(c?.excessQty || 0), 0);
-  const excessQtyAmount = poItems?.reduce((a, c) => a + parseFloat(c?.qty || 0), 0);
+  const handleView = (id) => {
+    alert(`Viewing order ${id}`);
+  };
 
-  const [isApproved, setIsApproved] = useState('')
-  const data = {
-    id,
-    branchId, userId,
-    orderDetails: poItems?.filter(item => item?.orderQty > 0),
-    finYearId,
-    vendor,
-    excessQty,
-    excessQtyAmount,
-    isApproved,
-    deliveryDate, docDate, reason, PoStatus, userRoleId: PoStatus ? userRoleId : undefined
-  }
+  const handleEdit = (id) => {
+    alert(`Editing order ${id}`);
+  };
 
-  const dispatch = useDispatch()
-  const handleSubmitCustom = async (callback, data, text, isManufacture = false) => {
-
-    try {
-      const formData = new FormData();
-      for (let key in data) {
-        if (key === "orderDetails") {
-          data[key].forEach(item =>
-            formData.append(key, JSON.stringify(item))
-          );
-        }
-        if (key === 'attachments') {
-          formData.append(key, JSON.stringify(data[key].map(i => ({ ...i, filePath: (i.filePath instanceof File) ? i.filePath.name : i.filePath }))));
-          data[key].forEach(option => {
-            if (option?.filePath instanceof File) {
-              formData.append('images', option.filePath);
-            }
-          });
-        } else {
-          formData.append(key, data[key]);
-        }
-      }
-
-
-      let returnData;
-      if (text === "Updated") {
-        returnData = await callback({ id, body: formData }).unwrap();
-      } else {
-        returnData = await callback(formData).unwrap();
-      }
-      if (returnData.statusCode === 0) {
-
-        if (isManufacture) {
-          toast.success(text + "Successfully", {
-            autoClose: 1000
-          });
-        }
-        dispatch({
-          type: `Order/invalidateTags`,
-          payload: ['Order'],
-        });
-
-      } else {
-        toast.error(returnData?.message, {
-          autoClose: 1000
-        });
-      }
-
-    } catch (error) {
-      console.log("handle", error);
+  const handleDelete = (id) => {
+    if (window.confirm(`Delete order ${id}?`)) {
+      alert(`Deleting order ${id}`);
     }
   };
 
+  const totalPages = Math.ceil(sampleData.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sampleData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const saveData = (isMailForm = false, isManufacture = false, isBuyer = false) => {
-
-
-    if (isMailForm) {
-      if (!window.confirm("Are you sure you want to save And Send The Mail Details?")) {
-        return;
-      }
-
-    }
-    if (isBuyer) {
-      if (!window.confirm("Are you sure you want to save  Details?")) {
-        return;
-      }
-    }
-    if (isManufacture && userRole === "MANUFACTURE") {
-
-      if (!deliveryDate) {
-        toast.info("Choose The Delivery Date", {
-          autoClose: 1000
-        })
-        return;
-      }
-      // if (!vendor) {
-      //   toast.info("Choose The Vendor", {
-      //     autoClose: 1000
-      //   })
-      //   return;
-      // }
-
-    }
-
-
-    if (isMailForm) {
-      setForm(false);
-      setActive("Mail");
-    }
-
-    if (id) {
-      handleSubmitCustom(updateData, data, "Updated", isManufacture)
-
-    } else {
-
-      handleSubmitCustom(addData, data, "Added")
-    }
-
+  const paddedItems = [...currentItems];
+  while (paddedItems.length < itemsPerPage) {
+    paddedItems.push({ id: `empty-${paddedItems.length}`, empty: true });
   }
 
-
-
-
-
-
-  if (isFetching || isLoading) return <Loader />
-
-
+  const Pagination = () => (
+    <div className="flex flex-col sm:flex-row justify-between items-center p-4 bg-white border-t border-gray-200">
+      <div className="text-sm text-gray-600 mb-2 sm:mb-0">
+        Showing {Math.min(indexOfFirstItem + 1, sampleData.length)} to {Math.min(indexOfLastItem, sampleData.length)} of {sampleData.length} entries
+      </div>
+      <div className="flex gap-1">
+        <button
+          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === 1 
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-white text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          <FaChevronLeft className="inline" />
+        </button>
+        
+        {[...Array(totalPages)].map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentPage(index + 1)}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === index + 1
+                ? 'bg-[#E88421] text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+        
+        <button
+          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+          disabled={currentPage === totalPages}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === totalPages
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-white text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          <FaChevronRight className="inline" />
+        </button>
+      </div>
+    </div>
+  );
 
   return (
+    <div className="p-6 bg-[#F1F1F0] min-h-screen">
+      <div className="flex flex-col sm:flex-row justify-between bg-white py-1.5 px-1 items-start sm:items-center mb-6 gap-4 rounded-tl-lg rounded-tr-lg shadow-sm border border-gray-200">
+        <div className="flex items-center gap-2">
+          <select 
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="px-3 py-1.5 border rounded-md text-sm"
+          >
+            <option value="this-month">This Month</option>
+            <option value="last-month">Last Month</option>
+          </select>
+          <select 
+            value={selectedFinYear}
+            onChange={(e) => setSelectedFinYear(e.target.value)}
+            className="px-3 py-1.5 border rounded-md text-sm"
+          >
+            <option value="2023-2024">2023-2024</option>
+            <option value="2022-2023">2022-2023</option>
+          </select>
+          <select 
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="px-3 py-1.5 border rounded-md text-sm"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="processed">Processed</option>
+          </select>
+        </div>
+        <button className="bg-white hover:bg-green-700 border border-green-700 hover:text-white text-gray-800 px-4 py-1.5 rounded-md flex items-center gap-2 text-sm ">
+          <FaPlus /> Create New
+        </button>
+      </div>
 
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <table className="w-full border-collapse">
+          <thead className="bg-gray-200 text-gray-800">
+            <tr>
+              <th className="px-4 py-2 text-left font-medium border-r border-white/50 text-[13px]">Supplier</th>
+              <th className="px-4 py-2 text-left font-medium border-r border-white/50 text-[13px]">Contact</th>
+              <th className="px-4 py-2 text-left font-medium border-r border-white/50 text-[13px]">Order No.</th>
+              <th className="px-4 py-2 text-left font-medium border-r border-white/50 text-[13px]">Order Date</th>
+              <th className="px-4 py-2 text-left font-medium border-r border-white/50 text-[13px]">Taxable (₹)</th>
+              <th className="px-4 py-2 text-left font-medium border-r border-white/50 text-[13px]">Amount (₹)</th>
+              <th className="px-4 py-2 text-left font-medium border-r  border-white/50 text-[13px]">Status</th>
+              <th className="px-4 py-2 text-left font-medium text-[13px]">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paddedItems.map((order) => (
+              <tr 
+                key={order.id} 
+                className={`hover:bg-gray-50 transition-colors border-b border-gray-200 text-[12px] ${
+                  order.empty ? 'bg-gray-50' : ''
+                }`}
+              >
+                <td className="px-4 py-1.5 border-r h-4 border-gray-200">
+                  {order.empty ? '' : order.supplier}
+                </td>
+                <td className="px-4 py-1.5 text-gray-600 border-r h-4 border-gray-200">
+                  {order.empty ? '' : order.contact}
+                </td>
+                <td className="px-4 py-1.5 font-medium text-blue-700 h-4 border-r border-gray-200">
+                  {order.empty ? '' : order.orderNo}
+                </td>
+                <td className="px-4 py-1.5 border-r border-gray-200 h-4">
+                  {order.empty ? '' : order.orderDate}
+                </td>
+                <td className="px-4 py-1.5 border-r border-gray-200 h-4">
+                  {order.empty ? '' : order.taxable}
+                </td>
+                <td className="px-4 py-1.5 font-semibold border-r border-gray-200 h-4">
+                  {order.empty ? '' : order.amount}
+                </td>
+                <td className="px-4 py-1.5 border-r border-gray-200">
+                  {!order.empty && (
+                    <div className="flex items-center">
+                      <span className={`w-2 h-2 rounded-full mr-1.5 ${order.status === 'pending' ? 'bg-yellow-500' : 'bg-green-500'}`}></span>
+                      <span className={`capitalize ${order.status === 'pending' ? 'text-yellow-600' : 'text-green-600'}`}>
+                        {order.status}
+                      </span>
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-1.5  border-gray-200 border-r border-gray-200">
+                  {!order.empty && (
+                    <div className="flex gap-2">
+                      <button 
+                        className="text-blue-600 text-blue-800 flex items-center gap-1 px-2 py-1.5 bg-blue-50 rounded"
+                        onClick={() => handleView(order.id)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-xs">View</span>
+                      </button>
+                      <button 
+                        className="text-green-600 text-green-800 flex items-center gap-1 px-2 py-1.5 bg-green-50 rounded"
+                        onClick={() => handleEdit(order.id)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                        <span className="text-xs">Edit</span>
+                      </button>
+                      <button 
+                        className="text-red-600 text-red-800 flex items-center gap-1 px-2 py-1.5 bg-red-50 rounded"
+                        onClick={() => handleDelete(order.id)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-xs">Delete</span>
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Pagination />
+      </div>
+    </div>
+  );
+};
 
-    <React.Fragment >
-      {
-        form === true && userRole === "MANUFACTURE" ?
-
-          <Manufactureform
-            userRole={userRole}
-            setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
-
-            vendor={vendor} setVendor={setVendor} saveData={saveData}
-
-            orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} active={active}
-
-            id={id} setEmailId={setEmailId} setCurrentId={setCurrentId} mailConvert={mailConvert}
-
-            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate} isApproved={isApproved} setIsApproved={setIsApproved}
-
-            PoStatus={PoStatus} setPoStatus={setPoStatus} setReason={setReason} reason={reason} setId={setId}
-
-          />
-
-
-          :
-
-
-          form === true && userRole === "VENDOR" ?
-
-            <VendorForm
-
-              setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
-
-              vendor={vendor} setVendor={setVendor} saveData={saveData}
-
-              orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive}
-
-              id={id} setEmailId={setEmailId} setCurrentId={setCurrentId}
-
-              // poSentForApproval={poSentForApproval}   
-              active={active} userRole={userRole}
-
-            // setPoSentForApproval={setPoSentForApproval}
-
-            />
-            :
-
-            form === true ?
-
-              <BuyerForm
-
-                setForm={setForm} form={form} singleData={singleData} poItems={poItems} setPoItems={setPoItems}
-
-                vendor={vendor} setVendor={setVendor} saveData={saveData}
-
-                orderId={id} setFileName={setFileName} setPoNo={setPoNo} poNo={poNo} setActive={setActive} setCurrentId={setCurrentId}
-
-                id={id} setEmailId={setEmailId} isApproved={isApproved} setIsApproved={setIsApproved} active={active} userRole={userRole}
-
-                setId={setId} PoStatus={PoStatus} setPoStatus={setPoStatus}
-                setReason={setReason} reason={reason}
-              />
-
-              :
-
-              //Order Report pages
-              <div className="flex-1 flex flex-col h-[screen]">
-
-                <FormHeaderNew model={"List Of Orders"} refresh={"Refresh"} refreshPage={refetch} setId={setId} setPoItems={setPoItems} />
-
-
-
-                <main className="p-2 space-y-6">
-                  {
-                    userRole === "MANUFACTURE" ?
-
-                      <>
-                        <Manufacture
-
-                          allData={allData}
-                          setForm={setForm}
-                          setId={setId}
-                          setPoNo={setPoNo}
-                        // partyData={partyData}
-                        />
-                      </>
-                      :
-
-                      userRole === "VENDOR" ?
-
-                        <>
-                          <Vendor
-                            allData={allData}
-                            setForm={setForm}
-                            setId={setId}
-                            setPoNo={setPoNo}
-                          // partyData={partyData}
-
-                          />
-                        </>
-
-                        :
-                        <Buyer
-                          // partyData={partyData}
-                          allData={allData}
-                          setForm={setForm}
-                          setId={setId}
-                          setPoNo={setPoNo}
-                        />
-                  }
-                </main>
-
-              </div>
-
-
-      }
-    </React.Fragment >
-
-  )
-
-}
-
-
+export default PurchaseOrders;
