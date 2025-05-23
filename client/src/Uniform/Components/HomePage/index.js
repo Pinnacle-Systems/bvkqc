@@ -96,24 +96,24 @@ export default function Form() {
                 action?.();
               }}
               className={`group relative flex flex-col items-center text-xs font-medium tracking-tight transition-all duration-300 ease-in-out ${active === name
-                ? 'text-orange-700'
-                : 'text-gray-600 hover:text-[#E88421]'
+                ? 'text-indigo-700'
+                : 'text-gray-600 hover:text-indigo-600 '
                 } w-full px-1 py-2 mb-1`}
             >
               {/* Active Indicator */}
               {active === name && (
-                <div className="absolute left-0 w-1 h-8 bg-[#E88421] rounded-r-md shadow-md" />
+                <div className="absolute left-0 w-1 h-8 bg-indigo-600  rounded-r-md shadow-md" />
               )}
 
               <div
                 className={`relative p-1.5 rounded-md transition-transform duration-300 ${active === name
-                  ? 'bg-orange-100 scale-105 shadow-md'
+                  ? 'bg-indigo-100 scale-105 shadow-md'
                   : 'group-hover:bg-gray-200 group-hover:scale-100'
                   }`}
               >
                 <span className="w-5 h-5">{icon}</span>
                 {active === name && (
-                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#E88421] rounded-full border-2 border-white shadow-sm" />
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-600  rounded-full border-2 border-white shadow-sm" />
                 )}
               </div>
 
