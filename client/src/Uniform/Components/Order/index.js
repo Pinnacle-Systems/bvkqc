@@ -156,6 +156,7 @@ const PurchaseOrders = () => {
             <Manufacture onClose={() => setShowManufacturer(false)} />
        ) :
          <div className="p-2 bg-[#F1F1F0] min-h-screen">
+          
         <h1 className="text-2xl font-bold text-gray-800">Purchase Order</h1>
       <div className="flex flex-col sm:flex-row justify-between bg-white py-1.5 px-1 items-start sm:items-center mb-6 gap-4 rounded-tl-lg rounded-tr-lg shadow-sm border border-gray-200">
         <div className="flex items-center gap-2">
