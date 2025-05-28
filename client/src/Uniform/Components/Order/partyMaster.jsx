@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
+import { useModal } from '../../../Basic/pages/home/context/ModalContext';
 
-export default function PartyDetailModal({ setShowAddModal }) {
+
+export default function PartyDetailModal() {
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
+ const { closeAddModal } = useModal();
 
   const handleSave = () => {
     // Handle save logic here
@@ -165,15 +168,15 @@ export default function PartyDetailModal({ setShowAddModal }) {
           </div>
 
           <div className="flex justify-end gap-3 pt-6 border-t mt-4">
-            <button
-              onClick={() => {
-                setShowAddModal(false);
-                setIsAddressExpanded(false);
-              }}
-              className="px-5 py-1 text-red-600 hover:text-white bg-white border border-red-700 hover:bg-red-800 rounded-md transition-colors"
-            >
-              Cancel
-            </button>
+          <button
+  onClick={() => {
+    closeAddModal(); 
+    setIsAddressExpanded(false);
+  }}
+  className="px-5 py-1 text-red-600 hover:text-white bg-white border border-red-700 hover:bg-red-800 rounded-md transition-colors"
+>
+  Cancel
+</button>
 
             <button
               onClick={handleSave}

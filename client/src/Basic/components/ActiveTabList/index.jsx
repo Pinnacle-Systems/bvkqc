@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { push, remove } from "../../../redux/features/opentabs";
+import { useModal } from "../../pages/home/context/ModalContext";
 import {
   CountryMaster, PageMaster, StateMaster, CityMaster,
   DepartmentMaster, EmployeeCategoryMaster, FinYearMaster, UserAndRolesMaster,
@@ -28,6 +29,7 @@ import { AccessoryGroupMaster, AccessoryItemMaster, AccessoryMaster, CountsMaste
 import ContentMaster from "../../../Shocks/ContentMaster";
 import secureLocalStorage from "react-secure-storage";
 import { MaxcontrolPanel, MaxHomePage, Order, TagTypeMater } from "../../../Uniform/Components";
+import PartyDetailModal from "../../../Uniform/Components/Order/partyMaster";
 
 const ActiveTabList = () => {
   const openTabs = useSelector((state) => state.openTabs);
@@ -35,7 +37,7 @@ const ActiveTabList = () => {
   const dispatch = useDispatch();
   const [showHidden, setShowHidden] = useState(false);
   const [isAllowableUser, setIsAllowableUser] = useState(false)
-
+   const{showAddModal} = useModal()
   const ref = useOutsideClick(() => { setShowHidden(false) })
 
 
@@ -86,7 +88,11 @@ const ActiveTabList = () => {
     sessionStorage.getItem("sessionId") + "userId"
   )
   return (
-    <div className="relative mt-10 " style={{ backgroundColor: '#F1F1F0' }}>
+    <>
+      {showAddModal && (
+        <PartyDetailModal />
+      )}
+       <div className="relative mt-10 " style={{ backgroundColor: '#F1F1F0' }}>
       <div className="flex justify-between">
         <div className="flex gap-2">
           {(currentShowingTabs)?.map((tab, index) => (
@@ -153,7 +159,8 @@ const ActiveTabList = () => {
           {tabs[tab.name]}
         </div>
       ))}
-    </div>
+    </div></>
+   
 
   );
 };

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaPlus, FaSearch, FaInfoCircle } from 'react-icons/fa';
 import { FaChevronRight } from 'react-icons/fa';
 import PartyDetailModal from './partyMaster';
+import { useModal } from '../../../Basic/pages/home/context/ModalContext';
 
 export default function ReusableSearchableInput({
   label = 'Label',
@@ -11,7 +12,8 @@ export default function ReusableSearchableInput({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newItem, setNewItem] = useState('');
+  const { openAddModal } = useModal();
+ const [newItem, setNewItem] = useState('');
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
 const [countries, setCountries] = useState([]);
@@ -56,7 +58,7 @@ const [countries, setCountries] = useState([]);
           <button
             className="h-full px-3 py-1.5 border border-green-500 rounded-md bg-green-100
               hover:bg-green-500 text-green-600 hover:text-white  transition-colors flex items-center justify-center"
-            onClick={() => setShowAddModal(true)}
+            onClick={openAddModal}
             onMouseEnter={() => setTooltipVisible(true)}
             onMouseLeave={() => setTooltipVisible(false)}
             aria-label="Add item"

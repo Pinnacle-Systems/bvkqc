@@ -6,12 +6,14 @@ import ActiveTabList from "../../components/ActiveTabList";
 import secureLocalStorage from "react-secure-storage";
 import SuperAdminHeader from "../../components/SuperAdminHeader";
 import { useDispatch, useSelector } from "react-redux";
+import { ModalProvider, useModal } from './context/ModalContext';
 
 const Home = () => {
   const [isGlobalOpen, setIsGlobalOpen] = useState(false);
   const [logout, setLogout] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [profile, setProfile] = useState(false);
+
   
   const isSuperAdmin = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "superAdmin"
@@ -29,7 +31,10 @@ const Home = () => {
 
   return (
     <>
-      <Modal
+      
+    <ModalProvider>
+     
+  <Modal
         isOpen={isGlobalOpen}
         onClose={() => setIsGlobalOpen(false)}
         widthClass={""}
@@ -85,6 +90,9 @@ const Home = () => {
           </div>
         )}
       </div>
+
+    </ModalProvider>
+    
     </>
   );
 };

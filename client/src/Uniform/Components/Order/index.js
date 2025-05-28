@@ -9,7 +9,6 @@ const PurchaseOrders = () => {
   const [showManufacturer, setShowManufacturer] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   // Sample data with only 2 entries
   const sampleData = [
     {
