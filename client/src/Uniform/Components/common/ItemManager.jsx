@@ -212,9 +212,9 @@ export default function ItemManager({ onClose, onSave }) {
                 filteredItems.map((item, index) => (
                   <tr
                     key={item.id}
-                    className={`hover:bg-gray-50 transition-colors border-b border-gray-200 text-[12px] ${item.checked ? "bg-green-50" : index % 2 === 0 ? "bg-white" : "bg-gray-100"}`}
+                    className={`hover:bg-gray-50 transition-colors border-b  border-gray-200 text-[14px] ${item.checked ? "bg-green-50" : index % 2 === 0 ? "bg-white" : "bg-gray-100"}`}
                   >
-                    <td className="px-4 py-1 border-r border-gray-200">
+                    <td className="px-4 py-2 border-r border-gray-200">
                       <input
                         type="checkbox"
                         checked={item.checked}
@@ -243,7 +243,7 @@ export default function ItemManager({ onClose, onSave }) {
         <div className="border-t border-gray-300 px-4 py-3 bg-[f1f1f0] flex justify-end">
           <button
             onClick={handleSave}
-            className="bg-white text-green-700 border border-green-700 hover:bg-green-700 hover:text-white font-medium py-1 px-4 rounded-lg"
+            className="bg-white text-green-700 border border-green-700 text-[12px] hover:bg-green-700 hover:text-white font-medium py-1 px-4 rounded-lg"
           >
             Save Selected
           </button>

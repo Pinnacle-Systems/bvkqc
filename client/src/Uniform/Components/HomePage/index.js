@@ -83,7 +83,7 @@ export default function Form() {
 
 
         <aside className="flex flex-col items-center 
-          bg-[#F1F1F0] backdrop-blur-md w-20 h-[87vh]
+          bg-[#F1F1F0] backdrop-blur-md w-20 h-screen
            border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out">
           {menuItems.map(({ name, label, icon, action }) => (
             <button
