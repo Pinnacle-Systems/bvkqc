@@ -13,12 +13,12 @@ export default function PartyDetailModal() {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#f1f1f0] p-6 rounded-lg shadow-xl w-[60%] max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#f1f1f0] p-6 rounded-lg shadow-xl w-[50%] max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-semibold mb-4 text-slate-800 border-b pb-2">Party Detail</h2>
 
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4 items-start">
-            <div className="col-span-1">
+          <div className="grid grid-cols-5 gap-4 items-start">
+            <div className="col-span-3">
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Business Name <span className="text-red-500">*</span>
               </label>
@@ -31,7 +31,7 @@ export default function PartyDetailModal() {
 
             <div className="col-span-2">
               <div className="flex gap-2">
-                <div className="w-1/3">
+                <div className="w-1/4">
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Title <span className="text-red-500">*</span>
                   </label>
@@ -45,7 +45,7 @@ export default function PartyDetailModal() {
                   </select>
                 </div>
 
-                <div className="w-2/3">
+                <div className="w-3/4">
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Name <span className="text-red-500">*</span>
                   </label>

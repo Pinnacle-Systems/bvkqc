@@ -2,7 +2,8 @@ import { HiPlus, HiShare, HiPrinter } from "react-icons/hi";
 import { FaWhatsapp } from "react-icons/fa";
 import { useState } from "react";
 import { FaFileAlt } from "react-icons/fa";
-import ReusableSearchableInput from "./SupplierInput";
+import ReusableSearchableInput from "./CommonInput"
+import ItemList from "../common/ItemTable";
 
 const Manufacture = ({ onClose }) => {
   const [suppliers, setSuppliers] = useState([
@@ -20,9 +21,7 @@ const Manufacture = ({ onClose }) => {
   return (
     <div className="w-full bg-[#f1f1f0] mx-auto rounded-md shadow-md px-2 py-1">
       <div className="flex justify-between items-center mb-1">
-        <h1 className="text-xl font-semibold text-slate-800">
-          Purchase Order
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800">Purchase Order</h1>
         <button
           onClick={onClose}
           className="text-indigo-600 hover:text-indigo-700"
@@ -124,44 +123,7 @@ const Manufacture = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="font-medium text-slate-700">Item List</h2>
-            <button className="bg-indigo-600 text-white px-2 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm">
-              <HiPlus className="w-3 h-3 mr-1" />
-              Add Item
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead className="bg-slate-50">
-                <tr>
-                  {[
-                    "No.",
-                    "Item & Description",
-                    "HSN/SAC",
-                    "Qty",
-                    "Unit",
-                    "Rate (₹)",
-                    "Discount (₹)",
-                    "Taxable (₹)",
-                    "CGST (₹)",
-                    "SGST (₹)",
-                    "Amt (₹)",
-                  ].map((header) => (
-                    <th
-                      key={header}
-                      className="px-2 py-1 text-left text-xs font-medium text-slate-500 uppercase border-b"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200"></tbody>
-            </table>
-          </div>
-        </div>
+      <ItemList />
 
         {/* Terms & Conditions */}
         <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
