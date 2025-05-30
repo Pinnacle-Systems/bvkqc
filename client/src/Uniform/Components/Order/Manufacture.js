@@ -2,7 +2,7 @@ import { HiPlus, HiShare, HiPrinter } from "react-icons/hi";
 import { FaWhatsapp } from "react-icons/fa";
 import { useState } from "react";
 import { FaFileAlt } from "react-icons/fa";
-import ReusableSearchableInput from "./CommonInput"
+import  {ReusableSearchableInput, ReusableDropdown, ReusableInput } from "./CommonInput"
 import ItemList from "../common/ItemTable";
 
 const Manufacture = ({ onClose }) => {
@@ -19,8 +19,8 @@ const Manufacture = ({ onClose }) => {
   };
 
   return (
-    <div className="w-full bg-[#f1f1f0] mx-auto rounded-md shadow-md px-2 py-1">
-      <div className="flex justify-between items-center mb-1">
+  <div className="w-full bg-[#f1f1f0] mx-auto rounded-md shadow-md px-2 py-1">
+ <div className="flex justify-between items-center mb-1">
         <h1 className="text-2xl font-bold text-gray-800">Purchase Order</h1>
         <button
           onClick={onClose}
@@ -30,100 +30,71 @@ const Manufacture = ({ onClose }) => {
           <FaFileAlt className="w-5 h-5" />
         </button>
       </div>
+  
+  <div className="space-y-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+      {/* Basic Information */}
+      <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
+        <h2 className="font-medium text-slate-700 mb-2">Basic Information</h2>
+        <div className="space-y-2">
+          <ReusableSearchableInput
+            label="Supplier"
+            placeholder="Search suppliers..."
+            itemList={suppliers}
+            onAddItem={handleAddSupplier}
+          />
+          <ReusableDropdown
+            label="Copy from"
+            options={[{value: "none", label: "None"}]}
+          />
+        </div>
+      </div>
 
-      <div className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
-            <h2 className="font-medium text-slate-700 mb-2">
-              Basic Information
-            </h2>
-            <div className="space-y-2">
-              <ReusableSearchableInput
-                label="Supplier"
-                placeholder="Search suppliers..."
-                itemList={suppliers}
-                onAddItem={handleAddSupplier}
-              />
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">
-                  Copy from
-                </label>
-                <select className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md">
-                  <option>None</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
-            <h2 className="font-medium text-slate-700 mb-2">
-              Party Details
-            </h2>
-            <div className="space-y-2">
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">
-                  Contact Person
-                </label>
-                <input
-                  className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md"
-                  placeholder="Contact name"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">
-                  Source Address
-                </label>
-                <div className="p-1 text-sm border border-slate-300 rounded-md bg-slate-50 cursor-not-allowed text-slate-400">
-                  Add address
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
-            <h2 className="font-medium text-slate-700 mb-2">
-              Document Details
-            </h2>
-            <div className="grid grid-cols-2 gap-1">
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">
-                  PO No.
-                </label>
-                <input
-                  value="1"
-                  className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md bg-slate-100"
-                  readOnly
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">
-                  Reference
-                </label>
-                <input className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md" />
-              </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">
-                  PO Date
-                </label>
-                <input
-                  type="date"
-                  className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">
-                  Due Date
-                </label>
-                <input
-                  type="date"
-                  className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md"
-                />
-              </div>
+      {/* Party Details */}
+      <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
+        <h2 className="font-medium text-slate-700 mb-2">Party Details</h2>
+        <div className="space-y-2">
+          <ReusableInput
+            label="Contact Person"
+            placeholder="Contact name"
+          />
+          <div>
+            <label className="block text-xs text-slate-500 mb-1">
+              Source Address
+            </label>
+            <div className="p-1 text-sm border border-slate-300 rounded-md bg-slate-50 cursor-not-allowed text-slate-400">
+              Add address
             </div>
           </div>
         </div>
+      </div>
 
-      <ItemList />
+      {/* Document Details */}
+      <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
+        <h2 className="font-medium text-slate-700 mb-2">Document Details</h2>
+        <div className="grid grid-cols-2 gap-1">
+          <ReusableInput
+            label="PO No."
+            value="1"
+            readOnly
+          />
+          <ReusableInput
+            label="Reference"
+          />
+          <ReusableInput
+            label="PO Date"
+            type="date"
+          />
+          <ReusableInput
+            label="Due Date"
+            type="date"
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Rest of your components */}
+   <ItemList />
 
         {/* Terms & Conditions */}
         <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
@@ -164,9 +135,8 @@ const Manufacture = ({ onClose }) => {
               Print
             </button>
           </div>
-        </div>
-      </div>
-    </div>
+        </div>  </div>
+</div>
   );
 };
 

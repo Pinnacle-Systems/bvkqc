@@ -174,12 +174,25 @@ function ItemTable({ items, onEdit, onDelete, onQtyChange }) {
                 </div>
               </td>
               <td className="px-4 py-1 border-r border-gray-200">{item.unit}</td>
-              <td className="px-4 py-1 border-r border-gray-200">{item.rate.toFixed(2)}</td>
-              <td className="px-4 py-1 border-r border-gray-200">{item.discount.toFixed(2)}</td>
-              <td className="px-4 py-1 border-r border-gray-200">{item.taxable.toFixed(2)}</td>
-              <td className="px-4 py-1 border-r border-gray-200">{item.cgst.toFixed(2)}</td>
-              <td className="px-4 py-1 border-r border-gray-200">{item.sgst.toFixed(2)}</td>
-              <td className="px-4 py-1 border-r border-gray-200">{item.amount.toFixed(2)}</td>
+              <td className="px-4 py-1 border-r border-gray-200">
+                {typeof item.rate === 'number' ? item.rate.toFixed(2) : '0.00'}
+              </td>
+                <td className="px-4 py-1 border-r border-gray-200">
+                {typeof item.discount === 'number' ? item.discount.toFixed(2) : '0.00'}
+              </td>
+               <td className="px-4 py-1 border-r border-gray-200">
+                {typeof item.taxable === 'number' ? item.taxable.toFixed(2) : '0.00'}
+              </td>
+                <td className="px-4 py-1 border-r border-gray-200">
+                {typeof item.cgst === 'number' ? item.cgst.toFixed(2) : '0.00'}
+              </td>
+               <td className="px-4 py-1 border-r border-gray-200">
+                {typeof item.sgst === 'number' ? item.sgst.toFixed(2) : '0.00'}
+              </td>
+                 <td className="px-4 py-1 border-r border-gray-200">
+                {typeof item.amount === 'number' ? item.amount.toFixed(2) : '0.00'}
+              </td>
+           
               <td className="px-4 py-1">
                 <div className="flex space-x-2">
                   <button

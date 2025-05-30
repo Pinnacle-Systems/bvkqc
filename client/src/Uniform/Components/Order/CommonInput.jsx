@@ -93,7 +93,6 @@ export function ReusableSearchableInput({
         </div>
       </div>
 
-      {/* Dropdown with persistent visibility */}
       {isDropdownOpen && (
         <div className="border border-slate-200 rounded-md shadow-md bg-white mt-1 max-h-40 overflow-y-auto z-20 absolute w-full">
           {filteredList.length > 0 ? (
@@ -152,6 +151,7 @@ export function ReusableDropdown({
   options = [],
   value,
   onChange,
+  readOnly = false,
   placeholder = "Select an option",
   className = "",
   disabled = false,
@@ -167,8 +167,10 @@ export function ReusableDropdown({
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={`w-full px-2 py-1 text-sm border border-slate-300 rounded-md ${
-          disabled ? "bg-slate-100" : ""
+        className={`w-full px-2 py-1 text-sm border border-slate-300 rounded-md 
+          focus:border-indigo-300 focus:outline-none transition-all duration-200
+          hover:border-slate-400 ${
+          readOnly || disabled ? "bg-slate-100" : ""
         } ${className}`}
       >
         {placeholder && <option value="">{placeholder}</option>}
@@ -206,7 +208,9 @@ export function ReusableInput({
         placeholder={placeholder}
         readOnly={readOnly}
         disabled={disabled}
-        className={`w-full px-2 py-1 text-sm border border-slate-300 rounded-md ${
+        className={`w-full px-2 py-1 text-sm border border-slate-300 rounded-md 
+          focus:border-indigo-300 focus:outline-none transition-all duration-200
+          hover:border-slate-400 ${
           readOnly || disabled ? "bg-slate-100" : ""
         } ${className}`}
       />

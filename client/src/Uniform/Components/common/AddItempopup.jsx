@@ -36,7 +36,7 @@ export default function AddItemPopup({ onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
-      <div className="bg-white rounded-lg p-4 w-full max-w-md">
+      <div className="bg-[f1f1f0] rounded-lg p-4 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-medium text-lg">Add New Item</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -116,13 +116,15 @@ export default function AddItemPopup({ onClose, onSave }) {
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center px-4 py-2 text-red-700 shadow-sm text-sm font-medium rounded-md tbg-white border border-red-700 rounded-lg hover:bg-red-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center px-4 py-1 border border-green-600  text-sm font-medium
+               rounded-md shadow-sm hover:text-white text-green-600 hover:bg-green-700 
+               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <HiCheck className="w-4 h-4 mr-1" />
               Add Item

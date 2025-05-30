@@ -1,4 +1,3 @@
-// components/ItemList/BarcodeScanner.jsx
 import { useState } from 'react';
 import { HiX, HiQrcode, HiChevronDown } from 'react-icons/hi';
 
