@@ -3,6 +3,7 @@ import { HiPlus, HiPencil, HiTrash } from 'react-icons/hi';
 import { FaBarcode } from 'react-icons/fa';
 import BarcodeScanner from './BarcodeScanner';
 import ItemManager from './ItemManager';
+import { FaArrowRight } from 'react-icons/fa';
 
 export default function ItemList() {
   const [items, setItems] = useState([]);
@@ -59,25 +60,42 @@ export default function ItemList() {
     <div className="border border-slate-200 p-2 bg-white rounded-md shadow-sm">
       <div className="flex justify-between items-center mb-2">
         <h2 className="font-medium text-slate-700">Item List</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowBarcodeScanner(true)}
-            className="hover:bg-indigo-600 text-indigo-600 hover:text-white px-2 py-1 rounded-md border border-indigo-600 flex items-center text-sm"
-          >
-            <FaBarcode className="w-3 h-3 mr-1" />
-            Barcode
-          </button>
-          <button
-            onClick={() => {
-              setEditingItem(null);
-              setShowAddPopup(true);
-            }}
-            className="hover:bg-green-600 text-green-600 hover:text-white border border-green-600 px-2 py-1 rounded-md flex items-center text-sm"
-          >
-            <HiPlus className="w-3 h-3 mr-1" />
-            Add Item
-          </button>
-        </div>
+        <div className="flex gap-2 items-center">
+  <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+    <input
+      type="text"
+      placeholder="Enter Barcode"
+      className="px-2 py-1 text-sm outline-none"
+    />
+    <button
+      className="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1"
+    >
+      <FaArrowRight className="w-4 h-4" />
+    </button>
+  </div>
+
+  {/* Existing Barcode Button */}
+  <button
+    onClick={() => setShowBarcodeScanner(true)}
+    className="hover:bg-indigo-600 text-indigo-600 hover:text-white px-2 py-1 rounded-md border border-indigo-600 flex items-center text-sm"
+  >
+    <FaBarcode className="w-3 h-3 mr-1" />
+    Barcode
+  </button>
+
+  {/* Existing Add Item Button */}
+  <button
+    onClick={() => {
+      setEditingItem(null);
+      setShowAddPopup(true);
+    }}
+    className="hover:bg-green-600 text-green-600 hover:text-white border border-green-600 px-2 py-1 rounded-md flex items-center text-sm"
+  >
+    <HiPlus className="w-3 h-3 mr-1" />
+    Add Item
+  </button>
+</div>
+
       </div>
 
       <div className="overflow-x-auto">

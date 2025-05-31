@@ -82,7 +82,7 @@ export function ReusableSearchableInput({
             <FaPlus className="text-sm" />
           </button>
           {tooltipVisible && (
-            <div className="absolute z-10 top-full right-0 mt-1 w-48 bg-indigo-800 text-white text-xs rounded p-2 shadow-lg">
+            <div className="absolute  z-10 top-full right-0 mt-1 w-48 bg-indigo-800 text-white text-xs rounded p-2 shadow-lg">
               <div className="flex items-start">
                 <FaInfoCircle className="flex-shrink-0 mt-0.5 mr-1" />
                 <span>Click to add a new supplier</span>

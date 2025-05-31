@@ -122,7 +122,7 @@ export default function BarcodeScanner({ onClose, onScan }) {
             <button
               onClick={handleScan}
               disabled={isManualEntry && !barcodeInput}
-              className={`px-4 py-2 rounded-md text-white ${isManualEntry && !barcodeInput ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'}`}
+              className={`px-4 py-1 text- rounded-md border border-green-600 hover:text-white text-green-600 hover:bg-green-700 ${isManualEntry && !barcodeInput ? 'bg-white' : 'bg-white hover:bg-green-700'}`}
             >
               {isManualEntry ? 'Add Item' : 'Simulate Scan'}
             </button>
