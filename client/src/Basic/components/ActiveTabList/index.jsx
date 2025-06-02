@@ -25,10 +25,8 @@ import {
 
 import { CLOSE_ICON, DOUBLE_NEXT_ICON } from "../../../icons";
 import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
-import { AccessoryGroupMaster, AccessoryItemMaster, AccessoryMaster, CountsMaster, LossReasonMaster, ProcessMaster, SizeTemplateMaster, StyleMaster, YarnBlendMaster, YarnMaster, YarnTypeMaster } from "../../../Shocks";
-import ContentMaster from "../../../Shocks/ContentMaster";
 import secureLocalStorage from "react-secure-storage";
-import {  MaxHomePage, Order, TagTypeMater } from "../../../Uniform/Components";
+import { MaxcontrolPanel, MaxHomePage, Order, TagTypeMater } from "../../../Uniform/Components";
 import PartyDetailModal from "../../../Uniform/Components/Order/partyMaster";
 
 const ActiveTabList = () => {
@@ -64,10 +62,7 @@ const ActiveTabList = () => {
     "PAY TERM MASTER": <PayTermMaster />,
     "SIZE MASTER": <SizeMaster />,
     "LOCATION MASTER": <LocationMaster />,
-    "STYLE MASTER": <StyleMaster />,
-    "PROCESS MASTER": <ProcessMaster />,
-    "SIZE TEMPLATE MASTER": <SizeTemplateMaster />,
-    "DASHBOARD": <Dashboard />,
+       "DASHBOARD": <Dashboard />,
     "ORDER": <Order />,
     "HOMEPAGE": <MaxHomePage />,
     "MAX CONTROL PANEL": <MaxcontrolPanel />,
