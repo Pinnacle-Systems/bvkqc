@@ -28,7 +28,7 @@ import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
 import { AccessoryGroupMaster, AccessoryItemMaster, AccessoryMaster, CountsMaster, LossReasonMaster, ProcessMaster, SizeTemplateMaster, StyleMaster, YarnBlendMaster, YarnMaster, YarnTypeMaster } from "../../../Shocks";
 import ContentMaster from "../../../Shocks/ContentMaster";
 import secureLocalStorage from "react-secure-storage";
-import { MaxcontrolPanel, MaxHomePage, Order, TagTypeMater } from "../../../Uniform/Components";
+import {  MaxHomePage, Order, TagTypeMater } from "../../../Uniform/Components";
 import PartyDetailModal from "../../../Uniform/Components/Order/partyMaster";
 
 const ActiveTabList = () => {
