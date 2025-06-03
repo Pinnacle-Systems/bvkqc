@@ -1,11 +1,83 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
 import { useModal } from '../../../Basic/pages/home/context/ModalContext';
-
+import Select from 'react-select';
+import { Country, State, City } from 'country-state-city'; // Updated import
 
 export default function PartyDetailModal() {
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
- const { closeAddModal } = useModal();
+  const { closeAddModal } = useModal();
+  
+  // State for country-state-city dropdowns
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  
+  // Generate country options
+  const countryOptions = useMemo(() => {
+    return Country.getAllCountries().map(country => ({ // Updated method call
+      label: country.name,
+      value: country.isoCode,
+      ...country
+    }));
+  }, []);
+  
+  // Generate state options based on selected country
+  const stateOptions = useMemo(() => {
+    if (!selectedCountry) return [];
+    return State.getStatesOfCountry(selectedCountry.value).map(state => ({ // Updated method call
+      label: state.name,
+      value: state.isoCode,
+      ...state
+    }));
+  }, [selectedCountry]);
+  
+  // Generate city options based on selected state
+  const cityOptions = useMemo(() => {
+    if (!selectedState) return [];
+    return City.getCitiesOfState(selectedCountry.value, selectedState.value).map(city => ({ // Updated method call
+      label: city.name,
+      value: city.name,
+      ...city
+    }));
+  }, [selectedState, selectedCountry]);
+  
+  // Custom styles for react-select to match your design
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      minHeight: '36px',
+      height: '36px',
+      border: '1px solid #cbd5e1',
+      borderRadius: '0.375rem',
+      fontSize: '0.875rem',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#cbd5e1'
+      }
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      height: '36px',
+      padding: '0 8px'
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: 0,
+      padding: 0
+    }),
+    option: (provided) => ({
+      ...provided,
+      fontSize: '0.875rem'
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      padding: '4px'
+    }),
+    indicatorSeparator: () => ({
+      display: 'none'
+    })
+  };
 
   const handleSave = () => {
     // Handle save logic here
@@ -17,7 +89,7 @@ export default function PartyDetailModal() {
         <h2 className="text-xl font-semibold mb-4 text-slate-800 border-b pb-2">Party Detail</h2>
 
         <div className="space-y-4">
-          <div className="grid grid-cols-5 gap-4 items-start">
+             <div className="grid grid-cols-5 gap-4 items-start">
             <div className="col-span-3">
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Business Name <span className="text-red-500">*</span>
@@ -123,24 +195,51 @@ export default function PartyDetailModal() {
               <div className="space-y-3">
                 <div className="grid md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Country</label>
-                    <select className="w-full px-3 py-2 border border-slate-300 rounded-md focus:border-indigo-300 focus:outline-none text-sm">
-                      <option>India</option>
-                      <option>Other</option>
-                    </select>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Country
+                    </label>
+                    <Select
+                      styles={customSelectStyles}
+                      options={countryOptions}
+                      value={selectedCountry}
+                      onChange={(option) => {
+                        setSelectedCountry(option);
+                        setSelectedState(null);
+                        setSelectedCity(null);
+                      }}
+                      placeholder="Select Country"
+                      className="text-sm"
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">State</label>
-                    <select className="w-full px-3 py-2 border border-slate-300 rounded-md focus:border-indigo-300 focus:outline-none text-sm">
-                      <option>Select State</option>
-                    </select>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      State
+                    </label>
+                    <Select
+                      styles={customSelectStyles}
+                      options={stateOptions}
+                      value={selectedState}
+                      onChange={(option) => {
+                        setSelectedState(option);
+                        setSelectedCity(null);
+                      }}
+                      placeholder="Select State"
+                      isDisabled={!selectedCountry}
+                      className="text-sm"
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">City</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:border-indigo-300 focus:outline-none text-sm"
-                      placeholder="Enter city"
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      City
+                    </label>
+                    <Select
+                      styles={customSelectStyles}
+                      options={cityOptions}
+                      value={selectedCity}
+                      onChange={setSelectedCity}
+                      placeholder="Select City"
+                      isDisabled={!selectedState}
+                      className="text-sm"
                     />
                   </div>
                 </div>
@@ -168,15 +267,15 @@ export default function PartyDetailModal() {
           </div>
 
           <div className="flex justify-end gap-3 pt-6 border-t mt-4">
-          <button
-  onClick={() => {
-    closeAddModal(); 
-    setIsAddressExpanded(false);
-  }}
-  className="px-5 py-1 text-red-600 hover:text-white bg-white border border-red-700 hover:bg-red-800 rounded-md transition-colors"
->
-  Cancel
-</button>
+            <button
+              onClick={() => {
+                closeAddModal(); 
+                setIsAddressExpanded(false);
+              }}
+              className="px-5 py-1 text-red-600 hover:text-white bg-white border border-red-700 hover:bg-red-800 rounded-md transition-colors"
+            >
+              Cancel
+            </button>
 
             <button
               onClick={handleSave}
