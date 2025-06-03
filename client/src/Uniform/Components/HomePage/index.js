@@ -23,7 +23,7 @@ import {
   useGetOrderByIdQuery,
   useGetOrderQuery,
 } from "../../../redux/uniformService/OrderService";
-import EmailReport from "../Email/EmailReport";
+import EmailReport from "../Order/Fds.jsx";
 import { getCommonParams } from "../../../Utils/helper";
 import { Dashboard } from "../../../Basic/components";
 export default function Form() {
@@ -88,8 +88,8 @@ export default function Form() {
       icon: <MessageCircle className="h-6 w-6" />,
     },
     {
-      name: "Report",
-      label: "Report",
+      name: "Style Sheet",
+      label: "Style Sheet",
       icon: <ClipboardList className="h-6 w-6" />,
     },
     userRole === ""
@@ -104,7 +104,7 @@ export default function Form() {
   console.log(active, "active");
   return (
     <>
-      <div className="flex font-sans  px-0  w-full  first-line:">
+      <div className="flex font-sans my-2 px-0  w-full  first-line:">
         <aside
           className="flex flex-col items-center 
           bg-[#F1F1F0] backdrop-blur-md w-20 h-screen
@@ -179,7 +179,7 @@ export default function Form() {
                 setCurrentId={setCurrentId}
               />
             )}
-            {active === "Report" && <EmailReport attachments={attachments} />}
+            {active === "Style Sheet" && <EmailReport attachments={attachments} />}
             {active === "More" && userRole === "" ? <OrderImport /> : ""}
             {active === "order" && (
               <Order

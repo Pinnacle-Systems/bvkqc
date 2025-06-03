@@ -11,35 +11,35 @@ const PurchaseOrders = () => {
   
   const columns = [
     {
-      header: 'Supplier',
+      header: 'PI NO',
       accessor: (item) => item.supplier,
       cellClass: () => 'uppercase'
     },
     {
-      header: 'Contact',
+      header: 'PI DATE',
       accessor: (item) => item.contact,
       cellClass: () => 'text-gray-800 uppercase'
     },
     {
-      header: 'Order No.',
+      header: 'COUNT',
       accessor: (item) => item.orderNo,
       cellClass: () => 'font-medium text-gray-900'
     },
     {
-      header: 'Order Date',
+      header: 'FAB CONTENT',
       accessor: (item) => item.orderDate
     },
     {
-      header: 'Taxable (₹)',
+      header: 'COLOR',
       accessor: (item) => item.taxable
     },
     {
-      header: 'Amount (₹)',
+      header: 'ORDER QTY (Yards)',
       accessor: (item) => item.amount,
       cellClass: () => 'font-semibold'
     },
     {
-      header: 'Status',
+      header: 'FABRIC READY DATE IN THE MILL',
       accessor: (item) => (
         <div className="flex items-center">
           <span className={`w-2 h-2 rounded-full mr-1 ${item.status === 'pending' ? 'bg-yellow-500' : 'bg-green-500'}`}></span>

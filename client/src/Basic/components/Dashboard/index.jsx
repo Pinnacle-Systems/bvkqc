@@ -13,17 +13,10 @@ import {
     ArcElement,
 } from "chart.js";
 import { useState } from "react";
-import { IndianRupee, PieChart, TrendingUp, UserCheck, UsersRound, UserX } from "lucide-react";
-import Header from "../Header";
-import Sidebar from "../Sidebar";
+import { IndianRupee, PieChart, TrendingUp, UserCheck, UsersRound } from "lucide-react";
 import secureLocalStorage from "react-secure-storage";
 
-import { HashRouter, Routes, Route } from "react-router-dom";
 import { Login } from "../../pages";
-
-
-
-
 export default function Form() {
 
 

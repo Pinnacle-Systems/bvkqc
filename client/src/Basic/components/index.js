@@ -1,5 +1,4 @@
 export { default as ProtectedRoute } from "./ProtectedRoute"
-export { default as AppHeader } from "./AppHeader"
 export { default as AppFooter } from "./AppFooter"
 export { default as Loader } from "./Loader";
 export { default as BranchAndFinyearForm } from "./BranchAndFinyear"
@@ -29,7 +28,6 @@ export { default as PayTermMaster } from './PayTermMaster';
 export { default as TaxTermMaster } from './TaxTermMaster';
 export { default as TaxTemplate } from './TaxTemplate';
 export { default as TermsAndCondition } from './TermsAndCondition';
-export { default as Sidebar } from "./Sidebar";
 export { default as Header } from "./Header";
 export { default as SizeMaster } from "./SizeMaster";
 export { default as LocationMaster } from "./LocationMaster";
