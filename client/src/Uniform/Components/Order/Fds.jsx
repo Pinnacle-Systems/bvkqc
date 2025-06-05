@@ -6,11 +6,13 @@ import {
   ReusableDropdown,
   ReusableInput,
 } from "./CommonInput";
+import Swal from 'sweetalert2';
+
 import { useState, useMemo } from 'react';
 import { FiSave, FiPrinter, FiShare2 } from "react-icons/fi";
 import Select from 'react-select';
 import { Country } from 'country-state-city';
-
+import { useAddStyleSheetMutation, useGetStyleSheetByIdQuery, useUpdateStyleSheetMutation } from "../../../redux/services/StyleSheet";
 const Manufacture = ({ onClose }) => {
   const [formData, setFormData] = useState({
     basicInfo: {
@@ -64,10 +66,12 @@ const Manufacture = ({ onClose }) => {
       supportingDocs: []
     }
   });
-
+  console.log(formData, "formData")
+  const [id, setId] = useState("");
   const [showImageTooltip, setShowImageTooltip] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
+  const [addData] = useAddStyleSheetMutation()
+  const [updateData] = useUpdateStyleSheetMutation()
   const customSelectStyles = {
     control: (provided) => ({
       ...provided,
@@ -187,6 +191,53 @@ const Manufacture = ({ onClose }) => {
   //   }));
   // };
 
+  const handleSubmitCustom = async (callback, data, text) => {
+    try {
+      let returnData = await callback(data).unwrap();
+      setId(returnData.data.id);
+
+      Swal.fire({
+        icon: 'success',
+        title: `${text} Successfully`,
+        showConfirmButton: false,
+        timer: 2000
+      });
+
+    } catch (error) {
+      console.log("handle");
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+      });
+    }
+  };
+
+
+  const validateData = (data) => {
+    return data.name && data.code && (data.isCutting || data.isPacking || data.isPcsStage ? true : data.io)
+  }
+const saveData = () => {
+  if (!validateData(formData)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Please fill all required fields!',
+      position: 'top',
+      showConfirmButton: false,
+      timer: 2000
+    });
+    return;
+  }
+
+  if (id) {
+    handleSubmitCustom(updateData, formData, "Updated");
+  } else {
+    handleSubmitCustom(addData, formData, "Added");
+  }
+};
+
+
   const countryOptions = useMemo(() => {
     return Country.getAllCountries().map(country => ({
       label: country.name,
@@ -237,7 +288,7 @@ const Manufacture = ({ onClose }) => {
                     onChange={(e) => handleInputChange('basicInfo', 'fabCode', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
-                  
+
                   <ReusableInput
                     label="Fab Type"
                     placeholder="Enter fabric Type"
@@ -755,7 +806,7 @@ const Manufacture = ({ onClose }) => {
           <div className="flex flex-col md:flex-row gap-2 justify-between mt-4">
             <div className="flex gap-2 flex-wrap">
               <button className="bg-indigo-600 text-white px-4 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm">
-                <FiSave className="w-4 h-4 mr-2" />
+                <FiSave className="w-4 h-4 mr-2" onClick={saveData()} />
                 Save
               </button>
               <button className="bg-indigo-500 text-white px-4 py-1 rounded-md hover:bg-indigo-600 flex items-center text-sm">
