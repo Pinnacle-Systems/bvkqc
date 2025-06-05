@@ -12,42 +12,61 @@ import Select from 'react-select';
 import { Country } from 'country-state-city';
 
 const Manufacture = ({ onClose }) => {
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [fabricImage, setFabricImage] = useState(null);
+  const [formData, setFormData] = useState({
+    basicInfo: {
+      fdsDate: '',
+      fabCode: '',
+      fabType: '',
+      countryOriginFabric: null,
+      countryOriginYarn: null,
+      countryOriginFiber: null
+    },
+    capacityLeadTimes: {
+      smsMcq: '',
+      smsMoq: '',
+      smsLeadTime: '',
+      bulkMcq: '',
+      bulkMoq: '',
+      bulkLeadTime: ''
+    },
+    developmentDetails: {
+      surCharges: '',
+      priceFob: '',
+      fabricImage: null
+    },
+    constructionDetails: {
+      construction: '',
+      fiberContent: '',
+      yarnDetails: '',
+      weightGSM: '',
+      weightOpposite: '',
+      weftWalesCount: '',
+      widthFinished: '',
+      widthCuttale: '',
+      wrapCoursesCount: ''
+    },
+    processFinishing: {
+      dyedMethod: '',
+      printingMethod: '',
+      surfaceFinish: '',
+      otherPerformanceFunction: ''
+    },
+    testPerformance: {
+      testName: '',
+      testResult: '',
+      testStandard: '',
+      additionalTests: [],
+      careInstructions: '',
+      qualityLimitations: ''
+    },
+    productionDetails: {
+      reportData: '',
+      supportingDocs: []
+    }
+  });
+
   const [showImageTooltip, setShowImageTooltip] = useState(false);
-
-  const [constructionDetails, setConstructionDetails] = useState({
-    construction: '',
-    fiberContent: '',
-    yarnDetails: '',
-    weightGSM: '',
-    weightOpposite: '',
-    weftWalesCount: '',
-    widthFinished: '',
-    widthCuttale: '',
-    wrapCoursesCount: ''
-  });
-
-  const [processFinishing, setProcessFinishing] = useState({
-    dyedMethod: '',
-    printingMethod: '',
-    surfaceFinish: '',
-    otherPerformanceFunction: ''
-  });
-
-  const [testPerformance, setTestPerformance] = useState({
-    testName: '',
-    testResult: '',
-    testStandard: '',
-    additionalTests: [],
-    careInstructions: '',
-    qualityLimitations: ''
-  });
-
-  const [productionDetails, setProductionDetails] = useState({
-    reportData: '',
-    supportingDocs: []
-  });
+  const [showModal, setShowModal] = useState(false);
 
   const customSelectStyles = {
     control: (provided) => ({
@@ -80,31 +99,32 @@ const Manufacture = ({ onClose }) => {
     }),
   };
 
-
-
-  const handleConstructionChange = (e) => {
-    const { name, value } = e.target;
-    setConstructionDetails(prev => ({
+  const handleInputChange = (section, field, value) => {
+    setFormData(prev => ({
       ...prev,
-      [name]: value
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
     }));
   };
 
-  const handleProcessFinishingChange = (e) => {
-    const { name, value } = e.target;
-    setProcessFinishing(prev => ({
+  const handleCountryChange = (section, field, selectedOption) => {
+    setFormData(prev => ({
       ...prev,
-      [name]: value
+      [section]: {
+        ...prev[section],
+        [field]: selectedOption
+      }
     }));
   };
-  const [showModal, setShowModal] = useState(false);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.size <= 5 * 1024 * 1024) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFabricImage(reader.result);
+        handleInputChange('developmentDetails', 'fabricImage', reader.result);
       };
       reader.readAsDataURL(file);
     } else {
@@ -112,60 +132,58 @@ const Manufacture = ({ onClose }) => {
     }
   };
 
-  const handleTestPerformanceChange = (e) => {
-    const { name, value } = e.target;
-    setTestPerformance(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   // const handleAddTestResult = () => {
-  //   if (testPerformance.testName && testPerformance.testResult) {
-  //     setTestPerformance(prev => ({
+  //   const { testName, testResult, testStandard } = formData.testPerformance;
+  //   if (testName && testResult) {
+  //     setFormData(prev => ({
   //       ...prev,
-  //       additionalTests: [
-  //         ...prev.additionalTests,
-  //         {
-  //           name: prev.testName,
-  //           result: prev.testResult,
-  //           standard: prev.testStandard
-  //         }
-  //       ],
-  //       testName: '',
-  //       testResult: '',
-  //       testStandard: ''
+  //       testPerformance: {
+  //         ...prev.testPerformance,
+  //         additionalTests: [
+  //           ...prev.testPerformance.additionalTests,
+  //           {
+  //             name: testName,
+  //             result: testResult,
+  //             standard: testStandard
+  //           }
+  //         ],
+  //         testName: '',
+  //         testResult: '',
+  //         testStandard: ''
+  //       }
   //     }));
   //   }
   // };
 
   // const handleRemoveTestResult = (index) => {
-  //   setTestPerformance(prev => ({
+  //   setFormData(prev => ({
   //     ...prev,
-  //     additionalTests: prev.additionalTests.filter((_, i) => i !== index)
+  //     testPerformance: {
+  //       ...prev.testPerformance,
+  //       additionalTests: prev.testPerformance.additionalTests.filter((_, i) => i !== index)
+  //     }
   //   }));
   // };
 
-  // const handleProductionDetailsChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setProductionDetails(prev => ({
-  //     ...prev,
-  //     [name]: value
-  //   }));
-  // };
-
+  // // Supporting docs handlers
   // const handleSupportingDocsUpload = (e) => {
   //   const files = Array.from(e.target.files);
-  //   setProductionDetails(prev => ({
+  //   setFormData(prev => ({
   //     ...prev,
-  //     supportingDocs: [...prev.supportingDocs, ...files]
+  //     productionDetails: {
+  //       ...prev.productionDetails,
+  //       supportingDocs: [...prev.productionDetails.supportingDocs, ...files]
+  //     }
   //   }));
   // };
 
   // const handleRemoveSupportingDoc = (index) => {
-  //   setProductionDetails(prev => ({
+  //   setFormData(prev => ({
   //     ...prev,
-  //     supportingDocs: prev.supportingDocs.filter((_, i) => i !== index)
+  //     productionDetails: {
+  //       ...prev.productionDetails,
+  //       supportingDocs: prev.productionDetails.supportingDocs.filter((_, i) => i !== index)
+  //     }
   //   }));
   // };
 
@@ -177,12 +195,11 @@ const Manufacture = ({ onClose }) => {
     }));
   }, []);
 
-
   return (
     <>
       <div className="w-full bg-[#f1f1f0] mx-auto rounded-md shadow-md px-2 py-1">
         <div className="flex justify-between items-center mb-1">
-          <h1 className="text-2xl font-bold text-gray-800">Fabric Description Sheet</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Style Sheet Master</h1>
           <button
             onClick={onClose}
             className="text-indigo-600 hover:text-indigo-700"
@@ -195,6 +212,7 @@ const Manufacture = ({ onClose }) => {
         <div className="space-y-3">
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Basic Information Card */}
               <div className="border border-slate-200 p-4 bg-white rounded-lg shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-medium text-slate-700 text-base">Basic Information</h2>
@@ -207,20 +225,26 @@ const Manufacture = ({ onClose }) => {
                   <ReusableInput
                     label="FDS Date"
                     type="date"
+                    value={formData.basicInfo.fdsDate}
+                    onChange={(e) => handleInputChange('basicInfo', 'fdsDate', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
 
                   <ReusableInput
                     label="Fab Code"
                     placeholder="Enter fabric code"
+                    value={formData.basicInfo.fabCode}
+                    onChange={(e) => handleInputChange('basicInfo', 'fabCode', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
+                  
                   <ReusableInput
                     label="Fab Type"
                     placeholder="Enter fabric Type"
+                    value={formData.basicInfo.fabType}
+                    onChange={(e) => handleInputChange('basicInfo', 'fabType', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
-
 
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">
@@ -229,8 +253,8 @@ const Manufacture = ({ onClose }) => {
                     <Select
                       styles={customSelectStyles}
                       options={countryOptions}
-                      value={selectedCountry}
-                      onChange={(option) => setSelectedCountry(option)}
+                      value={formData.basicInfo.countryOriginFabric}
+                      onChange={(option) => handleCountryChange('basicInfo', 'countryOriginFabric', option)}
                       placeholder="Select Country"
                       className="text-sm"
                     />
@@ -243,8 +267,8 @@ const Manufacture = ({ onClose }) => {
                     <Select
                       styles={customSelectStyles}
                       options={countryOptions}
-                      value={selectedCountry}
-                      onChange={(option) => setSelectedCountry(option)}
+                      value={formData.basicInfo.countryOriginYarn}
+                      onChange={(option) => handleCountryChange('basicInfo', 'countryOriginYarn', option)}
                       placeholder="Select Country"
                       className="text-sm"
                     />
@@ -257,8 +281,8 @@ const Manufacture = ({ onClose }) => {
                     <Select
                       styles={customSelectStyles}
                       options={countryOptions}
-                      value={selectedCountry}
-                      onChange={(option) => setSelectedCountry(option)}
+                      value={formData.basicInfo.countryOriginFiber}
+                      onChange={(option) => handleCountryChange('basicInfo', 'countryOriginFiber', option)}
                       placeholder="Select Country"
                       className="text-sm"
                     />
@@ -280,36 +304,48 @@ const Manufacture = ({ onClose }) => {
                     label="SMS MCQ"
                     placeholder="Enter MCQ"
                     type="number"
+                    value={formData.capacityLeadTimes.smsMcq}
+                    onChange={(e) => handleInputChange('capacityLeadTimes', 'smsMcq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="SMS MOQ"
                     placeholder="Enter MOQ"
                     type="number"
+                    value={formData.capacityLeadTimes.smsMoq}
+                    onChange={(e) => handleInputChange('capacityLeadTimes', 'smsMoq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="SMS Lead Time"
                     placeholder="Enter lead time"
                     type="number"
+                    value={formData.capacityLeadTimes.smsLeadTime}
+                    onChange={(e) => handleInputChange('capacityLeadTimes', 'smsLeadTime', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="BULK MCQ"
                     placeholder="Enter MCQ"
                     type="number"
+                    value={formData.capacityLeadTimes.bulkMcq}
+                    onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkMcq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="BULK MOQ"
                     placeholder="Enter MOQ"
                     type="number"
+                    value={formData.capacityLeadTimes.bulkMoq}
+                    onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkMoq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="BULK Lead Time"
                     placeholder="Enter lead time"
                     type="number"
+                    value={formData.capacityLeadTimes.bulkLeadTime}
+                    onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkLeadTime', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                 </div>
@@ -324,14 +360,16 @@ const Manufacture = ({ onClose }) => {
 
                     <ReusableInput
                       label="Sur Charges"
-                      value=""
+                      value={formData.developmentDetails.surCharges}
+                      onChange={(e) => handleInputChange('developmentDetails', 'surCharges', e.target.value)}
                       className="[&>input]:py-1.5"
                       placeholder="Enter sur charges"
                     />
 
                     <ReusableInput
                       label="Price FOB"
-                      value=""
+                      value={formData.developmentDetails.priceFob}
+                      onChange={(e) => handleInputChange('developmentDetails', 'priceFob', e.target.value)}
                       className="[&>input]:py-1.5"
                       placeholder="Enter Price FOB"
                     />
@@ -357,16 +395,16 @@ const Manufacture = ({ onClose }) => {
                     </div>
 
                     <div className="border-2 border-dashed border-slate-200 rounded-lg p-4 flex flex-col items-center">
-                      {fabricImage ? (
+                      {formData.developmentDetails.fabricImage ? (
                         <>
                           <img
-                            src={fabricImage}
+                            src={formData.developmentDetails.fabricImage}
                             alt="Fabric preview"
                             className="h-48 object-contain mb-2 cursor-pointer"
                             onClick={() => setShowModal(true)}
                           />
                           <button
-                            onClick={() => setFabricImage(null)}
+                            onClick={() => handleInputChange('developmentDetails', 'fabricImage', null)}
                             className="text-xs text-red-600 hover:text-red-800"
                           >
                             Remove Image
@@ -394,7 +432,7 @@ const Manufacture = ({ onClose }) => {
                       <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                         <div className="bg-white p-4 rounded shadow-lg max-w-full max-h-full">
                           <img
-                            src={fabricImage}
+                            src={formData.developmentDetails.fabricImage}
                             alt="Full preview"
                             className="max-h-[80vh] max-w-[90vw] object-contain"
                           />
@@ -409,11 +447,8 @@ const Manufacture = ({ onClose }) => {
                     )}
                   </div>
                 </div>
-
-
               </div>
             </div>
-
 
             <div className="space-y-3">
               <div className="space-y-4">
@@ -425,8 +460,8 @@ const Manufacture = ({ onClose }) => {
                       <ReusableInput
                         label="Construction"
                         name="construction"
-                        value={constructionDetails.construction}
-                        onChange={handleConstructionChange}
+                        value={formData.constructionDetails.construction}
+                        onChange={(e) => handleInputChange('constructionDetails', 'construction', e.target.value)}
                         placeholder="Enter construction details"
                         className="[&>input]:py-1.5"
                       />
@@ -434,8 +469,8 @@ const Manufacture = ({ onClose }) => {
                         <ReusableInput
                           label="Fiber Content"
                           name="fiberContent"
-                          value={constructionDetails.fiberContent}
-                          onChange={handleConstructionChange}
+                          value={formData.constructionDetails.fiberContent}
+                          onChange={(e) => handleInputChange('constructionDetails', 'fiberContent', e.target.value)}
                           placeholder="Enter fiber content"
                           className="[&>input]:py-1.5"
                         />
@@ -445,20 +480,19 @@ const Manufacture = ({ onClose }) => {
                         <ReusableInput
                           label="Yarn Details"
                           name="yarnDetails"
-                          value={constructionDetails.yarnDetails}
-                          onChange={handleConstructionChange}
+                          value={formData.constructionDetails.yarnDetails}
+                          onChange={(e) => handleInputChange('constructionDetails', 'yarnDetails', e.target.value)}
                           placeholder="Enter yarn details"
                           className="[&>input]:py-1.5"
                         />
                       </div>
 
-
                       <div className="grid grid-cols-2 gap-4">
                         <ReusableInput
                           label="Weight (GSM)"
                           name="weightGSM"
-                          value={constructionDetails.weightGSM}
-                          onChange={handleConstructionChange}
+                          value={formData.constructionDetails.weightGSM}
+                          onChange={(e) => handleInputChange('constructionDetails', 'weightGSM', e.target.value)}
                           placeholder="Enter GSM"
                           type="number"
                           className="[&>input]:py-1.5"
@@ -466,8 +500,8 @@ const Manufacture = ({ onClose }) => {
                         <ReusableInput
                           label="Weft/Wales Count"
                           name="weftWalesCount"
-                          value={constructionDetails.weftWalesCount}
-                          onChange={handleConstructionChange}
+                          value={formData.constructionDetails.weftWalesCount}
+                          onChange={(e) => handleInputChange('constructionDetails', 'weftWalesCount', e.target.value)}
                           placeholder="Enter count"
                           className="[&>input]:py-1.5"
                         />
@@ -478,64 +512,69 @@ const Manufacture = ({ onClose }) => {
                           <ReusableInput
                             label="Width (Finished)"
                             name="widthFinished"
-                            value={constructionDetails.widthFinished}
-                            onChange={handleConstructionChange}
+                            value={formData.constructionDetails.widthFinished}
+                            onChange={(e) => handleInputChange('constructionDetails', 'widthFinished', e.target.value)}
                             placeholder="Enter width"
                             className="[&>input]:py-1.5"
                           />
                         </div>
-
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <ReusableInput
                           label="Width (Cuttale)"
                           name="widthCuttale"
-                          value={constructionDetails.widthCuttale}
-                          onChange={handleConstructionChange}
+                          value={formData.constructionDetails.widthCuttale}
+                          onChange={(e) => handleInputChange('constructionDetails', 'widthCuttale', e.target.value)}
                           placeholder="Enter cuttale width"
                           className="[&>input]:py-1.5"
                         />
                         <ReusableInput
                           label="Wrap/Count"
                           name="wrapCoursesCount"
-                          value={constructionDetails.wrapCoursesCount}
-                          onChange={handleConstructionChange}
+                          value={formData.constructionDetails.wrapCoursesCount}
+                          onChange={(e) => handleInputChange('constructionDetails', 'wrapCoursesCount', e.target.value)}
                           placeholder="Enter count"
                           className="[&>input]:py-1.5"
                         />
                       </div>
                     </div>
-
                   </div>
+
                   <div className="border border-slate-200 w-full p-4 bg-white rounded-lg shadow-sm">
                     <h2 className="font-medium text-slate-700 text-base mb-4">Process Finishing</h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
                       <ReusableInput
                         label="Dyed Method"
+                        name="dyedMethod"
+                        value={formData.processFinishing.dyedMethod}
+                        onChange={(e) => handleInputChange('processFinishing', 'dyedMethod', e.target.value)}
                         placeholder="Enter Dyed Method"
-                        onChange={handleProcessFinishingChange}
                         className="[&>input]:py-1.5"
                       />
                       <ReusableInput
                         label="Printing Method"
+                        name="printingMethod"
+                        value={formData.processFinishing.printingMethod}
+                        onChange={(e) => handleInputChange('processFinishing', 'printingMethod', e.target.value)}
                         placeholder="Enter Printing Method"
-                        onChange={handleProcessFinishingChange}
                         className="[&>input]:py-1.5"
                       />
 
                       <ReusableInput
                         label="Surface Finish"
+                        name="surfaceFinish"
+                        value={formData.processFinishing.surfaceFinish}
+                        onChange={(e) => handleInputChange('processFinishing', 'surfaceFinish', e.target.value)}
                         placeholder="Enter Surface Finish"
-                        onChange={handleProcessFinishingChange}
                         className="[&>input]:py-1.5"
                       />
                       <ReusableInput
                         label="Other Performance Function"
                         name="otherPerformanceFunction"
-                        value={processFinishing.otherPerformanceFunction}
-                        onChange={handleProcessFinishingChange}
+                        value={formData.processFinishing.otherPerformanceFunction}
+                        onChange={(e) => handleInputChange('processFinishing', 'otherPerformanceFunction', e.target.value)}
                         placeholder="Enter other functions"
                         className="[&>input]:py-1.5"
                       />
@@ -556,8 +595,8 @@ const Manufacture = ({ onClose }) => {
                       <ReusableInput
                         label="Test Name"
                         name="testName"
-                        value={testPerformance.testName}
-                        onChange={handleTestPerformanceChange}
+                        value={formData.testPerformance.testName}
+                        onChange={(e) => handleInputChange('testPerformance', 'testName', e.target.value)}
                         placeholder="Enter test name"
                         className="[&>input]:py-1.5"
                       />
@@ -565,8 +604,8 @@ const Manufacture = ({ onClose }) => {
                       <ReusableInput
                         label="Test Result"
                         name="testResult"
-                        value={testPerformance.testResult}
-                        onChange={handleTestPerformanceChange}
+                        value={formData.testPerformance.testResult}
+                        onChange={(e) => handleInputChange('testPerformance', 'testResult', e.target.value)}
                         placeholder="Enter test result"
                         className="[&>input]:py-1.5"
                       />
@@ -574,8 +613,8 @@ const Manufacture = ({ onClose }) => {
                       <ReusableInput
                         label="Test Standard"
                         name="testStandard"
-                        value={testPerformance.testStandard}
-                        onChange={handleTestPerformanceChange}
+                        value={formData.testPerformance.testStandard}
+                        onChange={(e) => handleInputChange('testPerformance', 'testStandard', e.target.value)}
                         placeholder="Enter test standard"
                         className="[&>input]:py-1.5"
                       />
@@ -591,7 +630,7 @@ const Manufacture = ({ onClose }) => {
                       </button>
                     </div>
 
-                    {testPerformance.additionalTests.length > 0 && (
+                    {formData.testPerformance.additionalTests.length > 0 && (
                       <div className="overflow-x-auto mb-6">
                         <table className="min-w-full divide-y divide-slate-200">
                           <thead className="bg-slate-50">
@@ -603,7 +642,7 @@ const Manufacture = ({ onClose }) => {
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-slate-200">
-                            {testPerformance.additionalTests.map((test, index) => (
+                            {formData.testPerformance.additionalTests.map((test, index) => (
                               <tr key={index}>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">{test.name}</td>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">{test.result}</td>
@@ -628,8 +667,8 @@ const Manufacture = ({ onClose }) => {
                       <ReusableInput
                         label="Recommended Care Instruction"
                         name="careInstructions"
-                        value={testPerformance.careInstructions}
-                        onChange={handleTestPerformanceChange}
+                        value={formData.testPerformance.careInstructions}
+                        onChange={(e) => handleInputChange('testPerformance', 'careInstructions', e.target.value)}
                         placeholder="Enter care instructions"
                         className="[&>input]:py-1.5"
                         multiline
@@ -639,8 +678,8 @@ const Manufacture = ({ onClose }) => {
                       <ReusableInput
                         label="Quality/Technical Limitations"
                         name="qualityLimitations"
-                        value={testPerformance.qualityLimitations}
-                        onChange={handleTestPerformanceChange}
+                        value={formData.testPerformance.qualityLimitations}
+                        onChange={(e) => handleInputChange('testPerformance', 'qualityLimitations', e.target.value)}
                         placeholder="List any limitations"
                         className="[&>input]:py-1.5"
                         multiline
@@ -659,8 +698,8 @@ const Manufacture = ({ onClose }) => {
                       <ReusableInput
                         label="Report Data"
                         name="reportData"
-                        value={productionDetails.reportData}
-                        onChange={handleProductionDetailsChange}
+                        value={formData.productionDetails.reportData}
+                        onChange={(e) => handleInputChange('productionDetails', 'reportData', e.target.value)}
                         placeholder="Enter production details and test performance data"
                         className="[&>textarea]:py-1.5"
                         multiline
@@ -671,9 +710,9 @@ const Manufacture = ({ onClose }) => {
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">Supporting Documentation</label>
                       <div className="border-2 border-dashed border-slate-200 rounded-lg p-4">
-                        {productionDetails.supportingDocs.length > 0 ? (
+                        {formData.productionDetails.supportingDocs.length > 0 ? (
                           <div className="space-y-2">
-                            {productionDetails.supportingDocs.map((file, index) => (
+                            {formData.productionDetails.supportingDocs.map((file, index) => (
                               <div key={index} className="flex items-center justify-between bg-slate-50 p-2 rounded">
                                 <div className="flex items-center">
                                   <FaFileAlt className="text-slate-400 mr-2" />
@@ -710,8 +749,6 @@ const Manufacture = ({ onClose }) => {
                   </div>
                 </div> */}
               </div>
-
-
             </div>
           </div>
 
