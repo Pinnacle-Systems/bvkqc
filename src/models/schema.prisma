@@ -740,55 +740,47 @@ model TagType {
   fileName        String?
   active          Boolean?   @default(false)
 }
-model Fabric {
-  id                     String             @id @default(cuid())
-  selectedCountryCode    String?            
-  selectedCountryName    String?
-  fabricImage            String?            
-  // Construction Details
-  construction           String?
-  fiberContent           String?
-  yarnDetails            String?
-  weightGSM              String?
-  weightOpposite         String?
-  weftWalesCount         String?
-  widthFinished          String?
-  widthCuttale           String?
-  wrapCoursesCount       String?
-
-  // Process Finishing
-  dyedMethod             String?
-  printingMethod         String?
-  surfaceFinish          String?
+model StyleSheet {
+  id                      Int       @id @default(autoincrement())
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  fdsDate                 DateTime?
+  fabCode                 String?
+  fabType                 String?
+  countryOriginFabric     String?
+  countryOriginYarn       String?
+  countryOriginFiber      String?
+  smsMcq                  String?
+  smsMoq                  String?
+  smsLeadTime             String?
+  bulkMcq                 String?
+  bulkMoq                 String?
+  bulkLeadTime            String?
+  surCharges              String?
+  priceFob                String?
+  fabricImage             String?   @db.Text
+  construction            String?
+  fiberContent            String?
+  yarnDetails             String?
+  weightGSM               String?
+  weftWalesCount          String?
+  widthFinished           String?
+  widthCuttale            String?
+  wrapCoursesCount        String?
+  dyedMethod              String?
+  printingMethod          String?
+  surfaceFinish           String?
   otherPerformanceFunction String?
 
   // Test Performance
-  careInstructions       String?
-  qualityLimitations     String?
-
-  additionalTests        TestResult[]       @relation("FabricTests")
+  testName                String?
+  testResult              String?
+  testStandard            String?
+  additionalTests         Json?
+  careInstructions        String?
+  qualityLimitations      String?
 
   // Production Details
-  reportData             String?
-  supportingDocs         SupportingDoc[]    @relation("FabricDocs")
-
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
-}
-
-model TestResult {
-  id         String   @id @default(cuid())
-  name       String
-  result     String
-  standard   String?
-  fabricId   String
-  fabric     Fabric   @relation("FabricTests", fields: [fabricId], references: [id])
-}
-
-model SupportingDoc {
-  id         String   @id @default(cuid())
-  fileName   String
-  fileUrl    String
-  fabricId   String
-  fabric     Fabric   @relation("FabricDocs", fields: [fabricId], references: [id])
+  reportData              String?   @db.Text
+  supportingDocs          Json?
 }

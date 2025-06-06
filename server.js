@@ -20,6 +20,7 @@ import {
   dispatched,
   order,
   po,
+  styleSheetRoutes,
   sendMail,
   excessQty,
   email, orderImport,
@@ -27,6 +28,7 @@ import {
   TagType
 
 } from './src/routes/index.js';
+
 
 import { socketMain } from './src/sockets/socket.js';
 
@@ -91,6 +93,7 @@ app.use("/termsAndCondition", termsAndCondition);
 app.use("/dispatched", dispatched);
 app.use("/order", order);
 app.use("/po", po);
+app.use("/stylesheet",styleSheetRoutes)
 app.use("/email", email)
 app.use("/percentage", excessQty);
 app.use("/orderImport", orderImport);

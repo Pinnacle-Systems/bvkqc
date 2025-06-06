@@ -136,6 +136,61 @@ const Manufacture = ({ onClose }) => {
     }
   };
 
+  // const handleAddTestResult = () => {
+  //   const { testName, testResult, testStandard } = formData.testPerformance;
+  //   if (testName && testResult) {
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       testPerformance: {
+  //         ...prev.testPerformance,
+  //         additionalTests: [
+  //           ...prev.testPerformance.additionalTests,
+  //           {
+  //             name: testName,
+  //             result: testResult,
+  //             standard: testStandard
+  //           }
+  //         ],
+  //         testName: '',
+  //         testResult: '',
+  //         testStandard: ''
+  //       }
+  //     }));
+  //   }
+  // };
+
+  // const handleRemoveTestResult = (index) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     testPerformance: {
+  //       ...prev.testPerformance,
+  //       additionalTests: prev.testPerformance.additionalTests.filter((_, i) => i !== index)
+  //     }
+  //   }));
+  // };
+
+  // // Supporting docs handlers
+  // const handleSupportingDocsUpload = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     productionDetails: {
+  //       ...prev.productionDetails,
+  //       supportingDocs: [...prev.productionDetails.supportingDocs, ...files]
+  //     }
+  //   }));
+  // };
+
+  // const handleRemoveSupportingDoc = (index) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     productionDetails: {
+  //       ...prev.productionDetails,
+  //       supportingDocs: prev.productionDetails.supportingDocs.filter((_, i) => i !== index)
+  //     }
+  //   }));
+  // };
+
   const handleSubmitCustom = async (callback, data, text) => {
     try {
       let returnData = await callback(data).unwrap();
@@ -161,7 +216,7 @@ const Manufacture = ({ onClose }) => {
 
 
   const validateData = (data) => {
-    return true
+    return data.name && data.code && (data.isCutting || data.isPacking || data.isPcsStage ? true : data.io)
   }
 const saveData = () => {
   if (!validateData(formData)) {
@@ -299,6 +354,7 @@ const saveData = () => {
                   <ReusableInput
                     label="SMS MCQ"
                     placeholder="Enter MCQ"
+                    type="number"
                     value={formData.capacityLeadTimes.smsMcq}
                     onChange={(e) => handleInputChange('capacityLeadTimes', 'smsMcq', e.target.value)}
                     className="[&>input]:py-1.5"
@@ -306,6 +362,7 @@ const saveData = () => {
                   <ReusableInput
                     label="SMS MOQ"
                     placeholder="Enter MOQ"
+                    type="number"
                     value={formData.capacityLeadTimes.smsMoq}
                     onChange={(e) => handleInputChange('capacityLeadTimes', 'smsMoq', e.target.value)}
                     className="[&>input]:py-1.5"
@@ -313,6 +370,7 @@ const saveData = () => {
                   <ReusableInput
                     label="SMS Lead Time"
                     placeholder="Enter lead time"
+                    type="number"
                     value={formData.capacityLeadTimes.smsLeadTime}
                     onChange={(e) => handleInputChange('capacityLeadTimes', 'smsLeadTime', e.target.value)}
                     className="[&>input]:py-1.5"
@@ -320,6 +378,7 @@ const saveData = () => {
                   <ReusableInput
                     label="BULK MCQ"
                     placeholder="Enter MCQ"
+                    type="number"
                     value={formData.capacityLeadTimes.bulkMcq}
                     onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkMcq', e.target.value)}
                     className="[&>input]:py-1.5"
@@ -327,6 +386,7 @@ const saveData = () => {
                   <ReusableInput
                     label="BULK MOQ"
                     placeholder="Enter MOQ"
+                    type="number"
                     value={formData.capacityLeadTimes.bulkMoq}
                     onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkMoq', e.target.value)}
                     className="[&>input]:py-1.5"
@@ -334,6 +394,7 @@ const saveData = () => {
                   <ReusableInput
                     label="BULK Lead Time"
                     placeholder="Enter lead time"
+                    type="number"
                     value={formData.capacityLeadTimes.bulkLeadTime}
                     onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkLeadTime', e.target.value)}
                     className="[&>input]:py-1.5"
@@ -365,6 +426,7 @@ const saveData = () => {
                     />
                   </div>
 
+                  {/* Right Column - Fabric Image Upload */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-medium text-slate-700">Fabric Image Upload</h3>
@@ -571,14 +633,180 @@ const saveData = () => {
                   </div>
                 </div>
 
+                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="border border-slate-200 col-span-2 p-4 bg-white rounded-lg shadow-sm">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="font-medium text-slate-700 text-base">Test Performance</h2>
+                      <div className="text-xs text-slate-500">
+                        Add test results
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                      <ReusableInput
+                        label="Test Name"
+                        name="testName"
+                        value={formData.testPerformance.testName}
+                        onChange={(e) => handleInputChange('testPerformance', 'testName', e.target.value)}
+                        placeholder="Enter test name"
+                        className="[&>input]:py-1.5"
+                      />
+
+                      <ReusableInput
+                        label="Test Result"
+                        name="testResult"
+                        value={formData.testPerformance.testResult}
+                        onChange={(e) => handleInputChange('testPerformance', 'testResult', e.target.value)}
+                        placeholder="Enter test result"
+                        className="[&>input]:py-1.5"
+                      />
+
+                      <ReusableInput
+                        label="Test Standard"
+                        name="testStandard"
+                        value={formData.testPerformance.testStandard}
+                        onChange={(e) => handleInputChange('testPerformance', 'testStandard', e.target.value)}
+                        placeholder="Enter test standard"
+                        className="[&>input]:py-1.5"
+                      />
+                    </div>
+
+                    <div className="flex justify-end mb-4">
+                      <button
+                        onClick={handleAddTestResult}
+                        className="bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm"
+                      >
+                        <HiPlus className="w-4 h-4 mr-1" />
+                        Add Test Result
+                      </button>
+                    </div>
+
+                    {formData.testPerformance.additionalTests.length > 0 && (
+                      <div className="overflow-x-auto mb-6">
+                        <table className="min-w-full divide-y divide-slate-200">
+                          <thead className="bg-slate-50">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Test Name</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Result</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Standard</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-slate-200">
+                            {formData.testPerformance.additionalTests.map((test, index) => (
+                              <tr key={index}>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">{test.name}</td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">{test.result}</td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">{test.standard}</td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">
+                                  <button
+                                    onClick={() => handleRemoveTestResult(index)}
+                                    className="text-red-600 hover:text-red-800"
+                                    title="Remove"
+                                  >
+                                    <HiTrash className="w-4 h-4" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <ReusableInput
+                        label="Recommended Care Instruction"
+                        name="careInstructions"
+                        value={formData.testPerformance.careInstructions}
+                        onChange={(e) => handleInputChange('testPerformance', 'careInstructions', e.target.value)}
+                        placeholder="Enter care instructions"
+                        className="[&>input]:py-1.5"
+                        multiline
+                        rows={3}
+                      />
+
+                      <ReusableInput
+                        label="Quality/Technical Limitations"
+                        name="qualityLimitations"
+                        value={formData.testPerformance.qualityLimitations}
+                        onChange={(e) => handleInputChange('testPerformance', 'qualityLimitations', e.target.value)}
+                        placeholder="List any limitations"
+                        className="[&>input]:py-1.5"
+                        multiline
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="border border-slate-200 p-4 bg-white rounded-lg shadow-sm">
+                    <h2 className="font-medium text-slate-700 text-base mb-4">
+                      Production Details (Report Test Performance Data Below)
+                      <span className="text-xs text-red-500 ml-2">** Supporting Documentation Must Be Attached</span>
+                    </h2>
+
+                    <div className="mb-4">
+                      <ReusableInput
+                        label="Report Data"
+                        name="reportData"
+                        value={formData.productionDetails.reportData}
+                        onChange={(e) => handleInputChange('productionDetails', 'reportData', e.target.value)}
+                        placeholder="Enter production details and test performance data"
+                        className="[&>textarea]:py-1.5"
+                        multiline
+                        rows={4}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Supporting Documentation</label>
+                      <div className="border-2 border-dashed border-slate-200 rounded-lg p-4">
+                        {formData.productionDetails.supportingDocs.length > 0 ? (
+                          <div className="space-y-2">
+                            {formData.productionDetails.supportingDocs.map((file, index) => (
+                              <div key={index} className="flex items-center justify-between bg-slate-50 p-2 rounded">
+                                <div className="flex items-center">
+                                  <FaFileAlt className="text-slate-400 mr-2" />
+                                  <span className="text-sm text-slate-700 truncate max-w-xs">{file.name}</span>
+                                </div>
+                                <button
+                                  onClick={() => handleRemoveSupportingDoc(index)}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  <HiTrash className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <FaUpload className="mx-auto text-slate-400 text-2xl mb-2" />
+                            <p className="text-sm text-slate-500 mb-2">No documents uploaded</p>
+                          </div>
+                        )}
+
+                        <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded transition-colors flex items-center justify-center mt-4">
+                          <span>Upload Documents</span>
+                          <input
+                            type="file"
+                            className="hidden"
+                            onChange={handleSupportingDocsUpload}
+                            multiple
+                          />
+                        </label>
+                        <p className="text-xs text-slate-500 mt-2">PDF, DOC, XLS, JPG, PNG (max 10MB each)</p>
+                      </div>
+                    </div>
+                  </div>
+                </div> */}
               </div>
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row gap-2 justify-between mt-4">
             <div className="flex gap-2 flex-wrap">
-              <button onClick={(e)=>saveData()}  className="bg-indigo-600 text-white px-4 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm">
-                <FiSave className="w-4 h-4 mr-2"  />
+              <button className="bg-indigo-600 text-white px-4 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm">
+                <FiSave className="w-4 h-4 mr-2" onClick={saveData()} />
                 Save
               </button>
               <button className="bg-indigo-500 text-white px-4 py-1 rounded-md hover:bg-indigo-600 flex items-center text-sm">

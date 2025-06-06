@@ -8,6 +8,7 @@ export { default as employeeCategoryMasterApi } from "./EmployeeCategoryMasterSe
 export { default as finYearMasterApi } from "./FinYearMasterService";
 export { default as rolesMasterApi } from "./RolesMasterService";
 export { default as userMasterApi } from "./UsersMasterService";
+export { default as styleSheetApi } from  "./StyleSheet";
 export { default as employeeMasterApi } from "./EmployeeMasterService";
 export { default as branchMasterApi } from "./BranchMasterService";
 export { default as subscriptionMasterApi } from "./SubscriptionService";
