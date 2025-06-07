@@ -771,16 +771,6 @@ model StyleSheet {
   printingMethod          String?
   surfaceFinish           String?
   otherPerformanceFunction String?
+  materialCode            String?
 
-  // Test Performance
-  testName                String?
-  testResult              String?
-  testStandard            String?
-  additionalTests         Json?
-  careInstructions        String?
-  qualityLimitations      String?
-
-  // Production Details
-  reportData              String?   @db.Text
-  supportingDocs          Json?
 }

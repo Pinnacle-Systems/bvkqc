@@ -7,13 +7,13 @@ import {
   update, 
   remove 
 } from '../controllers/styleSheetController.js';
+import multerUpload from '../utils/multerUpload.js';
 
 const router = Router();
-
-router.post('/', create);
+router.post('/', multerUpload.single('image'), create);
+router.put('/:id', multerUpload.single('image'), update);
 router.get('/', get);
 router.get('/:id', getOne);
-router.put('/:id', update);
 router.delete('/:id', remove);
 
 export default router;

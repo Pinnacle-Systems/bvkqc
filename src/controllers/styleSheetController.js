@@ -9,55 +9,44 @@ const transformCountry = (countryField) => {
 };
 
 const transformBody = (body) => {
-  const { 
-    basicInfo, 
-    capacityLeadTimes, 
-    developmentDetails, 
-    constructionDetails, 
-    processFinishing, 
-    testPerformance, 
-    productionDetails 
-  } = body;
-
+  console.log(body,"body")
   return {
-    fdsDate: basicInfo?.fdsDate ? new Date(basicInfo.fdsDate) : null,
-    fabCode: basicInfo?.fabCode,
-    fabType: basicInfo?.fabType,
-    countryOriginFabric: transformCountry(basicInfo?.countryOriginFabric),
-    countryOriginYarn: transformCountry(basicInfo?.countryOriginYarn),
-    countryOriginFiber: transformCountry(basicInfo?.countryOriginFiber),
-    smsMcq: capacityLeadTimes?.smsMcq,
-    smsMoq: capacityLeadTimes?.smsMoq,
-    smsLeadTime: capacityLeadTimes?.smsLeadTime,
-    bulkMcq: capacityLeadTimes?.bulkMcq,
-    bulkMoq: capacityLeadTimes?.bulkMoq,
-    bulkLeadTime: capacityLeadTimes?.bulkLeadTime,
+    fdsDate: body.fdsDate ? new Date(body.fdsDate) : null,
+    fabCode: body.fabCode,
+    fabType: body.fabType,
+    materialCode: body.materialCode,
+    countryOriginFabric: transformCountry(body.countryOriginFabric),
+    countryOriginYarn: transformCountry(body.countryOriginYarn),
+    countryOriginFiber: transformCountry(body.countryOriginFiber),
 
-    surCharges: developmentDetails?.surCharges,
-    priceFob: developmentDetails?.priceFob,
-    fabricImage: developmentDetails?.fabricImage,
-    construction: constructionDetails?.construction,
-    fiberContent: constructionDetails?.fiberContent,
-    yarnDetails: constructionDetails?.yarnDetails,
-    weightGSM: constructionDetails?.weightGSM,
-    weftWalesCount: constructionDetails?.weftWalesCount,
-    widthFinished: constructionDetails?.widthFinished,
-    widthCuttale: constructionDetails?.widthCuttale,
-    wrapCoursesCount: constructionDetails?.wrapCoursesCount,
-    dyedMethod: processFinishing?.dyedMethod,
-    printingMethod: processFinishing?.printingMethod,
-    surfaceFinish: processFinishing?.surfaceFinish,
-    otherPerformanceFunction: processFinishing?.otherPerformanceFunction,
-   testName: testPerformance?.testName,
-    testResult: testPerformance?.testResult,
-    testStandard: testPerformance?.testStandard,
-    additionalTests: testPerformance?.additionalTests,
-    careInstructions: testPerformance?.careInstructions,
-    qualityLimitations: testPerformance?.qualityLimitations,
-    reportData: productionDetails?.reportData,
-    supportingDocs: productionDetails?.supportingDocs,
+    smsMcq: body.smsMcq,
+    smsMoq: body.smsMoq,
+    smsLeadTime: body.smsLeadTime,
+    bulkMcq: body.bulkMcq,
+    bulkMoq: body.bulkMoq,
+    bulkLeadTime: body.bulkLeadTime,
+
+    surCharges: body.surCharges,
+    priceFob: body.priceFob,
+    fabricImage: body.fabricImage,
+
+    construction: body.construction,
+    fiberContent: body.fiberContent,
+    yarnDetails: body.yarnDetails,
+    weightGSM: body.weightGSM,
+    weftWalesCount: body.weftWalesCount,
+    widthFinished: body.widthFinished,
+    widthCuttale: body.widthCuttale,
+    wrapCoursesCount: body.wrapCoursesCount,
+
+    dyedMethod: body.dyedMethod,
+    printingMethod: body.printingMethod,
+    surfaceFinish: body.surfaceFinish,
+    otherPerformanceFunction: body.otherPerformanceFunction,
+
   };
 };
+
 
 export const create = async (req, res) => {
   try {

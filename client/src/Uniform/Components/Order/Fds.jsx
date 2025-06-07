@@ -1,77 +1,56 @@
-import { HiPlus, HiShare, HiTrash, HiMinus, HiLocationMarker, HiCheck } from "react-icons/hi";
 import { FaQuestionCircle, FaUpload, FaWhatsapp } from "react-icons/fa";
 import { FaFileAlt } from "react-icons/fa";
 import { HiOutlineRefresh } from "react-icons/hi";
-import {
-  ReusableDropdown,
-  ReusableInput,
-} from "./CommonInput";
+import { ReusableInput } from "./CommonInput";
 import Swal from 'sweetalert2';
-
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { FiSave, FiPrinter, FiShare2 } from "react-icons/fi";
 import Select from 'react-select';
 import { Country } from 'country-state-city';
-import { useAddStyleSheetMutation, useGetStyleSheetByIdQuery, useUpdateStyleSheetMutation } from "../../../redux/services/StyleSheet";
+import { useAddStyleSheetMutation, useUpdateStyleSheetMutation } from "../../../redux/services/StyleSheet";
+
 const Manufacture = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    basicInfo: {
-      fdsDate: '',
-      fabCode: '',
-      fabType: '',
-      countryOriginFabric: null,
-      countryOriginYarn: null,
-      countryOriginFiber: null
-    },
-    capacityLeadTimes: {
-      smsMcq: '',
-      smsMoq: '',
-      smsLeadTime: '',
-      bulkMcq: '',
-      bulkMoq: '',
-      bulkLeadTime: ''
-    },
-    developmentDetails: {
-      surCharges: '',
-      priceFob: '',
-      fabricImage: null
-    },
-    constructionDetails: {
-      construction: '',
-      fiberContent: '',
-      yarnDetails: '',
-      weightGSM: '',
-      weightOpposite: '',
-      weftWalesCount: '',
-      widthFinished: '',
-      widthCuttale: '',
-      wrapCoursesCount: ''
-    },
-    processFinishing: {
-      dyedMethod: '',
-      printingMethod: '',
-      surfaceFinish: '',
-      otherPerformanceFunction: ''
-    },
-    testPerformance: {
-      testName: '',
-      testResult: '',
-      testStandard: '',
-      additionalTests: [],
-      careInstructions: '',
-      qualityLimitations: ''
-    },
-    productionDetails: {
-      reportData: '',
-      supportingDocs: []
-    }
+    fdsDate: '',
+    fabCode: '',
+    materialCode: '',
+    fabType: '',
+    countryOriginFabric: null,
+    countryOriginYarn: null,
+    countryOriginFiber: null,
+    smsMcq: '',
+    smsMoq: '',
+    smsLeadTime: '',
+    bulkMcq: '',
+    bulkMoq: '',
+    bulkLeadTime: '',
+    surCharges: '',
+    priceFob: '',
+    construction: '',
+    fiberContent: '',
+    yarnDetails: '',
+    weightGSM: '',
+    weightOpposite: '',
+    weftWalesCount: '',
+    widthFinished: '',
+    widthCuttale: '',
+    wrapCoursesCount: '',
+    dyedMethod: '',
+    printingMethod: '',
+    surfaceFinish: '',
+    otherPerformanceFunction: '',
+ 
   });
-  console.log(formData, "formData")
+
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
   const [id, setId] = useState("");
   const [showImageTooltip, setShowImageTooltip] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [addData] = useAddStyleSheetMutation()
-  const [updateData] = useUpdateStyleSheetMutation()
+  const [addData] = useAddStyleSheetMutation();
+  const [updateData] = useUpdateStyleSheetMutation();
+  const fileInputRef = useRef(null);
   const customSelectStyles = {
     control: (provided) => ({
       ...provided,
@@ -102,33 +81,28 @@ const Manufacture = ({ onClose }) => {
       padding: '8px 12px'
     }),
   };
-
-  const handleInputChange = (section, field, value) => {
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
-      }
+      [field]: value
     }));
   };
-
-  const handleCountryChange = (section, field, selectedOption) => {
+  const handleCountryChange = (field, selectedOption) => {
     setFormData(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: selectedOption
-      }
+      [field]: selectedOption
     }));
   };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.size <= 5 * 1024 * 1024) {
+      setImageFile(file);
+      setImageRemoved(false);
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        handleInputChange('developmentDetails', 'fabricImage', reader.result);
+        setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     } else {
@@ -136,10 +110,37 @@ const Manufacture = ({ onClose }) => {
     }
   };
 
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setImageRemoved(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmitCustom = async (callback, data, text) => {
     try {
-      let returnData = await callback(data).unwrap();
+      let returnData;
+      const formData = new FormData();
+      for (let key in data) {
+        formData.append(key, data[key]);
+      } 
+      if (imageFile instanceof File) {
+        formData.append("image", imageFile);
+      }
+      if (imageRemoved) {
+        formData.append("removeImage", "true");
+      }
+
+      if (text === "Updated") {
+        returnData = await callback({ id, body: formData }).unwrap();
+      } else {
+        returnData = await callback(formData).unwrap();
+      }
+
       setId(returnData.data.id);
+      setImageRemoved(false);
 
       Swal.fire({
         icon: 'success',
@@ -149,39 +150,37 @@ const Manufacture = ({ onClose }) => {
       });
 
     } catch (error) {
-      console.log("handle");
-
+      console.error("Submission error:", error);
       Swal.fire({
         icon: 'error',
-        title: 'Oops...',
-        text: 'Something went wrong!',
+        title: 'Submission Failed',
+        text: error.data?.message || 'Something went wrong!',
       });
     }
   };
 
-
   const validateData = (data) => {
-    return true
-  }
-const saveData = () => {
-  if (!validateData(formData)) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Please fill all required fields!',
-      position: 'top',
-      showConfirmButton: false,
-      timer: 2000
-    });
-    return;
+    return true;
   }
 
-  if (id) {
-    handleSubmitCustom(updateData, formData, "Updated");
-  } else {
-    handleSubmitCustom(addData, formData, "Added");
-  }
-};
+  const saveData = () => {
+    if (!validateData(formData)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Please fill all required fields!',
+        position: 'top',
+        showConfirmButton: false,
+        timer: 2000
+      });
+      return;
+    }
 
+    if (id) {
+      handleSubmitCustom(updateData, formData, "Updated");
+    } else {
+      handleSubmitCustom(addData, formData, "Added");
+    }
+  };
 
   const countryOptions = useMemo(() => {
     return Country.getAllCountries().map(country => ({
@@ -208,7 +207,6 @@ const saveData = () => {
         <div className="space-y-3">
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Basic Information Card */}
               <div className="border border-slate-200 p-4 bg-white rounded-lg shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-medium text-slate-700 text-base">Basic Information</h2>
@@ -221,24 +219,34 @@ const saveData = () => {
                   <ReusableInput
                     label="FDS Date"
                     type="date"
-                    value={formData.basicInfo.fdsDate}
-                    onChange={(e) => handleInputChange('basicInfo', 'fdsDate', e.target.value)}
+                    value={formData.fdsDate}
+                    onChange={(e) => handleInputChange('fdsDate', e.target.value)}
+                    className="[&>input]:py-1.5"
+                  />
+                      <ReusableInput
+                    label="Customer Material Code"
+                    placeholder="Enter Fabric code"
+                    value={formData.materialCode}
+                    onChange={(e) => handleInputChange('materialCode', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
 
-                  <ReusableInput
+                 <div className="col-span-2">
+  <ReusableInput
                     label="Fab Code"
                     placeholder="Enter fabric code"
-                    value={formData.basicInfo.fabCode}
-                    onChange={(e) => handleInputChange('basicInfo', 'fabCode', e.target.value)}
+                    value={formData.fabCode}
+                    onChange={(e) => handleInputChange('fabCode', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
-
+                    
+                 </div>
+                
                   <ReusableInput
                     label="Fab Type"
                     placeholder="Enter fabric Type"
-                    value={formData.basicInfo.fabType}
-                    onChange={(e) => handleInputChange('basicInfo', 'fabType', e.target.value)}
+                    value={formData.fabType}
+                    onChange={(e) => handleInputChange('fabType', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
 
@@ -249,8 +257,8 @@ const saveData = () => {
                     <Select
                       styles={customSelectStyles}
                       options={countryOptions}
-                      value={formData.basicInfo.countryOriginFabric}
-                      onChange={(option) => handleCountryChange('basicInfo', 'countryOriginFabric', option)}
+                      value={formData.countryOriginFabric}
+                      onChange={(option) => handleCountryChange('countryOriginFabric', option)}
                       placeholder="Select Country"
                       className="text-sm"
                     />
@@ -263,8 +271,8 @@ const saveData = () => {
                     <Select
                       styles={customSelectStyles}
                       options={countryOptions}
-                      value={formData.basicInfo.countryOriginYarn}
-                      onChange={(option) => handleCountryChange('basicInfo', 'countryOriginYarn', option)}
+                      value={formData.countryOriginYarn}
+                      onChange={(option) => handleCountryChange('countryOriginYarn', option)}
                       placeholder="Select Country"
                       className="text-sm"
                     />
@@ -277,8 +285,8 @@ const saveData = () => {
                     <Select
                       styles={customSelectStyles}
                       options={countryOptions}
-                      value={formData.basicInfo.countryOriginFiber}
-                      onChange={(option) => handleCountryChange('basicInfo', 'countryOriginFiber', option)}
+                      value={formData.countryOriginFiber}
+                      onChange={(option) => handleCountryChange('countryOriginFiber', option)}
                       placeholder="Select Country"
                       className="text-sm"
                     />
@@ -299,43 +307,43 @@ const saveData = () => {
                   <ReusableInput
                     label="SMS MCQ"
                     placeholder="Enter MCQ"
-                    value={formData.capacityLeadTimes.smsMcq}
-                    onChange={(e) => handleInputChange('capacityLeadTimes', 'smsMcq', e.target.value)}
+                    value={formData.smsMcq}
+                    onChange={(e) => handleInputChange('smsMcq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="SMS MOQ"
                     placeholder="Enter MOQ"
-                    value={formData.capacityLeadTimes.smsMoq}
-                    onChange={(e) => handleInputChange('capacityLeadTimes', 'smsMoq', e.target.value)}
+                    value={formData.smsMoq}
+                    onChange={(e) => handleInputChange('smsMoq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="SMS Lead Time"
                     placeholder="Enter lead time"
-                    value={formData.capacityLeadTimes.smsLeadTime}
-                    onChange={(e) => handleInputChange('capacityLeadTimes', 'smsLeadTime', e.target.value)}
+                    value={formData.smsLeadTime}
+                    onChange={(e) => handleInputChange('smsLeadTime', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="BULK MCQ"
                     placeholder="Enter MCQ"
-                    value={formData.capacityLeadTimes.bulkMcq}
-                    onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkMcq', e.target.value)}
+                    value={formData.bulkMcq}
+                    onChange={(e) => handleInputChange('bulkMcq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="BULK MOQ"
                     placeholder="Enter MOQ"
-                    value={formData.capacityLeadTimes.bulkMoq}
-                    onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkMoq', e.target.value)}
+                    value={formData.bulkMoq}
+                    onChange={(e) => handleInputChange('bulkMoq', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                   <ReusableInput
                     label="BULK Lead Time"
                     placeholder="Enter lead time"
-                    value={formData.capacityLeadTimes.bulkLeadTime}
-                    onChange={(e) => handleInputChange('capacityLeadTimes', 'bulkLeadTime', e.target.value)}
+                    value={formData.bulkLeadTime}
+                    onChange={(e) => handleInputChange('bulkLeadTime', e.target.value)}
                     className="[&>input]:py-1.5"
                   />
                 </div>
@@ -344,22 +352,21 @@ const saveData = () => {
               {/* Development Details Card */}
               <div className="border border-slate-200 p-4 bg-white rounded-lg shadow-sm">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-                  {/* Left Column - Input Fields */}
                   <div className="flex flex-col gap-4">
                     <h2 className="font-medium text-slate-700 text-base mb-4">Development Details</h2>
 
                     <ReusableInput
                       label="Sur Charges"
-                      value={formData.developmentDetails.surCharges}
-                      onChange={(e) => handleInputChange('developmentDetails', 'surCharges', e.target.value)}
+                      value={formData.surCharges}
+                      onChange={(e) => handleInputChange('surCharges', e.target.value)}
                       className="[&>input]:py-1.5"
                       placeholder="Enter sur charges"
                     />
 
                     <ReusableInput
                       label="Price FOB"
-                      value={formData.developmentDetails.priceFob}
-                      onChange={(e) => handleInputChange('developmentDetails', 'priceFob', e.target.value)}
+                      value={formData.priceFob}
+                      onChange={(e) => handleInputChange('priceFob', e.target.value)}
                       className="[&>input]:py-1.5"
                       placeholder="Enter Price FOB"
                     />
@@ -384,16 +391,16 @@ const saveData = () => {
                     </div>
 
                     <div className="border-2 border-dashed border-slate-200 rounded-lg p-4 flex flex-col items-center">
-                      {formData.developmentDetails.fabricImage ? (
+                      {imagePreview ? (
                         <>
                           <img
-                            src={formData.developmentDetails.fabricImage}
+                            src={imagePreview}
                             alt="Fabric preview"
                             className="h-48 object-contain mb-2 cursor-pointer"
                             onClick={() => setShowModal(true)}
                           />
                           <button
-                            onClick={() => handleInputChange('developmentDetails', 'fabricImage', null)}
+                            onClick={handleRemoveImage}
                             className="text-xs text-red-600 hover:text-red-800"
                           >
                             Remove Image
@@ -409,6 +416,7 @@ const saveData = () => {
                               className="hidden"
                               accept="image/*"
                               onChange={handleImageUpload}
+                              ref={fileInputRef}
                             />
                           </label>
                           <p className="text-xs text-slate-500 mt-1">JPEG, PNG (max 5MB)</p>
@@ -416,12 +424,11 @@ const saveData = () => {
                       )}
                     </div>
 
-                    {/* Modal */}
                     {showModal && (
                       <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                         <div className="bg-white p-4 rounded shadow-lg max-w-full max-h-full">
                           <img
-                            src={formData.developmentDetails.fabricImage}
+                            src={imagePreview}
                             alt="Full preview"
                             className="max-h-[80vh] max-w-[90vw] object-contain"
                           />
@@ -449,8 +456,8 @@ const saveData = () => {
                       <ReusableInput
                         label="Construction"
                         name="construction"
-                        value={formData.constructionDetails.construction}
-                        onChange={(e) => handleInputChange('constructionDetails', 'construction', e.target.value)}
+                        value={formData.construction}
+                        onChange={(e) => handleInputChange('construction', e.target.value)}
                         placeholder="Enter construction details"
                         className="[&>input]:py-1.5"
                       />
@@ -458,8 +465,8 @@ const saveData = () => {
                         <ReusableInput
                           label="Fiber Content"
                           name="fiberContent"
-                          value={formData.constructionDetails.fiberContent}
-                          onChange={(e) => handleInputChange('constructionDetails', 'fiberContent', e.target.value)}
+                          value={formData.fiberContent}
+                          onChange={(e) => handleInputChange('fiberContent', e.target.value)}
                           placeholder="Enter fiber content"
                           className="[&>input]:py-1.5"
                         />
@@ -469,8 +476,8 @@ const saveData = () => {
                         <ReusableInput
                           label="Yarn Details"
                           name="yarnDetails"
-                          value={formData.constructionDetails.yarnDetails}
-                          onChange={(e) => handleInputChange('constructionDetails', 'yarnDetails', e.target.value)}
+                          value={formData.yarnDetails}
+                          onChange={(e) => handleInputChange('yarnDetails', e.target.value)}
                           placeholder="Enter yarn details"
                           className="[&>input]:py-1.5"
                         />
@@ -480,8 +487,8 @@ const saveData = () => {
                         <ReusableInput
                           label="Weight (GSM)"
                           name="weightGSM"
-                          value={formData.constructionDetails.weightGSM}
-                          onChange={(e) => handleInputChange('constructionDetails', 'weightGSM', e.target.value)}
+                          value={formData.weightGSM}
+                          onChange={(e) => handleInputChange('weightGSM', e.target.value)}
                           placeholder="Enter GSM"
                           type="number"
                           className="[&>input]:py-1.5"
@@ -489,8 +496,8 @@ const saveData = () => {
                         <ReusableInput
                           label="Weft/Wales Count"
                           name="weftWalesCount"
-                          value={formData.constructionDetails.weftWalesCount}
-                          onChange={(e) => handleInputChange('constructionDetails', 'weftWalesCount', e.target.value)}
+                          value={formData.weftWalesCount}
+                          onChange={(e) => handleInputChange('weftWalesCount', e.target.value)}
                           placeholder="Enter count"
                           className="[&>input]:py-1.5"
                         />
@@ -501,8 +508,8 @@ const saveData = () => {
                           <ReusableInput
                             label="Width (Finished)"
                             name="widthFinished"
-                            value={formData.constructionDetails.widthFinished}
-                            onChange={(e) => handleInputChange('constructionDetails', 'widthFinished', e.target.value)}
+                            value={formData.widthFinished}
+                            onChange={(e) => handleInputChange('widthFinished', e.target.value)}
                             placeholder="Enter width"
                             className="[&>input]:py-1.5"
                           />
@@ -513,16 +520,16 @@ const saveData = () => {
                         <ReusableInput
                           label="Width (Cuttale)"
                           name="widthCuttale"
-                          value={formData.constructionDetails.widthCuttale}
-                          onChange={(e) => handleInputChange('constructionDetails', 'widthCuttale', e.target.value)}
+                          value={formData.widthCuttale}
+                          onChange={(e) => handleInputChange('widthCuttale', e.target.value)}
                           placeholder="Enter cuttale width"
                           className="[&>input]:py-1.5"
                         />
                         <ReusableInput
                           label="Wrap/Count"
                           name="wrapCoursesCount"
-                          value={formData.constructionDetails.wrapCoursesCount}
-                          onChange={(e) => handleInputChange('constructionDetails', 'wrapCoursesCount', e.target.value)}
+                          value={formData.wrapCoursesCount}
+                          onChange={(e) => handleInputChange('wrapCoursesCount', e.target.value)}
                           placeholder="Enter count"
                           className="[&>input]:py-1.5"
                         />
@@ -537,16 +544,16 @@ const saveData = () => {
                       <ReusableInput
                         label="Dyed Method"
                         name="dyedMethod"
-                        value={formData.processFinishing.dyedMethod}
-                        onChange={(e) => handleInputChange('processFinishing', 'dyedMethod', e.target.value)}
+                        value={formData.dyedMethod}
+                        onChange={(e) => handleInputChange('dyedMethod', e.target.value)}
                         placeholder="Enter Dyed Method"
                         className="[&>input]:py-1.5"
                       />
                       <ReusableInput
                         label="Printing Method"
                         name="printingMethod"
-                        value={formData.processFinishing.printingMethod}
-                        onChange={(e) => handleInputChange('processFinishing', 'printingMethod', e.target.value)}
+                        value={formData.printingMethod}
+                        onChange={(e) => handleInputChange('printingMethod', e.target.value)}
                         placeholder="Enter Printing Method"
                         className="[&>input]:py-1.5"
                       />
@@ -554,31 +561,30 @@ const saveData = () => {
                       <ReusableInput
                         label="Surface Finish"
                         name="surfaceFinish"
-                        value={formData.processFinishing.surfaceFinish}
-                        onChange={(e) => handleInputChange('processFinishing', 'surfaceFinish', e.target.value)}
+                        value={formData.surfaceFinish}
+                        onChange={(e) => handleInputChange('surfaceFinish', e.target.value)}
                         placeholder="Enter Surface Finish"
                         className="[&>input]:py-1.5"
                       />
                       <ReusableInput
                         label="Other Performance Function"
                         name="otherPerformanceFunction"
-                        value={formData.processFinishing.otherPerformanceFunction}
-                        onChange={(e) => handleInputChange('processFinishing', 'otherPerformanceFunction', e.target.value)}
+                        value={formData.otherPerformanceFunction}
+                        onChange={(e) => handleInputChange('otherPerformanceFunction', e.target.value)}
                         placeholder="Enter other functions"
                         className="[&>input]:py-1.5"
                       />
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row gap-2 justify-between mt-4">
             <div className="flex gap-2 flex-wrap">
-              <button onClick={(e)=>saveData()}  className="bg-indigo-600 text-white px-4 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm">
-                <FiSave className="w-4 h-4 mr-2"  />
+              <button onClick={saveData} className="bg-indigo-600 text-white px-4 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm">
+                <FiSave className="w-4 h-4 mr-2" />
                 Save
               </button>
               <button className="bg-indigo-500 text-white px-4 py-1 rounded-md hover:bg-indigo-600 flex items-center text-sm">

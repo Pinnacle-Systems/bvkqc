@@ -103,13 +103,16 @@ CREATE TABLE `RoleOnPage` (
 -- CreateTable
 CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `username` VARCHAR(191) NOT NULL,
+    `username` VARCHAR(191) NULL,
     `email` VARCHAR(191) NULL,
+    `passKey` VARCHAR(191) NULL,
     `password` VARCHAR(191) NOT NULL,
     `roleId` INTEGER NULL,
     `otp` VARCHAR(191) NULL,
-    `active` BOOLEAN NOT NULL DEFAULT true,
+    `active` BOOLEAN NULL DEFAULT true,
     `employeeId` INTEGER NULL,
+    `partyType` VARCHAR(191) NULL,
+    `userType` VARCHAR(191) NULL,
 
     UNIQUE INDEX `User_username_key`(`username`),
     PRIMARY KEY (`id`)
@@ -301,6 +304,9 @@ CREATE TABLE `Party` (
     `isSupplier` BOOLEAN NULL DEFAULT false,
     `isClient` BOOLEAN NULL DEFAULT false,
     `isIgst` BOOLEAN NULL DEFAULT false,
+    `isVendor` BOOLEAN NULL DEFAULT false,
+    `partyType` VARCHAR(191) NULL,
+    `mailId` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -412,6 +418,271 @@ CREATE TABLE `BillEntry` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `order` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `branchId` INTEGER NULL,
+    `createdAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL,
+    `createdById` INTEGER NULL,
+    `updatedById` INTEGER NULL,
+    `docId` VARCHAR(191) NULL,
+    `orderdate` DATETIME(3) NULL,
+    `poNumber` VARCHAR(191) NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `userId` INTEGER NULL,
+    `isApproval` BOOLEAN NOT NULL DEFAULT false,
+    `buyerGmail` VARCHAR(191) NULL,
+    `manufactureId` INTEGER NULL,
+    `vendorId` INTEGER NULL,
+    `excelFineName` VARCHAR(191) NULL,
+    `isSave` BOOLEAN NULL,
+    `excessQty` DOUBLE NULL,
+    `netAmount` DOUBLE NULL,
+    `deliverydate` DATETIME(3) NULL,
+    `isApproved` VARCHAR(191) NULL,
+    `isMailSent` BOOLEAN NULL,
+    `poSentForApproval` BOOLEAN NULL,
+    `docDate` DATETIME(3) NULL,
+    `poStatus` VARCHAR(191) NULL,
+    `approvalstatusReason` VARCHAR(191) NULL,
+    `tagType` VARCHAR(191) NULL,
+    `userRoleId` INTEGER NULL,
+    `manufacturerMailId` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `orderBillItems` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `orderId` INTEGER NULL,
+    `barCode` VARCHAR(191) NULL,
+    `class` VARCHAR(191) NULL,
+    `color` VARCHAR(191) NULL,
+    `department` VARCHAR(191) NULL,
+    `date` DATETIME(3) NULL,
+    `itemCode` VARCHAR(191) NULL,
+    `mrp` DOUBLE NULL,
+    `orderQty` DOUBLE NULL,
+    `product` VARCHAR(191) NULL,
+    `qty` DOUBLE NULL,
+    `size` VARCHAR(191) NULL,
+    `sizeDesc` VARCHAR(191) NULL,
+    `styleCode` VARCHAR(191) NULL,
+    `supplierCode` VARCHAR(191) NULL,
+    `excessQty` DOUBLE NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Po` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `poNumber` VARCHAR(191) NULL,
+    `jobNo` VARCHAR(191) NULL,
+    `dcNo` VARCHAR(191) NULL,
+    `orderNo` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` INTEGER NULL,
+    `updatedById` INTEGER NULL,
+    `branchId` INTEGER NULL,
+    `poDate` DATETIME(3) NULL,
+    `deliveryDate` DATETIME(3) NULL,
+    `customerName` VARCHAR(191) NULL,
+    `primaryEmail` VARCHAR(191) NULL,
+    `secondaryEmail` VARCHAR(191) NULL,
+    `excelFile` VARCHAR(191) NULL,
+    `documantationFile` VARCHAR(191) NULL,
+    `status` VARCHAR(191) NULL,
+    `subject` VARCHAR(191) NULL,
+    `description` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Email` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `orderId` INTEGER NULL,
+    `poExcelFileName` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` INTEGER NULL,
+    `updatedById` INTEGER NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `percentage` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `qty` INTEGER NULL,
+    `active` BOOLEAN NOT NULL DEFAULT false,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `OrderImport` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `docId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` INTEGER NOT NULL,
+    `updatedById` INTEGER NULL,
+    `branchId` INTEGER NULL,
+    `companyId` INTEGER NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `OrderImportItems` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `orderImportId` INTEGER NOT NULL,
+    `department` VARCHAR(191) NULL,
+    `class_Subclass` VARCHAR(191) NULL,
+    `season_supplier_code` VARCHAR(191) NULL,
+    `item_code` VARCHAR(191) NULL,
+    `ean_barcode` VARCHAR(191) NULL,
+    `style_code_group` VARCHAR(191) NULL,
+    `mrp` VARCHAR(191) NULL,
+    `month_year` VARCHAR(191) NULL,
+    `product` VARCHAR(191) NULL,
+    `size_desc` VARCHAR(191) NULL,
+    `code` VARCHAR(191) NULL,
+    `colour` VARCHAR(191) NULL,
+    `qty` VARCHAR(191) NULL,
+    `order_qty` VARCHAR(191) NULL,
+    `po_number` VARCHAR(191) NULL,
+    `class` VARCHAR(191) NULL,
+    `manufacturer_mail_id` VARCHAR(191) NULL,
+    `vendor_mail_id` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Attachments` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `date` DATE NULL,
+    `orderId` INTEGER NULL,
+    `gridUser` VARCHAR(191) NULL,
+    `fileName` VARCHAR(191) NULL,
+    `filePath` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` INTEGER NULL,
+    `updatedById` INTEGER NULL,
+    `comments` LONGTEXT NULL,
+    `log` LONGTEXT NULL,
+    `isBuyerAttachments` BOOLEAN NULL DEFAULT false,
+    `isVendorAttachments` BOOLEAN NULL DEFAULT false,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `controlPanel` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NULL,
+    `active` BOOLEAN NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `MailTransaction` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `date` DATE NULL,
+    `orderId` INTEGER NULL,
+    `senderName` VARCHAR(191) NULL,
+    `receiverName` VARCHAR(191) NULL,
+    `senderId` INTEGER NULL,
+    `receiverId` INTEGER NULL,
+    `from` LONGTEXT NULL,
+    `to` LONGTEXT NULL,
+    `cc` LONGTEXT NULL,
+    `subject` LONGTEXT NULL,
+    `messages` LONGTEXT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` INTEGER NULL,
+    `updatedById` INTEGER NULL,
+    `previousMailId` INTEGER NULL,
+    `userName` VARCHAR(191) NULL,
+    `userId` INTEGER NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `MailTransAttachments` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `date` DATE NULL,
+    `mailTransactionId` INTEGER NULL,
+    `fileName` VARCHAR(191) NULL,
+    `filePath` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ApprovalDoneBy` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `selectedApprover` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `TagType` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NULL,
+    `fileName` VARCHAR(191) NULL,
+    `active` BOOLEAN NULL DEFAULT false,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `StyleSheet` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `fdsDate` DATETIME(3) NULL,
+    `fabCode` VARCHAR(191) NULL,
+    `fabType` VARCHAR(191) NULL,
+    `countryOriginFabric` VARCHAR(191) NULL,
+    `countryOriginYarn` VARCHAR(191) NULL,
+    `countryOriginFiber` VARCHAR(191) NULL,
+    `smsMcq` VARCHAR(191) NULL,
+    `smsMoq` VARCHAR(191) NULL,
+    `smsLeadTime` VARCHAR(191) NULL,
+    `bulkMcq` VARCHAR(191) NULL,
+    `bulkMoq` VARCHAR(191) NULL,
+    `bulkLeadTime` VARCHAR(191) NULL,
+    `surCharges` VARCHAR(191) NULL,
+    `priceFob` VARCHAR(191) NULL,
+    `fabricImage` TEXT NULL,
+    `construction` VARCHAR(191) NULL,
+    `fiberContent` VARCHAR(191) NULL,
+    `yarnDetails` VARCHAR(191) NULL,
+    `weightGSM` VARCHAR(191) NULL,
+    `weftWalesCount` VARCHAR(191) NULL,
+    `widthFinished` VARCHAR(191) NULL,
+    `widthCuttale` VARCHAR(191) NULL,
+    `wrapCoursesCount` VARCHAR(191) NULL,
+    `dyedMethod` VARCHAR(191) NULL,
+    `printingMethod` VARCHAR(191) NULL,
+    `surfaceFinish` VARCHAR(191) NULL,
+    `otherPerformanceFunction` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Page` ADD CONSTRAINT `Page_pageGroupId_fkey` FOREIGN KEY (`pageGroupId`) REFERENCES `PageGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -425,7 +696,7 @@ ALTER TABLE `Branch` ADD CONSTRAINT `Branch_companyId_fkey` FOREIGN KEY (`compan
 ALTER TABLE `UserOnBranch` ADD CONSTRAINT `UserOnBranch_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `UserOnBranch` ADD CONSTRAINT `UserOnBranch_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `UserOnBranch` ADD CONSTRAINT `UserOnBranch_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Role` ADD CONSTRAINT `Role_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -546,3 +817,90 @@ ALTER TABLE `BillEntry` ADD CONSTRAINT `BillEntry_updatedById_fkey` FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE `BillEntry` ADD CONSTRAINT `BillEntry_payTermId_fkey` FOREIGN KEY (`payTermId`) REFERENCES `PayTerm`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_manufactureId_fkey` FOREIGN KEY (`manufactureId`) REFERENCES `Party`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_vendorId_fkey` FOREIGN KEY (`vendorId`) REFERENCES `Party`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_userRoleId_fkey` FOREIGN KEY (`userRoleId`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `orderBillItems` ADD CONSTRAINT `orderBillItems_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `order`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Po` ADD CONSTRAINT `Po_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Po` ADD CONSTRAINT `Po_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Po` ADD CONSTRAINT `Po_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Email` ADD CONSTRAINT `Email_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `order`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Email` ADD CONSTRAINT `Email_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Email` ADD CONSTRAINT `Email_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `OrderImport` ADD CONSTRAINT `OrderImport_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `OrderImport` ADD CONSTRAINT `OrderImport_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `OrderImport` ADD CONSTRAINT `OrderImport_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `OrderImport` ADD CONSTRAINT `OrderImport_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `OrderImportItems` ADD CONSTRAINT `OrderImportItems_orderImportId_fkey` FOREIGN KEY (`orderImportId`) REFERENCES `OrderImport`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Attachments` ADD CONSTRAINT `Attachments_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `order`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Attachments` ADD CONSTRAINT `Attachments_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Attachments` ADD CONSTRAINT `Attachments_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MailTransaction` ADD CONSTRAINT `MailTransaction_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `order`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MailTransaction` ADD CONSTRAINT `MailTransaction_senderId_fkey` FOREIGN KEY (`senderId`) REFERENCES `Party`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MailTransaction` ADD CONSTRAINT `MailTransaction_receiverId_fkey` FOREIGN KEY (`receiverId`) REFERENCES `Party`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MailTransaction` ADD CONSTRAINT `MailTransaction_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MailTransaction` ADD CONSTRAINT `MailTransaction_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MailTransaction` ADD CONSTRAINT `MailTransaction_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MailTransAttachments` ADD CONSTRAINT `MailTransAttachments_mailTransactionId_fkey` FOREIGN KEY (`mailTransactionId`) REFERENCES `MailTransaction`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

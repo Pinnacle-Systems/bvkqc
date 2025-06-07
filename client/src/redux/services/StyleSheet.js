@@ -50,16 +50,13 @@ const styleSheetApi = createApi({
         url: STYLE_SHEET_API,
         method: "POST",
         body: payload,
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
+      
       }),
       invalidatesTags: ["StyleSheet"],
     }),
     updateStyleSheet: builder.mutation({
-      query: (payload) => {
-        const { id, ...body } = payload;
-        return {
+      query:({id, body})=> {
+          return {
           url: `${STYLE_SHEET_API}/${id}`,
           method: "PUT",
           body,
