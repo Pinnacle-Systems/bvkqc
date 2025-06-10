@@ -45,7 +45,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
         <h1 className="text-2xl font-bold text-gray-800">Purchase Order</h1>
         <button
           onClick={onClose}
-          className="text-indigo-600 hover:text-indigo-700"
+          className="text-teal-600 hover:text-teal-700"
           title="Open Report"
         >
           <FaFileAlt className="w-5 h-5" />
@@ -86,13 +86,13 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
   <div className="relative">
     <input
       type="text"
-      className="w-full pl-2.5 pr-8 py-1 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
+      className="w-full pl-2.5 pr-8 py-1 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
       placeholder="Select address"
       readOnly
       onClick={() => setShowAddressPopup(true)}
     />
     <div 
-      className="absolute inset-y-0 right-0 flex items-center pr-2.5 cursor-pointer text-slate-400 hover:text-indigo-600 transition-colors"
+      className="absolute inset-y-0 right-0 flex items-center pr-2.5 cursor-pointer text-slate-400 hover:text-teal-600 transition-colors"
       onClick={() => setShowAddressPopup(true)}
     >
       <HiLocationMarker className="w-4 h-4" />
@@ -115,7 +115,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
         <div className="p-4  bg-white max-h-[60vh] overflow-y-auto">
           <div className="space-y-3">
             <div 
-              className="p-3 border border-slate-200 rounded-md hover:border-indigo-300 cursor-pointer transition-colors"
+              className="p-3 border border-slate-200 rounded-md hover:border-teal-300 cursor-pointer transition-colors"
               onClick={() => {
                 setShowAddressPopup(false);
               }}
@@ -125,7 +125,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
             </div>
             
             <div 
-              className="p-3 border border-slate-200 rounded-md hover:border-indigo-300 cursor-pointer transition-colors"
+              className="p-3 border border-slate-200 rounded-md hover:border-teal-300 cursor-pointer transition-colors"
               onClick={() => {
                 setShowAddressPopup(false);
               }}
@@ -135,7 +135,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
             </div>
           </div>
           
-          <button onClick={()=>setAddressForm(true)} className="mt-4 w-full flex items-center justify-center py-2 px-3 border border-dashed border-slate-300 rounded-md text-indigo-600 hover:bg-indigo-50 transition-colors">
+          <button onClick={()=>setAddressForm(true)} className="mt-4 w-full flex items-center justify-center py-2 px-3 border border-dashed border-slate-300 rounded-md text-teal-600 hover:bg-teal-50 transition-colors">
             <HiPlus  className="w-4 h-4 mr-2" />
             <span>Add New Address</span>
           </button>
@@ -180,7 +180,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
       Terms & Conditions
     </h2>
 
-       <div className="flex items-center bg-white border border-gray-300 focus-within:border-indigo-500 rounded-md px-2 py-1 shadow-sm transition-colors">
+       <div className="flex items-center bg-white border border-gray-300 focus-within:border-teal-500 rounded-md px-2 py-1 shadow-sm transition-colors">
   <input
     type="text"
     value={term}
@@ -191,7 +191,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
   />
   <button
     onClick={handleAdd}
-    className="text-indigo-600 hover:text-indigo-800 transition-colors p-1"
+    className="text-teal-600 hover:text-teal-800 transition-colors p-1"
     title="Confirm"
   >
     <HiCheck className="w-5 h-5" />
@@ -217,7 +217,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
   <div className="border border-slate-200 p-3 bg-white rounded-md shadow-sm">
     <h2 className="font-medium text-slate-700 mb-2 text-base">Notes</h2>
     <textarea
-      className="w-full px-2.5 py-2 text-xs border border-slate-300 rounded-md h-24 focus:ring-1 focus:ring-indigo-200 focus:border-indigo-500"
+      className="w-full px-2.5 py-2 text-xs border border-slate-300 rounded-md h-24 focus:ring-1 focus:ring-teal-200 focus:border-teal-500"
       placeholder="Additional notes..."
     />
   </div>
@@ -236,7 +236,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
 
      <div className="border-t border-slate-200 pt-2 flex justify-between text-sm">
         <span className="text-slate-800 font-semibold">Grand Total</span>
-        <span className="font-bold text-indigo-700">$1,200.00</span>
+        <span className="font-bold text-teal-700">$1,200.00</span>
       </div>
        <div className="flex gap-5 items-center mb-1 text-xs">
           <button
@@ -247,7 +247,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
             <span>Add Discount</span>
           </button>
             <button
-            className="text-indigo-600 text-[14px] hover:text-white hover:bg-indigo-600 border border-indigo-700 px-2 py-1 rounded-md flex items-center"
+            className="text-teal-600 text-[14px] hover:text-white hover:bg-teal-600 border border-teal-700 px-2 py-1 rounded-md flex items-center"
             onClick={() => setShowExtraCharge(true)}
           >
             <HiPlus className=" w-2.5 h-2.5 mr-1" />
@@ -271,7 +271,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
             <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
             <input 
               type="text" 
-              className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"
               placeholder="e.g. Delivery fee"
             />
           </div>
@@ -279,11 +279,11 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
             <label className="block text-xs font-medium text-slate-700 mb-1">Amount</label>
             <input 
               type="number" 
-              className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"
               placeholder="0.00"
             />
           </div>
-          <button className="w-full bg-indigo-600 text-white py-1.5 px-3 rounded text-sm hover:bg-indigo-700 transition">
+          <button className="w-full bg-teal-600 text-white py-1.5 px-3 rounded text-sm hover:bg-teal-700 transition">
             Apply Charge
           </button>
         </div>
@@ -305,14 +305,14 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
             <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
             <input 
               type="text" 
-              className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"
               placeholder="e.g. Summer promotion"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Type</label>
-              <select className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <select className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-teal-500">
                 <option>Percentage</option>
                 <option>Fixed Amount</option>
               </select>
@@ -321,7 +321,7 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
               <label className="block text-xs font-medium text-slate-700 mb-1">Value</label>
               <input 
                 type="number" 
-                className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full px-2.5 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"
                 placeholder="0.00"
               />
             </div>
@@ -338,11 +338,11 @@ const [showAddressPopup,setShowAddressPopup] = useState(false)
   <div className="flex flex-col md:flex-row gap-2 justify-between mt-4">
   {/* Left Buttons */}
   <div className="flex gap-2 flex-wrap">
-    <button className="bg-indigo-600 text-white px-4 py-1 rounded-md hover:bg-indigo-700 flex items-center text-sm">
+    <button className="bg-teal-600 text-white px-4 py-1 rounded-md hover:bg-teal-700 flex items-center text-sm">
       <FiSave className="w-4 h-4 mr-2" />
       Save
     </button>
-    <button className="bg-indigo-500 text-white px-4 py-1 rounded-md hover:bg-indigo-600 flex items-center text-sm">
+    <button className="bg-teal-500 text-white px-4 py-1 rounded-md hover:bg-teal-600 flex items-center text-sm">
       <HiOutlineRefresh  className="w-4 h-4 mr-2" />
       Save & Next
     </button>

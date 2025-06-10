@@ -104,62 +104,62 @@ export default function Form() {
   console.log(active, "active");
   return (
     <>
-      <div className="flex font-sans my-2 px-0  w-full  first-line:">
-        <aside
-          className="flex flex-col items-center 
-          bg-[#F1F1F0] backdrop-blur-md w-20 h-screen
-           border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out"
-        >
-          {menuItems.map(({ name, label, icon, action }) => (
-            <button
-              key={name}
-              onClick={() => {
-                if (form) {
-                  setForm(false);
-                }
-                setActive(name);
-                action?.();
-              }}
-              className={`group relative flex flex-col items-center text-xs font-medium tracking-tight transition-all duration-300 ease-in-out ${
-                active === name
-                  ? "text-indigo-700"
-                  : "text-gray-600 hover:text-indigo-600 "
-              } w-full px-1 py-2 mb-1`}
-            >
-              {/* Active Indicator */}
-              {active === name && (
-                <div className="absolute left-0 w-1 h-8 bg-indigo-600  rounded-r-md shadow-md" />
-              )}
+      <div className="flex font-sans  px-0  w-full  first-line:">
+       <aside
+  className="flex flex-col py-5 items-center 
+  bg-[#F1F1F0] backdrop-blur-md w-20 h-screen
+  border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out"
+>
+  {menuItems.map(({ name, label, icon, action }) => (
+    <button
+      key={name}
+      onClick={() => {
+        if (form) {
+          setForm(false);
+        }
+        setActive(name);
+        action?.();
+      }}
+      className={`group relative flex py-2 flex-col items-center text-[10px] font-medium tracking-tight transition-all duration-300 ease-in-out ${
+        active === name
+          ? "text-indigo-700"
+          : "text-gray-600 hover:text-indigo-600"
+      } w-full px-1 py-1 mb-0.5`}
+    >
+      {active === name && (
+        <div className="absolute left-0 w-1 h-6 bg-indigo-600 rounded-r-md shadow-md" />
+      )}
 
-              <div
-                className={`relative p-1.5 rounded-md transition-transform duration-300 ${
-                  active === name
-                    ? "bg-indigo-100 scale-105 shadow-md"
-                    : "group-hover:bg-gray-200 group-hover:scale-100"
-                }`}
-              >
-                <span className="w-5 h-5">{icon}</span>
-                {active === name && (
-                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-600  rounded-full border-2 border-white shadow-sm" />
-                )}
-              </div>
+      <div
+        className={`relative p-1 rounded-md transition-transform duration-300 ${
+          active === name
+            ? "bg-indigo-100 scale-105 shadow-md"
+            : "group-hover:bg-gray-200 group-hover:scale-100"
+        }`}
+      >
+        <span className="w-3 h-3">{icon}</span>
+        {active === name && (
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-600 rounded-full border-2 border-white shadow-sm" />
+        )}
+      </div>
 
-              {/* Label */}
-              <span
-                className={`mt-1 transition-all duration-300 ${
-                  active === name
-                    ? "font-semibold scale-100 opacity-100"
-                    : "opacity-80 group-hover:scale-100 group-hover:opacity-100"
-                }`}
-              >
-                {label}
-              </span>
+      {/* Label */}
+      <span
+        className={`mt-1 transition-all duration-300 ${
+          active === name
+            ? "font-medium scale-100 opacity-100"
+            : "opacity-80 group-hover:scale-100 group-hover:opacity-100"
+        }`}
+      >
+        {label}
+      </span>
 
-              {/* Hover Effect */}
-              <div className="absolute inset-0 -z-10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-b from-white to-gray-100 shadow-md" />
-            </button>
-          ))}
-        </aside>
+      {/* Hover Effect */}
+      <div className="absolute inset-0 -z-10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-b from-white to-gray-100 shadow-md" />
+    </button>
+  ))}
+</aside>
+
         <main className="flex-1 flex flex-col   shadow-2xl  bg-[#F1F1F0]  pb-2  h-full  w-[70%] ">
           <div style={{ backgroundColor: "#F1F1F0" }}>
             {active === "home" && <Dashboard />}

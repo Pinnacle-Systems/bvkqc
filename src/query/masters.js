@@ -12,21 +12,21 @@ export async function getAllColor(tx) {
 }
 
 
-export async function createAllClass(tx, arr) {
+export async function creaindigolClass(tx, arr) {
     await tx.class.createMany({
         data: arr.map(i => ({ name: i, classNameOnly: (i.split('-')[0]).toString() }))
     })
     return await getAllClass(tx)
 }
 
-export async function createAllSize(tx, arr) {
+export async function creaindigolSize(tx, arr) {
     await tx.size.createMany({
         data: arr.map(i => ({ name: i }))
     })
     return await getAllSize(tx)
 }
 
-export async function createAllColor(tx, arr) {
+export async function creaindigolColor(tx, arr) {
     await tx.color.createMany({
         data: arr.map(i => ({ name: i }))
     })

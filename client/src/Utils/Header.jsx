@@ -15,16 +15,16 @@ const Header = ({ heading, singleData, DeliveryNo, DeliveryDate, styles }) => {
        <>
        
        
-         <View style={tw("flex flex-row  gap-x-12  justify-between    w-full h-[80px]  border-b border-teal-800 ")}>
+         <View style={tw("flex flex-row  gap-x-12  justify-between    w-full h-[80px]  border-b border-indigo-800 ")}>
              <View style={tw("")}>
                 <Image style={tw("w-[70px] h-[70px]")} src={logo} />
              </View>
         
-                <View style={tw("flex flex-row text-xl    mt-1 item-center ml-[90px]  mt-[35px] text-teal-500 ")}>
+                <View style={tw("flex flex-row text-xl    mt-1 item-center ml-[90px]  mt-[35px] text-indigo-500 ")}>
                 <Text  >{heading}</Text>
                 </View>
                 <View style={tw(" mt-4")}>
-                    <Text style={tw(" ml-[90px]  text-lg underline text-teal-500")}>
+                    <Text style={tw(" ml-[90px]  text-lg underline text-indigo-500")}>
                         INTRO KNITS
                     </Text>
                     <Text style={tw("ml-[60px]  text-xs")} >

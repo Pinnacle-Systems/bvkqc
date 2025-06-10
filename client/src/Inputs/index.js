@@ -147,40 +147,47 @@ export const MultiSelectDropdown = ({ name, selected, labelName, setSelected, op
 // }
 
 
-export const TextInput = ({ name, type, value, setValue, readOnly, className, required = false, disabled = false, tabIndex = null, onBlur = null, width }) => {
+export const TextInput = ({
+  name,
+  type = "text",
+  value,
+  setValue,
+  readOnly = false,
+  className = "",
+  required = false,
+  disabled = false,
+  tabIndex = null,
+  onBlur = null,
+  width = "full", // you can pass like 'w-1/2' or 'w-[200px]'
+}) => {
+  return (
+    <div className={`mb-2 ${width}`}>
+      {name && (
+        <label className="block text-xs text-slate-500 mb-1">
+          {required ? <RequiredLabel name={name} /> : name}
+        </label>
+      )}
+      <input
+        type={type}
+        value={value}
+        onChange={(e) =>
+          type === "number"
+            ? setValue(e.target.value)
+            : handleOnChange(e, setValue)
+        }
+        onBlur={onBlur}
+        placeholder={name}
+        readOnly={readOnly}
+        disabled={disabled}
+        tabIndex={tabIndex ?? undefined}
+        className={`w-full px-2 py-1 text-sm border border-slate-300 rounded-md 
+          focus:border-indigo-300 focus:outline-none transition-all duration-200
+          hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""} ${className}`}
+      />
+    </div>
+  );
+};
 
-    return (
-        <>
-            <div className="group input-group  text-md">
-                <label htmlFor="title" className="input-label group-hover:text-blue-600  font-weight: 100  ">
-                    <span className="flex items-center gap-2  font-weight: 100">
-                        {required ? <RequiredLabel name={name} /> : `${name}`}
-                    </span>
-                </label>
-                <TextField
-                    id={name}
-                    variant="standard"
-                    name={`${name}`}
-                    className={`input-base field-text p-0.5 rounded border border-gray-500 font-weight: 100  w-${width}`}
-                    // placeholder={`${name}`}
-
-                    sx={{
-                        "& .MuiInputBase-input": { fontSize: "12px" },
-                        "& .MuiInputBase-input.Mui-disabled": {
-                            color: "#333",
-                            WebkitTextFillColor: "#333",
-                        }
-                    }}
-                    onBlur={onBlur} tabIndex={tabIndex ? tabIndex : undefined} type={type} disabled={readOnly} required={required}
-                    value={value} onChange={(e) => { type === "number" ? setValue(e.target.value) : handleOnChange(e, setValue) }} readOnly={readOnly}
-                />
-            </div>
-
-
-        </>
-
-    )
-}
 export const PasswordTextInput = ({ name, type, value, setValue, readOnly, className, required = false, disabled = false, tabIndex = null, onBlur = null, width }) => {
 
     return (
@@ -323,13 +330,25 @@ export const LongDropdownInput = ({ name, options, value, setValue, defaultValue
     return (
         <div className=' grid-cols-12 items-center md:my-1 md:px-1 data'>
             <label className={`text-start col-span-2 `}>{required ? <RequiredLabel name={name} /> : `${name}`}</label>
-            <select tabIndex={tabIndex ? tabIndex : undefined} defaultValue={defaultValue} id='dd' required={required} name="name"
-                className={`border border-gray-500 h-6 rounded ${className} col-span-10`} value={value} onChange={(e) => { handleOnChange(e); }} disabled={readOnly}>
-                <option value="">Select</option>
-                {options.map((option, index) => <option key={index} value={option.value} >
-                    {option.show}
-                </option>)}
-            </select>
+       <select
+  tabIndex={tabIndex || undefined}
+  defaultValue={defaultValue}
+  id="dd"
+  required={required}
+  name="name"
+  className={`border border-gray-500 h-6 rounded ${className} col-span-10`}
+  value={value}
+  onChange={handleOnChange}
+  disabled={readOnly || disabled}
+>
+  <option value="">Select</option>
+  {(Array.isArray(options) ? options : []).map((option, index) => (
+    <option key={index} value={option.value}>
+      {option.show}
+    </option>
+  ))}
+</select>
+
         </div>
     )
 }

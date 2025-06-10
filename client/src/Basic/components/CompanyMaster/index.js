@@ -179,7 +179,7 @@ export default function Form() {
   return (
     <>
       <Modal isOpen={userForm} onClose={() => setUserForm(false)} widthClass={"w-[900px] h-[600px] pt-10"}>
-        <UserRoles />
+        <UserRoles />{console.log(singleData,"singledataa")}
       </Modal>
       <Modal isOpen={branchForm} onClose={() => setBranchForm(false)} widthClass={"w-[900px] h-[600px] pt-10"}>
         <BranchMaster companyCode={code} setBranchForm={setBranchForm} />

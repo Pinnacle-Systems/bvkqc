@@ -5,7 +5,7 @@ import { convertToImportFormat } from "../utils/excelDataTransform.js";
 import { getFinYearStartTimeEndTime } from "../utils/finYearHelper.js";
 import { getDateFromDateTime, getDateTimeRangeForCurrentYear, getYearShortCode, getYearShortCodeForFinYear } from "../utils/helper.js";
 import { getTableRecordWithId } from "../utils/helperQueries.js";
-import { createAllClass, createAllColor, createAllSize, getAllClass, getAllColor, getAllSize } from '../query/masters.js';
+import { creaindigolClass, creaindigolColor, creaindigolSize, getAllClass, getAllColor, getAllSize } from '../query/masters.js';
 import moment from 'moment';
 const prisma = new PrismaClient()
 

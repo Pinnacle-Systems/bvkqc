@@ -7,6 +7,7 @@ import secureLocalStorage from "react-secure-storage";
 import SuperAdminHeader from "../../components/SuperAdminHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { ModalProvider, useModal } from './context/ModalContext';
+import { push } from "../../../redux/features/opentabs";
 
 const Home = () => {
   const [isGlobalOpen, setIsGlobalOpen] = useState(false);
@@ -74,7 +75,7 @@ const Home = () => {
             <div className="p-2">
               <ActiveTabList />
             </div>
-            {openTabs.tabs.length === 0 && <Dashboard setProfile={setProfile} />}
+            {openTabs.tabs.length === 0 &&  dispatch(push({ name: "HOMEPAGE" }))}
           </div>
         ) : (
           <div className="h-screen" onClick={handleCloseDropdowns}>
@@ -86,7 +87,7 @@ const Home = () => {
             <div className="p-2">
               <ActiveTabList />
             </div>
-            {openTabs.tabs.length === 0 && <HomePage setProfile={setProfile} />}
+            {openTabs.tabs.length === 0 && dispatch(push({ name: "HOMEPAGE" }))}
           </div>
         )}
       </div>

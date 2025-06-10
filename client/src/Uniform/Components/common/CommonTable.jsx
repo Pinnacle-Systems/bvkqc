@@ -9,27 +9,33 @@ const CommonTable = ({
   onEdit,
   onDelete,
   emptyStateMessage = 'No data available',
-  rowActions = true
+  rowActions = true,
+  loading = false, // New loading prop
+  loadingText = 'Loading data...' // New loading text prop
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  
+  // Handle undefined/null data
+  const safeData = data || [];
+  const totalPages = Math.ceil(safeData.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = safeData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
+    if (!loading && newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
+  
 
   const Pagination = () => {
-    if (totalPages <= 1) return null;
+    if (totalPages <= 1 || loading) return null;
 
     return (
       <div className="flex flex-col sm:flex-row justify-between items-center p-2 bg-white border-t border-gray-200">
         <div className="text-sm text-gray-600 mb-2 sm:mb-0">
-          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, data.length)} of {data.length} entries
+          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, safeData.length)} of {safeData.length} entries
         </div>
         <div className="flex gap-1">
           <button
@@ -103,16 +109,18 @@ const CommonTable = ({
       </div>
     );
   };
+   console.log(columns,"coloumns")
+  const colSpanCount = columns?.length + (rowActions ? 1 : 0);
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <table className="w-full border-collapse">
         <thead className="bg-gray-200 text-gray-800">
           <tr>
-            {columns.map((column, index) => (
+            {columns?.map((column, index) => (
               <th 
                 key={index}
-                className={`px-4 py-2 text-left font-medium ${index < columns.length - 1 ? 'border-r border-white/50' : ''} text-[13px]`}
+                className={`px-4 py-2 text-left font-medium ${index < columns?.length - 1 ? 'border-r border-white/50' : ''} text-[13px]`}
               >
                 {column.header}
               </th>
@@ -123,13 +131,25 @@ const CommonTable = ({
           </tr>
         </thead>
         <tbody>
-          {currentItems.length === 0 ? (
+          {loading ? (
+            // Loading state
             <tr>
-              <td colSpan={columns.length + (rowActions ? 1 : 0)} className="px-4 py-4 text-center text-gray-500">
+              <td colSpan={colSpanCount} className="text-center py-8">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-800 mb-2"></div>
+                  <span className="text-gray-600 text-sm">{loadingText}</span>
+                </div>
+              </td>
+            </tr>
+          ) : currentItems.length === 0 ? (
+            // Empty state
+            <tr>
+              <td colSpan={colSpanCount} className="px-4 py-4 text-center text-gray-500">
                 {emptyStateMessage}
               </td>
             </tr>
           ) : (
+            // Data rows
             currentItems.map((item, index) => (
               <tr 
                 key={item.id} 
@@ -137,7 +157,7 @@ const CommonTable = ({
                   index % 2 === 0 ? "bg-white" : "bg-gray-100"
                 }`}
               >
-                {columns.map((column, colIndex) => (
+                {columns?.map((column, colIndex) => (
                   <td 
                     key={colIndex}
                     className={`px-4 py-1 ${colIndex < columns.length - 1 ? 'border-r border-gray-200' : ''} h-8 ${
