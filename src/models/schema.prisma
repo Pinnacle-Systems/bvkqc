@@ -278,8 +278,8 @@ model Department {
   code      String
   active    Boolean    @default(true)
   doctor    Employee[] @relation()
-  Company   Company    @relation(fields: [companyId], references: [id])
-  companyId Int
+  Company   Company?    @relation(fields: [companyId], references: [id])
+  companyId Int?
 }
 
 enum PageType {

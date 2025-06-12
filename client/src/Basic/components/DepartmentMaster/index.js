@@ -40,6 +40,7 @@ export default function Form() {
         ),
     };
     const { data: allData, isLoading, isFetching } = useGetDepartmentQuery({ params, searchParams: searchValue });
+    console.log(allData,"allData")
     const {
         data: singleData,
         isFetching: isSingleFetching,
@@ -73,7 +74,7 @@ export default function Form() {
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
     const data = {
-        name, code, active, companyId: secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userCompanyId"), id
+        name, code, active, companyId: 1
     }
 
     const validateData = (data) => {
@@ -176,9 +177,12 @@ export default function Form() {
                     data={allData?.data}
                     loading={
                         isLoading || isFetching
-                    } />
+                    } 
+                     setReadOnly={setReadOnly}
+              deleteData={deleteData}
+              />
             </div>
-            {form === true && <Modal isOpen={form} form={form} widthClass={"w-[40%]  h-[40%]"} onClose={() => { setForm(false); setErrors({}); }}>
+            {form === true && <Modal isOpen={form} form={form} widthClass={"w-[40%]  h-[45%]"} onClose={() => { setForm(false); setErrors({}); }}>
                 <MastersForm
                     onNew={onNew}
                     onClose={() => {

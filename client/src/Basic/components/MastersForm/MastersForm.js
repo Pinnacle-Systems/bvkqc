@@ -103,58 +103,49 @@ const MastersForm = ({
     }
   };
 
-  return (
-    <>
+return (
+  <div className="h-full px-6 py-4 bg-gray-50 rounded-md shadow-inner">
+    <div className="flex flex-col h-full">
+      {model && (
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">{model}</h2>
+      )}
 
-      <div className="h-full p-5">
-
-        <div className=" flex flex-col h-full ">
-          <div className="mx-auto w-[95%]  flex flex-col">
-            {model ? (
-              <h5 className=" text-stone-900 text-xl mb-2 ">
-                {model}
-              </h5>
-            ) : (
-              <></>
-            )}
-            <div className="mx-0.5">
-              {children}
-            </div>
-
-          </div>
-          <div className="w-[95%] mx-auto flex justify-between mt-auto">
-            <CloseButton onClick={() => { onClose(); emptyErrors() }} />
-            {!readOnly ? <SaveButton
-              onClick={() => {
-                hasPermission(saveData, "edit");
-              }
-              }
-            /> : <div className="flex items-center">
-              <div className="mr-2">
-                <DeleteButton
-                  onClick={() => {
-                    hasPermission(deleteData, "delete");
-                  }}
-                />
-              </div>
-              <div>
-                <EditButton
-                  onClick={() => {
-                    hasPermission(setReadOnly, "edit");
-                  }}
-                />
-              </div>
-
-            </div>}
-
-          </div>
-
-        </div>
-
+      <div className="bg-white rounded-md p-4 shadow-md mb-4">
+        {children}
       </div>
 
-    </>
-  );
+      <div className="flex justify-between items-center mt-auto pt-4 border-t  border-gray-200">
+        <CloseButton
+          onClick={() => {
+            onClose();
+            emptyErrors();
+          }}
+        />
+        {!readOnly ? (
+          <SaveButton
+            onClick={() => {
+              hasPermission(saveData, "edit");
+            }}
+          />
+        ) : (
+          <div className="flex space-x-3">
+            <DeleteButton
+              onClick={() => {
+                hasPermission(deleteData, "delete");
+              }}
+            />
+            <EditButton
+              onClick={() => {
+                hasPermission(setReadOnly, "edit");
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
 };
 
 

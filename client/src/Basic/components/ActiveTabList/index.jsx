@@ -18,6 +18,7 @@ import {
   CompanyMaster,
   Dashboard,
   Role,
+  LineMaster
 
 } from "../../components";
 
@@ -67,6 +68,7 @@ const ActiveTabList = () => {
     "HOMEPAGE": <MaxHomePage />,
     "MAX CONTROL PANEL": <MaxcontrolPanel />,
     "TAG TYPE MASTER": <TagTypeMater />,
+    "LINE MASTER": <LineMaster />
 
 
 
