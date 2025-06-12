@@ -9,7 +9,6 @@ import {
   useGetPartyQuery,
   useUpdatePartyMutation,
 } from "../../../redux/services/PartyMasterService";
-import { useGetCertificateQuery } from "../../../redux/services/CertificateMasterService";
 import moment from "moment";
 import { findFromList } from "../../../Utils/helper";
 import {
@@ -39,11 +38,9 @@ import { faTrashCan, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { DELETE, PLUS } from "../../../icons";
 import { toast } from "react-toastify";
 import { exist } from "joi";
-import { setOpenPartyModal } from "../../../redux/features/openModel";
 import { push } from "../../../redux/features/opentabs";
-import { useSendKycEmailMutation } from "../../../redux/services/emailApi";
 import { TextField } from "@mui/material";
-import CommonTable from "../../../Shocks/CommonReport/CommonTable";
+import CommonTable from "../../../Uniform/Components/common/CommonTable.jsx";
 import { FaChevronRight } from "react-icons/fa6";
 
 const MODEL = "Party Master";
@@ -121,7 +118,6 @@ export default function Form({ partyId, onCloseForm }) {
   };
   const { data: cityList } = useGetCityQuery({ params });
 
-  const cerdificateDetail = useGetCertificateQuery({ params })
   const { data: currencyList } = useGetCurrencyMasterQuery({ params });
 
   const {
@@ -129,25 +125,10 @@ export default function Form({ partyId, onCloseForm }) {
     isLoading,
     isFetching,
   } = useGetPartyQuery({ params, searchParams: searchValue });
-  const openPartyModal = useSelector((state) => state.party.openPartyModal);
-  const lastTapName = useSelector((state) => state.party.lastTab);
 
   const activeTab = useSelector(
     (state) => state.openTabs.tabs.find((tab) => tab.active).name
   );
-
-
-
-
-  useEffect(() => {
-    if (openPartyModal) {
-      setId("");
-      setForm(true);
-    }
-  }, [openPartyModal]);
-
-
-
 
   const {
     data: singleData,
@@ -317,7 +298,6 @@ export default function Form({ partyId, onCloseForm }) {
     isDy,
   };
 
-  const [sendKycEmail, { isLoadingMail }] = useSendKycEmailMutation();
   const {
     data: processList,
     isLoading: isProcessLoading,
@@ -362,39 +342,13 @@ export default function Form({ partyId, onCloseForm }) {
       if (exit) {
         setForm(false);
       }
-      if (exit) {
-        if (openPartyModal === true && lastTapName) {
-          dispatch(push({ name: lastTapName }));
-        }
-
-        dispatch(setOpenPartyModal(false));
-      }
+    
     } catch (error) {
       console.error("Submission error:", error);
       toast.error("Something went wrong during submission");
     }
   };
 
-  const handleSendEmail = async () => {
-    if (!kycEmail) {
-      alert("Please enter an email address.");
-      return;
-    }
-
-    try {
-      const response = await sendKycEmail({ to: kycEmail });
-
-      if (response?.data) {
-        alert("Email sent successfully!");
-        setKycEmail("");
-      } else {
-        alert("Failed to send email. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("An error occurred while sending the email.");
-    }
-  };
 
   useEffect(() => {
     if (itemsPopup) {
@@ -604,27 +558,8 @@ export default function Form({ partyId, onCloseForm }) {
       header: 'Alias Name',
       accessor: (item) => item.aliasName
     },
-    // {
-    //   header: 'Party',
-    //   accessor: (item) => item.Party?.name,
-    //   cellClass: () => 'uppercase'
-    // },
-    // {
-    //   header: 'ContactPerson',
-    //   accessor: (item) => item.contactPersonName,
-    //   cellClass: () => 'text-gray-800 uppercase'
-    // },
-    // {
-    //   header: 'Contact',
-    //   accessor: (item) => item.phone,
-    //   cellClass: () => 'text-gray-800 uppercase'
-    // },
-
-
+  
   ];
-
-
-
 
   if (partyId) {
 
@@ -633,18 +568,14 @@ export default function Form({ partyId, onCloseForm }) {
       <>
         <Modal
           isOpen={form}
-          form={form}
-          widthClass={"w-[75%] h-[45%] -mt-40"}
+          form={form}   
+          widthClass={"w-[75%] h-[75%] -mt-40"}
           onClose={() => {
             setForm(false);
             onCloseForm();
             setErrors({});
             setStep(1);
-            if (openPartyModal === true) {
-              dispatch(push({ name: lastTapName }));
-            }
-            dispatch(setOpenPartyModal(false));
-
+         
           }}
         >
           <Modal
@@ -738,21 +669,8 @@ export default function Form({ partyId, onCloseForm }) {
                           </>
                         )}
 
-
-
-
-
-
-
-
-
-
-
-
                         <div className="flex items-center gap-x-2">
-                          {/* <span className="text-slate-800 font-medium text-gray-500 text-xs">
-                            Status:
-                          </span> */}
+                      
                           <ToggleButton
                             name="Status"
                             options={statusDropdown}
@@ -838,48 +756,6 @@ export default function Form({ partyId, onCloseForm }) {
                           disabled={childRecord.current > 0}
                           className="focus:ring-2 focus:ring-blue-100"
                         />
-
-                        {/* <TextInput
-                        name="Cost Code"
-                        type="text"
-                        value={costCode}
-                        setValue={setCostCode}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      />
-
-                    
-
-                      <TextInput
-                        name="Tin No"
-                        type="text"
-                        value={tinNo}
-                        setValue={setTinNo}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      />
-
-
-                      <DateInput
-                        name="CST Date"
-                        value={cstDate}
-                        setValue={setCstDate}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      />
-
-                      <TextInput
-                        name="Cin No"
-                        type="text"
-                        value={cinNo}
-                        setValue={setCinNo}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      /> */}
 
                         <TextInput
                           name="Fax No"
@@ -1160,13 +1036,7 @@ export default function Form({ partyId, onCloseForm }) {
                                   <div className="flex flex-col items-center justify-center space-y-1 text-gray-400">
 
                                     <p className="text-xs">No contacts found</p>
-                                    {/* <button
-                                    onClick={() => setContactDetails([...contactDetails, {}])}
-                                    disabled={readOnly || childRecord.current > 0}
-                                    className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
-                                  >
-                                    + Add contact
-                                  </button> */}
+                            
                                   </div>
                                 </td>
                               </tr>
@@ -1176,61 +1046,6 @@ export default function Form({ partyId, onCloseForm }) {
                       </div>
                     </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    {/* <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_auto] mt-4">
-                      <div className=" grid grid-cols-1 gap-x-3">
-                        <TextInput
-                          name="Kyc Form Send Email"
-                          type="text"
-                          value={mail}
-                          setValue={setMail}
-                          required={true}
-                          readOnly={readOnly}
-                          disabled={childRecord.current > 0}
-                          onBlur={(e) => {
-                            if (aliasName) return;
-                            setAliasName(e.target.value);
-                          }}
-                          className="focus:ring-2 focus:ring-blue-100"
-                        />
-
-
-                        <MultiSelectDropdown readOnly={readOnly} name="Certificate" selected={certificate} setSelected={setCertificate}
-                          options={multiSelectOption(cerdificateDetail?.currentData?.data ? cerdificateDetail?.currentData?.data : [], "name", "id")} />
-                      </div>
-                      <div className="flex flex-col items-center lg:items-end">
-                        <div className="w-full max-w-xs rounded-xl border border-gray-100 bg-[#f1f1f0]  shadow-xs">
-                          <h3 className=" text-center text-sm font-medium text-gray-700">
-                            Party Logo/Image
-                          </h3>
-                          <BrowseSingleImage
-                            picture={image}
-                            setPicture={setImage}
-                            readOnly={readOnly}
-                            className="h-52 w-52 rounded-xl border-2 border-dashed border-gray-200 p-2 hover:border-blue-300 transition-colors"
-                          />
-                        </div>
-                      </div>
-                    </div> */}
-
-
-
-
-
-
                   </>
                 )}
 
@@ -1239,30 +1054,6 @@ export default function Form({ partyId, onCloseForm }) {
               {/* )} */}
             </div>
           </MastersForm>
-
-
-          {/* <div className="pb-2 bottom-2 right-0 left-0 flex justify-between items-center px-5 bg-[#f1f1f0] ">
-            <button
-              type="button"
-              onClick={handlePrevious}
-              className={`w-7 h-7 flex items-center justify-center rounded-full bg-gray-600 text-white shadow hover:bg-gray-700 transition duration-200 ${step > 1 ? "block" : "hidden"
-                }`}
-              aria-label="Previous"
-            >
-              <ChevronLeft className="  w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={handleNext}
-              className={`w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition duration-200 ${step < 3 ? "block" : "hidden"
-                }`}
-              aria-label="Next"
-            >
-              <ChevronRight className="w-4 h-4  " />
-            </button>
-          </div> */}
-
         </Modal>
       </>
 
@@ -1298,26 +1089,6 @@ export default function Form({ partyId, onCloseForm }) {
               itemsPerPage={10}
             />
           </div>
-
-
-
-
-
-
-
-          {/* <div className={`${"w-full flex items-start"}`}>
-            <Mastertable
-              header={"Party List"}
-              searchValue={searchValue}
-              setSearchValue={setSearchValue}
-              onDataClick={onDataClick}
-
-              tableHeaders={tableHeaders}
-              tableDataNames={tableDataNames}
-              data={allData?.data}
-              loading={isLoading || isFetching}
-            />
-          </div> */}
         </>
 
         {form === true &&
@@ -1331,11 +1102,7 @@ export default function Form({ partyId, onCloseForm }) {
                 onCloseForm();
                 setErrors({});
                 setStep(1);
-                if (openPartyModal === true) {
-                  dispatch(push({ name: lastTapName }));
-                }
-                dispatch(setOpenPartyModal(false));
-
+             
               }}
             >
               <Modal
@@ -1375,7 +1142,6 @@ export default function Form({ partyId, onCloseForm }) {
                 emptyErrors={() => setErrors({})}
               >
                 <div className="space-y-4 bg-[#f1f1f0]">
-                  {/* {step === 1 && ( */}
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto]">
 
                     <div className="space-y-2 bg-[#f1f1f0]">

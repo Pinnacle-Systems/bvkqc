@@ -197,7 +197,7 @@ export default function Form() {
         setImage(null);
         setEmployeeCategory("");
         setPermanent("");
-        setActive("");
+        setActive(true  );
         setLeavingDate("");
         setLeavingReason("");
         setCanRejoin(false);
@@ -239,7 +239,7 @@ export default function Form() {
       setImage(data?.imageBase64 ? viewBase64String(data?.imageBase64) : null);
       setEmployeeCategory(data?.employeeCategoryId || "");
       setPermanent(data?.permanent || "");
-      setActive(data?.active || "");
+      setActive(data?.active? data?.active: true);
 
       // Employee Leaving Form states
       setLeavingDate(data?.leavingDate || "");
@@ -630,165 +630,129 @@ export default function Form() {
       </div>
 
       {/* Employee Form Modal */}
-      {form && (
-        <Modal
-          isOpen={form}
-          form={form}
-          widthClass={"w-[95%] max-w-7xl h-[95vh]"} 
-          onClose={() => {
-            setForm(false);
-            setErrors({});
-          }}
-        >
-          <div className="h-full flex flex-col bg-[f1f1f0]">
-            <div className="border-b pb-2 flex justify-between items-center  sticky top-0 z-10">
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {id ? "Edit Employee" : "Add New Employee"}
-                </h2>
-                {regNo && (
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      active
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {regNo}
-                  </span>
-                )}
-              </div>
-         
-            </div>
+   {form && (
+  <Modal
+    isOpen={form}
+    form={form}
+    widthClass={"w-[95%] max-w-6xl h-[95vh]"} // Reduced max width and height
+    onClose={() => {
+      setForm(false);
+      setErrors({});
+    }}
+  >
+    <div className="h-full flex flex-col bg-[f1f1f0]">
+      {/* Header - More compact */}
+      <div className="border-b py-2 px-4 flex justify-between items-center sticky top-0 z-10 bg-white">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {id ? "Edit Employee" : "Add New Employee"}
+          </h2>
+          {regNo && (
+            <span className={`px-2 py-0.5 text-xs rounded-full ${active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+              {regNo}
+            </span>
+          )}
+        </div>
+      </div>
 
-            <div className="flex-1 overflow-auto p-4">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                <div className="lg:col-span-3 space-y-4">
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 sticky top-0">
-                    <SingleImageFileUploadComponent
-                      setWebCam={setCameraOpen}
-                      disabled={readOnly}
-                      image={image}
-                      setImage={setImage}
-                      className="mb-4"
+      <div className="flex-1 overflow-auto p-3">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+          <div className="lg:col-span-3 space-y-3">
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <SingleImageFileUploadComponent
+                setWebCam={setCameraOpen}
+                disabled={readOnly}
+                image={image}
+                setImage={setImage}
+                className="mb-3"
+              />
+
+              <div className="space-y-2">
+                <TextInput
+                  ref={input1Ref}
+                  name="Full Name"
+                  value={name}
+                  setValue={setName}
+                  required={true}
+                  readOnly={readOnly}
+                  disabled={childRecord.current > 0}
+                  onKeyDown={(e) => handleKeyNext(e, input2Ref)}
+                />
+                {errors.name && <span className="text-red-500 text-xs ml-1">{errors.name}</span>}
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <DropdownInput
+                      ref={input2Ref}
+                      name="Gender"
+                      options={genderList}
+                      value={gender}
+                      setValue={setGender}
+                      required
+                      readOnly={readOnly}
+                      disabled={childRecord.current > 0}
                     />
-
-                    <div className="space-y-3">
-                      <TextInput
-                        ref={input1Ref}
-                        name="Full Name"
-                        type="text"
-                        value={name}
-                        setValue={setName}
-                        required={true}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        onKeyDown={(e) => handleKeyNext(e, input2Ref)}
-                        compact
-                      />
-                      {errors.name && (
-                        <span className="text-red-500 text-xs mt-1 block">
-                          {errors.name}
-                        </span>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <DropdownInput
-                            ref={input2Ref}
-                            name="Gender"
-                            options={genderList}
-                            value={gender}
-                            setValue={setGender}
-                            required
-                            readOnly={readOnly}
-                            disabled={childRecord.current > 0}
-                            compact
-                          />
-                          {errors.gender && (
-                            <span className="text-red-500 text-xs mt-1 block">
-                              {errors.gender}
-                            </span>
-                          )}
-                        </div>
-
-                        <div>
-                          <DropdownInput
-                            name="Blood Group"
-                            options={bloodList}
-                            value={bloodGroup}
-                            setValue={setBloodGroup}
-                            required
-                            readOnly={readOnly}
-                            disabled={childRecord.current > 0}
-                            compact
-                          />
-                          {errors.bloodGroup && (
-                            <span className="text-red-500 text-xs mt-1 block">
-                              {errors.bloodGroup}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <DateInput
-                        name="Date of Birth"
-                        value={dob}
-                        setValue={setDob}
-                        required
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        compact
-                      />
-                      {errors.dob && (
-                        <span className="text-red-500 text-xs mt-1 block">
-                          {errors.dob}
-                        </span>
-                      )}
-                    </div>
+                    {errors.gender && <span className="text-red-500 text-xs ml-1">{errors.gender}</span>}
                   </div>
-   <div className="bg-white px-2 py-1 rounded-lg shadow-sm border border-gray-200 sticky top-0">
-                    <h3 className="font-medium text-gray-800 mb-3">
-                      Employment Status
-                    </h3>
 
-                    <div className="flex flex-col gap-4">
-                      <ToggleButton
-                        name="Status"
-                        options={statusDropdown}
-                        value={active}
-                        setActive={setActive}
-                        required={true}
-                        readOnly={readOnly}
-                      />
-                      {errors.active && (
-                        <span className="text-red-500 text-xs mt-1 block">
-                          {errors.active}
-                        </span>
-                      )}
-
-                      {!active && (
-                        <button
-                          type="button"
-                          onClick={() => setLeavingForm(true)}
-                          className="text-sm text-red-600 hover:text-red-800 underline"
-                        >
-                          Add Leaving Details
-                        </button>
-                      )}
-                    </div>
+                  <div>
+                    <DropdownInput
+                      name="Blood Group"
+                      options={bloodList}
+                      value={bloodGroup}
+                      setValue={setBloodGroup}
+                      required
+                      readOnly={readOnly}
+                      disabled={childRecord.current > 0}
+                    />
+                    {errors.bloodGroup && <span className="text-red-500 text-xs ml-1">{errors.bloodGroup}</span>}
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 space-y-4">
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="font-medium text-gray-800 mb-3">
-                      Official Details
-                    </h3>
+                <DateInput
+                  name="Date of Birth"
+                  value={dob}
+                  setValue={setDob}
+                  required
+                  readOnly={readOnly}
+                  disabled={childRecord.current > 0}
+                />
+                {errors.dob && <span className="text-red-500 text-xs ml-1">{errors.dob}</span>}
+              </div>
+            </div>
+            
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <h3 className="font-medium text-gray-800 mb-2 text-sm">Employment Status</h3>
+              <div className="space-y-2">
+                <ToggleButton
+                  name="Status"
+                  options={statusDropdown}
+                  value={active}
+                  setActive={setActive}
+                  required={true}
+                  readOnly={readOnly}
+                />
+                {errors.active && <span className="text-red-500 text-xs ml-1">{errors.active}</span>}
+                
+                {!active && (
+                  <button
+                    type="button"
+                    onClick={() => setLeavingForm(true)}
+                    className="text-xs text-red-600 hover:text-red-800 underline"
+                  >
+                    Add Leaving Details
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                      <DropdownInput
+          <div className="lg:col-span-5 space-y-3">
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <h3 className="font-medium text-gray-800 mb-2 text-sm">Official Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div>
+                  <DropdownInput
                     ref={input3Ref}
                     name="Employee Category"
                     options={dropDownListObject(
@@ -801,224 +765,164 @@ export default function Form() {
                       "id"
                     )}
                     value={employeeCategory}
-                    setValue={(value) => {
-                      setEmployeeCategory(value);
-                                      }}
+                    setValue={(value) => setEmployeeCategory(value)}
                     required={true}
                     readOnly={readOnly}
                     disabled={childRecord.current > 0}
                     onKeyDown={(e) => handleKeyNext(e, null)}
                   />
-                  {errors.employeeCategory && (
-                    <span className="text-red-500 text-xs mt-1 block">
-                      {errors.employeeCategory}
-                    </span>
-                  )}
-                   
-                      </div>
-
-                      <div>
-                        <DropdownInput
-                          name="Department"
-                          options={dropDownListObject(
-                            id
-                              ? departmentList?.data
-                              : departmentList?.data?.filter(
-                                  (item) => item.active
-                                ),
-                            "name",
-                            "id"
-                          )}
-                          value={department}
-                          setValue={setDepartment}
-                          readOnly={readOnly}
-                          required={true}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
-                        {errors.department && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {errors.department}
-                          </span>
-                        )}
-                      </div>
-
-                      <div>
-                        <TextInput
-                          name="Chamber no"
-                          type="text"
-                          value={chamberNo}
-                          setValue={setChamberNo}
-                          readOnly={readOnly}
-                          required={isCurrentEmployeeDoctor(employeeCategory)}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
-                      </div>
-
-                      <div className="">
-                        <DateInput
-                          name="Joining Date"
-                          value={joiningDate}
-                          setValue={setJoiningDate}
-                          required={true}
-                          readOnly={readOnly}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
-                        {errors.joiningDate && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {errors.joiningDate}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Additional Information Card */}
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="font-medium text-gray-800 mb-3">
-                      Additional Information
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <TextInput
-                          name="Father Name"
-                          type="text"
-                          value={fatherName}
-                          setValue={setFatherName}
-                          required
-                          readOnly={readOnly}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
-                        {errors.fatherName && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {errors.fatherName}
-                          </span>
-                        )}
-                      </div>
-
-                      <div>
-                        <DropdownInput
-                          name="Marital Status"
-                          options={maritalStatusList}
-                          value={maritalStatus}
-                          setValue={setMaritalStatus}
-                          required
-                          readOnly={readOnly}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
-                        {errors.maritalStatus && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {errors.maritalStatus}
-                          </span>
-                        )}
-                      </div>
-
-                      <div>
-                        <TextInput
-                          name="Pan No"
-                          type="text"
-                          value={panNo}
-                          setValue={setPanNo}
-                          required
-                          readOnly={readOnly}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
-                        {errors.panNo && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {errors.panNo}
-                          </span>
-                        )}
-                      </div>
-
-                      <div>
-                        <TextInput
-                          name="Degree"
-                          type="text"
-                          value={degree}
-                          setValue={setDegree}
-                          required
-                          readOnly={readOnly}
-                          compact
-                        />
-                        {errors.degree && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {errors.degree}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <TextInput
-                          name="Specialization"
-                          type="text"
-                          value={specialization}
-                          setValue={setSpecialization}
-                          required
-                          readOnly={readOnly}
-                          compact
-                        />
-                        {errors.specialization && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {errors.specialization}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  {errors.employeeCategory && <span className="text-red-500 text-xs ml-1">{errors.employeeCategory}</span>}
                 </div>
 
-                {/* Right Column - Bank Details & Status (4 cols) */}
-                <div className="lg:col-span-4 space-y-4">
-                  {/* Bank Details Card */}
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="font-medium text-gray-800 mb-3">
-                      Bank Details
-                    </h3>
+                <div>
+                  <DropdownInput
+                    name="Department"
+                    options={dropDownListObject(
+                      id
+                        ? departmentList?.data
+                        : departmentList?.data?.filter(
+                            (item) => item.active
+                          ),
+                      "name",
+                      "id"
+                    )}
+                    value={department}
+                    setValue={setDepartment}
+                    readOnly={readOnly}
+                    required={true}
+                    disabled={childRecord.current > 0}
+                  />
+                  {errors.department && <span className="text-red-500 text-xs ml-1">{errors.department}</span>}
+                </div>
 
-                    <div className="space-y-3">
-                      <TextInput
-                        name="Account No"
-                        type="number"
-                        value={accountNo}
-                        setValue={setAccountNo}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        compact
-                      />
+                <div>
+                  <TextInput
+                    name="Chamber no"
+                    value={chamberNo}
+                    setValue={setChamberNo}
+                    readOnly={readOnly}
+                    required={isCurrentEmployeeDoctor(employeeCategory)}
+                    disabled={childRecord.current > 0}
+                  />
+                </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <TextInput
-                          name="IFSC No"
-                          type="text"
-                          value={ifscNo}
-                          setValue={setIfscNo}
-                          readOnly={readOnly}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
+                <div className="">
+                  <DateInput
+                    name="Joining Date"
+                    value={joiningDate}
+                    setValue={setJoiningDate}
+                    required={true}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+                  {errors.joiningDate && <span className="text-red-500 text-xs ml-1">{errors.joiningDate}</span>}
+                </div>
+              </div>
+            </div>
 
-                        <TextInput
-                          name="Branch Name"
-                          type="text"
-                          value={branchName}
-                          setValue={setbranchName}
-                          readOnly={readOnly}
-                          disabled={childRecord.current > 0}
-                          compact
-                        />
-                      </div>
-                    </div>
-                  </div>
-<div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 sticky top-[340px]">
-  <h3 className="font-medium text-gray-800 mb-3">Contact Information</h3>
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <h3 className="font-medium text-gray-800 mb-2 text-sm">Additional Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div>
+                  <TextInput
+                    name="Father Name"
+                    value={fatherName}
+                    setValue={setFatherName}
+                    required
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+                  {errors.fatherName && <span className="text-red-500 text-xs ml-1">{errors.fatherName}</span>}
+                </div>
 
-  <div className="space-y-3">
+                <div>
+                  <DropdownInput
+                    name="Marital Status"
+                    options={maritalStatusList}
+                    value={maritalStatus}
+                    setValue={setMaritalStatus}
+                    required
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+                  {errors.maritalStatus && <span className="text-red-500 text-xs ml-1">{errors.maritalStatus}</span>}
+                </div>
+
+                <div>
+                  <TextInput
+                    name="Pan No"
+                    value={panNo}
+                    setValue={setPanNo}
+                    required
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+                  {errors.panNo && <span className="text-red-500 text-xs ml-1">{errors.panNo}</span>}
+                </div>
+
+                <div>
+                  <TextInput
+                    name="Degree"
+                    value={degree}
+                    setValue={setDegree}
+                    required
+                    readOnly={readOnly}
+                  />
+                  {errors.degree && <span className="text-red-500 text-xs ml-1">{errors.degree}</span>}
+                </div>
+
+                <div className="md:col-span-2">
+                  <TextInput
+                    name="Specialization"
+                    value={specialization}
+                    setValue={setSpecialization}
+                    required
+                    readOnly={readOnly}
+                  />
+                  {errors.specialization && <span className="text-red-500 text-xs ml-1">{errors.specialization}</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-4 space-y-3">
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <h3 className="font-medium text-gray-800 mb-2 text-sm">Bank Details</h3>
+              <div className="space-y-2">
+                <TextInput
+                  name="Account No"
+                  type="number"
+                  value={accountNo}
+                  setValue={setAccountNo}
+                  readOnly={readOnly}
+                  disabled={childRecord.current > 0}
+                />
+
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput
+                    name="IFSC No"
+                    value={ifscNo}
+                    setValue={setIfscNo}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+
+                  <TextInput
+                    name="Branch Name"
+                    value={branchName}
+                    setValue={setbranchName}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-3 rounded-md border border-gray-200 sticky top-[200px]">
+              <h3 className="font-medium text-gray-800 mb-2 text-sm">Contact Information</h3>
+              <div className="space-y-2">
+              <div className="flex flex-wrap">
+  <div className="w-full md:w-1/2">
     <TextInput
       name="Mobile No"
       type="number"
@@ -1027,12 +931,11 @@ export default function Form() {
       required={true}
       readOnly={readOnly}
       disabled={childRecord.current > 0}
-      compact
     />
-    {errors.mobile && (
-      <span className="text-red-500 text-xs mt-1 block">{errors.mobile}</span>
-    )}
+    {errors.mobile && <span className="text-red-500 text-xs ml-1">{errors.mobile}</span>}
+  </div>
 
+  <div className="w-full md:w-1/2">
     <TextInput
       name="Email Id"
       type="email"
@@ -1040,120 +943,106 @@ export default function Form() {
       setValue={setEmail}
       readOnly={readOnly}
       disabled={childRecord.current > 0}
-      compact
     />
-    {errors.email && (
-      <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>
-    )}
-
-      <TextArea
-        name="Address"
-        rows="2"
-        value={localAddress}
-        setValue={setlocalAddress}
-        required
-        readOnly={readOnly}
-        disabled={childRecord.current > 0}
-        compact
-      />
-      {errors.localAddress && (
-        <span className="text-red-500 text-xs mt-1 block">{errors.localAddress}</span>
-      )}
-
-    <div className="grid grid-cols-2 gap-3">
-      <TextInput
-        name="Pincode"
-        type="number"
-        value={permPincode}
-        setValue={setPermPincode}
-        readOnly={readOnly}
-        disabled={childRecord.current > 0}
-        compact
-      />
-   <DropdownInput
-  name="City/State"
-  options={dropDownListMergedObject(
-    (cityList?.data || []).filter((item) => id || item.active),
-    "name",
-    "id"
-  )}
-  value={permCity}
-  setValue={setPermCity}
-  readOnly={readOnly}
-  disabled={childRecord.current > 0}
-  compact
-/>
-
-    </div>
+    {errors.email && <span className="text-red-500 text-xs ml-1">{errors.email}</span>}
   </div>
 </div>
 
-                  {/* Status Card */}
-               
-                </div>
-                
-              </div>
-            </div>
+                <TextArea
+                  name="Address"
+                  rows="2"
+                  value={localAddress}
+                  setValue={setlocalAddress}
+                  required
+                  readOnly={readOnly}
+                  disabled={childRecord.current > 0}
+                />
+                {errors.localAddress && <span className="text-red-500 text-xs ml-1">{errors.localAddress}</span>}
 
-            {/* Modal Footer - Sticky at bottom */}
-            <div className="border-t p-3 bg-[f1f1f0] flex justify-between sticky bottom-0">
-              <div>
-                {!readOnly && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setForm(false);
-                      setSearchValue("");
-                      setId(false);
-                    }}
-                    className="px-4 py-1 text-red-600 hover:bg-red-600 hover:text-white border border-red-600  text-sm rounded-md"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {!readOnly && (
-                  <button
-                    type="button"
-                    onClick={saveData}
-                    className="px-4 py-1 hover:bg-green-600 hover:text-white rounded-md text-green-600 
-                    border border-green-600 flex items-center gap-2 text-sm"
-                  >
-                    <Check size={16} />
-                    {id ? "Update Employee" : "Save Employee"}
-                  </button>
-                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput
+                    name="Pincode"
+                    type="number"
+                    value={permPincode}
+                    setValue={setPermPincode}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+                  <DropdownInput
+                    name="City/State"
+                    options={dropDownListMergedObject(
+                      (cityList?.data || []).filter((item) => id || item.active),
+                      "name",
+                      "id"
+                    )}
+                    value={permCity}
+                    setValue={setPermCity}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                  />
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Camera Modal */}
-          <Modal isOpen={cameraOpen} onClose={() => setCameraOpen(false)}>
-            <LiveWebCam
-              picture={image}
-              setPicture={setImage}
-              onClose={() => setCameraOpen(false)}
-            />
-          </Modal>
+      <div className="border-t p-2 bg-[f1f1f0] flex justify-between sticky bottom-0">
+        <div>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => {
+                setForm(false);
+                setSearchValue("");
+                setId(false);
+              }}
+              className="px-3 py-1 text-red-600 hover:bg-red-600 hover:text-white border border-red-600 text-xs rounded"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={saveData}
+              className="px-3 py-1 hover:bg-green-600 hover:text-white rounded text-green-600 
+              border border-green-600 flex items-center gap-1 text-xs"
+            >
+              <Check size={14} />
+              {id ? "Update" : "Save"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
 
-          {/* Leaving Form Modal */}
-          <Modal isOpen={leavingForm} onClose={() => setLeavingForm(false)}>
-            <EmployeeLeavingForm
-              leavingReason={leavingReason}
-              setLeavingReason={setLeavingReason}
-              leavingDate={leavingDate}
-              setLeavingDate={setLeavingDate}
-              canRejoin={canRejoin}
-              setCanRejoin={setCanRejoin}
-              rejoinReason={rejoinReason}
-              setRejoinReason={setRejoinReason}
-              onSubmit={submitLeavingForm}
-              onClose={() => setLeavingForm(false)}
-            />
-          </Modal>
-        </Modal>
-      )}
+    <Modal isOpen={cameraOpen} onClose={() => setCameraOpen(false)}>
+      <LiveWebCam
+        picture={image}
+        setPicture={setImage}
+        onClose={() => setCameraOpen(false)}
+      />
+    </Modal>
+
+    <Modal isOpen={leavingForm} onClose={() => setLeavingForm(false)}>
+      <EmployeeLeavingForm
+        leavingReason={leavingReason}
+        setLeavingReason={setLeavingReason}
+        leavingDate={leavingDate}
+        setLeavingDate={setLeavingDate}
+        canRejoin={canRejoin}
+        setCanRejoin={setCanRejoin}
+        rejoinReason={rejoinReason}
+        setRejoinReason={setRejoinReason}
+        onSubmit={submitLeavingForm}
+        onClose={() => setLeavingForm(false)}
+      />
+    </Modal>
+  </Modal>
+)}
     </div>
   );
 }

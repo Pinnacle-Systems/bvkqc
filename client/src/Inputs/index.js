@@ -34,6 +34,24 @@ export const handleOnChange = (event, setValue) => {
     );
   });
 };
+export const FancyCheckBox = ({ label, value, onChange, readOnly }) => {
+  return (
+    <label
+      style={{ fontSize: 11 }}
+      className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer w-full text-xs font-medium text-gray-700 ${readOnly ? "bg-gray-100 cursor-not-allowed" : "hover:bg-gray-50"
+        }`}
+    >
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={(e) => onChange(e.target.checked)}
+        disabled={readOnly}
+        className="accent-blue-600"
+      />
+      <span className="break-words text-xs text-wrap w-full">{label}</span>
+    </label>
+  );
+};
 export const handleOnChangeforpassword = (event, setValue) => {
   const inputValue = event.target.value;
   const inputSelectionStart = event.target.selectionStart;
@@ -98,12 +116,12 @@ export const TextInput = ({
   disabled = false,
   tabIndex = null,
   onBlur = null,
-  width = "full", // you can pass like 'w-1/2' or 'w-[200px]'
+  width = "full",
 }) => {
   return (
-    <div className={`mb-2 ${width}`}>
+    <div className={`mb-3 ${width}`}>
       {name && (
-        <label className="block text-xs text-slate-500 mb-1">
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">
           {required ? <RequiredLabel name={name} /> : name}
         </label>
       )}
@@ -120,11 +138,13 @@ export const TextInput = ({
         readOnly={readOnly}
         disabled={disabled}
         tabIndex={tabIndex ?? undefined}
-        className={`w-full px-2 py-1 text-sm border border-slate-300 rounded-md text-[12px]
-          focus:border-indigo-300 focus:outline-none transition-all duration-200
-          hover:border-slate-400 ${
-            readOnly || disabled ? "bg-white" : ""
-          } ${className}`}
+        className={`w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg
+          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          transition-all duration-150 shadow-sm
+          ${readOnly || disabled 
+            ? "bg-gray-100 text-gray-500 cursor-not-allowed" 
+            : "bg-white hover:border-gray-400"}
+          ${className}`}
       />
     </div>
   );
@@ -348,17 +368,15 @@ export const TextArea = ({
   tabIndex = null,
   label = null,
   inputClass = "",
+  onBlur = null,
 }) => {
   return (
-    <div className="flex flex-col gap-1 w-full md:my-1 md:px-1">
-      <label
-        htmlFor={name}
-        className={`text-sm font-medium text-gray-700 ${
-          required ? 'after:content-["*"] after:ml-0.5 after:text-red-500' : ""
-        }`}
-      >
-        {label ?? name}
-      </label>
+    <div className="mb-3 w-full">
+      {name && (
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">
+          {required ? <RequiredLabel name={label ?? name} /> : (label ?? name)}
+        </label>
+      )}
 
       <textarea
         id={name}
@@ -371,19 +389,20 @@ export const TextArea = ({
         readOnly={readOnly}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className={`
-          w-full px-3 py-2 text-sm text-gray-800
-          border border-gray-300 rounded-md
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-          transition-all duration-200 resize-none
-          ${readOnly ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
-          ${disabled ? "opacity-50 cursor-not-allowed" : ""}
-          ${inputClass}
-        `}
+        onBlur={onBlur}
+        placeholder={name}
+        className={`w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg
+          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          transition-all duration-150 shadow-sm resize-none
+          ${readOnly || disabled 
+            ? "bg-gray-100 text-gray-500 cursor-not-allowed" 
+            : "bg-white hover:border-gray-400"}
+          ${inputClass}`}
       ></textarea>
     </div>
   );
 };
+
 
 export const DropdownInput = ({
   name,
@@ -393,48 +412,57 @@ export const DropdownInput = ({
   value,
   setValue,
   defaultValue,
-  className,
-  readOnly,
+  className = "",
+  readOnly = false,
   required = false,
   disabled = false,
   clear = false,
   tabIndex = null,
   autoFocus = false,
-  width = "32",
+  width = "full", 
 }) => {
   const handleOnChange = (e) => {
     setValue(e.target.value);
   };
+
+  const isDisabled = readOnly || disabled;
+
   return (
-    <div className="input-group items-center md:my-1 md:px-1 data text-xs">
-      <label
-        className={`md:text-start flex  text-xs font-weight: 100 mb-2 ${className}`}
-      >
-        {required ? <RequiredLabel name={name} /> : `${name}`}
-      </label>
+    <div className={`mb-3 ${width}`}>
+      {name && (
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">
+          {required ? <RequiredLabel name={name} /> : name}
+        </label>
+      )}
       <select
         onBlur={onBlur}
         autoFocus={autoFocus}
-        tabIndex={tabIndex ? tabIndex : undefined}
+        tabIndex={tabIndex ?? undefined}
         defaultValue={defaultValue}
-        id="dd"
         required={required}
-        name="name"
-        className={`text-sm px-3 py-1 border border-gray-300 rounded-md bg-white
-          focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none
-          hover:border-gray-400 transition duration-150 ease-in-out w-${width}`}
+        className={`w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg
+          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          transition-all duration-150 shadow-sm appearance-none
+          ${isDisabled 
+            ? "bg-gray-100 text-gray-500 cursor-not-allowed" 
+            : "bg-white hover:border-gray-400 cursor-pointer"}
+          ${className}`}
         value={value}
         onChange={(e) => {
           beforeChange();
           handleOnChange(e);
         }}
-        disabled={readOnly}
+        disabled={isDisabled}
       >
         <option value="" hidden={!clear}>
-          Select
+          Select {name || "option"}
         </option>
         {options?.map((option, index) => (
-          <option key={index} value={option.value}>
+          <option 
+            key={index} 
+            value={option.value}
+            className="text-xs py-1" // Smaller option text
+          >
             {option.show}
           </option>
         ))}
