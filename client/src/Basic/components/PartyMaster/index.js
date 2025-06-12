@@ -924,13 +924,7 @@ export default function Form({ partyId, onCloseForm }) {
                                   <div className="flex flex-col items-center justify-center space-y-1 text-gray-400">
 
                                     <p className="text-xs">No addresses found</p>
-                                    {/* <button
-                                    onClick={addNewAddress}
-                                    disabled={readOnly}
-                                    className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
-                                  >
-                                    + Add address
-                                  </button> */}
+                                  
                                   </div>
                                 </td>
                               </tr>
@@ -1124,23 +1118,7 @@ export default function Form({ partyId, onCloseForm }) {
                   setAccessoryItemList={setAccessoryItemList}
                 />
               </Modal>
-              <MastersForm
-                onNew={onNew}
-                onClose={() => {
-                  setForm(false);
-                  setSearchValue("");
-                  setId(false);
-                  onCloseForm();
-                }}
-                model={MODEL}
-                childRecord={childRecord.current}
-                saveData={saveData}
-                saveExitData={saveExitData}
-                setReadOnly={setReadOnly}
-                deleteData={deleteData}
-                readOnly={readOnly}
-                emptyErrors={() => setErrors({})}
-              >
+      
                 <div className="space-y-4 bg-[#f1f1f0]">
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto]">
 
@@ -1295,48 +1273,6 @@ export default function Form({ partyId, onCloseForm }) {
                               disabled={childRecord.current > 0}
                               className="focus:ring-2 focus:ring-blue-100"
                             />
-
-                            {/* <TextInput
-                        name="Cost Code"
-                        type="text"
-                        value={costCode}
-                        setValue={setCostCode}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      />
-
-                    
-
-                      <TextInput
-                        name="Tin No"
-                        type="text"
-                        value={tinNo}
-                        setValue={setTinNo}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      />
-
-
-                      <DateInput
-                        name="CST Date"
-                        value={cstDate}
-                        setValue={setCstDate}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      />
-
-                      <TextInput
-                        name="Cin No"
-                        type="text"
-                        value={cinNo}
-                        setValue={setCinNo}
-                        readOnly={readOnly}
-                        disabled={childRecord.current > 0}
-                        className="focus:ring-2 focus:ring-blue-100"
-                      /> */}
 
                             <TextInput
                               name="Fax No"
@@ -1626,7 +1562,7 @@ export default function Form({ partyId, onCloseForm }) {
                   </div>
 
                 </div>
-              </MastersForm>
+            
 
 
         

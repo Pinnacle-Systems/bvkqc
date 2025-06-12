@@ -12,8 +12,8 @@ const SingleImageFileUploadComponent = ({ image, disabled, setWebCam, editProfil
         }
         return null
     }
-    const imageWidth = "150px"
-    const imageHeight = "150px";
+    const imageWidth = "120px"
+    const imageHeight = "120px";
     return (
         <div className='flex gap-1 flex-col items-center'>
             <div>
@@ -28,7 +28,7 @@ const SingleImageFileUploadComponent = ({ image, disabled, setWebCam, editProfil
             {
                 editProfileImage ?
                     <div>
-                        <button style={{ width: imageWidth }} className="text-sm w-full border bg-blue-800 p-1 rounded text-white" disabled={disabled} onClick={() => { setWebCam(true) }} htmlFor="profileImage" >{IMAGE_ICON} Edit Profile Image</button>
+                        <button style={{ width: imageWidth }} className="text-sm w-full border bg-blue-800 p-1 rounded text-white" disabled={disabled} onClick={() => { setWebCam(true) }} htmlFor="profileImage" >{IMAGE_ICON} Profile Image</button>
                     </div>
                     :
                     ""

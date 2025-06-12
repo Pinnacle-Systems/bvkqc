@@ -104,7 +104,7 @@ const MastersForm = ({
   };
 
 return (
-  <div className="h-full px-6 py-4 bg-gray-50 rounded-md shadow-inner">
+  <div className="px-6 py-4 bg-gray-50 rounded-md shadow-inner">
     <div className="flex flex-col h-full">
       {model && (
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">{model}</h2>

@@ -634,7 +634,7 @@ export default function Form() {
   <Modal
     isOpen={form}
     form={form}
-    widthClass={"w-[95%] max-w-6xl h-[95vh]"} // Reduced max width and height
+    widthClass={"w-[95%] max-w-6xl h-[85vh]"} // Reduced max width and height
     onClose={() => {
       setForm(false);
       setErrors({});
@@ -642,7 +642,7 @@ export default function Form() {
   >
     <div className="h-full flex flex-col bg-[f1f1f0]">
       {/* Header - More compact */}
-      <div className="border-b py-2 px-4 flex justify-between items-center sticky top-0 z-10 bg-white">
+      <div className="border-b py-2 px-4 mx-3 flex justify-between items-center sticky top-0 z-10 bg-white">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-gray-800">
             {id ? "Edit Employee" : "Add New Employee"}
@@ -653,6 +653,36 @@ export default function Form() {
             </span>
           )}
         </div>
+         <div className="flex gap-2">
+        <div>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => {
+                setForm(false);
+                setSearchValue("");
+                setId(false);
+              }}
+              className="px-3 py-1 text-red-600 hover:bg-red-600 hover:text-white border border-red-600 text-xs rounded"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={saveData}
+              className="px-3 py-1 hover:bg-green-600 hover:text-white rounded text-green-600 
+              border border-green-600 flex items-center gap-1 text-xs"
+            >
+              <Check size={14} />
+              {id ? "Update" : "Save"}
+            </button>
+          )}
+        </div>
+      </div>
       </div>
 
       <div className="flex-1 overflow-auto p-3">
@@ -987,36 +1017,7 @@ export default function Form() {
         </div>
       </div>
 
-      <div className="border-t p-2 bg-[f1f1f0] flex justify-between sticky bottom-0">
-        <div>
-          {!readOnly && (
-            <button
-              type="button"
-              onClick={() => {
-                setForm(false);
-                setSearchValue("");
-                setId(false);
-              }}
-              className="px-3 py-1 text-red-600 hover:bg-red-600 hover:text-white border border-red-600 text-xs rounded"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-        <div className="flex gap-2">
-          {!readOnly && (
-            <button
-              type="button"
-              onClick={saveData}
-              className="px-3 py-1 hover:bg-green-600 hover:text-white rounded text-green-600 
-              border border-green-600 flex items-center gap-1 text-xs"
-            >
-              <Check size={14} />
-              {id ? "Update" : "Save"}
-            </button>
-          )}
-        </div>
-      </div>
+     
     </div>
 
     <Modal isOpen={cameraOpen} onClose={() => setCameraOpen(false)}>

@@ -13,10 +13,6 @@ import {
 import toast from "react-hot-toast";
 import secureLocalStorage from "react-secure-storage";
 import { useGetPagePermissionsByIdQuery } from "../../../redux/services/PageMasterService";
-
-
-
-
 const MastersForm = ({
   model,
   saveData,
