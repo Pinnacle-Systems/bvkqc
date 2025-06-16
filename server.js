@@ -25,7 +25,7 @@ import {
   excessQty,
   email, orderImport,
   controlPanel,
-  TagType
+  TagType,LineMaster
 
 } from './src/routes/index.js';
 
@@ -99,7 +99,7 @@ app.use("/percentage", excessQty);
 app.use("/orderImport", orderImport);
 app.use("/controlPanel", controlPanel);
 app.use("/tagType", TagType);
-
+app.use("/lineMaster", LineMaster)
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);

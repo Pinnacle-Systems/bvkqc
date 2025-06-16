@@ -19,7 +19,7 @@ export const CONTENT_API = "content"
 export const PARTY_CATEGORY_API = "partyCategories"
 export const COUNTS_API = "counts"
 export const STYLE_SHEET_API =  "stylesheet"
-
+export const LINE_MASTER = "lineMaster"
 export const PARTY_API = "party"
 export const PRODUCT_BRAND_API = "productBrand"
 export const PRODUCT_CATEGORY_API = "productCategory"

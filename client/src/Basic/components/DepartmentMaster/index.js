@@ -46,7 +46,7 @@ export default function Form() {
         isFetching: isSingleFetching,
         isLoading: isSingleLoading,
     } = useGetDepartmentByIdQuery(id, { skip: !id });
-
+ 
 
     const [addData] = useAddDepartmentMutation();
     const [updateData] = useUpdateDepartmentMutation();
@@ -64,7 +64,6 @@ export default function Form() {
             setCode(data?.code || "");
             setActive(id ? (data?.active ?? false) : true);
         }
-
     },
         [id]
     );
@@ -74,7 +73,7 @@ export default function Form() {
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
     const data = {
-        name, code, active, companyId: 1
+        name, code, active, companyId: 1,id
     }
 
     const validateData = (data) => {
@@ -87,12 +86,13 @@ export default function Form() {
     const handleSubmitCustom = async (callback, data, text) => {
         try {
             let returnData = await callback(data).unwrap();
-            setId(returnData.data.id)
+            setId(returnData?.data.id)
             toast.success(text + "Successfully");
         } catch (error) {
             console.log("handle");
         }
     };
+    
 
     const saveData = () => {
         if (!validateData(data)) {
@@ -104,6 +104,7 @@ export default function Form() {
         if (!window.confirm("Are you sure save the details ...?")) {
             return;
         }
+        console.log(id,"idfor update")
         if (id) {
             handleSubmitCustom(updateData, data, "Updated");
         } else {

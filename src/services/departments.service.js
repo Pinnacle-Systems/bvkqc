@@ -54,7 +54,7 @@ async function create(body) {
     const data = await prisma.department.create(
         {
             data: {
-                name, code, companyId: parseInt(companyId)
+                name, code, companyId: parseInt(companyId),active
             }
         }
     )
@@ -62,7 +62,9 @@ async function create(body) {
 }
 
 async function update(id, body) {
-    const { name, code, active } = await body
+    const { name, code, active,companyId } = await body
+        console.log(id,"id")
+
     const dataFound = await prisma.department.findUnique({
         where: {
             id: parseInt(id)
@@ -75,7 +77,7 @@ async function update(id, body) {
         },
         data:
         {
-            name, code, active
+            name, code, active,companyId: parseInt(companyId)
         },
     })
     return { statusCode: 0, data };

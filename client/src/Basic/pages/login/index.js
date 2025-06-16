@@ -150,6 +150,10 @@ const ShoppingCartIcon = ({ className }) => (
                     result.data.userInfo.role.companyId
                   );
                   secureLocalStorage.setItem(
+                  sessionStorage.getItem("sessionId") + "userCompanyId",
+                  result.data.userInfo.role.companyId
+              );
+                  secureLocalStorage.setItem(
                     sessionStorage.getItem("sessionId") + "defaultAdmin",
                     JSON.stringify(result.data.userInfo.role.defaultRole)
                   );

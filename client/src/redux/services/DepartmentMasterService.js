@@ -57,17 +57,17 @@ const departmentMasterApi = createApi({
       }),
       invalidatesTags: ["Department"],
     }),
-    updateDepartment: builder.mutation({
-      query: (payload) => {
-        const { id, ...body } = payload;
-        return {
-          url: `${DEPARTMENT_API}/${id}`,
-          method: "PUT",
-          body,
-        };
-      },
-      invalidatesTags: ["Department"],
-    }),
+  updateDepartment: builder.mutation({
+       query: (payload) => {
+         const { id, ...body } = payload;
+         return {
+           url: `${DEPARTMENT_API}/${id}`,
+           method: "PUT",
+           body,
+         };
+       },
+       invalidatesTags: ["Department"],
+     }),
     deleteDepartment: builder.mutation({
       query: (id) => ({
         url: `${DEPARTMENT_API}/${id}`,

@@ -17,7 +17,7 @@ import {
   multiSelectOption,
 } from "../../../Utils/contructObject";
 import PartyOnItems from "./PartyOnItems";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { statusDropdown } from "../../../Utils/DropdownData";
 import BrowseSingleImage from "../../components/BrowseSingleImage";
 import MastersForm from "../MastersForm/MastersForm";
@@ -103,10 +103,8 @@ export default function Form({ partyId, onCloseForm }) {
 
   const childRecord = useRef(0);
   const dispatch = useDispatch();
-
-  const companyId = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userCompanyId"
-  );
+    const companyId = secureLocalStorage.getItem(sessionStorage.getItem("sessionId") + "userCompanyId")
+ 
   // const { data: accessoryItemsMasterList, isLoading: isItemsLoading, isFetching: isItemsFetching } = useGetAccessoryItemMasterQuery({ companyId })
   let accessoryItemsMasterList;
 
@@ -182,8 +180,7 @@ export default function Form({ partyId, onCloseForm }) {
         // if (partyId) {
         //   setReadOnly(false);
         // } else {
-        setReadOnly(true);
-        // }
+              // }
 
         setPanNo(data?.panNo || "");
         setName(data?.name || "");
@@ -191,10 +188,9 @@ export default function Form({ partyId, onCloseForm }) {
         setAliasName(data?.aliasName || "");
         setImage(data?.image || "");
         setDisplayName(data?.displayName || "");
-        setAddress(data?.address || "");
+        setAddress(data?.address || "");  
         setTinNo(data?.tinNo || "");
         setCstNo(data?.cstNo || "");
-
         setIsGy(data?.isGy || false);
         setIsDy(data?.isDy || false);
         setIsAcc(data?.isAcc || false);
@@ -272,6 +268,7 @@ export default function Form({ partyId, onCloseForm }) {
     website,
     contactPersonName,
     igst,
+    companyId,
     currencyId: currency,
     costCode,
     contactMobile,
@@ -397,6 +394,7 @@ export default function Form({ partyId, onCloseForm }) {
       handleSubmitCustom(addData, data, "Added", true);
     }
   };
+  console.log(id,"id")
 
   const deleteData = async () => {
     if (id) {
@@ -537,15 +535,7 @@ export default function Form({ partyId, onCloseForm }) {
     setReadOnly(false)
   }, [partyId]);
 
-
-
-
-  const handleEdit = (orderId) => {
-    setId(orderId)
-    setForm(true);
-    setReadOnly(false);
-  };
-
+ console.log(readOnly,"readOnly")
 
   const columns = [
 
@@ -597,25 +587,16 @@ export default function Form({ partyId, onCloseForm }) {
               setAccessoryItemList={setAccessoryItemList}
             />
           </Modal>
-          <MastersForm
-            onNew={onNew}
-            onClose={() => {
-              setForm(false);
-              setSearchValue("");
-              setId(false);
-              onCloseForm();
-            }}
-            model={MODEL}
-            childRecord={childRecord.current}
-            saveData={saveData}
-            saveExitData={saveExitData}
-            setReadOnly={setReadOnly}
-            deleteData={deleteData}
-            readOnly={readOnly}
-            emptyErrors={() => setErrors({})}
-          >
-            <div className="space-y-4 bg-[#f1f1f0]">
-              {/* {step === 1 && ( */}
+        <Modal
+    isOpen={form}
+    form={form}
+    widthClass={"w-[95%] max-w-6xl h-[85vh]"} 
+    onClose={() => {
+      setForm(false);
+      setErrors({});
+    }}
+  >
+            <div className="space-y-4 bg-[#f1f1f0] h-[90vh] ">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto]">
 
                 <div className="space-y-2 bg-[#f1f1f0]">
@@ -1046,8 +1027,7 @@ export default function Form({ partyId, onCloseForm }) {
               </div>
 
               {/* )} */}
-            </div>
-          </MastersForm>
+            </div></Modal>
         </Modal>
       </>
 
@@ -1066,9 +1046,9 @@ export default function Form({ partyId, onCloseForm }) {
                   setForm(true);
                   onNew();
                 }}
-                className="bg-green-500 text-white px-3 py-1 button rounded shadow-md"
+                 className="px-3 py-1 text-green-600 hover:bg-green-600 hover:text-white border border-green-600 text-xs rounded"
               >
-                + New
+                + Add Party
               </button>
             </div>
           </div>
@@ -1077,10 +1057,10 @@ export default function Form({ partyId, onCloseForm }) {
             <CommonTable
               columns={columns}
               data={allData?.data || []}
-              onView={onDataClick}
-              onEdit={handleEdit}
-              onDelete={deleteData}
+              onDataClick={onDataClick}
               itemsPerPage={10}
+              setReadOnly={setReadOnly}
+              deleteData={deleteData}
             />
           </div>
         </>
@@ -1090,7 +1070,7 @@ export default function Form({ partyId, onCloseForm }) {
             <Modal
               isOpen={form}
               form={form}
-              widthClass={"w-[75%] h-[45%] -mt-40"}
+              widthClass={"w-[75%] h-[65vh] -mt-10"}
               onClose={() => {
                 setForm(false);
                 onCloseForm();
@@ -1119,452 +1099,243 @@ export default function Form({ partyId, onCloseForm }) {
                 />
               </Modal>
       
-                <div className="space-y-4 bg-[#f1f1f0]">
-                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto]">
+  
+    <div className="h-full flex flex-col bg-[#f1f1f0]">
+      {/* Header */}
+      <div className="border-b py-2 px-4 mx-3 my-3 flex justify-between items-center sticky top-0 z-10 bg-white">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {id ?(readOnly? "Party Master": "Edit Party") : "Add New Party"}
+          </h2>
+     
+        </div>
+        <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setForm(false);
+                setSearchValue("");
+                setId(false);
+              }}
+              className="px-3 py-1 text-red-600 hover:bg-red-600 hover:text-white border border-red-600 text-xs rounded"
+            >
+              Cancel
+            </button>
+              <button
+              type="button"
+              onClick={() => {
+              deleteData()
+                setId(id);
+              }}
+              className="px-3 py-1 text-red-600 hover:bg-red-600 hover:text-white border border-red-600 text-xs rounded"
+            >
+              Deleted
+            </button>
+      
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={saveData}
+              className="px-3 py-1 hover:bg-green-600 hover:text-white rounded text-green-600 
+              border border-green-600 flex items-center gap-1 text-xs"
+            >
+              <Check size={14} />
+              {id ? "Update" : "Save"}
+            </button>
+          )}
+        </div>
+      </div>
 
-                    <div className="space-y-2 bg-[#f1f1f0]">
+      <div className="flex-1 overflow-auto p-4">
+        <div className="bg-white p-4 rounded-md border border-gray-200 mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Party Type</h3>
+          <div className={`space-y-2 ${readOnly ? "opacity-80" : ""}`}>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-6">
+              <FancyCheckBox
+                label="Is Supplier"
+                value={isSupplier}
+                onChange={setSupplier}
+                readOnly={readOnly}
+                className="hover:bg-gray-50 p-3 rounded-lg transition-colors"
+              />
+              <FancyCheckBox
+                label="Is Client"
+                value={isClient}
+                onChange={setClient}
+                readOnly={readOnly}
+                className="hover:bg-gray-50 p-3 rounded-lg transition-colors"
+              />
 
-                      <div className="rounded-xl border border-gray-100 bg-[#f1f1f0]  shadow-xs">
-                        <h3 className="mb-1 text-sm font-semibold text-gray-900">
-                          Party Type
-                        </h3>
-                        <div className={`space-y-2 ${readOnly ? "opacity-80" : ""}`}>
-                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-6">
-                            <FancyCheckBox
-                              label="Is Supplier"
-                              value={isSupplier}
-                              onChange={setSupplier}
-                              readOnly={readOnly}
-                              className="hover:bg-gray-50 p-3 rounded-lg transition-colors"
-                            />
-                            <FancyCheckBox
-                              label="Is Client"
-                              value={isClient}
-                              onChange={setClient}
-                              readOnly={readOnly}
-                              className="hover:bg-gray-50 p-3 rounded-lg transition-colors"
-                            />
+              {isSupplier && (
+                <>
+                  <FancyCheckBox
+                    label="Grey Yarn"
+                    value={isGy}
+                    onChange={setIsGy}
+                    readOnly={readOnly}
+                    className="hover:bg-gray-100 p-3 rounded-lg"
+                  />
+                  <FancyCheckBox
+                    label="Dyed Yarn"
+                    value={isDy}
+                    onChange={setIsDy}
+                    readOnly={readOnly}
+                    className="hover:bg-gray-100 p-3 rounded-lg"
+                  />
+                  <FancyCheckBox
+                    label="Accessories"
+                    value={isAcc}
+                    onChange={setIsAcc}
+                    readOnly={readOnly}
+                    className="hover:bg-gray-100 p-3 rounded-lg"
+                  />
+                </>
+              )}
 
+              <div className="flex items-center gap-x-2">
+                <ToggleButton
+                  name="Status"
+                  options={statusDropdown}
+                  value={active}
+                  setActive={setActive}
+                  required={true}
+                  readOnly={readOnly}
+                  className="bg-gray-100 p-1 rounded-lg"
+                  activeClass="bg-[#f1f1f0] shadow-sm text-blue-600"
+                  inactiveClass="text-gray-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
+        {/* Party Details Section */}
+        <div className="bg-white p-4 rounded-md border border-gray-200 mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Party Details</h3>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+            <TextInput
+              name="Party Name"
+              type="text"
+              value={name}
+              setValue={setName}
+              required={true}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              onBlur={(e) => {
+                if (aliasName) return;
+                setAliasName(e.target.value);
+              }}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
-                            {isSupplier && (
-                              <>
-                                <FancyCheckBox
-                                  label="Grey Yarn"
-                                  value={isGy}
-                                  onChange={setIsGy}
-                                  readOnly={readOnly}
-                                  className="hover:bg-gray-100 p-3 rounded-lg"
-                                />
-                                <FancyCheckBox
-                                  label="Dyed Yarn"
-                                  value={isDy}
-                                  onChange={setIsDy}
-                                  readOnly={readOnly}
-                                  className="hover:bg-gray-100 p-3 rounded-lg"
-                                />
-                                <FancyCheckBox
-                                  label="Accessories"
-                                  value={isAcc}
-                                  onChange={setIsAcc}
-                                  readOnly={readOnly}
-                                  className="hover:bg-gray-100 p-3 rounded-lg"
-                                />
-                              </>
-                            )}
+            <TextInput
+              name="Alias Name"
+              type="text"
+              value={aliasName}
+              setValue={setAliasName}
+              required={true}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <TextInput
+              name="Pan No"
+              type="pan_no"
+              value={panNo}
+              setValue={setPanNo}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <TextInput
+              name="GST No"
+              type="text"
+              value={gstNo}
+              setValue={setGstNo}
+              readOnly={readOnly}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <TextInput
+              name="Pincode"
+              type="number"
+              value={pincode}
+              setValue={setPincode}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <TextInput
+              name="CST No"
+              type="text"
+              value={cstNo}
+              setValue={setCstNo}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <TextInput
+              name="Fax No"
+              type="text"
+              value={faxNo}
+              setValue={setFaxNo}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <DropdownInput
+              name="Currency"
+              options={dropDownListObject(
+                id
+                  ? currencyList?.data ?? []
+                  : currencyList?.data?.filter((item) => item.active) ?? [],
+                "name",
+                "id"
+              )}
+              value={currency}
+              setValue={setCurrency}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <DropdownInput
+              name="City/State Name"
+              options={dropDownListMergedObject(
+                id
+                  ? cityList?.data
+                  : cityList?.data?.filter((item) => item.active),
+                "name",
+                "id"
+              )}
+              value={city}
+              setValue={setCity}
+              required={true}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
 
+            <TextInput
+              name="PayTerm Days"
+              type="name"
+              value={payTermDay}
+              setValue={setPayTermDay}
+              readOnly={readOnly}
+              disabled={childRecord.current > 0}
+              className="focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+        </div>
 
-
-
-
-                            <div className="flex items-center gap-x-2">
-                              {/* <span className="text-slate-800 font-medium text-gray-500 text-xs">
-                            Status:
-                          </span> */}
-                              <ToggleButton
-                                name="Status"
-                                options={statusDropdown}
-                                value={active}
-                                setActive={setActive}
-                                required={true}
-                                readOnly={readOnly}
-                                className="bg-gray-100 p-1 rounded-lg"
-                                activeClass="bg-[#f1f1f0]  shadow-sm text-blue-600 "
-                                inactiveClass="text-gray-500"
-                              />
-                            </div>
-
-
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="rounded-xl border border-gray-100 bg-[#f1f1f0]  p-2 shadow-xs ">
-                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5 ">
-                            <TextInput
-                              name="Party Name"
-                              type="text"
-                              value={name}
-                              setValue={setName}
-                              required={true}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              onBlur={(e) => {
-                                if (aliasName) return;
-                                setAliasName(e.target.value);
-                              }}
-
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <TextInput
-                              name="Alias Name"
-                              type="text"
-                              value={aliasName}
-                              setValue={setAliasName}
-                              required={true}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <TextInput
-                              name="Pan No"
-                              type="pan_no"
-                              value={panNo}
-                              setValue={setPanNo}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <TextInput
-                              name="GST No"
-                              type="text"
-                              value={gstNo}
-                              setValue={setGstNo}
-                              readOnly={readOnly}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <TextInput
-                              name="Pincode"
-                              type="number"
-                              value={pincode}
-                              setValue={setPincode}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-                            <TextInput
-                              name="CST No"
-                              type="text"
-                              value={cstNo}
-                              setValue={setCstNo}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <TextInput
-                              name="Fax No"
-                              type="text"
-                              value={faxNo}
-                              setValue={setFaxNo}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <DropdownInput
-                              name="Currency"
-                              options={dropDownListObject(
-                                id
-                                  ? currencyList?.data ?? []
-                                  : currencyList?.data?.filter(
-                                    (item) => item.active
-                                  ) ?? [],
-                                "name",
-                                "id"
-                              )}
-                              lastTab={activeTab}
-                              masterName="CURRENCY MASTER"
-                              value={currency}
-                              setValue={setCurrency}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <DropdownInput
-                              name="City/State Name"
-                              options={dropDownListMergedObject(
-                                id
-                                  ? cityList?.data
-                                  : cityList?.data?.filter((item) => item.active),
-                                "name",
-                                "id"
-                              )}
-                              masterName="CITY MASTER"
-                              lastTab={activeTab}
-                              value={city}
-                              setValue={setCity}
-                              required={true}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                            <TextInput
-                              name="PayTerm Days"
-                              type="name"
-                              value={payTermDay}
-                              setValue={setPayTermDay}
-                              readOnly={readOnly}
-                              disabled={childRecord.current > 0}
-                              className="focus:ring-2 focus:ring-blue-100"
-                            />
-
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-
-
-
-
-
-
-
-                  <div className="border-t pt-4 mt-4">
-                    <div
-                      className="flex justify-between items-center mb-3 cursor-pointer"
-                      onClick={() => setIsAddressExpanded(!isAddressExpanded)}
-                    >
-                      <h3 className="text-sm font-semibold text-slate-700 flex items-center">
-                        <FaChevronRight
-                          className={`mr-2 text-xs transition-transform ${isAddressExpanded ? 'rotate-90' : ''}`}
-                        />
-                        Other Details
-                      </h3>
-                    </div>
-
-                    {isAddressExpanded && (
-
-                      <>
-
-
-
-
-                        <div className="space-y-4">
-
-
-                          <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-base font-medium text-gray-900">
-                              Shipping Addresses
-                            </h3>
-                            <button
-                              onClick={addNewAddress}
-                              disabled={readOnly}
-                              className="flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-3 w-3"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-                              </svg>
-                              Add Address
-                            </button>
-                          </div>
-
-                          <div className="overflow-hidden rounded-md border border-gray-200">
-                            <table className="min-w-full divide-y divide-gray-200">
-                              <thead className="bg-gray-50">
-                                <tr>
-                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">S.no</th>
-                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Address</th>
-                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">AliasName</th>
-                                  <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">Actions</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-200 bg-[#f1f1f0] ">
-                                {(shippingAddress || []).map((item, index) => (
-                                  <tr key={index} className="hover:bg-gray-50">
-                                    <td className="whitespace-nowrap px-3 py-1.5 text-xs text-gray-600">{index + 1}</td>
-                                    <td className="px-3 py-1.5">
-                                      <input
-                                        type="text"
-                                        className="w-full rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50"
-                                        value={item?.address || ""}
-                                        disabled={readOnly}
-                                        onChange={(e) => handleInputAddress(e.target.value, index, "address")}
-                                      />
-                                    </td>
-                                    <td className="px-3 py-1.5">
-                                      <input
-                                        type="text"
-                                        className="w-full rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50"
-                                        value={item?.aliasName || ""}
-                                        disabled={readOnly}
-                                        onChange={(e) => handleInputAddress(e.target.value, index, "aliasName")}
-                                      />
-                                    </td>
-                                    <td className="whitespace-nowrap px-3 py-2 text-right">
-                                      <button
-                                        onClick={() => deleteAddress(index)}
-                                        disabled={readOnly}
-                                        className="p-1 text-red-500 hover:text-red-700 disabled:text-gray-400"
-                                      >
-                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                                {(!shippingAddress || shippingAddress.length === 0) && (
-                                  <tr>
-                                    <td colSpan="3" className="px-3 py-3 text-center">
-                                      <div className="flex flex-col items-center justify-center space-y-1 text-gray-400">
-
-                                        <p className="text-xs">No addresses found</p>
-                                                                            </div>
-                                    </td>
-                                  </tr>
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-
-
-
-
-
-
-                          <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-base font-medium text-gray-900">Contact Details</h3>
-                            <button
-                              onClick={() => setContactDetails([...contactDetails, {}])}
-                              disabled={readOnly || childRecord.current > 0}
-                              className="flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-3 w-3"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
-                              </svg>
-                              Add Contact
-                            </button>
-                          </div>
-
-                          <div className="overflow-hidden rounded-md border border-gray-200">
-                            <table className="min-w-full divide-y divide-gray-200">
-                              <thead className="bg-gray-50">
-                                <tr>
-                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">S.no</th>
-                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Name</th>
-                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Mobile</th>
-                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Email</th>
-                                  <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">Actions</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-200 bg-[#f1f1f0] ">
-                                {(contactDetails || []).map((item, index) => (
-                                  <tr key={index} className="hover:bg-gray-50">
-                                    <td className="whitespace-nowrap px-3 py-2 text-xs text-gray-600">{index + 1}</td>
-                                    <td className="px-3 py-1.5">
-                                      <input
-                                        type="text"
-                                        className="w-full rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50"
-                                        value={item.contactPersonName || ""}
-                                        onChange={(e) => {
-                                          const updated = [...contactDetails];
-                                          updated[index].contactPersonName = e.target.value;
-                                          setContactDetails(updated);
-                                        }}
-                                        disabled={readOnly || childRecord.current > 0}
-                                      />
-                                    </td>
-                                    <td className="px-3 py-1.5">
-                                      <input
-                                        type="text"
-                                        className="w-full rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50"
-                                        value={item.mobileNo || ""}
-                                        onChange={(e) => {
-                                          const updated = [...contactDetails];
-                                          updated[index].mobileNo = e.target.value;
-                                          setContactDetails(updated);
-                                        }}
-                                        disabled={readOnly || childRecord.current > 0}
-                                      />
-                                    </td>
-                                    <td className="px-3 py-1.5">
-                                      <input
-                                        type="email"
-                                        className="w-full rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50"
-                                        value={item.email || ""}
-                                        onChange={(e) => {
-                                          const updated = [...contactDetails];
-                                          updated[index].email = e.target.value;
-                                          setContactDetails(updated);
-                                        }}
-                                        disabled={readOnly}
-                                      />
-                                    </td>
-                                    <td className="whitespace-nowrap px-3 py-1.5 text-right">
-                                      <button
-                                        onClick={() => removeItem(index)}
-                                        disabled={readOnly || childRecord.current > 0}
-                                        className="p-1 text-red-500 hover:text-red-700 disabled:text-gray-400"
-                                      >
-                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                                {(!contactDetails || contactDetails.length === 0) && (
-                                  <tr>
-                                    <td colSpan="5" className="px-3 py-3 text-center">
-                                      <div className="flex flex-col items-center justify-center space-y-1 text-gray-400">
-
-                                        <p className="text-xs">No contacts found</p>
-                                       
-                                      </div>
-                                    </td>
-                                  </tr>
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-
-                      </>
-                    )}
-
-                  </div>
-
-                </div>
-            
-
-
+     
+      </div>
+    </div>
         
             </Modal>
           )}

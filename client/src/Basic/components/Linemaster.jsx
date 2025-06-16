@@ -1,229 +1,291 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import secureLocalStorage from "react-secure-storage";
+import {  useGetLineMasterQuery,
+    useGetLineMasterByIdQuery,
+    useAddLineMasterMutation,
+    useUpdateLineMasterMutation,
+    useDeleteLineMasterMutation } from "../../redux/services/LineMasterService";
 
-const GarmentLineMaster = () => {
-  // State variables
-  const [garmentLines, setGarmentLines] = useState([]);
-  const [formData, setFormData] = useState({
-    id: '',
-    lineCode: '',
-    lineName: '',
-    productionCapacity: '',
-    status: 'Active'
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+import { toast } from "react-toastify";
 
-  // Load data from localStorage on component mount
-  useEffect(() => {
-    const storedData = localStorage.getItem('garmentLines');
-    if (storedData) {
-      setGarmentLines(JSON.parse(storedData));
-    }
-  }, []);
+import Mastertable from "./MasterTable/Mastertable";
+import { TextInput, CheckBox, ToggleButton, Modal } from "../../Inputs";
+import MastersForm from "./MastersForm/MastersForm";
+import { statusDropdown } from "../../Utils/DropdownData";
 
-  // Save data to localStorage whenever garmentLines change
-  useEffect(() => {
-    localStorage.setItem('garmentLines', JSON.stringify(garmentLines));
-  }, [garmentLines]);
+const MODEL = "Line Detail Master";
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+export default function Form() {
+    const [readOnly, setReadOnly] = useState(false);
+    const [id, setId] = useState("");
+    const [lineNo, setLineNo] = useState("");
+    const [lineName, setLineName] = useState("");
+    const [sewingMachineQty, setSewingMachineQty] = useState("");
+    const [helperQty, setHelperQty] = useState("");
+    const [operatorQty, setOperatorQty] = useState("");
+    const [active, setActive] = useState(true);
+    const [errors, setErrors] = useState({});
+    const [form, setForm] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+    const childRecord = useRef(0);
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
+    const params = {
+        companyId: secureLocalStorage.getItem(
+            sessionStorage.getItem("sessionId") + "userCompanyId"
+        ),
+    };
     
-    if (isEditing) {
-      // Update existing line
-      setGarmentLines(prev =>
-        prev.map(line => line.id === formData.id ? formData : line)
-      );
-    } else {
-      // Create new line
-      const newLine = { ...formData, id: Date.now().toString() };
-      setGarmentLines(prev => [...prev, newLine]);
-    }
+    const { data: allData, isLoading, isFetching } = useGetLineMasterQuery({ params, searchParams: searchValue });
     
-    resetForm();
-  };
+    const {
+        data: singleData,
+        isFetching: isSingleFetching,
+        isLoading: isSingleLoading,
+    } = useGetLineMasterByIdQuery(id, { skip: !id });
 
-  // Edit garment line
-  const handleEdit = (line) => {
-    setFormData(line);
-    setIsEditing(true);
-  };
+    const [addData] = useAddLineMasterMutation();
+    const [updateData] = useUpdateLineMasterMutation();
+    const [removeData] = useDeleteLineMasterMutation();
 
-  // Delete garment line
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this line?')) {
-      setGarmentLines(prev => prev.filter(line => line.id !== id));
+    const syncFormWithDb = useCallback((data) => {
+        if (!id) {
+            setReadOnly(false);
+            setLineNo("");
+            setLineName("");
+            setSewingMachineQty("");
+            setHelperQty("");
+            setOperatorQty("");
+            setActive(false);
+        } else {
+            setReadOnly(true);
+            setLineNo(data?.lineNo || "");
+            setLineName(data?.lineName || "");
+            setSewingMachineQty(data?.sewingMachineQty || "");
+            setHelperQty(data?.helperQty || "");
+            setOperatorQty(data?.OperationQty || "");
+            setActive(data?.active ?? false);
+        }
+    }, [id]);
+
+    useEffect(() => {
+        syncFormWithDb(singleData?.data);
+    }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
+
+    const data = {
+        lineNo,
+        lineName,
+        sewingMachineQty,
+        helperQty,
+        operatorQty,id,
+        active,
+        companyId: params.companyId
     }
-  };
 
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      id: '',
-      lineCode: '',
-      lineName: '',
-      productionCapacity: '',
-      status: 'Active'
-    });
-    setIsEditing(false);
-  };
+    const validateData = (data) => {
+        if (data.lineNo && data.lineName && data.sewingMachineQty && data.helperQty && data.operatorQty) {
+            return true;
+        }
+        return false;
+    }
 
-  // Filter garment lines based on search term
-  const filteredLines = garmentLines.filter(line =>
-    line.lineCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    line.lineName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    const handleSubmitCustom = async (callback, data, text) => {
+        try {
+            let returnData = await callback(data).unwrap();
+            setId(returnData.data.id)
+            toast.success(text + " Successfully");
+        } catch (error) {
+            console.log("Error:", error);
+            toast.error("Operation failed");
+        }
+    };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Garment Line Master</h1>
-      
-      {/* Search Bar */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by code or name..."
-          className="w-full p-2 border rounded"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+    const saveData = () => {
+        if (!validateData(data)) {
+            toast.error("Please fill all required fields...!", {
+                position: "top-center",
+            });
+            return;
+        }
+        if (!window.confirm("Are you sure save the details ...?")) {
+            return;
+        }
+        if (id) {
+            handleSubmitCustom(updateData, data, "Updated");
+        } else {
+            handleSubmitCustom(addData, data, "Added");
+        }
+    };
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Line Code*</label>
-            <input
-              type="text"
-              name="lineCode"
-              value={formData.lineCode}
-              onChange={handleChange}
-              className="mt-1 p-2 w-full border rounded"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Line Name*</label>
-            <input
-              type="text"
-              name="lineName"
-              value={formData.lineName}
-              onChange={handleChange}
-              className="mt-1 p-2 w-full border rounded"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Production Capacity</label>
-            <input
-              type="number"
-              name="productionCapacity"
-              value={formData.productionCapacity}
-              onChange={handleChange}
-              className="mt-1 p-2 w-full border rounded"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="mt-1 p-2 w-full border rounded"
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className="mt-4 flex space-x-2">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            {isEditing ? 'Update Line' : 'Add Line'}
-          </button>
-          
-          {isEditing && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </form>
+    const deleteData = async () => {
+        if (id) {
+            if (!window.confirm("Are you sure to delete...?")) {
+                return;
+            }
+            try {
+                const deldata = await removeData(id).unwrap();
+                if (deldata?.statusCode == 1) {
+                    toast.error(deldata?.message)
+                    setForm(false)
+                    return
+                }
+                setId("");
+                toast.success("Deleted Successfully");
+                setForm(false)
+            } catch (error) {
+                toast.error("Something went wrong");
+            }
+        }
+    };
 
-      {/* Data Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-4 border-b">Code</th>
-              <th className="py-2 px-4 border-b">Name</th>
-              <th className="py-2 px-4 border-b">Capacity</th>
-              <th className="py-2 px-4 border-b">Status</th>
-              <th className="py-2 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLines.length > 0 ? (
-              filteredLines.map(line => (
-                <tr key={line.id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b">{line.lineCode}</td>
-                  <td className="py-2 px-4 border-b">{line.lineName}</td>
-                  <td className="py-2 px-4 border-b">{line.productionCapacity || '-'}</td>
-                  <td className="py-2 px-4 border-b">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      line.status === 'Active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {line.status}
-                    </span>
-                  </td>
-                  <td className="py-2 px-4 border-b flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(line)}
-                      className="text-blue-600 hover:text-blue-900"
+    const handleKeyDown = (event) => {
+        let charCode = String.fromCharCode(event.which).toLowerCase();
+        if ((event.ctrlKey || event.metaKey) && charCode === "s") {
+            event.preventDefault();
+            saveData();
+        }
+    };
+
+    const onNew = () => {
+        setId("");
+        setReadOnly(false);
+        setForm(true);
+        setSearchValue("");
+    };
+
+    function onDataClick(id) {
+        setId(id);
+        setForm(true);
+    }
+
+    const tableHeaders = [
+        "S.NO", "Line No", "Line Name", "Sewing Machines", "Helpers", "Operators", "Status", " ", " ", " ", " ", " ", " ", " ", " "
+    ];
+    
+    const tableDataNames = [
+        "index+1", 
+        "dataObj.lineNo", 
+        "dataObj.lineName", 
+        "dataObj.sewingMachineQty",
+        "dataObj.helperQty",
+        "dataObj.OperationQty",
+        "dataObj.active ? ACTIVE : INACTIVE", 
+        " ", " ", " ", " ", " ", " ", " ", " "
+    ];
+
+    return (
+        <div onKeyDown={handleKeyDown}>
+            <div className='w-full flex justify-between mb-2 items-center px-0.5'>
+                <h5 className='my-1'>Line Detail Master</h5>
+                <div className='flex items-center'>
+                    <button onClick={() => { setForm(true); onNew() }} className='bg-green-500 text-white px-3 py-1 button rounded shadow-md'>+ New</button>
+                </div>
+            </div>
+            <div className='w-full flex items-start'>
+                <Mastertable
+                    header={'Line Detail List'}
+                    searchValue={searchValue}
+                    setSearchValue={setSearchValue}
+                    onDataClick={onDataClick}
+                    tableHeaders={tableHeaders}
+                    tableDataNames={tableDataNames}
+                    data={allData?.data}
+                    loading={isLoading || isFetching}
+                    setReadOnly={setReadOnly}
+                    deleteData={deleteData}
+                />
+            </div>
+            
+            {form === true && (
+                <Modal isOpen={form} form={form} widthClass={"w-[50%] h-[60%]"} onClose={() => { setForm(false); setErrors({}); }}>
+                    <MastersForm
+                        onNew={onNew}
+                        onClose={() => {
+                            setForm(false);
+                            setSearchValue("");
+                            setId(false);
+                        }}
+                        model={MODEL}
+                        childRecord={childRecord.current}
+                        saveData={saveData}
+                        setReadOnly={setReadOnly}
+                        deleteData={deleteData}
+                        readOnly={readOnly}
+                        emptyErrors={() => setErrors({})}
                     >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(line.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="py-4 px-4 text-center text-gray-500">
-                  No garment lines found
-                </td>
-              </tr>
+                        <fieldset className='rounded mt-2'>
+                            <div className=''>
+                                <div className="flex flex-wrap">
+                                    <div className='mb-3 w-[30%]'>
+                                        <TextInput 
+                                            name="Line No" 
+                                            type="text" 
+                                            value={lineNo} 
+                                            setValue={setLineNo} 
+                                            required={true} 
+                                            readOnly={readOnly} 
+                                            disabled={childRecord.current > 0} 
+                                        />
+                                    </div>
+                                    <div className='mb-3 w-[60%] ml-6'>
+                                        <TextInput 
+                                            name="Line Name" 
+                                            type="text" 
+                                            value={lineName} 
+                                            setValue={setLineName} 
+                                            required={true} 
+                                            readOnly={readOnly} 
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="flex flex-wrap mt-4">
+                                    <div className='mb-3 w-[30%]'>
+                                        <TextInput 
+                                            name="Sewing Machine Qty" 
+                                            type="number" 
+                                            value={sewingMachineQty} 
+                                            setValue={setSewingMachineQty} 
+                                            required={true} 
+                                            readOnly={readOnly} 
+                                        />
+                                    </div>
+                                    <div className='mb-3 w-[30%] ml-6'>
+                                        <TextInput 
+                                            name="Helper Qty" 
+                                            type="number" 
+                                            value={helperQty} 
+                                            setValue={setHelperQty} 
+                                            required={true} 
+                                            readOnly={readOnly} 
+                                        />
+                                    </div>
+                                    <div className='mb-3 w-[30%] ml-6'>
+                                        <TextInput 
+                                            name="Operator Qty" 
+                                            type="number" 
+                                            value={operatorQty} 
+                                            setValue={setOperatorQty} 
+                                            required={true} 
+                                            readOnly={readOnly} 
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className='mb-3 mt-4'>
+                                    <ToggleButton 
+                                        name="Status" 
+                                        options={statusDropdown} 
+                                        value={active} 
+                                        setActive={setActive} 
+                                        required={true} 
+                                        readOnly={readOnly} 
+                                    />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </MastersForm>
+                </Modal>
             )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-export default GarmentLineMaster;
+        </div>
+    )
+}

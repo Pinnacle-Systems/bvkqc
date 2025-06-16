@@ -53,7 +53,6 @@ import {
   X,
 } from "lucide-react";
 import Mastertable from "../MasterTable/Mastertable";
-import MastersForm from "../MastersForm/MastersForm";
 import imageDefault from "../../../assets/default-dp.png";
 const MODEL = "Employee Master";
 export default function Form() {
@@ -197,7 +196,7 @@ export default function Form() {
         setImage(null);
         setEmployeeCategory("");
         setPermanent("");
-        setActive(true  );
+        setActive(false);
         setLeavingDate("");
         setLeavingReason("");
         setCanRejoin(false);
@@ -300,19 +299,7 @@ export default function Form() {
     regNo,
   };
 
-  const validateData = (data) => {
-    return (
-      data.name &&
-      data.joiningDate &&
-      data.dob &&
-      data.gender &&
-      data.mobile &&
-      data.gender &&
-      data.localAddress &&
-      data.localCity &&
-      data.localPincode
-    );
-  };
+
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
@@ -500,7 +487,7 @@ export default function Form() {
       {/* Header Section */}
       <div className="w-full flex bg-white p-1 justify-between  items-center">
         <h1 className="text-2xl font-bold text-gray-800">
-          Employee Management
+          Employee Master
         </h1>
         <div className="flex items-center gap-4">
           <button
@@ -509,7 +496,7 @@ export default function Form() {
               onNew();
               setNewForm(true);
             }}
-            className="bg-white border border-indigo-600 text-indigo-600 hover:bg-indigo-700 hover:text-white text-sm px-4 py-1 rounded-md shadow transition-colors duration-200 flex items-center gap-2"
+            className="bg-white border text-xs border-indigo-600 text-indigo-600 hover:bg-indigo-700 hover:text-white text-sm px-4 py-1 rounded-md shadow transition-colors duration-200 flex items-center gap-2"
           >
             <Plus size={16} />
             Add New Employee
@@ -517,7 +504,7 @@ export default function Form() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setView("table")}
-              className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
+              className={`px-3 py-1 rounded-md text-xs flex items-center gap-1 ${
                 view === "table"
                   ? "bg-indigo-100 text-indigo-600"
                   : "text-gray-600 hover:bg-gray-100"
@@ -528,7 +515,7 @@ export default function Form() {
             </button>
             <button
               onClick={() => setView("card")}
-              className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
+              className={`px-3 py-1 rounded-md text-xs flex items-center gap-1 ${
                 view === "card"
                   ? "bg-indigo-100 text-indigo-600"
                   : "text-gray-600 hover:bg-gray-100"
@@ -541,9 +528,7 @@ export default function Form() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="bg-[f1f1f0] rounded-xl shadow overflow-hidden">
-        {/* Data Display */}
         <div className="pt-2">
           {view === "table" ? (
             <Mastertable
@@ -628,24 +613,21 @@ export default function Form() {
           )}
         </div>
       </div>
-
-      {/* Employee Form Modal */}
    {form && (
   <Modal
     isOpen={form}
     form={form}
-    widthClass={"w-[95%] max-w-6xl h-[85vh]"} // Reduced max width and height
+    widthClass={"w-[95%] max-w-6xl h-[85vh]"} 
     onClose={() => {
       setForm(false);
       setErrors({});
     }}
   >
     <div className="h-full flex flex-col bg-[f1f1f0]">
-      {/* Header - More compact */}
       <div className="border-b py-2 px-4 mx-3 flex justify-between items-center sticky top-0 z-10 bg-white">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-gray-800">
-            {id ? "Edit Employee" : "Add New Employee"}
+            {id ? (!readOnly?"Edit Employee": "Employee Master") : "Add New Employee"}
           </h2>
           {regNo && (
             <span className={`px-2 py-0.5 text-xs rounded-full ${active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>

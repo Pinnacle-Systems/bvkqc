@@ -230,7 +230,7 @@ CREATE TABLE `Department` (
     `name` VARCHAR(191) NOT NULL,
     `code` VARCHAR(191) NOT NULL,
     `active` BOOLEAN NOT NULL DEFAULT true,
-    `companyId` INTEGER NOT NULL,
+    `companyId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -679,6 +679,21 @@ CREATE TABLE `StyleSheet` (
     `printingMethod` VARCHAR(191) NULL,
     `surfaceFinish` VARCHAR(191) NULL,
     `otherPerformanceFunction` VARCHAR(191) NULL,
+    `materialCode` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `LineMaster` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `lineNo` VARCHAR(191) NULL,
+    `lineName` VARCHAR(191) NULL,
+    `sewingMachineQty` VARCHAR(191) NULL,
+    `helperQty` VARCHAR(191) NULL,
+    `OperationQty` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -750,7 +765,7 @@ ALTER TABLE `State` ADD CONSTRAINT `State_countryId_fkey` FOREIGN KEY (`countryI
 ALTER TABLE `City` ADD CONSTRAINT `City_stateId_fkey` FOREIGN KEY (`stateId`) REFERENCES `State`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Department` ADD CONSTRAINT `Department_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Department` ADD CONSTRAINT `Department_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `PartyCategory` ADD CONSTRAINT `PartyCategory_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
