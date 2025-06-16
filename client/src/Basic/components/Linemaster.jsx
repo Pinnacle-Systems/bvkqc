@@ -174,11 +174,20 @@ export default function Form() {
 
     return (
         <div onKeyDown={handleKeyDown}>
-            <div className='w-full flex justify-between mb-2 items-center px-0.5'>
-                <h5 className='my-1'>Line Detail Master</h5>
-                <div className='flex items-center'>
-                    <button onClick={() => { setForm(true); onNew() }} className='bg-green-500 text-white px-3 py-1 button rounded shadow-md'>+ New</button>
-                </div>
+            <div className="w-full flex justify-between mb-2 my-2 py-1 bg-white mx-1 px-1 items-center px-0.5">
+        <h1 className="text-2xl font-bold text-gray-800">Line Master</h1>
+        <div className="flex items-center">
+          <button
+            onClick={() => {
+              setForm(true);
+              onNew();
+            }}
+            className="hover:bg-indigo-500  hover:text-white  text-xs
+            px-3 py-1 border border-indigo-600 text-indigo-600 button rounded shadow-md"
+          >
+            +Add New Line
+          </button>
+          </div>
             </div>
             <div className='w-full flex items-start'>
                 <Mastertable

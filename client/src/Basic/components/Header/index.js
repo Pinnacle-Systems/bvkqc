@@ -142,10 +142,10 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
 
   const masterButtons = [
     { icon: <Building size={18} />, name: "Company", tooltip: "Company Master", onClick: () => dispatch(push({ name: "COMPANY MASTER" })) },
-    { icon: <GitBranch size={18} />, name: "Branch", tooltip: "Employee Category", onClick: () => dispatch(push({ name: "EMPLOYEE CATEGORY MASTER" })) },
+    { icon: <Award size={18} />, name: "Branch", tooltip: "Employee Designation", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
     { icon: <User size={18} />, name: "Employee", tooltip: "Employee Master", onClick: () => dispatch(push({ name: "EMPLOYEE MASTER" })) },
     { icon: <Network size={18} />, name: "Department", tooltip: "Department Master", onClick: () => dispatch(push({ name: "DEPARTMENT MASTER" })) },
-    { icon: <Award size={18} />, name: "Designation", tooltip: "Designation Master", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
+    // { icon: <Award size={18} />, name: "Designation", tooltip: "Designation Master", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
     { icon: <Sliders size={18} />, name: "Line", tooltip: "Line Master", onClick: () => dispatch(push({ name: "LINE MASTER" })) },
     { icon: <ShoppingBag size={18} />, name: "Buyer", tooltip: "Buyer Master", onClick: () => dispatch(push({ name: "PARTY MASTER" })) },
   ];

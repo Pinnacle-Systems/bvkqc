@@ -49,7 +49,7 @@ const ActiveTabList = () => {
     "STATE MASTER": <StateMaster />,
     "CITY MASTER": <CityMaster />,
     "DEPARTMENT MASTER": <DepartmentMaster />,
-    "EMPLOYEE CATEGORY MASTER": <EmployeeCategoryMaster />,
+    "DESIGNATION MASTER": <EmployeeCategoryMaster />,
     "FIN YEAR MASTER": <FinYearMaster />,
     "USERS & ROLES": <UserAndRolesMaster />,
     "ROLE": <Role />,

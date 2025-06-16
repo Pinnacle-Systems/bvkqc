@@ -196,7 +196,7 @@ export default function Form() {
         setImage(null);
         setEmployeeCategory("");
         setPermanent("");
-        setActive(false);
+        setActive(true);
         setLeavingDate("");
         setLeavingReason("");
         setCanRejoin(false);
@@ -352,6 +352,27 @@ export default function Form() {
       }
     }
   };
+  const saveDataandExit = async (exitAfterSave = false) => {
+   
+      if (!window.confirm("Are you sure save the details ...?")) return;
+  
+      try {
+        if (id) {
+          await handleSubmitCustom(updateData, data, "Updated");
+        } else {
+          await handleSubmitCustom(addData, data, "Added");
+        }
+        if (!exitAfterSave) {
+          onNew();  
+        } else {
+          setForm(false); 
+          setId("");
+        }
+      } catch (error) {
+        console.error("Save failed:", error);
+      }
+    };
+
   const deleteData = async () => {
     if (id) {
       if (!window.confirm("Are you sure to delete...?")) {
@@ -468,19 +489,7 @@ export default function Form() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const handleNext = () => {
-    if (validateStep()) {
-      setStep(step + 1);
-    }
-  };
-  const handlePrevious = () => {
-    setStep(step - 1);
-  };
-  const handleTabClick = (tabNumber) => {
-    if (tabNumber < step || validateStep()) {
-      setStep(tabNumber);
-    }
-  };
+ 
   console.log(data,"data")
   return (
     <div onKeyDown={handleKeyDown} className="p-1 ">
@@ -548,7 +557,7 @@ export default function Form() {
                 <div
                   key={index}
                   onClick={() => onDataClick(employee.id)}
-                  className={`border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer ${
+                  className={`border rounded-lg text-bold overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer ${
                     employee?.active ? "border-green-200" : "border-red-200"
                   }`}
                 >
@@ -630,7 +639,7 @@ export default function Form() {
             {id ? (!readOnly?"Edit Employee": "Employee Master") : "Add New Employee"}
           </h2>
           {regNo && (
-            <span className={`px-2 py-0.5 text-xs rounded-full ${active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+            <span className={`px-2 py-0.5 text-xs text-bold rounded-full ${active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
               {regNo}
             </span>
           )}
@@ -652,17 +661,30 @@ export default function Form() {
           )}
         </div>
         <div className="flex gap-2">
-          {!readOnly && (
-            <button
-              type="button"
-              onClick={saveData}
-              className="px-3 py-1 hover:bg-green-600 hover:text-white rounded text-green-600 
-              border border-green-600 flex items-center gap-1 text-xs"
-            >
-              <Check size={14} />
-              {id ? "Update" : "Save"}
-            </button>
-          )}
+      {!readOnly && (
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={saveData}
+      className="px-3 py-1 hover:bg-green-600 hover:text-white rounded text-green-600 
+      border border-green-600 flex items-center gap-1 text-xs"
+    >
+      <Check size={14} />
+      {id ? "Update And Add" : "Save And Add"}
+    </button>
+
+    <button
+      type="button"
+      onClick={saveDataandExit}
+      className="px-3 py-1 hover:bg-green-600 hover:text-white rounded text-green-600 
+      border border-green-600 flex items-center gap-1 text-xs"
+    >
+      <Check size={14} />
+      {id ? "Update & Exit" : "Save & Exit"}
+    </button>
+  </div>
+)}
+
         </div>
       </div>
       </div>
@@ -807,16 +829,6 @@ export default function Form() {
                   {errors.department && <span className="text-red-500 text-xs ml-1">{errors.department}</span>}
                 </div>
 
-                <div>
-                  <TextInput
-                    name="Chamber no"
-                    value={chamberNo}
-                    setValue={setChamberNo}
-                    readOnly={readOnly}
-                    required={isCurrentEmployeeDoctor(employeeCategory)}
-                    disabled={childRecord.current > 0}
-                  />
-                </div>
 
                 <div className="">
                   <DateInput
@@ -934,20 +946,23 @@ export default function Form() {
               <h3 className="font-medium text-gray-800 mb-2 text-sm">Contact Information</h3>
               <div className="space-y-2">
               <div className="flex flex-wrap">
-  <div className="w-full md:w-1/2">
-    <TextInput
-      name="Mobile No"
-      type="number"
-      value={mobile}
-      setValue={setMobile}
-      required={true}
-      readOnly={readOnly}
-      disabled={childRecord.current > 0}
-    />
-    {errors.mobile && <span className="text-red-500 text-xs ml-1">{errors.mobile}</span>}
-  </div>
-
-  <div className="w-full md:w-1/2">
+ <div className="grid grid-cols-3 gap-2 items-start">
+  <TextInput
+    name="Mobile No"
+    type="number"
+    value={mobile}
+    width="w-24" // Tailwind class to reduce width
+    setValue={setMobile}
+    required={true}
+    readOnly={readOnly}
+    disabled={childRecord.current > 0}
+  />
+  {errors.mobile && (
+    <span className="text-red-500 text-xs ml-1 col-span-2">
+      {errors.mobile}
+    </span>
+  )}
+  <div className="col-span-2">
     <TextInput
       name="Email Id"
       type="email"
@@ -958,6 +973,10 @@ export default function Form() {
     />
     {errors.email && <span className="text-red-500 text-xs ml-1">{errors.email}</span>}
   </div>
+</div>
+
+
+  
 </div>
 
                 <TextArea

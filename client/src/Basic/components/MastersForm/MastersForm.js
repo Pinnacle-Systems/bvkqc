@@ -1,14 +1,13 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
-  NewButton,
   SaveButton,
+  SaveExitButtonm,
   EditButton,
   DeleteButton,
   CloseButton,
-  PrintButtonOnly,
-  SearchButton,
-  OpenTable
+  SaveExitButton,
+ 
 } from "../../../UiComponents/Buttons/Buttons";
 import toast from "react-hot-toast";
 import secureLocalStorage from "react-secure-storage";
@@ -19,8 +18,7 @@ const MastersForm = ({
   setReadOnly,
   deleteData,
   onClose = null,
-  onSearch = null,
-  onNew,
+  setForm,
   childRecord = 0,
   onPrint = null,
   openReport = null,
@@ -110,20 +108,31 @@ return (
         {children}
       </div>
 
-      <div className="flex justify-between items-center mt-auto pt-4 border-t  border-gray-200">
+      <div className="flex gap-3 justify-end items-center mt-auto pt-4 border-t  border-gray-200">
         <CloseButton
           onClick={() => {
             onClose();
             emptyErrors();
           }}
         />
-        {!readOnly ? (
-          <SaveButton
-            onClick={() => {
-              hasPermission(saveData, "edit");
-            }}
-          />
-        ) : (
+        {!readOnly ? <>
+  <SaveButton
+    onClick={() => {
+      if (hasPermission(saveData, "edit")) {
+        saveData();
+      }
+    }}
+  />
+  <SaveExitButton
+    onClick={() => {
+      if (hasPermission(() => saveData(true), "edit"))  {
+        saveData(); 
+        setForm(false)
+      }
+    }}
+  />
+</>
+ : (
           <div className="flex space-x-3">
             <DeleteButton
               onClick={() => {

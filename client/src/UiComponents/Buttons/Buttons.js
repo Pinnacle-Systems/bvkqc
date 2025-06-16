@@ -54,7 +54,7 @@ export const GenerateButton = ({ onClick, hidden, name = "Generate" }) => {
 export const Delete = ({ onClick }) => {
   return (
     <button
-      className="text-red-500 px-3 py-1.5 rounded focus:outline-none focus:shadow-outline"
+      className="text-red-500 px-3 py-1 rounded focus:outline-none focus:shadow-outline"
       onClick={() => onClick()}
     >
       {<FontAwesomeIcon icon={faTrashCan} />}
@@ -81,7 +81,7 @@ export const EditButton = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 hover:bg-blue-600 hover:text-white text-[12px] border border-blue-600 text-blue-600 font-medium px-3 py-1.5 rounded-md transition duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+      className="flex items-center gap-2 hover:bg-blue-600 hover:text-white text-xs border border-blue-600 text-blue-600 font-medium px-3 py-1 rounded-md transition duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
     >
       <FontAwesomeIcon icon={faEdit} />
       Edit
@@ -117,10 +117,35 @@ export const SaveButton = ({ onClick }) => {
     <button
       onClick={handleClick}
       disabled={isDisabled}
-      className={`flex items-center gap-2 hover:bg-green-600   hover:text-white text-[12px] border border-green-600 text-green-600 font-medium px-3 py-1.5 rounded-md transition duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`flex items-center gap-2 hover:bg-green-600 
+        hover:text-white text-xs border border-green-600 text-green-600 font-medium px-3 py-1 rounded-md transition duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       <FontAwesomeIcon icon={faSave} />
-      Save
+      Save And Add
+    </button>
+  );
+};
+export const SaveExitButton = ({ onClick }) => {
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const handleClick = () => {
+    if (isDisabled) return;
+    onClick();
+    setIsDisabled(true);
+    setTimeout(() => {
+      setIsDisabled(false);
+    }, 5000);
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={isDisabled}
+      className={`flex items-center gap-2 hover:bg-green-600 
+        hover:text-white text-xs border border-green-600 text-green-600 font-medium px-3 py-1 rounded-md transition duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+      <FontAwesomeIcon icon={faSave} />
+      Save And Close
     </button>
   );
 };
@@ -128,7 +153,7 @@ export const CloseButton = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-red-600 border border-red-600 text-red-600   hover:text-white rounded transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+      className="flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-red-600 border border-red-600 text-red-600   hover:text-white rounded transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
     >
       <FontAwesomeIcon icon={faClose} />
       Cancel
@@ -153,7 +178,7 @@ export const DeleteButton = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 hover:bg-red-600 hover:text-white text-[12px] border border-red-600 text-red-600 font-medium px-3 py-1.5 rounded-md transition duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+      className="flex items-center gap-2 hover:bg-red-600 hover:text-white text-xs border border-red-600 text-red-600 font-medium px-3 py-1 rounded-md transition duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"
     >
       <FontAwesomeIcon icon={faTrashCan} />
       Delete
@@ -165,7 +190,7 @@ export const DeleteButton = ({ onClick }) => {
 export const CloseButtonOnly = ({ onClick }) => {
   return (
     <button
-      className="text-black px-3 py-1.5 rounded focus:outline-none focus:shadow-outline"
+      className="text-black px-3 py-1 rounded focus:outline-none focus:shadow-outline"
       onClick={() => onClick()}
     >
       {<FontAwesomeIcon icon={faClose} />}
@@ -176,7 +201,7 @@ export const CloseButtonOnly = ({ onClick }) => {
 export const PrintButtonOnly = ({ onClick }) => {
   return (
     <button
-      className="text-pink-500 px-3 py-1.5 rounded focus:outline-none focus:shadow-outline"
+      className="text-pink-500 px-3 py-1 rounded focus:outline-none focus:shadow-outline"
       onClick={() => onClick()}
     >
       {<FontAwesomeIcon icon={faPrint} />} Print

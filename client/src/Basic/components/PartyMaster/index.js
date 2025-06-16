@@ -482,7 +482,7 @@ export default function Form({ partyId, onCloseForm }) {
 
   const tableHeaders = [
     "S.NO",
-    "Name",
+    "Party Name",
     "Alias Name",
     " ",
     " ",
@@ -512,16 +512,7 @@ export default function Form({ partyId, onCloseForm }) {
     " ",
     " ",
   ];
-
-
   const [step, setStep] = useState(1);
-
-
-  const openKYCInNewTab = () => {
-    window.open("/kyc-form", "_blank");
-  };
-
-
   useEffect(() => {
     if (!partyId) return
     if (partyId == "new") {
