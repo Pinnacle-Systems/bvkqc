@@ -53,8 +53,7 @@ async function getSearch(req) {
 
 async function create(body) {
     const { name, code,companyId } = await body
-  
-
+    console.log(companyId,"companyId")
     const data = await prisma.employeeCategory.create({
         data: {
             name, code,

@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   SaveButton,
-  SaveExitButtonm,
   EditButton,
   DeleteButton,
   CloseButton,
   SaveExitButton,
+  PartialSaveButton,
  
 } from "../../../UiComponents/Buttons/Buttons";
 import toast from "react-hot-toast";
@@ -20,14 +20,12 @@ const MastersForm = ({
   onClose = null,
   setForm,
   childRecord = 0,
-  onPrint = null,
-  openReport = null,
   childRecordValidationActions = ["edit", "delete"],
   children,
   readOnly,
   emptyErrors,
-  newForm,
-  step
+  partialSave,
+  
 }) => {
 
 
@@ -116,6 +114,8 @@ return (
           }}
         />
         {!readOnly ? <>
+       <PartialSaveButton onClick={partialSave} />
+
   <SaveButton
     onClick={() => {
       if (hasPermission(saveData, "edit")) {

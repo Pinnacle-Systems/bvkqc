@@ -101,6 +101,34 @@ export const EditButtonOnly = ({ onClick }) => {
   );
 };
 
+export const PartialSaveButton = ({ onClick }) => {
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const handleClick = () => {
+    if (isDisabled) return;
+
+    if (typeof onClick === "function") {
+      onClick();
+      setIsDisabled(true);
+      setTimeout(() => setIsDisabled(false), 5000);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={isDisabled}
+      className={`flex items-center gap-2 hover:bg-yellow-500 
+        hover:text-white text-xs border border-yellow-500 text-yellow-600 
+        font-medium px-3 py-1 rounded-md transition duration-200 shadow-sm 
+        focus:outline-none focus:ring-2 focus:ring-yellow-400 
+        disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+      <FontAwesomeIcon icon={faSave} />
+      Partial Save
+    </button>
+  );
+};
 export const SaveButton = ({ onClick }) => {
   const [isDisabled, setIsDisabled] = useState(false);
 

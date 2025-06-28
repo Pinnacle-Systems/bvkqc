@@ -694,6 +694,9 @@ CREATE TABLE `LineMaster` (
     `sewingMachineQty` VARCHAR(191) NULL,
     `helperQty` VARCHAR(191) NULL,
     `OperationQty` VARCHAR(191) NULL,
+    `active` BOOLEAN NOT NULL DEFAULT false,
+    `companyId` INTEGER NULL,
+    `empId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -919,3 +922,9 @@ ALTER TABLE `MailTransaction` ADD CONSTRAINT `MailTransaction_userId_fkey` FOREI
 
 -- AddForeignKey
 ALTER TABLE `MailTransAttachments` ADD CONSTRAINT `MailTransAttachments_mailTransactionId_fkey` FOREIGN KEY (`mailTransactionId`) REFERENCES `MailTransaction`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LineMaster` ADD CONSTRAINT `LineMaster_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LineMaster` ADD CONSTRAINT `LineMaster_empId_fkey` FOREIGN KEY (`empId`) REFERENCES `Employee`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

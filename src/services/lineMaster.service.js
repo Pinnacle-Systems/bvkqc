@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { NoRecordFound } from '../configs/Responses.js';
+import { PrismaClient } from "@prisma/client";
+import { NoRecordFound } from "../configs/Responses.js";
 
 const prisma = new PrismaClient();
 
@@ -7,11 +7,11 @@ async function get(req) {
   const { companyId } = req.query;
   const data = await prisma.lineMaster.findMany({
     where: {
-      companyId: companyId ? parseInt(companyId) : undefined
+      companyId: companyId ? parseInt(companyId) : undefined,
     },
     include: {
-      Company: true
-    }
+      Company: true,
+    },
   });
   return { statusCode: 0, data };
 }
@@ -19,11 +19,11 @@ async function get(req) {
 async function getOne(id) {
   const data = await prisma.lineMaster.findUnique({
     where: {
-      id: parseInt(id)
+      id: parseInt(id),
     },
     include: {
-      Company: true
-    }
+      Company: true,
+    },
   });
   if (!data) return NoRecordFound("Line Master");
   return { statusCode: 0, data };
@@ -40,16 +40,16 @@ async function getSearch(req) {
         {
           lineNo: {
             contains: searchKey,
-            mode: 'insensitive'
-          }
+            mode: "insensitive",
+          },
         },
         {
           lineName: {
             contains: searchKey,
-            mode: 'insensitive'
-          }
-        }
-      ]
+            mode: "insensitive",
+          },
+        },
+      ],
     },
     select: {
       id: true,
@@ -60,39 +60,46 @@ async function getSearch(req) {
       OperationQty: true,
       Company: {
         select: {
-          name: true
-        }
-      }
-    }
+          name: true,
+        },
+      },
+    },
   });
 
   return { statusCode: 0, data };
 }
-
 async function create(body) {
   const {
     lineNo,
     lineName,
     sewingMachineQty,
+    empId,
     helperQty,
     operatorQty,
-    companyId,active
+    companyId,
+    active
   } = body;
- console.log(active,"active")
+
   const data = await prisma.lineMaster.create({
     data: {
       lineNo,
       lineName,
       sewingMachineQty,
       helperQty,
-      OperationQty:operatorQty,
-      companyId: companyId ? parseInt(companyId) : undefined,
-      active
+      OperationQty: operatorQty,
+      active,
+      Company: companyId
+        ? { connect: { id: parseInt(companyId) } }
+        : undefined,
+      Employee: empId
+        ? { connect: { id: parseInt(empId) } }
+        : undefined
     }
   });
 
   return { statusCode: 0, data };
 }
+
 
 async function update(id, body) {
   const {
@@ -102,30 +109,28 @@ async function update(id, body) {
     helperQty,
     operatorQty,
     companyId,
-    active
+    empId,
+    active,
   } = body;
-console.log(operatorQty,"operatorQty")
+
   const dataFound = await prisma.lineMaster.findUnique({
-    where: {
-      id: parseInt(id)
-    }
+    where: { id: parseInt(id) },
   });
 
   if (!dataFound) return NoRecordFound("Line Master");
 
   const data = await prisma.lineMaster.update({
-    where: {
-      id: parseInt(id)
-    },
+    where: { id: parseInt(id) },
     data: {
       lineNo,
       lineName,
       sewingMachineQty,
       helperQty,
+      OperationQty: operatorQty,
       active,
-      OperationQty:operatorQty,
-      companyId: companyId ? parseInt(companyId) : undefined
-    }
+      Company: companyId ? { connect: { id: parseInt(companyId) } } : undefined,
+      Employee: empId ? { connect: { id: parseInt(empId) } } : undefined,
+    },
   });
 
   return { statusCode: 0, data };
@@ -134,18 +139,11 @@ console.log(operatorQty,"operatorQty")
 async function remove(id) {
   const data = await prisma.lineMaster.delete({
     where: {
-      id: parseInt(id)
-    }
+      id: parseInt(id),
+    },
   });
 
   return { statusCode: 0, data };
 }
 
-export {
-  get,
-  getOne,
-  getSearch,
-  create,
-  update,
-  remove
-};
+export { get, getOne, getSearch, create, update, remove };
