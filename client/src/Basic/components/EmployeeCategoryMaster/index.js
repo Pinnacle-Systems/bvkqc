@@ -46,14 +46,14 @@ export default function Form() {
       sessionStorage.getItem("sessionId") + "currentBranchId"
     ),
   };
-  console.log(params.companyId,"companyId")
+  console.log(params.companyId, "companyId");
   // Existing queries and mutations
   const {
     data: allData,
     isLoading,
     isFetching,
   } = useGetEmployeeCategoryQuery({ params, searchParams: searchValue });
-  
+
   const {
     data: singleData,
     isFetching: isSingleFetching,
@@ -73,14 +73,14 @@ export default function Form() {
     };
 
     if (partialId) {
-      setPartialSaves(prev => 
-        prev.map(item => 
+      setPartialSaves((prev) =>
+        prev.map((item) =>
           item.id === partialId ? { ...partialData, id: partialId } : item
         )
       );
     } else {
       const newId = Date.now().toString();
-      setPartialSaves(prev => [...prev, { ...partialData, id: newId }]);
+      setPartialSaves((prev) => [...prev, { ...partialData, id: newId }]);
       setPartialId(newId);
     }
 
@@ -97,7 +97,7 @@ export default function Form() {
   };
 
   const deletePartialSave = (idToDelete) => {
-    setPartialSaves(prev => prev.filter(item => item.id !== idToDelete));
+    setPartialSaves((prev) => prev.filter((item) => item.id !== idToDelete));
     if (idToDelete === partialId) {
       setPartialId(null);
     }
@@ -114,7 +114,7 @@ export default function Form() {
         setReadOnly(true);
         setName(data?.name || "");
         setCode(data?.code || "");
-        setActive(id ? data?.active: true);
+        setActive(id ? data?.active : true);
       }
     },
     [id]
@@ -143,12 +143,12 @@ export default function Form() {
     try {
       let returnData = await callback(data).unwrap();
       onNew();
-      
+
       if (partialId) {
         deletePartialSave(partialId);
         setPartialId(null);
       }
-      
+
       toast.success(text + "Successfully");
     } catch (error) {
       console.log("handle");
@@ -169,9 +169,9 @@ export default function Form() {
         await handleSubmitCustom(addData, data, "Added");
       }
       if (!exitAfterSave) {
-        onNew();  
+        onNew();
       } else {
-        setForm(false); 
+        setForm(false);
         setId("");
       }
     } catch (error) {
@@ -228,49 +228,73 @@ export default function Form() {
       onClose={() => setPartialReportOpen(false)}
     >
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-4">Partially Saved Designs</h2>
+        <h2 className="text-lg font-semibold mb-3">Partially Saved</h2>
         {partialSaves.length === 0 ? (
-          <p>No partially saved designs found</p>
+          <p className="text-gray-600 text-sm">
+            No partially saved
+          </p>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Saved</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {partialSaves.map((save) => (
-                <tr key={save.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{save.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{save.code}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {save.active ? "Active" : "Inactive"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {new Date(save.timestamp).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={() => loadPartialSave(save)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-3"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deletePartialSave(save.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Code
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date Saved
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {partialSaves.map((save) => (
+                  <tr key={save.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm">{save.name}</td>
+                    <td className="px-4 py-3 text-sm font-mono text-gray-600">
+                      {save.code}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          save.active
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {save.active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500">
+                      {new Date(save.timestamp).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-sm space-x-2">
+                      <button
+                        onClick={() => loadPartialSave(save)}
+                        className="text-indigo-600 hover:text-indigo-800 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deletePartialSave(save.id)}
+                        className="text-red-600 hover:text-red-800 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </Modal>
@@ -293,7 +317,7 @@ export default function Form() {
     " ",
     " ",
   ];
-  
+
   const tableDataNames = [
     "index+1",
     "dataObj.code",
@@ -311,11 +335,13 @@ export default function Form() {
     " ",
     " ",
   ];
-  
+
   return (
     <div onKeyDown={handleKeyDown}>
       <div className="w-full flex justify-between mb-2 my-2 py-1 bg-white mx-1 px-1 items-center px-0.5">
-        <h1 className="text-2xl font-bold text-gray-800">Employee Designation Master</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          Employee Designation Master
+        </h1>
         <div className="flex items-center">
           <button
             onClick={() => setPartialReportOpen(true)}
@@ -377,8 +403,8 @@ export default function Form() {
                 deleteData={deleteData}
                 readOnly={readOnly}
                 emptyErrors={() => setErrors({})}
-                partialSave={handlePartialSave} 
-                partialId={partialId} 
+                partialSave={handlePartialSave}
+                partialId={partialId}
               >
                 <fieldset className="rounded border border-gray-300 p-4 mt-4 shadow-sm bg-white">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
