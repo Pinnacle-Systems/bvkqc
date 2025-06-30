@@ -5,16 +5,16 @@ const CommonTable = ({
   columns,
   data,
   itemsPerPage = 10,
- onDataClick,
+  onDataClick,
   emptyStateMessage = 'No data available',
   rowActions = true,
   loading = false,
-  loadingText = 'Loading data...' ,
+  loadingText = 'Loading data...',
   setReadOnly,
   deleteData
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   // Handle undefined/null data
   const safeData = data || [];
   const totalPages = Math.ceil(safeData.length / itemsPerPage);
@@ -27,7 +27,7 @@ const CommonTable = ({
       setCurrentPage(newPage);
     }
   };
-  
+
 
   const Pagination = () => {
     if (totalPages <= 1 || loading) return null;
@@ -41,15 +41,14 @@ const CommonTable = ({
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === 1 
+            className={`px-3 py-1 rounded-md ${currentPage === 1
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <FaChevronLeft className="inline" />
           </button>
-          
+
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
             let pageNum;
             if (totalPages <= 5) {
@@ -66,42 +65,39 @@ const CommonTable = ({
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === pageNum
+                className={`px-3 py-1 rounded-md ${currentPage === pageNum
                     ? 'bg-indigo-800 text-white'
                     : 'bg-white text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {pageNum}
               </button>
             );
           })}
-          
+
           {totalPages > 5 && currentPage < totalPages - 2 && (
             <span className="px-3 py-1">...</span>
           )}
-          
+
           {totalPages > 5 && currentPage < totalPages - 2 && (
             <button
               onClick={() => handlePageChange(totalPages)}
-              className={`px-3 py-1 rounded-md ${
-                currentPage === totalPages
+              className={`px-3 py-1 rounded-md ${currentPage === totalPages
                   ? 'bg-indigo-800 text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-100'
-              }`}
+                }`}
             >
               {totalPages}
             </button>
           )}
-          
+
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === totalPages
+            className={`px-3 py-1 rounded-md ${currentPage === totalPages
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <FaChevronRight className="inline" />
           </button>
@@ -109,7 +105,7 @@ const CommonTable = ({
       </div>
     );
   };
-   console.log(columns,"coloumns")
+  console.log(columns, "coloumns")
   const colSpanCount = columns?.length + (rowActions ? 1 : 0);
 
   return (
@@ -117,58 +113,61 @@ const CommonTable = ({
       <table className="w-full border-collapse">
         <thead className="bg-gray-200 text-gray-800">
           <tr>
+            {/* Add S.No header */}
+            <th className="px-4 py-2 text-left font-medium text-[13px] border-r border-white/50">S.No</th>
+
             {columns?.map((column, index) => (
-              <th 
+              <th
                 key={index}
                 className={`px-4 py-2 text-left font-medium ${index < columns?.length - 1 ? 'border-r border-white/50' : ''} text-[13px]`}
               >
                 {column.header}
               </th>
             ))}
+
             {rowActions && (
               <th className="px-4 py-2 text-left font-medium text-[13px]">Actions</th>
             )}
           </tr>
         </thead>
-     <tbody>
-  {loading ? (
-    // Loading state
-    <tr>
-      <td colSpan={colSpanCount} className="text-center py-8">
-        <div className="flex flex-col items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-800 mb-2"></div>
-          <span className="text-gray-600 text-sm">{loadingText}</span>
-        </div>
-      </td>
-    </tr>
-  ) : currentItems.length === 0 ? (
-    // Empty state
-    <tr>
-      <td colSpan={colSpanCount} className="px-4 py-4 text-center text-gray-500">
-        {emptyStateMessage}
-      </td>
-    </tr>
-  ) : (
-    // Data rows
-    currentItems.map((item, index) => (
-      <tr
-        key={item.id}
-        className={`hover:bg-gray-50 transition-colors border-b border-gray-200 text-[12px] ${
-          index % 2 === 0 ? "bg-white" : "bg-gray-100"
-        }`}
-      >
-        {columns?.map((column, colIndex) => (
-          <td
-            key={colIndex}
-            className={`px-4 py-1 ${colIndex < columns.length - 1 ? 'border-r border-gray-200' : ''} h-8 ${
-              column.cellClass ? column.cellClass(item) : ''
-            }`}
-          >
-            {column.accessor(item)}
-          </td>
-        ))}
 
-        {rowActions && (
+        <tbody>
+          {loading ? (
+            <tr>
+              <td colSpan={colSpanCount} className="text-center py-8">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-800 mb-2"></div>
+                  <span className="text-gray-600 text-sm">{loadingText}</span>
+                </div>
+              </td>
+            </tr>
+          ) : currentItems.length === 0 ? (
+            <tr>
+              <td colSpan={colSpanCount} className="px-4 py-4 text-center text-gray-500">
+                {emptyStateMessage}
+              </td>
+            </tr>
+          ) : (
+            currentItems.map((item, index) => (
+              <tr
+                key={item.id}
+                className={`hover:bg-gray-50 transition-colors border-b border-gray-200 text-[12px] ${index % 2 === 0 ? "bg-white" : "bg-gray-100"
+                  }`}
+              >
+                {/* Add S.No cell */}
+                <td className="px-4 py-1 border-r border-gray-200 h-8">{index + 1}</td>
+
+                {columns?.map((column, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className={`px-4 py-1 ${colIndex < columns.length - 1 ? 'border-r border-gray-200' : ''} h-8 ${column.cellClass ? column.cellClass(item) : ''
+                      }`}
+                  >
+                    {column.accessor(item)}
+                  </td>
+                ))}
+
+                  {rowActions && (
           <td className="px-2 py-1 w-[40px] border-gray-200 border-l h-8">
             <div className="flex gap-2">
               {/* View */}
@@ -216,12 +215,12 @@ const CommonTable = ({
             </div>
           </td>
         )}
-      </tr>
-    ))
-  )}
-</tbody>
-
+              </tr>
+            ))
+          )}
+        </tbody>
       </table>
+
       <Pagination />
     </div>
   );

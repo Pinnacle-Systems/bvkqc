@@ -215,7 +215,7 @@ export default function Form() {
                 <h1 className="text-2xl font-bold text-gray-800">Line Master</h1>
                 <button
                     onClick={onNew}
-                    className="hover:bg-indigo-600  px-4 py-1 border border-indigo-600 text-indigo-600 hover:text-white rounded-md shadow hover:bg-indigo-700"
+                    className="hover:bg-indigo-600 text-[12px]  px-4 py-1 border border-indigo-600 text-indigo-600 hover:text-white rounded-md shadow hover:bg-indigo-700"
                 >
                     + Add New Line
                 </button>
