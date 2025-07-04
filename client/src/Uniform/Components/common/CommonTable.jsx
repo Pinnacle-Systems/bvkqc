@@ -113,7 +113,6 @@ const CommonTable = ({
       <table className="w-full border-collapse">
         <thead className="bg-gray-200 text-gray-800">
           <tr>
-            {/* Add S.No header */}
             <th className="px-4 py-2 text-left font-medium text-[13px] border-r border-white/50">S.No</th>
 
             {columns?.map((column, index) => (

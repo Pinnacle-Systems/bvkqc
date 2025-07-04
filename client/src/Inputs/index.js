@@ -991,9 +991,8 @@ export const ToggleButton = ({
   return (
     <div>
       <div className="">
-        {/* <label className={`md:text-start flex`}>{required ? <RequiredLabel name={name} /> : `${name}`}</label> */}
         <div className="flex items-center">
-          <label className="relative inline-flex items-center cursor-pointer">
+          <label className="relative inline-flex items-center bg-gray-200 rounded-xl cursor-pointer">
             <input
               type="checkbox"
               className="sr-only peer"
@@ -1006,7 +1005,7 @@ export const ToggleButton = ({
               }}
               required
             />
-            <div className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 peer transition duration-300"></div>
+            <div className="w-12 h-6 rounded-full peer-checked:bg-green-500 peer transition duration-300"></div>
             <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full peer-checked:translate-x-6 transition-transform duration-300 shadow-sm"></div>
           </label>
 

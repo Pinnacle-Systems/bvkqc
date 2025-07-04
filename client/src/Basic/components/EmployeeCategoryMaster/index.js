@@ -354,8 +354,7 @@ export default function Form() {
               setForm(true);
               onNew();
             }}
-            className="hover:bg-indigo-500  hover:text-white  text-xs
-            px-3 py-1 border border-indigo-600 text-indigo-600 button rounded shadow-md"
+            className="hover:bg-indigo-500 bg-white hover:text-white text-xs px-3 py-1 border border-indigo-600 text-indigo-600 rounded shadow-md"
           >
             +Add New Designation
           </button>

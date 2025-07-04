@@ -201,24 +201,33 @@ export default function Form() {
                 <div className='w-full flex justify-between mb-2 items-center px-0.5'>
                     <h5 className='my-1'>City Master</h5>
                     <div className='flex items-center'>
-                        <button onClick={() => { setForm(true); onNew() }} className='bg-green-500 text-white px-3 py-1 button rounded shadow-md'>+ New</button>
+                        <button onClick={() => { setForm(true); onNew() }} className='hover:bg-green-500 hover:text-white px-3 py-1 border border-green-600 text-green-600 text-xs rounded shadow-md'>+ Add New City</button>
                     </div>
                 </div>
                 <div className='w-full flex items-start'>
-                    <Mastertable
-                        header={'City list'}
-                        searchValue={searchValue}
-                        setSearchValue={setSearchValue}
-                        onDataClick={onDataClick}
-                        // setOpenTable={setOpenTable}
-                        tableHeaders={tableHeaders}
-                        tableDataNames={tableDataNames}
-                        data={allData?.data}
-                        loading={
-                            isLoading || isFetching
-                        } />
+                  <Mastertable
+          header={"Employee Designation list"}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          onDataClick={onDataClick}
+          tableHeaders={tableHeaders}
+          tableDataNames={tableDataNames}
+          data={allData?.data}
+          loading={isLoading || isFetching}
+          setReadOnly={setReadOnly}
+          deleteData={deleteData}
+        />
                     <div>
-                        {form === true && <Modal isOpen={form} form={form} widthClass={"w-[40%] h-[40%]"} onClose={() => { setForm(false); setErrors({}); }}>
+                        {form === true && 
+                         <Modal
+                                  isOpen={form}
+                                  form={form}
+                                  widthClass={"w-[40%]  h-[45%]"}
+                                  onClose={() => {
+                                    setForm(false);
+                                    setErrors({});
+                                  }}
+                                >
                             <MastersForm
                                 onNew={onNew}
                                 onClose={() => {
@@ -235,30 +244,29 @@ export default function Form() {
                                 emptyErrors={() => setErrors({})}
                             >
          
-                                <fieldset className=' rounded mt-2'>
+                                <fieldset className=' rounded mt-2 '>
 
                                     <div className=''>
                                         <div className="flex flex-wrap w-full ">
                                             <div className="mb-3 w-[48%]">
                                                 <TextInput name="City Name" type="text" value={name} setValue={setName} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
-                                            <div className="mb-3 w-[20%] ml-6">
-                                                <TextInput name="Code" width={"w-[70px]"} type="text" value={code} setValue={setCode} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
+                                          <div className="mb-3 w-[48%]">
+                                                <DropdownInput name="State" options={dropDownListObject(id ? stateList?.data : stateList?.data?.filter(item => item.active), "name", "id")} value={state} setValue={setState} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap w-full justify-between">
-                                            <div className="mb-3 w-[48%]">
-                                                <DropdownInput name="State" options={dropDownListObject(id ? stateList?.data : stateList?.data?.filter(item => item.active), "name", "id")} value={state} setValue={setState} required={true} readOnly={readOnly} disabled={(childRecord.current > 0)} />
-                                            </div>
+                                           
                                             <div className="mb-3 w-[48%]">
                                                 <DisabledInput name="Country" width={"w-[150px]"} type="text" value={countryFromState()} disabled={(childRecord.current > 0)} />
+                                            </div>
+                                              <div className="mb-3">
+                                                <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
                                             </div>
                                         </div>
 
                                         <div >
-                                            <div className="mb-3">
-                                                <ToggleButton name="Status" options={statusDropdown} value={active} setActive={setActive} required={true} readOnly={readOnly} />
-                                            </div>
+                                          
                                             {/* <CheckBox name="Active" readOnly={readOnly} value={active} setValue={setActive} /> */}
                                         </div>
                                     </div>

@@ -14,7 +14,7 @@ import { getCommonParams } from "../../../Utils/helper";
 import { useDispatch } from "react-redux";
 import { useGetBranchByIdQuery } from "../../../redux/services/BranchMasterService";
 import useLogout from "../../../CustomHooks/useLogout";
-import { Building, GitBranch, User, Award, Sliders, ShoppingBag, Network } from 'lucide-react'; 
+import { Building, GitBranch,Map, User, Award, Sliders, ShoppingBag, Network,Globe, MapPin  } from 'lucide-react'; 
 import { push } from "../../../redux/features/opentabs";
 
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
@@ -142,12 +142,16 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
 
   const masterButtons = [
     { icon: <Building size={18} />, name: "Company", tooltip: "Company Master", onClick: () => dispatch(push({ name: "COMPANY MASTER" })) },
+   
     { icon: <Award size={18} />, name: "Branch", tooltip: "Employee Designation", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
     { icon: <User size={18} />, name: "Employee", tooltip: "Employee Master", onClick: () => dispatch(push({ name: "EMPLOYEE MASTER" })) },
     { icon: <Network size={18} />, name: "Department", tooltip: "Department Master", onClick: () => dispatch(push({ name: "DEPARTMENT MASTER" })) },
-    // { icon: <Award size={18} />, name: "Designation", tooltip: "Designation Master", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
     { icon: <Sliders size={18} />, name: "Line", tooltip: "Line Master", onClick: () => dispatch(push({ name: "LINE MASTER" })) },
     { icon: <ShoppingBag size={18} />, name: "Buyer", tooltip: "Buyer Master", onClick: () => dispatch(push({ name: "PARTY MASTER" })) },
+     { icon: <Globe size={18} />, name: "Country", tooltip: "Country Master", onClick: () => dispatch(push({ name: "COUNTRY MASTER" })) },
+         { icon: <Map size={18} />, name: "State", tooltip: "State Master", onClick: () => dispatch(push({ name: "STATE MASTER" })) },
+
+    { icon: <MapPin size={18} />, name: "City", tooltip: "City Master", onClick: () => dispatch(push({ name: "CITY MASTER" })) },
   ];
 
   return (

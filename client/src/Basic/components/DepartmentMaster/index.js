@@ -204,7 +204,7 @@ export default function Form() {
               onNew();
             }}
             className="hover:bg-indigo-500  hover:text-white  text-xs
-            px-3 py-1 border border-indigo-600 text-indigo-600 button rounded shadow-md"
+            px-3 py-1 border border-indigo-600 text-indigo-600 rounded shadow-md"
           >
             +Add New Department
           </button>

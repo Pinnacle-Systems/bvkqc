@@ -114,7 +114,7 @@ return (
           }}
         />
         {!readOnly ? <>
-       <PartialSaveButton onClick={partialSave} />
+       {/* <PartialSaveButton onClick={partialSave} /> */}
 
   <SaveButton
     onClick={() => {
