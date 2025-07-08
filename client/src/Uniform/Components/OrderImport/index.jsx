@@ -1,42 +1,49 @@
 import React, { useState, useRef } from 'react';
 
-export default function PdfUploadReader() {
-  const [extractedTable, setExtractedTable] = useState('');
+export default function PdfImageExtractor() {
+  const [extractedImages, setExtractedImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
   const [warning, setWarning] = useState('');
   const [success, setSuccess] = useState(false);
+  const [pageCount, setPageCount] = useState(0);
+  const [imageCount, setImageCount] = useState(0);
+  const [totalSize, setTotalSize] = useState(0);
   const fileInputRef = useRef(null);
 
-  const extractMeasurementTable = async (file) => {
+  const extractImagesFromPDF = async (file) => {
     setIsLoading(true);
     setError('');
     setWarning('');
     setSuccess(false);
-    setExtractedTable('');
+    setExtractedImages([]);
+    setPageCount(0);
+    setImageCount(0);
+    setTotalSize(0);
     
     const formData = new FormData();
     formData.append('pdf', file);
-    formData.append('target_page', '7');  // Specify page 7
-    formData.append('content_type', 'table');  // Request table extraction
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/extract-content', {
+      const response = await fetch('http://127.0.0.1:5000/extract-images', {
         method: 'POST',
         body: formData,
       });
 
       const data = await response.json();
       if (response.ok) {
-        if (data.table_content) {
-          setExtractedTable(data.table_content);
-          setSuccess(true);
+        if (data.warning) {
+          setWarning(data.warning);
         } else {
-          setWarning('No measurement table found on page 7');
+          setExtractedImages(data.images || []);
+          setPageCount(data.page_count || 0);
+          setImageCount(data.image_count || 0);
+          setTotalSize(data.total_size_kb || 0);
+          setSuccess(true);
         }
       } else {
-        throw new Error(data.error || 'Failed to extract measurement table');
+        throw new Error(data.error || 'Failed to extract images from PDF');
       }
     } catch (error) {
       setError(error.message || 'An unexpected error occurred');
@@ -62,15 +69,18 @@ export default function PdfUploadReader() {
       setError('Please select a PDF file first');
       return;
     }
-    extractMeasurementTable(fileInputRef.current.files[0]);
+    extractImagesFromPDF(fileInputRef.current.files[0]);
   };
 
   const handleClear = () => {
     setFileName('');
-    setExtractedTable('');
+    setExtractedImages([]);
     setSuccess(false);
     setError('');
     setWarning('');
+    setPageCount(0);
+    setImageCount(0);
+    setTotalSize(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -78,11 +88,10 @@ export default function PdfUploadReader() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         {/* Header */}
         <div className="bg-blue-600 px-5 py-4">
-          <h1 className="text-lg font-bold text-white">Measurement Table Extractor</h1>
-          <p className="text-sm text-blue-100 mt-1">Extracts measurement tables from page 7 of PDFs</p>
+          <h1 className="text-lg font-bold text-white">PDF Image Extractor</h1>
         </div>
 
         {/* Main Content */}
@@ -129,9 +138,9 @@ export default function PdfUploadReader() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Extracting
+                      Extracting...
                     </>
-                  ) : 'Extract Table'}
+                  ) : 'Extract Images'}
                 </button>
                 
                 <button
@@ -178,7 +187,7 @@ export default function PdfUploadReader() {
           {isLoading && (
             <div className="mt-6 flex flex-col items-center justify-center py-4">
               <div className="w-12 h-12 rounded-full border-t-2 border-b-2 border-blue-600 animate-spin mb-3"></div>
-              <p className="text-sm text-gray-600">Extracting measurement table from page 7...</p>
+              <p className="text-sm text-gray-600">Extracting images from {fileName}</p>
             </div>
           )}
 
@@ -189,39 +198,58 @@ export default function PdfUploadReader() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className="text-sm font-semibold text-gray-800 mb-1">
-                      Measurement Table: <span className="text-blue-700">{fileName}</span>
+                      Results: <span className="text-blue-700">{fileName}</span>
                     </h2>
-                    <div className="text-xs text-gray-600 flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      Extracted from page 7
+                    <div className="flex gap-3 text-xs text-gray-600">
+                      <span className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+                      </span>
+                      <span className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {imageCount} {imageCount === 1 ? 'image' : 'images'}
+                      </span>
+                      <span className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                        </svg>
+                        {totalSize.toFixed(2)} KB total
+                      </span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(extractedTable);
-                      alert('Table copied to clipboard!');
-                    }}
-                    className="flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    Copy Table
-                  </button>
                 </div>
               </div>
 
-              {/* Extracted Table Display */}
-              <div className="bg-gray-50 border border-gray-200 rounded-md p-4 max-h-96 overflow-auto text-sm">
-                <pre className="text-gray-800 whitespace-pre-wrap break-words font-sans">
-                  {extractedTable || (
-                    <div className="text-center py-4 text-gray-500 text-sm">
-                      No table content found on page 7
+              {/* Images Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {extractedImages.map((image, index) => (
+                  <div key={index} className="border rounded-lg overflow-hidden shadow-sm bg-white">
+                    <div className="relative">
+                      <img 
+                        src={image.data} 
+                        alt={`Image from page ${image.page}`}
+                        className="w-full h-48 object-contain bg-gray-100"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                        {image.width}×{image.height}
+                      </div>
                     </div>
-                  )}
-                </pre>
+                    <div className="p-3">
+                      <div className="flex justify-between text-xs text-gray-600 mb-1">
+                        <span>Page: {image.page}</span>
+                        <span>{image.size_kb} KB</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Format: {image.format.toUpperCase()}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

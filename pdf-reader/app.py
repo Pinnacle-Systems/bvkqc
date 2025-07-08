@@ -1,36 +1,19 @@
 import os
+import base64
 from flask import Flask, request, jsonify
-from PyPDF2 import PdfReader
+import fitz  # PyMuPDF
 import traceback
 from werkzeug.utils import secure_filename
-from flask_cors import CORS  # Add CORS support
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  
+CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
-def extract_text_from_pdf(file_stream):
-    try:
-        pdf_reader = PdfReader(file_stream)
-        page_count = len(pdf_reader.pages)
-        extracted_text = ""
-        
-        for i, page in enumerate(pdf_reader.pages):
-            try:
-                page_text = page.extract_text()
-                if page_text:
-                    extracted_text += f"--- Page {i+1} ---\n{page_text}\n\n"
-            except Exception as page_error:
-                print(f"Error on page {i+1}: {str(page_error)}")
-                extracted_text += f"--- Page {i+1} [TEXT EXTRACTION FAILED] ---\n\n"
-        
-        return extracted_text, page_count, None
-    except Exception as e:
-        return None, 0, str(e)
 
-@app.route('/extract-text', methods=['POST'])
-def extract_text():
+@app.route('/extract-images', methods=['POST'])
+def extract_images():
     try:
-        print("Received request to extract text")
+        print("Received request to extract images")
         
         if 'pdf' not in request.files:
             print("No PDF in request")
@@ -47,33 +30,67 @@ def extract_text():
             return jsonify({'error': 'Invalid file type. Only PDF files are allowed'}), 400
         
         print(f"Processing file: {pdf_file.filename} ({pdf_file.content_length} bytes)")
-        extracted_text, page_count, error = extract_text_from_pdf(pdf_file)
         
-        if error:
-            print(f"Extraction error: {error}")
-            if "EOF marker not found" in error:
-                return jsonify({'error': 'Invalid PDF structure (file might be corrupted)'}), 400
-            elif "file has not been decrypted" in error:
-                return jsonify({'error': 'PDF is encrypted (password protected)'}), 400
-            return jsonify({'error': f'Text extraction failed: {error}'}), 500
+        # Read the PDF file
+        pdf_data = pdf_file.read()
+        doc = fitz.open(stream=pdf_data, filetype="pdf")
+        page_count = len(doc)
+        images = []
+        total_image_size = 0
         
-        warning = None
-        if not extracted_text.strip():
-            warning = "No text content found - this might be a scanned document"
+        for page_num in range(page_count):
+            page = doc.load_page(page_num)
+            img_list = page.get_images(full=True)
+            
+            for img_index, img in enumerate(img_list):
+                xref = img[0]
+                base_image = doc.extract_image(xref)
+                image_bytes = base_image["image"]
+                image_ext = base_image["ext"]
+                width = base_image["width"]
+                height = base_image["height"]
+                size_kb = len(image_bytes) / 1024
+                total_image_size += size_kb
+                
+                # Convert to base64 for frontend display
+                image_base64 = base64.b64encode(image_bytes).decode("ascii")
+                data_uri = f"data:image/{image_ext};base64,{image_base64}"
+                
+                images.append({
+                    "page": page_num + 1,
+                    "width": width,
+                    "height": height,
+                    "size_kb": round(size_kb, 2),
+                    "data": data_uri,
+                    "format": image_ext,
+                    "xref": xref
+                })
+        
+        doc.close()
+        
+        if not images:
+            warning = "No images found in the PDF document"
             print(warning)
+            return jsonify({'warning': warning}), 200
         
-        print(f"Extraction successful: {page_count} pages, {len(extracted_text)} characters")
+        print(f"Extracted {len(images)} images from {page_count} pages")
         
         return jsonify({
-            'text': extracted_text,
+            'images': images,
             'page_count': page_count,
-            'warning': warning
+            'image_count': len(images),
+            'total_size_kb': round(total_image_size, 2)
         })
     
     except Exception as e:
         print("Server error:", traceback.format_exc())
+        error_msg = str(e).lower()
+        if "encrypted" in error_msg or "password" in error_msg:
+            return jsonify({'error': 'PDF is encrypted (password protected)'}), 400
+        elif "invalid cross reference" in error_msg or "xref" in error_msg:
+            return jsonify({'error': 'Invalid PDF structure (file might be corrupted)'}), 400
         return jsonify({
-            'error': f'Internal server error: {str(e)}'
+            'error': f'Image extraction failed: {str(e)}'
         }), 500
 
 if __name__ == '__main__':
