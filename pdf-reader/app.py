@@ -1,97 +1,80 @@
-import os
-import base64
+import pdfplumber
 from flask import Flask, request, jsonify
-import fitz  # PyMuPDF
-import traceback
-from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB limit
 
-@app.route('/extract-images', methods=['POST'])
-def extract_images():
+def extract_page_tables(pdf_stream, target_page=7):
     try:
-        print("Received request to extract images")
-        
+        with pdfplumber.open(pdf_stream) as pdf:
+            total_pages = len(pdf.pages)
+            
+            if target_page > total_pages or target_page < 1:
+                return [], total_pages, f"Page {target_page} does not exist in the PDF", ""
+            
+            page = pdf.pages[target_page-1]
+            full_text = page.extract_text()
+            tables = page.extract_tables()
+            valid_tables = []
+            for table_index, table in enumerate(tables):
+                cleaned_table = []
+                for row in table:
+                    cleaned_row = [cell.replace('\n', ' ').strip() if cell else '' for cell in row]
+                    if any(cleaned_row):  
+                        cleaned_table.append(cleaned_row)
+                
+                if cleaned_table:
+                    valid_tables.append({
+                        "page": target_page,
+                        "table_index": table_index + 1,
+                        "table": cleaned_table
+                    })
+            
+            return valid_tables, total_pages, None, full_text
+    
+    except pdfplumber.pdfminer.pdfparser.PDFSyntaxError:
+        return [], 0, "Invalid PDF file format", ""
+    except pdfplumber.pdfminer.pdfparser.PDFPasswordIncorrect:
+        return [], 0, "PDF is password protected", ""
+    except Exception as e:
+        return [], 0, f"Extraction error: {str(e)}", ""
+
+@app.route('/extract-page-tables', methods=['POST'])
+def extract_page_tables_route():
+    try:
         if 'pdf' not in request.files:
-            print("No PDF in request")
             return jsonify({'error': 'No PDF file provided'}), 400
         
         pdf_file = request.files['pdf']
         
         if pdf_file.filename == '':
-            print("Empty filename")
             return jsonify({'error': 'No selected file'}), 400
             
         if not pdf_file.filename.lower().endswith('.pdf'):
-            print("Invalid file type:", pdf_file.filename)
             return jsonify({'error': 'Invalid file type. Only PDF files are allowed'}), 400
         
-        print(f"Processing file: {pdf_file.filename} ({pdf_file.content_length} bytes)")
+        # Get target page from form data
+        target_page = request.form.get('target_page', default=7, type=int)
         
-        # Read the PDF file
-        pdf_data = pdf_file.read()
-        doc = fitz.open(stream=pdf_data, filetype="pdf")
-        page_count = len(doc)
-        images = []
-        total_image_size = 0
+        tables, page_count, error, full_text = extract_page_tables(
+            pdf_file.stream, 
+            target_page
+        )
         
-        for page_num in range(page_count):
-            page = doc.load_page(page_num)
-            img_list = page.get_images(full=True)
-            
-            for img_index, img in enumerate(img_list):
-                xref = img[0]
-                base_image = doc.extract_image(xref)
-                image_bytes = base_image["image"]
-                image_ext = base_image["ext"]
-                width = base_image["width"]
-                height = base_image["height"]
-                size_kb = len(image_bytes) / 1024
-                total_image_size += size_kb
-                
-                # Convert to base64 for frontend display
-                image_base64 = base64.b64encode(image_bytes).decode("ascii")
-                data_uri = f"data:image/{image_ext};base64,{image_base64}"
-                
-                images.append({
-                    "page": page_num + 1,
-                    "width": width,
-                    "height": height,
-                    "size_kb": round(size_kb, 2),
-                    "data": data_uri,
-                    "format": image_ext,
-                    "xref": xref
-                })
-        
-        doc.close()
-        
-        if not images:
-            warning = "No images found in the PDF document"
-            print(warning)
-            return jsonify({'warning': warning}), 200
-        
-        print(f"Extracted {len(images)} images from {page_count} pages")
+        if error:
+            return jsonify({'error': error}), 400
         
         return jsonify({
-            'images': images,
+            'tables': tables,
             'page_count': page_count,
-            'image_count': len(images),
-            'total_size_kb': round(total_image_size, 2)
+            'table_count': len(tables),
+            'full_text': full_text
         })
     
     except Exception as e:
-        print("Server error:", traceback.format_exc())
-        error_msg = str(e).lower()
-        if "encrypted" in error_msg or "password" in error_msg:
-            return jsonify({'error': 'PDF is encrypted (password protected)'}), 400
-        elif "invalid cross reference" in error_msg or "xref" in error_msg:
-            return jsonify({'error': 'Invalid PDF structure (file might be corrupted)'}), 400
-        return jsonify({
-            'error': f'Image extraction failed: {str(e)}'
-        }), 500
+        return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
