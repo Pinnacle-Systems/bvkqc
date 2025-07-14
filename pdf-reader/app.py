@@ -55,13 +55,7 @@ def extract_page_tables_route():
         if not pdf_file.filename.lower().endswith('.pdf'):
             return jsonify({'error': 'Invalid file type. Only PDF files are allowed'}), 400
         
-        # Get target page from form data
-        target_page = request.form.get('target_page', default=7, type=int)
-        
-        tables, page_count, error, full_text = extract_page_tables(
-            pdf_file.stream, 
-            target_page
-        )
+        tables, page_count, error, full_text = extract_page_tables(pdf_file.stream)
         
         if error:
             return jsonify({'error': error}), 400

@@ -367,6 +367,7 @@ export default function Form() {
         } else {
           setForm(false); 
           setId("");
+          
         }
       } catch (error) {
         console.error("Save failed:", error);
@@ -424,6 +425,41 @@ export default function Form() {
     setReadOnly(false);
     setForm(true);
     setSearchValue("");
+     setPanNo("");
+        setName("");
+        setFatherName("");
+        setDob("");
+        setChamberNo("");
+        setlocalAddress("");
+        setLocalCity("");
+        setLocalPincode("");
+        setMobile("");
+        setDegree("");
+        setSpecialization("");
+        setSalaryPerMonth("");
+        setCommissionCharges("");
+        setGender("");
+        setRegNo("");
+        setJoiningDate("");
+        setPermAddress("");
+        setPermCity("");
+        setPermPincode("");
+        setEmail("");
+        setMaritalStatus("");
+        setConsultFee("");
+        setAccountNo("");
+        setIfscNo("");
+        setbranchName("");
+        setBloodGroup("");
+        setDepartment("");
+        setImage(null);
+        setEmployeeCategory("");
+        setPermanent("");
+        setActive(true);
+        setLeavingDate("");
+        setLeavingReason("");
+        setCanRejoin(false);
+        setRejoinReason("");
   };
 
   function onDataClick(id) {

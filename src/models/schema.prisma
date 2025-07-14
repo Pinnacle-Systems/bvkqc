@@ -792,3 +792,32 @@ model LineMaster {
   Employee   Employee? @relation(fields: [empId], references: [id])
   empId Int?
 }
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  reference   String        @unique
+  description String?
+  measurements Measurement[]
+  createdAt   DateTime      @default(now())
+}
+
+model Measurement {
+  id            String              @id @default(cuid())
+  productId     String
+  product       Product             @relation(fields: [productId], references: [id])
+  description   String
+  dimension     String?
+  toleranceMin  String?
+  toleranceMax  String?
+  values        MeasurementValue[]
+  createdAt     DateTime            @default(now())
+}
+
+model MeasurementValue {
+  id            String        @id @default(cuid())
+  measurementId String
+  measurement   Measurement   @relation(fields: [measurementId], references: [id])
+  size          String
+  value         String
+  createdAt     DateTime      @default(now())
+}

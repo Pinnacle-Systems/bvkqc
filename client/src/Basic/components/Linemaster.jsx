@@ -32,25 +32,33 @@ export default function Form() {
     const [searchValue, setSearchValue] = useState("");
     const childRecord = useRef(0);
 
+    const sessionId = sessionStorage;
+    console.log(sessionId, "session");
+
+    const companyId = secureLocalStorage.getItem(
+        sessionStorage.getItem("sessionId") + "currentBranchId"
+    )
+
+    console.log(companyId, "companyId");
+
+
     const params = {
-        companyId: secureLocalStorage.getItem(
-            sessionStorage.getItem("sessionId") + "userCompanyId"
-        ),
+        companyId: companyId,
     };
 
-    const { 
-        data: allData, 
-        isLoading, 
+    const {
+        data: allData,
+        isLoading,
         isFetching,
-        error: lineError 
+        error: lineError
     } = useGetLineMasterQuery({ params, searchParams: searchValue });
-    
-    const { 
+
+    const {
         data: EmpData,
         error: empError,
-        isLoading: empLoading 
+        isLoading: empLoading
     } = useGetEmployeeQuery({ params })
-    
+
     // Handle API errors
     useEffect(() => {
         if (lineError) {
@@ -114,7 +122,7 @@ export default function Form() {
         lineName,
         id,
         active,
-        companyId: params.companyId, 
+        companyId: params.companyId,
         empId,
     }
 
@@ -145,15 +153,15 @@ export default function Form() {
         }
         if (!window.confirm("Are you sure you want to save?")) return;
 
-        const success = id 
+        const success = id
             ? await handleSubmitCustom(updateData, data, "Updated")
             : await handleSubmitCustom(addData, data, "Added");
 
         if (success) {
             if (!exitAfterSave) {
-                onNew();  
+                onNew();
             } else {
-                setForm(false); 
+                setForm(false);
                 setId("");
             }
         }
@@ -161,7 +169,7 @@ export default function Form() {
 
     const deleteData = async () => {
         if (!id) return;
-        
+
         if (!window.confirm("Are you sure you want to delete?")) return;
 
         try {
@@ -191,6 +199,10 @@ export default function Form() {
         setReadOnly(false);
         setForm(true);
         setSearchValue("");
+        setLineNo("");
+        setLineName("");
+        setActive(true);
+        setEmpId("");
     };
 
     function onDataClick(id) {
@@ -220,7 +232,7 @@ export default function Form() {
                     + Add New Line
                 </button>
             </div>
-            
+
             <Mastertable
                 header={'Line Detail List'}
                 searchValue={searchValue}
@@ -228,21 +240,21 @@ export default function Form() {
                 onDataClick={onDataClick}
                 tableHeaders={tableHeaders}
                 tableDataNames={tableDataNames}
-                data={allData?.data || []}
+                data={allData?.data}
                 loading={isLoading || isFetching}
                 setReadOnly={setReadOnly}
                 deleteData={deleteData}
             />
-            
+
 
             {form && (
-                <Modal 
-                    isOpen={form} 
-                     widthClass={"w-[40%] h-[50%]"}
-                    onClose={() => { 
-                        setForm(false); 
-                        setErrors({}); 
-                        setId(""); 
+                <Modal
+                    isOpen={form}
+                    widthClass={"w-[40%] h-[50%]"}
+                    onClose={() => {
+                        setForm(false);
+                        setErrors({});
+                        setId("");
                     }}
                 >
                     <MastersForm
@@ -269,7 +281,7 @@ export default function Form() {
                                 readOnly={readOnly}
                                 disabled={childRecord.current > 0}
                             />
-                            
+
                             <TextInput
                                 name="Line Name"
                                 value={lineName}
@@ -277,7 +289,7 @@ export default function Form() {
                                 required
                                 readOnly={readOnly}
                             />
-                            
+
                             <DropdownInput
                                 name="Line Incharge"
                                 options={employeeOptions}
@@ -288,7 +300,7 @@ export default function Form() {
                                 disabled={childRecord.current > 0}
                                 loading={empLoading}
                             />
-                            
+
                             <ToggleButton
                                 name="Status"
                                 options={statusDropdown}

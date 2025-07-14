@@ -6,9 +6,7 @@ const prisma = new PrismaClient();
 async function get(req) {
   const { companyId } = req.query;
   const data = await prisma.lineMaster.findMany({
-    where: {
-      companyId: companyId ? parseInt(companyId) : undefined,
-    },
+ 
     include: {
       Company: true,
     },

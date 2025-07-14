@@ -214,6 +214,8 @@ export default function Form() {
     setReadOnly(false);
     setForm(true);
     setSearchValue("");
+     setName("");
+     setCode("")
   };
 
   function onDataClick(id) {

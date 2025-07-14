@@ -36,6 +36,7 @@ import {
   GeneralPurchaseApi, RawMaterialOpeningStockApi
 } from "./uniformService";
 import SizeMasterApi from "./uniformService/SizeMasterService";
+import SizeTableMasterApi from "./uniformService/SizeTableMasterService";
 import LineMasterApi from "./services/LineMasterService";
 import ColorMasterApi from "./uniformService/ColorMasterService";
 import FabricMasterApi from "./uniformService/FabricMasterService";
@@ -89,6 +90,7 @@ const commonReducers = {
   [invoiceApi.reducerPath]: invoiceApi.reducer,
   sample: SampleApi.reducer,
   sizeMaster: SizeMasterApi.reducer,
+  sizeTableMaster: SizeTableMasterApi.reducer,
   lineMaster: LineMasterApi.reducer,
   colorMaster: ColorMasterApi.reducer,
   fabricMaster: FabricMasterApi.reducer,
@@ -177,6 +179,7 @@ projectPaymentFormApi.middleware,
 OrderImportApi.middleware,
 SampleApi.middleware,
 SizeMasterApi.middleware,
+SizeTableMasterApi.middleware,
 LineMasterApi.middleware,
 ColorMasterApi.middleware,
 StyleMasterApi.middleware,

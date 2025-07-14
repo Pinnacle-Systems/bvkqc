@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-
 import { faTrashCan, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useGetClassMasterQuery } from '../../../redux/uniformService/ClassMasterService';

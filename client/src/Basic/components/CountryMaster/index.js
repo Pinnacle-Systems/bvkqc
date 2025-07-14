@@ -180,24 +180,31 @@ export default function Form() {
     }
   };
 
-  const deleteData = async () => {
-    if (id) {
-      if (!window.confirm("Are you sure to delete...?")) {
+  // UPDATED: Accept optional id parameter
+  const deleteData = async (idToDelete = null) => {
+    const deleteId = idToDelete || id;
+    
+    if (!deleteId) return;
+    
+    if (!window.confirm("Are you sure to delete...?")) return;
+
+    try {
+      const deldata = await removeData(deleteId).unwrap();
+      if (deldata?.statusCode == 1) {
+        toast.error(deldata?.message);
+        if (id === deleteId) setForm(false);
         return;
       }
-      try {
-        const deldata = await removeData(id).unwrap();
-        if (deldata?.statusCode == 1) {
-          toast.error(deldata?.message);
-          setForm(false);
-          return;
-        }
+      
+      toast.success("Deleted Successfully");
+      
+      // Clear form if deleting currently selected item
+      if (id === deleteId) {
         setId("");
-        toast.success("Deleted Successfully");
         setForm(false);
-      } catch (error) {
-        toast.error("something went wrong");
       }
+    } catch (error) {
+      toast.error("Something went wrong");
     }
   };
 
@@ -304,40 +311,18 @@ export default function Form() {
     "Code",
     "Country Name",
     "Status",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
   ];
 
   const tableDataNames = [
     "index+1",
     "dataObj.code",
     "dataObj.name",
-    "dataObj.active ? ACTIVE : INACTIVE",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
+    "dataObj.active ? 'Active' : 'Inactive'",
   ];
 
   return (
     <div onKeyDown={handleKeyDown} className="px-5">
-      <div className="w-full flex justify-between mb-2 my-2 py-1 bg-white mx-1 px-1 items-center px-0.5">
+      <div className="w-full flex justify-between mb-2 my-2 py-1 bg-white mx-1 px-1 items-center">
         <h1 className="text-2xl font-bold text-gray-800">Country Master</h1>
         <div className="flex items-center">
           <button
@@ -396,7 +381,7 @@ export default function Form() {
                 saveData={saveData}
                 setForm={setForm}
                 setReadOnly={setReadOnly}
-                deleteData={deleteData}
+                deleteData={() => deleteData()} // Pass without ID for form deletion
                 readOnly={readOnly}
                 emptyErrors={() => setErrors({})}
                 partialSave={handlePartialSave}
