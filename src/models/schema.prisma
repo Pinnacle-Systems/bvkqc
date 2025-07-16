@@ -91,6 +91,7 @@ model Branch {
   po               Po[]
 
   OrderImport OrderImport[]
+  Allocation  Allocation[]
 }
 
 model UserOnBranch {
@@ -395,6 +396,8 @@ model Party {
   Vendor            order[]           @relation(name: "Vendor")
   sender            MailTransaction[] @relation(name: "sender")
   receiver          MailTransaction[] @relation(name: "receiver")
+  Product           Product[]
+  Allocation        Allocation[]
 }
 
 model Hsn {
@@ -789,35 +792,53 @@ model LineMaster {
   Company          Company? @relation(fields: [companyId], references: [id])
   companyId        Int?
 
-  Employee   Employee? @relation(fields: [empId], references: [id])
-  empId Int?
+  Employee   Employee?    @relation(fields: [empId], references: [id])
+  empId      Int?
+  Allocation Allocation[]
 }
+
 model Product {
-  id          String        @id @default(cuid())
-  name        String
-  reference   String        @unique
-  description String?
+  id           String        @id @default(cuid())
+  name         String
+  reference    String        @unique
+  description  String?
   measurements Measurement[]
-  createdAt   DateTime      @default(now())
+  createdAt    DateTime      @default(now())
+  Party        Party?        @relation(fields: [partyId], references: [id])
+  partyId      Int?
 }
 
 model Measurement {
-  id            String              @id @default(cuid())
-  productId     String
-  product       Product             @relation(fields: [productId], references: [id])
-  description   String
-  dimension     String?
-  toleranceMin  String?
-  toleranceMax  String?
-  values        MeasurementValue[]
-  createdAt     DateTime            @default(now())
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  description  String
+  dimension    String?
+  toleranceMin String?
+  toleranceMax String?
+  values       MeasurementValue[]
+  createdAt    DateTime           @default(now())
 }
 
 model MeasurementValue {
-  id            String        @id @default(cuid())
+  id            String      @id @default(cuid())
   measurementId String
-  measurement   Measurement   @relation(fields: [measurementId], references: [id])
+  measurement   Measurement @relation(fields: [measurementId], references: [id])
   size          String
   value         String
-  createdAt     DateTime      @default(now())
+  createdAt     DateTime    @default(now())
+}
+
+model Allocation {
+  id Int @id @default(autoincrement())
+  Party        Party?      @relation(fields: [partyId], references: [id])
+  partyId      Int?
+  LineMaster   LineMaster? @relation(fields: [lineMasterId], references: [id])
+  lineMasterId Int?
+  Branch       Branch?     @relation(fields: [branchId], references: [id])
+  branchId     Int?
+  createdAt     DateTime    @default(now())
+  DeliveryDate  DateTime
+
 }

@@ -52,6 +52,7 @@ const Mastertable = ({
     currentPage * rowsPerPage
   );
   console.log(tableDataNames, "tableDataNames");
+  
   return (
     <div className="row w-full mx-auto">
       <div className="text-xs col-12 px-0 bg-[f1f1f0] bg-opacity-15 rounded-lg border shadow-md">

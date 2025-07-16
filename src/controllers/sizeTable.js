@@ -11,7 +11,7 @@ export const create = async (req, res) => {
       });
     }
 
-    const { productReference, measurements } = req.body;
+    const { productReference, measurements,selectedPartyId } = req.body;
     
     // Validate required fields
     if (!productReference || !measurements) {
@@ -30,6 +30,7 @@ export const create = async (req, res) => {
         data: {
           name: productReference,
           reference: productReference,
+           partyId: parseInt(selectedPartyId),
           description: 'Created from PDF upload'
         }
       });
@@ -83,3 +84,92 @@ export const create = async (req, res) => {
     });
   }
 };
+export const get = async (req, res) => {
+  try {
+    const { productReference } = req.query;
+
+    if (!productReference) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product reference is required',
+      });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { reference: productReference },
+      include: {
+        measurements: {
+          include: {
+            values: true,
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: `Product with reference "${productReference}" not found`,
+      });
+    }
+
+    const allSizes = product.measurements.flatMap(m =>
+      m.values.map(v => v.size)
+    );
+    const uniqueSizes = Array.from(new Set(allSizes));
+
+    const measurementIds = product.measurements.map(m => m.id);
+
+    const allValues = await prisma.measurementValue.findMany({
+      where: {
+        measurementId: {
+          in: measurementIds,
+        },
+      },
+      select: {
+        id: true,
+        measurementId: true,
+        size: true,
+        value: true,
+        createdAt: true,
+      },
+    });
+
+    const sizeChart = {
+      product: {
+        id: product.id,
+        name: product.name,
+        reference: product.reference,
+        description: product.description,
+      },
+      measurements: product.measurements.map(m => ({
+        id: m.id,
+        description: m.description,
+        toleranceMin: m.toleranceMin,
+        toleranceMax: m.toleranceMax,
+        dimension: m.dimension,
+        values: m.values.map(v => ({
+          id: v.id,
+          size: v.size,
+          value: v.value,
+        })),
+      })),
+      availableSizes: uniqueSizes,
+      allValues,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: `Size chart retrieved for "${productReference}"`,
+      data: sizeChart,
+    });
+  } catch (error) {
+    console.error('Error retrieving size chart:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve size chart',
+      error: error.message,
+    });
+  }
+};
+

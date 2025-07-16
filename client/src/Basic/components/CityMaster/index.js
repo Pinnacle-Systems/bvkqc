@@ -82,11 +82,11 @@ export default function Form() {
     }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
     const data = {
-        name, code, active, state, id
+        name, active, state, id
     };
 
     const validateData = (data) => {
-        if (data.name && data.code) {
+        if (data.name ) {
             return true;
         }
         return false;
@@ -207,7 +207,7 @@ export default function Form() {
                 <div className='w-full flex items-start'>
                   <Mastertable
           header={"Employee Designation list"}
-          searchValue={searchValue}
+         searchValue={searchValue}
           setSearchValue={setSearchValue}
           onDataClick={onDataClick}
           tableHeaders={tableHeaders}

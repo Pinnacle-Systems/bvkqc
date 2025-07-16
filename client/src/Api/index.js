@@ -7,6 +7,7 @@ export const DEPARTMENT_API = "departments";
 export const LOGIN_API = "users/login";
 export const COMPANY_API = "companies";
 export const BRANCHES_API = "branches";
+export const ALLOCATION_API = "allocation"
 export const USERS_API = "users";
 export const PAGES_API = "pages";
 export const PAGES_GROUP_API = "pageGroup";

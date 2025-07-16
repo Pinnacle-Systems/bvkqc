@@ -25,7 +25,7 @@ import {
   excessQty,
   email, orderImport,
   controlPanel,
-  TagType,LineMaster,sizeTable
+  TagType,LineMaster,sizeTable, allocation
 
 } from './src/routes/index.js';
 
@@ -33,7 +33,6 @@ import {
 import { socketMain } from './src/sockets/socket.js';
 
 const app = express()
-// app.use(express.json())
 app.use(express.json({ limit: "50mb" }))
 
 
@@ -76,6 +75,7 @@ app.use("/cities", cities);
 app.use("/departments", departments);
 app.use("/companies", companies);
 app.use("/branches", branches);
+app.use("/alloction",allocation);
 app.use("/users", users);
 app.use("/pages", pages);
 app.use("/pageGroup", pageGroup);

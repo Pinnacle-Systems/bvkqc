@@ -3,7 +3,7 @@ const prisma = new PrismaClient()
 
 export const create = async (req, res) => {
   try {
-    const { productReference, measurements } = req.body;
+    const { productReference, measurements ,selectedPartyId} = req.body;
     let product = await prisma.product.findUnique({
       where: { reference: productReference }
     });
@@ -13,7 +13,8 @@ export const create = async (req, res) => {
         data: {
           name: productReference,
           reference: productReference,
-          description: 'Created from PDF upload'
+          description: 'Created from PDF upload',
+         
         }
       });
     }
@@ -61,17 +62,7 @@ export const create = async (req, res) => {
 };
 export const get = async (req, res) => {
   try {
-    const { productReference } = req.query;
-
-    if (!productReference) {
-      return res.status(400).json({
-        success: false,
-        message: 'Product reference is required'
-      });
-    }
-
-    const product = await prisma.product.findUnique({
-      where: { reference: productReference },
+      const product = await prisma.product.findUnique({
       include: {
         measurements: {
           include: {

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 const router = Router();
-import { create } from '../controllers/sizeTable.js';
+import { create,get } from '../controllers/sizeTable.js';
 
-
+router.get('/',get)
 router.post('/', create);
 
 

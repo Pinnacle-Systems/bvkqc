@@ -47,7 +47,6 @@ export default function Form() {
     ),
   };
 
-  // Existing queries and mutations
   const {
     data: allData,
     isLoading,
@@ -109,12 +108,13 @@ export default function Form() {
         setReadOnly(false);
         setName("");
         setCode("");
-        setActive(id ? data?.active : true);
+        setActive(true);
+        childRecord.current = 0;
       } else {
         setReadOnly(true);
         setName(data?.name || "");
         setCode(data?.code || "");
-        setActive(id ? data?.active : true);
+        setActive(data?.active || true);
         childRecord.current = data?.childRecord ? data?.childRecord : 0;
       }
     },
@@ -142,7 +142,7 @@ export default function Form() {
 
   const handleSubmitCustom = async (callback, data, text) => {
     try {
-      let returnData = await callback(data).unwrap();
+      await callback(data).unwrap();
       onNew();
 
       if (partialId) {
@@ -150,9 +150,10 @@ export default function Form() {
         setPartialId(null);
       }
 
-      toast.success(text + " Successfully");
+      toast.success(`${text} Successfully`);
     } catch (error) {
-      console.log("handle");
+      console.error("Error:", error);
+      toast.error("Operation failed");
     }
   };
 
@@ -180,31 +181,30 @@ export default function Form() {
     }
   };
 
-  // UPDATED: Accept optional id parameter
-  const deleteData = async (idToDelete = null) => {
-    const deleteId = idToDelete || id;
+  const deleteData = async () => {
+    if (!id) return;
     
-    if (!deleteId) return;
-    
-    if (!window.confirm("Are you sure to delete...?")) return;
+    if (childRecord.current > 0) {
+      toast.error("Cannot delete - child records exist");
+      return;
+    }
 
+    if (!window.confirm("Are you sure to delete...?")) {
+      return;
+    }
+    
     try {
-      const deldata = await removeData(deleteId).unwrap();
-      if (deldata?.statusCode == 1) {
+      const deldata = await removeData(id).unwrap();
+      if (deldata?.statusCode === 1) {
         toast.error(deldata?.message);
-        if (id === deleteId) setForm(false);
         return;
       }
-      
       toast.success("Deleted Successfully");
-      
-      // Clear form if deleting currently selected item
-      if (id === deleteId) {
-        setId("");
-        setForm(false);
-      }
+      setForm(false);
+      setId("");
     } catch (error) {
       toast.error("Something went wrong");
+      console.error("Delete error:", error);
     }
   };
 
@@ -222,6 +222,10 @@ export default function Form() {
     setReadOnly(false);
     setForm(true);
     setSearchValue("");
+    setName("");
+    setCode("");
+    setActive(true);
+    setErrors({});
   };
 
   function onDataClick(id) {
@@ -311,13 +315,35 @@ export default function Form() {
     "Code",
     "Country Name",
     "Status",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
   ];
 
   const tableDataNames = [
     "index+1",
     "dataObj.code",
     "dataObj.name",
-    "dataObj.active ? 'Active' : 'Inactive'",
+    "dataObj.active ? 'ACTIVE' : 'INACTIVE'",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
   ];
 
   return (
@@ -356,75 +382,74 @@ export default function Form() {
           deleteData={deleteData}
         />
 
-        <div>
-          {form === true && (
-            <Modal
-              isOpen={form}
-              form={form}
-              widthClass={"w-[40%] h-[50%]"}
+        {form && (
+          <Modal
+            isOpen={form}
+            widthClass={"w-[40%] h-[50%]"}
+            onClose={() => {
+              setForm(false);
+              setErrors({});
+              setPartialId(null);
+            }}
+          >
+            <MastersForm
+              onNew={onNew}
               onClose={() => {
                 setForm(false);
-                setErrors({});
+                setSearchValue("");
+                setId("");
                 setPartialId(null);
               }}
+              model={MODEL}
+              childRecord={childRecord.current}
+              saveData={saveData}
+              setForm={setForm}
+              setReadOnly={setReadOnly}
+              deleteData={deleteData}
+              readOnly={readOnly}
+              emptyErrors={() => setErrors({})}
+              partialSave={handlePartialSave}
+              partialId={partialId}
             >
-              <MastersForm
-                onNew={onNew}
-                onClose={() => {
-                  setForm(false);
-                  setSearchValue("");
-                  setId(false);
-                  setPartialId(null);
-                }}
-                model={MODEL}
-                childRecord={childRecord.current}
-                saveData={saveData}
-                setForm={setForm}
-                setReadOnly={setReadOnly}
-                deleteData={() => deleteData()} // Pass without ID for form deletion
-                readOnly={readOnly}
-                emptyErrors={() => setErrors({})}
-                partialSave={handlePartialSave}
-                partialId={partialId}
-              >
-                <fieldset className="rounded border border-gray-300 p-4 mt-4 shadow-sm bg-white">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TextInput
-                      name="Country Name"
-                      type="text"
-                      value={name}
-                      setValue={setName}
-                      required={true}
-                      readOnly={readOnly}
-                      disabled={childRecord.current > 0}
-                    />
+              <fieldset className="rounded border border-gray-300 p-4 mt-4 shadow-sm bg-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TextInput
+                    name="Country Name"
+                    type="text"
+                    value={name}
+                    setValue={setName}
+                    required={true}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                    error={errors.name}
+                  />
 
-                    <TextInput
-                      name="Code"
-                      type="text"
-                      value={code}
-                      setValue={setCode}
-                      required={true}
-                      readOnly={readOnly}
-                      disabled={childRecord.current > 0}
-                    />
-                  </div>
+                  <TextInput
+                    name="Code"
+                    type="text"
+                    value={code}
+                    setValue={setCode}
+                    required={true}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                    error={errors.code}
+                  />
+                </div>
 
-                  <div className="mt-4">
-                    <ToggleButton
-                      name="Status"
-                      options={statusDropdown}
-                      value={active}
-                      setActive={setActive}
-                      required={true}
-                      readOnly={readOnly}
-                    />
-                  </div>
-                </fieldset>
-              </MastersForm>
-            </Modal>
-          )}
-        </div>
+                <div className="mt-4">
+                  <ToggleButton
+                    name="Status"
+                    options={statusDropdown}
+                    value={active}
+                    setActive={setActive}
+                    required={true}
+                    readOnly={readOnly || childRecord.current > 0}
+                  />
+                </div>
+              </fieldset>
+            </MastersForm>
+          </Modal>
+        )}
       </div>
       <PartialReport />
     </div>

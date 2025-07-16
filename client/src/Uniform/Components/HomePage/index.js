@@ -78,20 +78,20 @@ export default function Form() {
     { name: "home", label: "Home", icon: <Home className="h-6 w-6" /> },
     {
       name: "order",
-      label: "Order",
+      label: "Allocation",
       icon: <RiOrderPlayFill className="h-6 w-6" />,
       action: () => setisOpen(true),
     },
-    {
-      name: "Mail",
-      label: "Mail",
-      icon: <MessageCircle className="h-6 w-6" />,
-    },
-    {
-      name: "Style Sheet",
-      label: "Style Sheet",
-      icon: <ClipboardList className="h-6 w-6" />,
-    },
+    // {
+    //   name: "Mail",
+    //   label: "Mail",
+    //   icon: <MessageCircle className="h-6 w-6" />,
+    // },
+    // {
+    //   name: "Style Sheet",
+    //   label: "Style Sheet",
+    //   icon: <ClipboardList className="h-6 w-6" />,
+    // },
     userRole === ""
       ? {
           name: "More",
