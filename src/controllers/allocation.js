@@ -1,8 +1,10 @@
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 export const createAllocation = async (req, res) => {
   try {
     const { partyId, branchId, lineMasterId, deliveryDate } = req.body;
 
-    // Validate required fields
     if (!partyId || !branchId || !lineMasterId || !deliveryDate) {
       return res.status(400).json({
         success: false,
@@ -10,13 +12,12 @@ export const createAllocation = async (req, res) => {
       });
     }
 
-    // Create allocation in database
     const allocation = await prisma.allocation.create({
       data: {
         partyId: parseInt(partyId),
         branchId: parseInt(branchId),
         lineMasterId: parseInt(lineMasterId),
-        deliveryDate: new Date(deliveryDate)
+        DeliveryDate: new Date(deliveryDate), 
       }
     });
 

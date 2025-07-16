@@ -75,7 +75,7 @@ app.use("/cities", cities);
 app.use("/departments", departments);
 app.use("/companies", companies);
 app.use("/branches", branches);
-app.use("/alloction",allocation);
+app.use("/allocation",allocation);
 app.use("/users", users);
 app.use("/pages", pages);
 app.use("/pageGroup", pageGroup);
