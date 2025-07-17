@@ -17,7 +17,7 @@ export const createAllocation = async (req, res) => {
         partyId: parseInt(partyId),
         branchId: parseInt(branchId),
         lineMasterId: parseInt(lineMasterId),
-        DeliveryDate: new Date(deliveryDate), 
+        DeliveryDate: new Date(deliveryDate),
       }
     });
 
@@ -31,6 +31,31 @@ export const createAllocation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to create allocation',
+      error: error.message
+    });
+  }
+};
+
+export const get = async (req, res) => {
+  try {
+    const allocations = await prisma.allocation.findMany({
+      include: {
+        Party: true,
+        Branch: true,
+        LineMaster: true,
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Allocations fetched successfully',
+      data: allocations
+    });
+  } catch (error) {
+    console.error('Error fetching allocations:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch allocations',
       error: error.message
     });
   }

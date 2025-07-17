@@ -172,4 +172,27 @@ export const get = async (req, res) => {
     });
   }
 };
+export const getReference = async (req, res) => {
+  try {
+    const products = await prisma.product.findMany({
+      select: {
+        reference: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: products, 
+    });
+  } catch (error) {
+    console.error('Error retrieving references:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve product references',
+      error: error.message,
+    });
+  }
+};
+
+
 

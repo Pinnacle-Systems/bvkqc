@@ -1,43 +1,16 @@
 import React, { useState } from "react";
 import Loader from "../Loader";
 import "./Master.css";
-// import { ToggleButton } from '../Uis';
-import { Power, Table } from "lucide-react";
-import { FaTableList } from "react-icons/fa6";
 import { RiPlayListAddLine } from "react-icons/ri";
-
-const ACTIVE = (
-  <div className="bg-gradient-to-r from-green-200 to-green-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-green-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
-    <Power size={10} />
-  </div>
-);
-const INACTIVE = (
-  <div className="bg-gradient-to-r from-red-200 to-red-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-red-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
-    <Power size={10} />
-  </div>
-);
-const EXPIRED = (
-  <button className="rounded-md text-white bg-gray-500 border p-1 disabled">
-    EXPIRED
-  </button>
-);
-const ACTIVE_PLAN = (
-  <button className="rounded-md text-white bg-blue-600 border p-1 disabled">
-    ACTIVE
-  </button>
-);
 
 const Mastertable = ({
   tableHeaders,
   tableDataNames,
-  setId,
   data,
   loading,
   searchValue,
   setSearchValue,
-  rowActions = true,
   header,
-  setForm,
   onDataClick,
   setReadOnly,
   deleteData,
