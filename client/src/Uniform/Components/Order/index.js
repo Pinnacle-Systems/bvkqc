@@ -6,8 +6,8 @@ import secureLocalStorage from "react-secure-storage";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
 import { useGetBranchQuery } from "../../../redux/services/BranchMasterService";
-import { useGetSizeTableMasterByReferenceQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import { 
+  useGetSizeTableMasterByReferenceQuery,
   useAddAllocationMasterMutation, 
   useGetAllocationMasterQuery,
   useUpdateAllocationMasterMutation,
@@ -16,7 +16,6 @@ import {
 import { toast } from "react-toastify";
 import { format, isAfter, isToday } from "date-fns";
 import { RiPlayListAddLine, RiEyeLine, RiPencilLine, RiDeleteBinLine } from "react-icons/ri";
-import { reference } from "../../../Utils/DropdownData";
 
 const AllocationMasterTable = ({ 
   data, 
@@ -37,6 +36,7 @@ const AllocationMasterTable = ({
       (item.Party?.name?.toLowerCase().includes(term)) ||
       (item.Branch?.branchName?.toLowerCase().includes(term)) ||
       (item.LineMaster?.lineName?.toLowerCase().includes(term)) ||
+      (item.reference?.toLowerCase().includes(term)) || // Added reference search
       (format(new Date(item.DeliveryDate), "MMM dd, yyyy").toLowerCase().includes(term))
     );
   }, [data, searchTerm]);
@@ -57,7 +57,7 @@ const AllocationMasterTable = ({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-      <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
+      <div className="flex justify-between items-center p-4 bg-[f1f1f0] border-b">
         <h2 className="text-lg font-semibold text-gray-800">Allocation List</h2>
         <div className="flex items-center space-x-3">
           <div className="relative">
@@ -90,8 +90,11 @@ const AllocationMasterTable = ({
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
+          <thead className="bg-[f1f1f0">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Reference
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Party
               </th>
@@ -116,6 +119,9 @@ const AllocationMasterTable = ({
                   key={allocation.id} 
                   className="hover:bg-gray-50 transition-colors"
                 >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {allocation.reference || "N/A"}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                     {allocation.Party?.name || "N/A"}
                   </td>
@@ -159,7 +165,7 @@ const AllocationMasterTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
                   No allocations found
                 </td>
               </tr>
@@ -237,6 +243,7 @@ const AllocationForm = () => {
   const [showForm, setShowForm] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [update,setUpdate] = useState(false)
 
   // API Queries
   const {
@@ -252,11 +259,10 @@ const AllocationForm = () => {
   } = useGetLineMasterQuery({ params: { companyId } });
 
   const {
-    data: sizeTable =[],
-    isLoading:sizeTableLoading,
-    error: sizeTableerror
-  } = useGetSizeTableMasterByReferenceQuery()
-  console.log(sizeTable?.data,"sizeTable")
+    data: sizeTableData,
+    isLoading: sizeTableLoading,
+    error: sizeTableError
+  } = useGetSizeTableMasterByReferenceQuery();
 
   const {
     data: branches = [],
@@ -291,36 +297,38 @@ const AllocationForm = () => {
       reference: ""
     },
   });
-   console.log(data,"data")
 
   // Handlers
-  const handleFormSubmit = async (formData) => {
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        ...formData,
-        deliveryDate: formData.deliveryDate.toISOString(),
-        ...(selectedId && { id: selectedId })
-      };
+const handleFormSubmit = async (formData) => {
+  setIsSubmitting(true);
+  try {
+    const payload = {
+      ...formData,
+      deliveryDate: formData.deliveryDate.toISOString(),
+      companyId: Number(companyId) 
+    };
 
-      const result = selectedId 
-        ? await updateAllocation(payload).unwrap()
-        : await createAllocation(payload).unwrap();
+    const result = selectedId 
+      ? await updateAllocation({ 
+          id: selectedId, 
+          payload 
+        }).unwrap()
+      : await createAllocation(payload).unwrap();
 
-      if (result.success) {
-        toast.success(result.message || "Operation successful!");
-        resetForm();
-        refetchAllocations();
-      } else {
-        throw new Error(result.message || "Operation failed");
-      }
-    } catch (error) {
-      console.error("Submission error:", error);
-      toast.error(error.data?.message || error.message || "An error occurred");
-    } finally {
-      setIsSubmitting(false);
+    if (result.success) {
+      toast.success(result.message || "Operation successful!");
+      resetForm();
+      refetchAllocations();
+    } else {
+      throw new Error(result.message || "Operation failed");
     }
-  };
+  } catch (error) {
+    console.error("Submission error:", error);
+    toast.error(error.data?.message || error.message || "An error occurred");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleEdit = useCallback((id) => {
     const allocation = allocations.data?.find(item => item.id === id);
@@ -329,6 +337,7 @@ const AllocationForm = () => {
       setValue("partyId", allocation.partyId);
       setValue("branchId", allocation.branchId);
       setValue("lineMasterId", allocation.lineMasterId);
+      setValue("reference", allocation.reference); // Set reference value
       setValue("deliveryDate", new Date(allocation.DeliveryDate));
       setShowForm(true);
       setReadOnly(false);
@@ -339,15 +348,17 @@ const AllocationForm = () => {
     const allocation = allocations.data?.find(item => item.id === id);
     if (allocation) {
       setSelectedId(id);
+      setUpdate(true)
       setValue("partyId", allocation.partyId);
       setValue("branchId", allocation.branchId);
       setValue("lineMasterId", allocation.lineMasterId);
+      setValue("reference", allocation.reference); // Set reference value
       setValue("deliveryDate", new Date(allocation.DeliveryDate));
       setShowForm(true);
       setReadOnly(true);
     }
   }, [allocations.data, setValue]);
-
+console.log(selectedId,"selectedId")
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this allocation?")) {
       try {
@@ -382,9 +393,13 @@ const AllocationForm = () => {
     return isAfter(date, today) || isToday(date) || "Date must be today or in the future";
   };
 
+  // Get unique references
+  const uniqueReferences = useMemo(() => {
+    if (!sizeTableData?.data) return [];
+    return [...new Set(sizeTableData.data.map(item => item.reference))];
+  }, [sizeTableData]);
 
-
-  if (partiesError || linesError || branchesError) {
+  if (partiesError || linesError || branchesError || sizeTableError) {
     return (
       <div className="bg-red-50 border-l-4 border-red-500 p-4">
         <div className="flex">
@@ -426,26 +441,25 @@ const AllocationForm = () => {
 
             <form onSubmit={handleSubmit(handleFormSubmit)} className="p-5 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {/* Party Field */}
+                {/* Reference Field */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                    Refernce <span className="text-red-500">*</span>
+                    Reference <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <select
                       {...register("reference", {
-                        required: "reference selection is required",
-                        valueAsNumber: true
+                        required: "Reference selection is required"
                       })}
-                      disabled={readOnly}
+                      disabled={readOnly || sizeTableLoading}
                       className={`w-full px-4 py-2 text-xs border rounded-xl shadow-sm appearance-none
-                        ${errors.referenceId ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"} 
+                        ${errors.reference ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"} 
                         focus:ring-2 transition-all`}
                     >
                       <option value="">Select reference</option>
-                      {sizeTable?.data?.map((data) => (
-                        <option key={data.id} value={data.reference}>
-                          {data.reference}
+                      {uniqueReferences.map((ref, index) => (
+                        <option key={index} value={ref}>
+                          {ref}
                         </option>
                       ))}
                     </select>
@@ -455,11 +469,16 @@ const AllocationForm = () => {
                       </svg>
                     </div>
                   </div>
-                  {errors.partyId && (
-                    <p className="mt-1 text-xs text-red-600">{errors.partyId.message}</p>
+                  {errors.reference && (
+                    <p className="mt-1 text-xs text-red-600">{errors.reference.message}</p>
+                  )}
+                  {sizeTableLoading && (
+                    <p className="mt-1 text-xs text-gray-500">Loading references...</p>
                   )}
                 </div>
-  <div>
+
+                {/* Party Field */}
+                <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
                     Party <span className="text-red-500">*</span>
                   </label>
@@ -469,7 +488,7 @@ const AllocationForm = () => {
                         required: "Party selection is required",
                         valueAsNumber: true
                       })}
-                      disabled={readOnly}
+                      disabled={readOnly || partiesLoading}
                       className={`w-full px-4 py-2 text-xs border rounded-xl shadow-sm appearance-none
                         ${errors.partyId ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"} 
                         focus:ring-2 transition-all`}
@@ -491,6 +510,7 @@ const AllocationForm = () => {
                     <p className="mt-1 text-xs text-red-600">{errors.partyId.message}</p>
                   )}
                 </div>
+                
                 {/* Branch Field */}
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -501,7 +521,7 @@ const AllocationForm = () => {
                       required: "Branch selection is required",
                       valueAsNumber: true
                     })}
-                    disabled={readOnly}
+                    disabled={readOnly || branchesLoading}
                     className={`mt-0.5 block w-full pl-2.5 pr-7 py-1.5 text-xs border rounded shadow-sm
                       ${errors.branchId ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"} 
                       focus:ring-1 transition-colors`}
@@ -528,7 +548,7 @@ const AllocationForm = () => {
                       required: "Line selection is required",
                       valueAsNumber: true
                     })}
-                    disabled={readOnly}
+                    disabled={readOnly || linesLoading}
                     className={`mt-0.5 block w-full pl-2.5 pr-7 py-1.5 text-xs border rounded shadow-sm
                       ${errors.lineMasterId ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"} 
                       focus:ring-1 transition-colors`}

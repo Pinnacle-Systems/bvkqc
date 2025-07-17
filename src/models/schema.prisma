@@ -840,5 +840,5 @@ model Allocation {
   branchId     Int?
   createdAt     DateTime    @default(now())
   DeliveryDate  DateTime
-
+  reference     String
 }

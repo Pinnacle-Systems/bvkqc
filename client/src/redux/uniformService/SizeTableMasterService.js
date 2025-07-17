@@ -89,6 +89,7 @@ const SizeTableMasterApi = createApi({
   invalidatesTags: ["SizeTableMaster"],
 }),
 
+
 deleteAllocationMaster: builder.mutation({
   query: (id) => ({
     url: `${ALLOCATION_API}/${id}`,
