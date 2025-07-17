@@ -170,7 +170,7 @@ export default function Form() {
         setForm(true);
     }
     const tableHeaders = ["S.NO", "City Name", "Code", "State", "Status", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-    const tableDataNames = ["index+1", "dataObj.code", "dataObj.name", "dataObj.state.name", 'dataObj.active ? ACTIVE : INACTIVE', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    const tableDataNames = ["index+1",  "dataObj.name", "dataObj.state.name", 'dataObj.active ? ACTIVE : INACTIVE', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
     // if (!form)
     //     return (
     //         <ReportTemplate
