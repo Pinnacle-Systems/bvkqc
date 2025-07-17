@@ -16,6 +16,7 @@ import {
 import { toast } from "react-toastify";
 import { format, isAfter, isToday } from "date-fns";
 import { RiPlayListAddLine, RiEyeLine, RiPencilLine, RiDeleteBinLine } from "react-icons/ri";
+import { reference } from "../../../Utils/DropdownData";
 
 const AllocationMasterTable = ({ 
   data, 
@@ -287,8 +288,10 @@ const AllocationForm = () => {
       branchId: "",
       lineMasterId: "",
       deliveryDate: null,
+      reference: ""
     },
   });
+   console.log(data,"data")
 
   // Handlers
   const handleFormSubmit = async (formData) => {
@@ -440,9 +443,9 @@ const AllocationForm = () => {
                         focus:ring-2 transition-all`}
                     >
                       <option value="">Select reference</option>
-                      {allocations?.data?.map((allocation) => (
-                        <option key={allocation.id} value={allocation.id}>
-                          {allocation.name} ({allocation.aliasName})
+                      {sizeTable?.data?.map((data) => (
+                        <option key={data.id} value={data.reference}>
+                          {data.reference}
                         </option>
                       ))}
                     </select>

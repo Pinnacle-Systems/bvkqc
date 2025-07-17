@@ -177,6 +177,7 @@ export const getReference = async (req, res) => {
     const products = await prisma.product.findMany({
       select: {
         reference: true,
+        id: true
       },
     });
 
