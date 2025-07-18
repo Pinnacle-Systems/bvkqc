@@ -1,183 +1,136 @@
-import { findFromList, getDateFromDateTime } from "../../../Utils/helper"
-import StatusSidebar from "../StatusSideBar";
-export default function Vendor({ allData, setForm, setId, setPoNo, partyData, poSentForApproval }) {
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { useGetSizeTableMasterByReferenceQuery } from '../../../redux/uniformService/SizeTableMasterService';
+import { toast } from 'react-toastify';
 
-  const stageDefinitions = [
-    { key: "sa", title: "Po Received", label: 'PR' },
-    { key: "isSave", title: "Assigned", label: 'AS' },
-    { key: "poSentForApproval", title: "Sent to Approval", label: 'SA' },
-    { key: "isApproved", },
-  ];
-  const getProgressIndex = (item) => {
-    const keys = stageDefinitions.map(s => s.key);
-    let index = -1;
+const SizeTableDetail = () => {
+  const { reference } = useParams();
+  const { data, isLoading, error } = useGetSizeTableMasterByReferenceQuery(reference);
 
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      if (key === "isApproved") {
-        if (item?.isApproved) index = i;
-      } else {
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
+  if (error) {
+    toast.error('Failed to load size table data');
+    return (
+      <div className="bg-red-50 border-l-4 border-red-500 p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-red-700">
+              Failed to load size table data. Please try again later.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-        if (item?.[key] === true || item?.[key] === 1) {
-          index = i;
-        }
-      }
-    }
+  if (!data?.data) {
+    return <div className="text-center py-8">No size table data found</div>;
+  }
 
-    return index;
-  };
+  const { product, measurements, availableSizes } = data.data;
+
   return (
-    <>
+    <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-800">{product.name}</h2>
+        <p className="text-gray-600">{product.reference}</p>
+        {product.description && (
+          <p className="text-gray-500 text-sm mt-1">{product.description}</p>
+        )}
+      </div>
 
-      <StatusSidebar />
-
-      <div className="bg-[F1F1F0]  shadow rounded-lg h-[76vh]">
-        <table className="table-fixed w-full text-[11px] rounded-lg border border-gray-300">
-          <thead className="bg-white text-gray-800 border-b border-gray-300">
-            <tr >
-              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[50px]">S No</th>
-              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[160px]">PO Number </th>
-              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">Po date</th>
-              <th className="text-[11px] font-semibold p-1 border border-gray-300">Manufacture</th>
-              <th className="text-[11px] font-semibold p-1 border border-gray-300">Vendor</th>
-              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">Assigned date</th>
-              <th className="text-[11px] font-semibold p-1 border border-gray-300 w-[100px]">Delivery date</th>
-              <th className="text-[11px] font-semibold p-1 border border-gray-300">PO Status</th>
-
-
-
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 border">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                Measurement
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                Dimension
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                Tolerance
+              </th>
+              {availableSizes.map(size => (
+                <th 
+                  key={size} 
+                  className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border"
+                >
+                  Size {size}
+                </th>
+              ))}
             </tr>
           </thead>
-
-          <tbody className="text-gray-700 text-xs">
-
-            {(allData ? allData?.data : [])?.map((item, index) => {
-
-
-              const completedStages = stageDefinitions
-                .filter((stage) => item?.[stage.key])
-                .reverse();
-
-              const approvalStatus = item?.isApproved || "In Progress";
-
-              const approvalColor = approvalStatus === "Approved"
-                ? "bg-green-500 text-white"
-                : approvalStatus === "Rejected"
-                  ? "bg-red-500 text-white"
-                  : approvalStatus === "Hold"
-                    ? "bg-yellow-500 text-black"
-                    : "bg-gray-300 text-black";
-
-              return (
-                <>
-
-                  {/* {item?.isSave && ( */}
-
-                  <tr className={`border-b transition-all duration-300 hover:shadow-lg transform table-row px-2 ${index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
-                    }`}
-                    onClick={() => {
-                      setForm(true)
-                      setId(item?.id)
-                      setPoNo(item?.docId)
-                    }}
-                  >
-                    <td className="border p-1 text-center text-[11px]">{parseInt(index) + 1}</td>
-                    <td className="border p-1 text-center text-[11px]">{item?.docId}</td>
-                    <td className="border p-1 text-center text-[11px]">{getDateFromDateTime(item?.orderdate)}</td>
-                    <td className="border p-1 text-center text-[11px]">{item?.Manufacture?.name}</td>
-                    <td className="border p-1 text-center text-[11px]">{item?.Vendor?.name}</td>
-                    <td className="border p-1 text-center text-[11px]">{item?.isSave && item?.updatedAt ? getDateFromDateTime(item?.updatedAt) : ""}</td>
-                    <td className="border p-1 text-center text-[11px]">{item?.deliverydate ? getDateFromDateTime(item?.deliverydate) : ""} </td>
-                    <td className="border p-1 text-center text-[11px]">
-                      <div className="flex items-center space-x-0">
-                        {stageDefinitions.map((stage, i) => {
-                          const progressIndex = getProgressIndex(item);
-                          const isAlwaysActive = i === 0;
-                          const isReached = isAlwaysActive || progressIndex >= i;
-
-                          let bgColor = "bg-gray-300 text-gray-600 shadow-inner";
-                          let gradient = "";
-
-                          if (stage.key === "isApproved") {
-                            switch (item?.isApproved) {
-                              case "Approve":
-                                bgColor = "bg-green-600 text-white";
-                                gradient = "bg-gradient-to-br from-green-400 to-green-700";
-                                break;
-                              case "Reject":
-                                bgColor = "bg-red-600 text-white";
-                                gradient = "bg-gradient-to-br from-red-400 to-red-700";
-                                break;
-                              case "Hold":
-                                bgColor = "bg-yellow-400 text-black";
-                                gradient = "bg-gradient-to-br from-yellow-300 to-yellow-500";
-                                break;
-                              default:
-                                bgColor = "bg-gray-300 text-gray-600";
-                                gradient = "";
-                            }
-                          } else {
-                            if (isReached) {
-                              bgColor = "bg-green-600 text-white";
-                              gradient = "bg-gradient-to-br from-green-400 to-green-700";
-                            }
-                          }
-
-
-                          return (
-                            <div
-                              key={i}
-                              title={
-                                stage.key === "isApproved"
-                                  ? ` ${item?.isApproved || "In Progress"}`
-                                  : stage.title
-                              }
-                              className={`relative flex items-center justify-center text-xs font-semibold ${bgColor} ${gradient} px-4 py-1 shadow-md ${i !== 0 ? "mr-[-10px]" : ""
-                                }`}
-                              style={{
-                                clipPath:
-                                  "polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%)",
-                                zIndex: 50 - i,
-                              }}
-                            >
-                              {stage.label
-                                ? stage.label
-                                : i === stageDefinitions.length - 1
-                                  ? item?.isApproved === "Approve"
-                                    ? "A"
-                                    : item?.isApproved === "Reject"
-                                      ? "R"
-                                      : item?.isApproved === "Hold"
-                                        ? "H"
-                                        : "N"
-                                  : ""}
-                            </div>
-
-                            );
-                          })}
-                        </div>
-                      </td>
-                    </tr>
-                    {/* )} */}
-                </>
-
-              )
-            })}
-
+          <tbody className="bg-white divide-y divide-gray-200">
+            {measurements.map(measurement => (
+              <tr key={measurement.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 border">
+                  {measurement.description}
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 border">
+                  {measurement.dimension || '-'}
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 border">
+                  {measurement.toleranceMin && measurement.toleranceMax 
+                    ? `${measurement.toleranceMin} to ${measurement.toleranceMax}` 
+                    : '-'}
+                </td>
+                {availableSizes.map(size => {
+                  const valueObj = measurement.values.find(v => v.size === size);
+                  return (
+                    <td 
+                      key={`${measurement.id}-${size}`} 
+                      className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-center border"
+                    >
+                      {valueObj ? valueObj.value : '-'}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-    </>
-  )
-}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <h3 className="text-sm font-medium text-blue-800">Measurement Notes</h3>
+          <ul className="mt-2 text-sm text-blue-700 list-disc pl-5 space-y-1">
+            <li>All measurements are in centimeters unless otherwise specified</li>
+            <li>Tolerances indicate acceptable variation from specified measurements</li>
+            <li>Measurements taken according to standard industry practices</li>
+          </ul>
+        </div>
+        
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-800">Size Availability</h3>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {availableSizes.map(size => (
+              <span 
+                key={`available-${size}`}
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+              >
+                Size {size}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-
-
-
-
-
-
-
-
+export default SizeTableDetail;
