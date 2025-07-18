@@ -44,7 +44,6 @@ const { data: sizeData } = useGetSizeTableMasterQuery({
     data: partyData,
     
   } = useGetPartyQuery({ params, searchParams: searchValue });
-
 console.log(partyData?.data,"partdyData")
  
   const extractTables = async (file) => {

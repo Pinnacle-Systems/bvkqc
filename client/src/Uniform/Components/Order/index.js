@@ -56,7 +56,7 @@ const AllocationMasterTable = ({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <div className="bg-white w-full rounded-lg border border-gray-200 shadow-sm">
       <div className="flex justify-between items-center p-4 bg-[f1f1f0] border-b">
         <h2 className="text-lg font-semibold text-gray-800">Allocation List</h2>
         <div className="flex items-center space-x-3">
@@ -80,7 +80,7 @@ const AllocationMasterTable = ({
           
           <button
             onClick={onAddNew}
-            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+            className="flex items-centertext-indigo-600 bg-white border border-indigo-600 hover:bg-indigo-700 hover:text-white px-4 py-2 rounded-lg transition-colors text-sm"
           >
             <RiPlayListAddLine className="mr-1" />
             Add New
@@ -231,9 +231,7 @@ const AllocationMasterTable = ({
   );
 };
 
-// Main Allocation Form Component
 const AllocationForm = () => {
-  // Constants and Initial State
   const today = new Date();
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
@@ -244,8 +242,6 @@ const AllocationForm = () => {
   const [readOnly, setReadOnly] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [update,setUpdate] = useState(false)
-
-  // API Queries
   const {
     data: parties = [],
     isLoading: partiesLoading,
@@ -392,12 +388,22 @@ console.log(selectedId,"selectedId")
   const validateFutureDate = (date) => {
     return isAfter(date, today) || isToday(date) || "Date must be today or in the future";
   };
+const uniqueReferences = useMemo(() => {
+  if (!allocations?.data || !sizeTableData?.data) return [];
 
-  // Get unique references
-  const uniqueReferences = useMemo(() => {
-    if (!sizeTableData?.data) return [];
-    return [...new Set(sizeTableData.data.map(item => item.reference))];
-  }, [sizeTableData]);
+  const allocatedRefs = new Set(allocations.data.map(item => item.reference));
+  console.log(typeof(allocatedRefs),"typeof")
+
+  // Step 2: Filter sizeTableData references that are NOT in allocatedRefs
+  const filtered = sizeTableData.data
+    .filter(item => !allocatedRefs.has(item.reference))
+    .map(item => item.reference); // Optional: .map if you want only reference strings
+
+  return [...new Set(filtered)]; // Unique list
+}, [allocations, sizeTableData]);
+
+
+
 
   if (partiesError || linesError || branchesError || sizeTableError) {
     return (
@@ -452,6 +458,7 @@ console.log(selectedId,"selectedId")
                         required: "Reference selection is required"
                       })}
                       disabled={readOnly || sizeTableLoading}
+                      placeholder="Select a Reference"
                       className={`w-full px-4 py-2 text-xs border rounded-xl shadow-sm appearance-none
                         ${errors.reference ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"} 
                         focus:ring-2 transition-all`}

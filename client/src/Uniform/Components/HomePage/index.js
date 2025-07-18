@@ -87,11 +87,11 @@ export default function Form() {
     //   label: "Mail",
     //   icon: <MessageCircle className="h-6 w-6" />,
     // },
-    // {
-    //   name: "Style Sheet",
-    //   label: "Style Sheet",
-    //   icon: <ClipboardList className="h-6 w-6" />,
-    // },
+    {
+      name: "Aql",
+      label: "Aql",
+      icon: <ClipboardList className="h-6 w-6" />,
+    },
     userRole === ""
       ? {
           name: "More",
@@ -179,7 +179,7 @@ export default function Form() {
                 setCurrentId={setCurrentId}
               />
             )}
-            {active === "Style Sheet" && <EmailReport attachments={attachments} />}
+            {active === "Aql" && <EmailReport attachments={attachments} />}
             {active === "More" && userRole === "" ? <OrderImport /> : ""}
             {active === "order" && (
               <Order
