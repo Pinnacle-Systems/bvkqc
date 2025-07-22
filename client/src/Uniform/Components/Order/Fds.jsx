@@ -9,6 +9,8 @@ export default function AQLForm() {
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
+  const [savedSizes, setSavedSizes] = useState([]);
+  const [savedMeasurements, setSavedMeasurements] = useState({});
 
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
@@ -24,10 +26,38 @@ export default function AQLForm() {
   const { data: sizeTableData } = useGetSizeTableMasterByReferenceQuery();
 
   // Extract unique references
-  const references = sizeTableData?.data?.map(item => item.reference) || [];
+  const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
   const selectedProduct = sizeData?.data;
   const availableSizes = selectedProduct?.availableSizes || [];
 
+  // Load saved data from localStorage on component mount or when reference changes
+  useEffect(() => {
+    const savedData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}`);
+    if (savedData) {
+      setSavedSizes(savedData.savedSizes || []);
+      setSavedMeasurements(savedData.savedMeasurements || {});
+    } else {
+      setSavedSizes([]);
+      setSavedMeasurements({});
+    }
+    // Reset current selections
+    setSelectedSize('');
+    setCheckValues({});
+    setMeasurements([]);
+  }, [selectedReference, companyId]);
+
+  // Save data to localStorage whenever savedSizes or savedMeasurements change
+  useEffect(() => {
+    if (selectedReference) {
+      const formData = {
+        savedSizes,
+        savedMeasurements
+      };
+      secureLocalStorage.setItem(`aqlFormData_${companyId}_${selectedReference}`, formData);
+    }
+  }, [savedSizes, savedMeasurements, selectedReference, companyId]);
+
+  // Load measurements when size is selected
   useEffect(() => {
     if (selectedProduct && selectedSize) {
       const measurementData = selectedProduct.measurements
@@ -44,45 +74,103 @@ export default function AQLForm() {
         });
 
       setMeasurements(measurementData);
-      
-      // Initialize check values for each measurement (7 pieces)
+
+      // Initialize check values - use saved data if available, otherwise empty
+      const savedSizeData = savedMeasurements[selectedSize] || {};
       const initialCheckValues = {};
+
       measurementData.forEach(m => {
-        initialCheckValues[m.id] = Array(7).fill('');
+        initialCheckValues[m.id] = savedSizeData[m.id] || Array(7).fill('');
       });
+
       setCheckValues(initialCheckValues);
     } else {
       setMeasurements([]);
       setCheckValues({});
     }
-  }, [selectedProduct, selectedSize]);
+  }, [selectedProduct, selectedSize, savedMeasurements]);
 
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     setCheckValues(prev => ({
       ...prev,
-      [measurementId]: prev[measurementId].map((val, idx) => 
+      [measurementId]: prev[measurementId].map((val, idx) =>
         idx === pieceIndex ? value : val)
     }));
   };
 
+  const handleSaveSize = () => {
+    if (!selectedSize) return;
+
+    // Check if all measurements have all 7 values filled
+    const isComplete = measurements.every(measurement => {
+      return checkValues[measurement.id] &&
+        checkValues[measurement.id].length === 7 &&
+        checkValues[measurement.id].every(val => val !== '');
+    });
+
+    if (!isComplete) {
+      alert('Please fill all measurements for all 7 pieces before saving this size.');
+      return;
+    }
+
+    // Save the measurements for this size
+    setSavedMeasurements(prev => ({
+      ...prev,
+      [selectedSize]: checkValues
+    }));
+
+    // Add to saved sizes if not already there
+    if (!savedSizes.includes(selectedSize)) {
+      setSavedSizes(prev => [...prev, selectedSize]);
+    }
+
+    // Clear current size selection
+    setSelectedSize('');
+    setShowSizeDropdown(false);
+  };
+
+  const handleLoadSize = (size) => {
+    setSelectedSize(size);
+    setShowSizeDropdown(false);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (savedSizes.length === 0) {
+      alert('Please save at least one size before submitting.');
+      return;
+    }
+
     const formData = {
       reference: selectedReference,
-      size: selectedSize,
       inspectionDate,
-      measurements: measurements.map(m => ({
-        name: m.name,
-        standardValue: m.standardValue,
-        tolerance: `-${m.toleranceMin}/+${m.toleranceMax}`,
-        checks: checkValues[m.id] || []
+      sizes: savedSizes.map(size => ({
+        size,
+        measurements: measurements.map(m => ({
+          name: m.name,
+          standardValue: m.standardValue,
+          tolerance: `-${m.toleranceMin}/+${m.toleranceMax}`,
+          checks: savedMeasurements[size]?.[m.id] || []
+        }))
       }))
     };
-    console.log(formData);
+
+    console.log('Form submitted:', formData);
     alert('AQL Form submitted successfully!');
+
+    // Clear form after submission
+    secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}`);
+    setSelectedReference('');
+    setSelectedSize('');
+    setMeasurements([]);
+    setCheckValues({});
+    setSavedSizes([]);
+    setSavedMeasurements({});
   };
 
   const checkTolerance = (measurement, value) => {
+    console.log(measurement,"measurement")
     if (!value) return '';
     const numericValue = parseFloat(value);
     const standardValue = parseFloat(measurement.standardValue);
@@ -90,14 +178,28 @@ export default function AQLForm() {
     const toleranceMax = parseFloat(measurement.toleranceMax);
 
     const deviation = numericValue - standardValue;
-    const absoluteDeviation = Math.abs(deviation);
+    console.log(Math.abs(deviation),"deviation")
+    console.log(toleranceMin,"toleranceMin")
 
-    if (deviation < 0 && absoluteDeviation > toleranceMin) {
-      return 'bg-red-100 text-red-800'; // Below minimum tolerance
-    } else if (deviation > 0 && absoluteDeviation > toleranceMax) {
-      return 'bg-red-100 text-red-800'; // Above maximum tolerance
+    if (deviation < 0 && Math.abs(deviation) >Math.abs( toleranceMin)) {
+      return 'bg-red-100 text-red-800';
     }
-    return 'bg-green-100 text-green-800'; // Within tolerance
+    else if (deviation > 0 && deviation > toleranceMax) {
+      return 'bg-red-100 text-red-800';
+    }
+    return 'bg-green-100 text-green-800';
+  };
+
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
+      secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}`);
+      setSelectedReference('');
+      setSelectedSize('');
+      setMeasurements([]);
+      setCheckValues({});
+      setSavedSizes([]);
+      setSavedMeasurements({});
+    }
   };
 
   return (
@@ -142,7 +244,7 @@ export default function AQLForm() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Inspection Date */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -162,54 +264,73 @@ export default function AQLForm() {
                     </div>
                   </div>
                 </div>
-                 <div className="mb-4">
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Size <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowSizeDropdown(!showSizeDropdown)}
-                    disabled={!selectedReference}
-                    className={`w-full px-3 py-2 text-left text-xs border border-gray-300 rounded-md shadow-sm flex justify-between items-center ${
-                      !selectedReference ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'
-                    }`}
-                  >
-                    <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
-                      {selectedSize || 'Select size'}
-                    </span>
-                    <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  {showSizeDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-xs ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto focus:outline-none">
-                      {availableSizes.length > 0 ? (
-                        availableSizes.map((size, index) => (
-                          <div
-                            key={index}
-                            className="px-3 py-1 hover:bg-blue-50 cursor-pointer"
-                            onClick={() => {
-                              setSelectedSize(size);
-                              setShowSizeDropdown(false);
-                            }}
-                          >
-                            {size}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="px-3 py-1 text-gray-500">No sizes available</div>
-                      )}
-                    </div>
-                  )}
+
+                {/* Size dropdown */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Size <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowSizeDropdown(!showSizeDropdown)}
+                      disabled={!selectedReference}
+                      className={`w-full px-3 py-2 text-left text-xs border border-gray-300 rounded-md shadow-sm flex justify-between items-center ${!selectedReference ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'
+                        }`}
+                    >
+                      <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
+                        {selectedSize || 'Select size'}
+                      </span>
+                      <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    {showSizeDropdown && (
+                      <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-xs ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto focus:outline-none">
+                        {availableSizes.length > 0 ? (
+                          availableSizes.map((size, index) => (
+                            <div
+                              key={index}
+                              className={`px-3 py-1 hover:bg-blue-50 cursor-pointer ${savedSizes.includes(size) ? 'bg-green-50' : ''
+                                }`}
+                              onClick={() => handleLoadSize(size)}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span>{size}</span>
+                                {savedSizes.includes(size) && (
+                                  <span className="text-green-500">✓</span>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-3 py-1 text-gray-500">No sizes available</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-              </div>
-              
-              {/* Size dropdown */}
-             
 
-              {/* Measurement Table - This will now take remaining space */}
+              {/* Saved sizes indicator */}
+              {savedSizes.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-medium text-gray-700 mb-1">Completed Sizes:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {savedSizes.map((size, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 cursor-pointer"
+                        onClick={() => handleLoadSize(size)}
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Measurement Table */}
               {measurements.length > 0 && (
                 <div className="flex-1 overflow-hidden flex flex-col mb-3">
                   <div className="overflow-auto flex-1">
@@ -256,9 +377,8 @@ export default function AQLForm() {
                                   step="0.01"
                                   value={value}
                                   onChange={(e) => handleCheckValueChange(measurement.id, index, e.target.value)}
-                                  className={`w-full px-1 py-1 text-xs border rounded-sm text-center ${
-                                    value ? checkTolerance(measurement, value) : 'border-gray-300'
-                                  }`}
+                                  className={`w-full px-1 py-1 text-xs border rounded-sm text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
+                                    }`}
                                 />
                               </td>
                             ))}
@@ -274,26 +394,35 @@ export default function AQLForm() {
               <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedReference('');
-                    setSelectedSize('');
-                    setMeasurements([]);
-                    setCheckValues({});
-                  }}
+                  onClick={handleReset}
                   className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all"
                 >
                   Reset
                 </button>
+
+                {measurements.length > 0 && !savedSizes.includes(selectedSize) && (
+                  <button
+                    type="button"
+                    onClick={handleSaveSize}
+                    disabled={!selectedSize}
+                    className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${!selectedSize
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
+                  >
+                    Save Size
+                  </button>
+                )}
+
                 <button
                   type="submit"
-                  disabled={!selectedReference || !selectedSize || measurements.length === 0}
-                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${
-                    !selectedReference || !selectedSize || measurements.length === 0
+                  disabled={savedSizes.length === 0}
+                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${savedSizes.length === 0
                       ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
+                      : 'bg-green-600 hover:bg-green-700'
+                    }`}
                 >
-                  Submit
+                  Submit All
                 </button>
               </div>
             </form>
