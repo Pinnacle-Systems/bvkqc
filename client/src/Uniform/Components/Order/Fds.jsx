@@ -11,18 +11,25 @@ export default function AQLForm() {
   const [checkValues, setCheckValues] = useState({});
   const [savedSizes, setSavedSizes] = useState([]);
   const [savedMeasurements, setSavedMeasurements] = useState({});
+  const [formStatus, setFormStatus] = useState({
+    isDirty: false,
+    lastSaved: null
+  });
 
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
 
-  // Fetch size table data for the selected reference
+  // Generate a unique storage key based on company and reference
+  const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
+
+  // Fetch size table data
   const { data: sizeData } = useGetSizeTableMasterQuery(
     { productReference: selectedReference },
     { skip: !selectedReference }
   );
 
-  // Fetch all references for the dropdown
+  // Fetch all references
   const { data: sizeTableData } = useGetSizeTableMasterByReferenceQuery();
 
   // Extract unique references
@@ -30,34 +37,62 @@ export default function AQLForm() {
   const selectedProduct = sizeData?.data;
   const availableSizes = selectedProduct?.availableSizes || [];
 
-  // Load saved data from localStorage on component mount or when reference changes
-  useEffect(() => {
-    const savedData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}`);
+  // Load saved data from localStorage
+  const loadSavedData = () => {
+    const savedData = secureLocalStorage.getItem(storageKey);
     if (savedData) {
       setSavedSizes(savedData.savedSizes || []);
       setSavedMeasurements(savedData.savedMeasurements || {});
+      setFormStatus(prev => ({
+        ...prev,
+        lastSaved: new Date().toLocaleString()
+      }));
     } else {
       setSavedSizes([]);
       setSavedMeasurements({});
     }
-    // Reset current selections
     setSelectedSize('');
     setCheckValues({});
     setMeasurements([]);
-  }, [selectedReference, companyId]);
+  };
 
-  // Save data to localStorage whenever savedSizes or savedMeasurements change
+  // Save data to localStorage
+  const saveDataToStorage = () => {
+    if (!selectedReference) return;
+    
+    const formData = {
+      savedSizes,
+      savedMeasurements,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    secureLocalStorage.setItem(storageKey, formData);
+    setFormStatus(prev => ({
+      ...prev,
+      isDirty: false,
+      lastSaved: new Date().toLocaleString()
+    }));
+  };
+
+  // Initialize form
   useEffect(() => {
     if (selectedReference) {
-      const formData = {
-        savedSizes,
-        savedMeasurements
-      };
-      secureLocalStorage.setItem(`aqlFormData_${companyId}_${selectedReference}`, formData);
+      loadSavedData();
     }
-  }, [savedSizes, savedMeasurements, selectedReference, companyId]);
+  }, [selectedReference]);
 
-  // Load measurements when size is selected
+  // Auto-save when data changes
+  useEffect(() => {
+    if (selectedReference && formStatus.isDirty) {
+      const saveTimer = setTimeout(() => {
+        saveDataToStorage();
+      }, 1000); // Debounce saving
+
+      return () => clearTimeout(saveTimer);
+    }
+  }, [savedSizes, savedMeasurements, selectedReference, formStatus.isDirty]);
+
+  // Load measurements for selected size
   useEffect(() => {
     if (selectedProduct && selectedSize) {
       const measurementData = selectedProduct.measurements
@@ -75,7 +110,7 @@ export default function AQLForm() {
 
       setMeasurements(measurementData);
 
-      // Initialize check values - use saved data if available, otherwise empty
+      // Initialize check values
       const savedSizeData = savedMeasurements[selectedSize] || {};
       const initialCheckValues = {};
 
@@ -90,18 +125,21 @@ export default function AQLForm() {
     }
   }, [selectedProduct, selectedSize, savedMeasurements]);
 
+  // Handle measurement value changes
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     setCheckValues(prev => ({
       ...prev,
       [measurementId]: prev[measurementId].map((val, idx) =>
         idx === pieceIndex ? value : val)
     }));
+    setFormStatus(prev => ({ ...prev, isDirty: true }));
   };
 
+  // Save current size data
   const handleSaveSize = () => {
     if (!selectedSize) return;
 
-    // Check if all measurements have all 7 values filled
+    // Validate all measurements are filled
     const isComplete = measurements.every(measurement => {
       return checkValues[measurement.id] &&
         checkValues[measurement.id].length === 7 &&
@@ -113,27 +151,31 @@ export default function AQLForm() {
       return;
     }
 
-    // Save the measurements for this size
-    setSavedMeasurements(prev => ({
-      ...prev,
+    // Update saved measurements
+    const updatedMeasurements = {
+      ...savedMeasurements,
       [selectedSize]: checkValues
-    }));
+    };
+    setSavedMeasurements(updatedMeasurements);
 
-    // Add to saved sizes if not already there
+    // Add to saved sizes if new
     if (!savedSizes.includes(selectedSize)) {
       setSavedSizes(prev => [...prev, selectedSize]);
     }
 
-    // Clear current size selection
+    // Clear current selection
     setSelectedSize('');
     setShowSizeDropdown(false);
+    setFormStatus(prev => ({ ...prev, isDirty: true }));
   };
 
+  // Load a previously saved size
   const handleLoadSize = (size) => {
     setSelectedSize(size);
     setShowSizeDropdown(false);
   };
 
+  // Submit all data
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -142,6 +184,7 @@ export default function AQLForm() {
       return;
     }
 
+    // Prepare submission data
     const formData = {
       reference: selectedReference,
       inspectionDate,
@@ -159,18 +202,13 @@ export default function AQLForm() {
     console.log('Form submitted:', formData);
     alert('AQL Form submitted successfully!');
 
-    // Clear form after submission
-    secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}`);
-    setSelectedReference('');
-    setSelectedSize('');
-    setMeasurements([]);
-    setCheckValues({});
-    setSavedSizes([]);
-    setSavedMeasurements({});
+    // Clear form
+    secureLocalStorage.removeItem(storageKey);
+    resetForm();
   };
 
+  // Check if value is within tolerance
   const checkTolerance = (measurement, value) => {
-    console.log(measurement,"measurement")
     if (!value) return '';
     const numericValue = parseFloat(value);
     const standardValue = parseFloat(measurement.standardValue);
@@ -178,10 +216,8 @@ export default function AQLForm() {
     const toleranceMax = parseFloat(measurement.toleranceMax);
 
     const deviation = numericValue - standardValue;
-    console.log(Math.abs(deviation),"deviation")
-    console.log(toleranceMin,"toleranceMin")
 
-    if (deviation < 0 && Math.abs(deviation) >Math.abs( toleranceMin)) {
+    if (deviation < 0 && Math.abs(deviation) > Math.abs(toleranceMin)) {
       return 'bg-red-100 text-red-800';
     }
     else if (deviation > 0 && deviation > toleranceMax) {
@@ -190,16 +226,31 @@ export default function AQLForm() {
     return 'bg-green-100 text-green-800';
   };
 
+  // Reset form completely
   const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
-      secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}`);
-      setSelectedReference('');
-      setSelectedSize('');
-      setMeasurements([]);
-      setCheckValues({});
-      setSavedSizes([]);
-      setSavedMeasurements({});
+    if (window.confirm('Are you sure you want to reset the form? All data will be lost.')) {
+      secureLocalStorage.removeItem(storageKey);
+      resetForm();
     }
+  };
+
+  const resetForm = () => {
+    setSelectedReference('');
+    setSelectedSize('');
+    setMeasurements([]);
+    setCheckValues({});
+    setSavedSizes([]);
+    setSavedMeasurements({});
+    setFormStatus({
+      isDirty: false,
+      lastSaved: null
+    });
+  };
+
+  // Manually save current progress
+  const handleManualSave = () => {
+    saveDataToStorage();
+    alert('Form progress saved successfully!');
   };
 
   return (
@@ -210,6 +261,26 @@ export default function AQLForm() {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-3">
             <h1 className="text-lg font-bold text-white">AQL Inspection Form</h1>
             <p className="text-blue-100 text-xs">Single-table quality control measurement</p>
+          </div>
+
+          {/* Status Bar */}
+          <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+            <div className="text-xs text-gray-600">
+              {formStatus.lastSaved && (
+                <span>Last saved: {formStatus.lastSaved}</span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleManualSave}
+              disabled={!formStatus.isDirty}
+              className={`px-2 py-1 text-xs rounded ${!formStatus.isDirty
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
+            >
+              Save Progress
+            </button>
           </div>
 
           {/* Form Content */}
@@ -228,6 +299,7 @@ export default function AQLForm() {
                       onChange={(e) => {
                         setSelectedReference(e.target.value);
                         setSelectedSize('');
+                        setFormStatus(prev => ({ ...prev, isDirty: false }));
                       }}
                       className="w-full px-3 py-2 text-xs border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
                       required

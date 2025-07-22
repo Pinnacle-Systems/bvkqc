@@ -723,12 +723,11 @@ const AllocationForm = () => {
                   />
                 </div>
 
-                {/* Delivery Date */}
-                
+               
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
                     Delivery Date <span className="text-red-500">*</span>
-                  </label>
+                  </label>  
                   <Controller
                     name="deliveryDate"
                     control={control}
