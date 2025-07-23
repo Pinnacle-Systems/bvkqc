@@ -30,6 +30,7 @@ export { default as TaxTemplate } from './TaxTemplate';
 export { default as TermsAndCondition } from './TermsAndCondition';
 export { default as Header } from "./Header";
 export { default as SizeMaster } from "./SizeMaster";
+export { default as Sidebar } from "./Sidebar";
 export { default as LocationMaster } from "./LocationMaster";
 export { default as MachineMaster } from "./MachineMaster";
 export { default as GridTable } from "./GridTable";

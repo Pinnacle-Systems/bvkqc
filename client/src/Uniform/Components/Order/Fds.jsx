@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGetSizeTableMasterQuery, useGetSizeTableMasterByReferenceQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import secureLocalStorage from 'react-secure-storage';
-
+import { useAddSampleMutation } from "../../../redux/uniformService/QualityControlService";
 export default function AQLForm() {
   const [selectedReference, setSelectedReference] = useState('');
   const [inspectionDate] = useState(new Date().toISOString().split('T')[0]);
@@ -13,7 +13,8 @@ export default function AQLForm() {
   const [savedMeasurements, setSavedMeasurements] = useState({});
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
-    lastSaved: null
+    lastSaved: null,
+    isSubmitting: false
   });
 
   const companyId = secureLocalStorage.getItem(
@@ -32,6 +33,9 @@ export default function AQLForm() {
   // Fetch all references
   const { data: sizeTableData } = useGetSizeTableMasterByReferenceQuery();
 
+  // Mutation for submitting AQL inspection
+  const [submitAQLInspection] = useAddSampleMutation();
+
   // Extract unique references
   const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
   const selectedProduct = sizeData?.data;
@@ -45,7 +49,7 @@ export default function AQLForm() {
       setSavedMeasurements(savedData.savedMeasurements || {});
       setFormStatus(prev => ({
         ...prev,
-        lastSaved: new Date().toLocaleString()
+        lastSaved: new Date(savedData.lastUpdated).toLocaleString()
       }));
     } else {
       setSavedSizes([]);
@@ -104,18 +108,18 @@ export default function AQLForm() {
             name: m.description,
             standardValue: valueObj.value,
             toleranceMin: m.toleranceMin || '0',
-            toleranceMax: m.toleranceMax || '0'
+            toleranceMax: m.toleranceMax || '0',
+            unit: m.unit || ''
           };
         });
 
       setMeasurements(measurementData);
 
-      // Initialize check values
+      // Initialize check values with saved data or empty array
       const savedSizeData = savedMeasurements[selectedSize] || {};
       const initialCheckValues = {};
-
-      measurementData.forEach(m => {
-        initialCheckValues[m.id] = savedSizeData[m.id] || Array(7).fill('');
+       measurementData.forEach(m => {
+       initialCheckValues[m.id] = savedSizeData[m.id] || Array(7).fill('');
       });
 
       setCheckValues(initialCheckValues);
@@ -133,6 +137,17 @@ export default function AQLForm() {
         idx === pieceIndex ? value : val)
     }));
     setFormStatus(prev => ({ ...prev, isDirty: true }));
+  };
+
+  // Check if all measurements for a size are complete
+  const isSizeComplete = (size) => {
+    const sizeData = savedMeasurements[size];
+    if (!sizeData) return false;
+    
+    return measurements.every(measurement => {
+      const values = sizeData[measurement.id];
+      return values && values.length === 7 && values.every(val => val !== '');
+    });
   };
 
   // Save current size data
@@ -175,8 +190,8 @@ export default function AQLForm() {
     setShowSizeDropdown(false);
   };
 
-  // Submit all data
-  const handleSubmit = (e) => {
+  // Submit all data to API
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (savedSizes.length === 0) {
@@ -184,32 +199,60 @@ export default function AQLForm() {
       return;
     }
 
-    // Prepare submission data
-    const formData = {
-      reference: selectedReference,
-      inspectionDate,
-      sizes: savedSizes.map(size => ({
-        size,
-        measurements: measurements.map(m => ({
-          name: m.name,
-          standardValue: m.standardValue,
-          tolerance: `-${m.toleranceMin}/+${m.toleranceMax}`,
-          checks: savedMeasurements[size]?.[m.id] || []
+    // Validate all saved sizes are complete
+    const allSizesComplete = savedSizes.every(size => isSizeComplete(size));
+    if (!allSizesComplete) {
+      alert('Please complete all measurements for all saved sizes before submitting.');
+      return;
+    }
+
+    setFormStatus(prev => ({ ...prev, isSubmitting: true }));
+
+    try {
+      // Prepare submission data
+      const submissionData = {
+        companyId,
+        reference: selectedReference,
+        inspectionDate,
+        sizes: savedSizes.map(size => ({
+          size,
+          measurements: measurements.map(m => ({
+            measurementId: m.id,
+            measurementName: m.name,
+            standardValue: parseFloat(m.standardValue),
+            toleranceMin: parseFloat(m.toleranceMin),
+            toleranceMax: parseFloat(m.toleranceMax),
+            unit: m.unit,
+            values: savedMeasurements[size][m.id].map((val, idx) => ({
+              pieceNumber: idx + 1,
+              actualValue: parseFloat(val)
+            }))
+          }))
         }))
-      }))
-    };
+      };
 
-    console.log('Form submitted:', formData);
-    alert('AQL Form submitted successfully!');
-
-    // Clear form
-    secureLocalStorage.removeItem(storageKey);
-    resetForm();
+      // Submit to API
+      const response = await submitAQLInspection(submissionData).unwrap();
+      
+      if (response.success) {
+        alert('AQL Form submitted successfully!');
+        // Clear form after successful submission
+        secureLocalStorage.removeItem(storageKey);
+        resetForm();
+      } else {
+        throw new Error(response.message || 'Submission failed');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert(`Failed to submit AQL form: ${error.message}`);
+    } finally {
+      setFormStatus(prev => ({ ...prev, isSubmitting: false }));
+    }
   };
 
   // Check if value is within tolerance
   const checkTolerance = (measurement, value) => {
-    if (!value) return '';
+    if (!value || isNaN(value)) return '';
     const numericValue = parseFloat(value);
     const standardValue = parseFloat(measurement.standardValue);
     const toleranceMin = parseFloat(measurement.toleranceMin);
@@ -228,7 +271,7 @@ export default function AQLForm() {
 
   // Reset form completely
   const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset the form? All data will be lost.')) {
+    if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
       secureLocalStorage.removeItem(storageKey);
       resetForm();
     }
@@ -243,9 +286,11 @@ export default function AQLForm() {
     setSavedMeasurements({});
     setFormStatus({
       isDirty: false,
-      lastSaved: null
+      lastSaved: null,
+      isSubmitting: false
     });
   };
+
 
   // Manually save current progress
   const handleManualSave = () => {
@@ -363,14 +408,16 @@ export default function AQLForm() {
                           availableSizes.map((size, index) => (
                             <div
                               key={index}
-                              className={`px-3 py-1 hover:bg-blue-50 cursor-pointer ${savedSizes.includes(size) ? 'bg-green-50' : ''
+                              className={`px-3 py-1 hover:bg-blue-50 cursor-pointer ${savedSizes.includes(size) ? (isSizeComplete(size) ? 'bg-green-50' : 'bg-yellow-50') : ''
                                 }`}
                               onClick={() => handleLoadSize(size)}
                             >
                               <div className="flex justify-between items-center">
                                 <span>{size}</span>
                                 {savedSizes.includes(size) && (
-                                  <span className="text-green-500">✓</span>
+                                  <span className={isSizeComplete(size) ? 'text-green-500' : 'text-yellow-500'}>
+                                    {isSizeComplete(size) ? '✓' : '...'}
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -392,10 +439,14 @@ export default function AQLForm() {
                     {savedSizes.map((size, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 cursor-pointer"
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${isSizeComplete(size)
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                          }`}
                         onClick={() => handleLoadSize(size)}
                       >
                         {size}
+                        {isSizeComplete(size) ? ' ✓' : ' ...'}
                       </span>
                     ))}
                   </div>
@@ -434,7 +485,7 @@ export default function AQLForm() {
                         {measurements.map(measurement => (
                           <tr key={measurement.id}>
                             <td className="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
-                              {measurement.name}
+                              {measurement.name} ({measurement.unit})
                             </td>
                             <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
                               {measurement.standardValue}
@@ -488,13 +539,13 @@ export default function AQLForm() {
 
                 <button
                   type="submit"
-                  disabled={savedSizes.length === 0}
-                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${savedSizes.length === 0
+                  disabled={savedSizes.length === 0 || !savedSizes.every(size => isSizeComplete(size)) || formStatus.isSubmitting}
+                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${savedSizes.length === 0 || !savedSizes.every(size => isSizeComplete(size))
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700'
                     }`}
                 >
-                  Submit All
+                  {formStatus.isSubmitting ? 'Submitting...' : 'Submit All'}
                 </button>
               </div>
             </form>
