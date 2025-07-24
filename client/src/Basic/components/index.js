@@ -4,7 +4,6 @@ export { default as Loader } from "./Loader";
 export { default as BranchAndFinyearForm } from "./BranchAndFinyear"
 export { default as LogoutConfirm } from "./LogoutConfirm"
 export { default as CompanyMaster } from "./CompanyMaster";
-export { default as HomePage } from "../../Uniform/Components/HomePage"
 export {default as LineMaster} from "./Linemaster"
 export { default as StateMaster } from "./StateMaster";
 export { default as CountryMaster } from "./CountryMaster";

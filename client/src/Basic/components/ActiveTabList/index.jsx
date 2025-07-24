@@ -21,14 +21,8 @@ import {
   LineMaster,OrderImport,Allocation,Aql
 
 } from "../../components";
-
-// import { PatientVisitTransaction, DoctorConsultation } from "../../../pharma/components";
-
-import { CLOSE_ICON, DOUBLE_NEXT_ICON } from "../../../icons";
 import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
 import secureLocalStorage from "react-secure-storage";
-import { MaxcontrolPanel, MaxHomePage, Order, TagTypeMater } from "../../../Uniform/Components";
-import PartyDetailModal from "../../../Uniform/Components/Order/partyMaster";
 
 const ActiveTabList = () => {
   const openTabs = useSelector((state) => state.openTabs);
@@ -64,10 +58,6 @@ const ActiveTabList = () => {
     "SIZE MASTER": <SizeMaster />,
     "LOCATION MASTER": <LocationMaster />,
     "DASHBOARD": <Dashboard />,
-    "ORDER": <Order />,
-    "HOMEPAGE": <MaxHomePage />,
-    "MAX CONTROL PANEL": <MaxcontrolPanel />,
-    "TAG TYPE MASTER": <TagTypeMater />,
     "LINE MASTER": <LineMaster />,
     "ORDER IMPORT": <OrderImport />,
     "ALLOCATION" : <Allocation />,
@@ -89,7 +79,6 @@ const ActiveTabList = () => {
   )
   return (
     <>
-      {showAddModal && <PartyDetailModal />}
 
       <div className="relative mt-[55px] bg-[f1f1f0] p-1 rounded-md">
         <div className="flex justify-between items-center">

@@ -10,17 +10,14 @@ import {
   useUpdatePartyMutation,
 } from "../../../redux/services/PartyMasterService";
 import moment from "moment";
-import { findFromList } from "../../../Utils/helper";
 import {
   dropDownListMergedObject,
   dropDownListObject,
-  multiSelectOption,
 } from "../../../Utils/contructObject";
 import PartyOnItems from "./PartyOnItems";
-import { Check, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { Check } from "lucide-react";
 import { statusDropdown } from "../../../Utils/DropdownData";
-import BrowseSingleImage from "../../components/BrowseSingleImage";
-import MastersForm from "../MastersForm/MastersForm";
+
 import {
   Modal,
   ToggleButton,
@@ -31,17 +28,10 @@ import {
   MultiSelectDropdown,
 } from "../../../Inputs";
 import Mastertable from "../MasterTable/Mastertable";
-import { useGetProcessMasterQuery } from "../../../redux/uniformService/ProcessMasterService";
 import { useGetCurrencyMasterQuery } from "../../../redux/services/CurrencyMasterServices";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashCan, faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import { DELETE, PLUS } from "../../../icons";
+
 import { toast } from "react-toastify";
-import { exist } from "joi";
-import { push } from "../../../redux/features/opentabs";
-import { TextField } from "@mui/material";
-import CommonTable from "../../../Uniform/Components/common/CommonTable.jsx";
-import { FaChevronRight } from "react-icons/fa6";
+
 import GarmentBranchForm from "./GarmentBranchForm.jsx";
 
 const MODEL = "Party Master";
@@ -221,16 +211,7 @@ export default function Form({ partyId, onCloseForm }) {
         setContactDetails(data?.ContactDetails ? data.ContactDetails : "");
         setSupplier(data?.isSupplier || false);
         setClient(data?.isClient || false);
-        setProcessDetails(
-          data?.PartyOnProcess
-            ? data.PartyOnProcess.map((item) => {
-                return {
-                  value: parseInt(item.processId),
-                  label: findFromList(item.processId, processList.data, "name"),
-                };
-              })
-            : []
-        );
+       
       }
     },
     [id]
@@ -287,11 +268,7 @@ export default function Form({ partyId, onCloseForm }) {
     isDy,
   };
 
-  const {
-    data: processList,
-    isLoading: isProcessLoading,
-    isFetching: isProcessFetching,
-  } = useGetProcessMasterQuery({ params });
+
 
   const validateData = (data) => {
     if (data.name) {
@@ -540,7 +517,7 @@ export default function Form({ partyId, onCloseForm }) {
 
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           {console.log(allData, "alll")}
-          <CommonTable
+          <Mastertable
             columns={columns}
             data={allData?.data || []}
             onDataClick={onDataClick}
