@@ -3,233 +3,96 @@ import { useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { push } from "../../../redux/features/opentabs";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, HandCoins, LayoutDashboard, Search, University, Volleyball } from "lucide-react";
-// import { GrUserWorker } from "react-icons/gr";
-import { TfiWorld } from "react-icons/tfi";
-import { IoLocationOutline } from "react-icons/io5";
-import { MdOutlineMyLocation } from "react-icons/md";
-import { TbCalendarDollar } from "react-icons/tb";
-import { LuUserCheck } from "react-icons/lu";
-import { BiCategoryAlt } from "react-icons/bi";
-import { MdCurrencyRupee } from "react-icons/md";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { TbRulerMeasure2 } from "react-icons/tb";
-import { HiOutlineReceiptTax } from "react-icons/hi";
-import { HiReceiptTax } from "react-icons/hi";
-import { PiTShirtThin } from "react-icons/pi";
-import { FaMapLocationDot } from "react-icons/fa6";
-import { PiSock } from "react-icons/pi";
-import { PiSockFill } from "react-icons/pi";
-// import { MdWifiProtectedSetup } from "react-icons/md";
-// import { LuProportions } from "react-icons/lu";
-import { BsQuestionOctagon } from "react-icons/bs";
-import { FaCottonBureau } from "react-icons/fa6";
-import { GiYarn } from "react-icons/gi";
-import { PiYarnLight } from "react-icons/pi";
-// import { GiRolledCloth } from "react-icons/gi";
-// import { SiGsmarenadotcom } from "react-icons/si";
-// import { AiOutlineNumber } from "react-icons/ai";
-// import { PiScribbleLoopBold } from "react-icons/pi";
-// import { MdDesignServices } from "react-icons/md";
-import { FaSocks } from "react-icons/fa6";
-import { GiFoldedPaper } from "react-icons/gi";
-import { TbNeedleThread } from "react-icons/tb";
-
+import { Search } from "lucide-react";
 import country from './images/flag.png';
-import material from './images/style.png'
 import employee from "./images/employee.png";
 import state from "./images/map.png";
 import city from "./images/city.png";
 import department from "./images/department.png";
-import calender from "./images/calender.png";
 import empcategory from "./images/empcategory.png";
 import partycategory from "./images/partycategory.png";
-import currency from "./images/currency.png";
 import party from "./images/party.png";
-import color from "./images/color.png";
-import payterm from "./images/payterm.png"
-import taxterm from "./images/tax.png";
-import taxtemplate from "./images/taxtemplate.png";
-import size from "./images/size.png";
-import style from "./images/style.png";
-import location from "./images/location.png";
-import sizetemplate from "./images/sizetemplate.png";
-import lossreason from "./images/reason.png";
-import yarncontent from "./images/cotton.png";
-import yarntype from "./images/yarntype.png";
-import yarnblend from "./images/yarnblend.png";
-import yarn from "./images/yarn.png";
-import yarncount from "./images/yarncount.png";
-import accessorygroup from "./images/accessorygroup.png";
-import accessory from "./images/accessory.png";
-import accessoryitem from "./images/accessoryitem.png"
-import Machine from "./images/Machine.jpeg";
-import { useGetPageGroupQuery } from "../../../redux/services/PageGroupMasterServices";
-import axios from "axios";
-import { MachineMaster } from "..";
-
+import Line from "./images/line.png";
 
 const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDropdownOpen, heading, setIsOpen }) => {
   const dispatch = useDispatch();
-
   const [hoveredGroupId, setHoveredGroupId] = useState(null);
   const navigate = useNavigate();
-
-
   const [search, setSearch] = useState("");
-
+  
   const filteredData = pages.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const iconMapping = {
-    "COUNTRY MASTER":
-      <img src={country} alt="country" className="w-[23px]  justify-center items-center bg-white rounded border-2 border-white shadow" />
-    ,
-    "EMPLOYEE MASTER":
-      <img src={employee} alt="country" className="w-[23px]  justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "STATE MASTER":
-      <img src={state} alt="country" className="w-[23px]  justify-center items-center  bg-white border-2 border-white rounded shadow" />
-    ,
-    "CITY MASTER":
-      <img src={city} alt="country" className="w-[23px]  justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "DEPARTMENT MASTER":
-      <img src={department} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "FIN YEAR MASTER":
-      <img src={calender} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "EMPLOYEE CATEGORY MASTER":
-      <img src={empcategory} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "PARTY MASTER":
-      <img src={party} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "PARTY CATEGORY MASTER":
-      <img src={partycategory} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "CURRENCY MASTER":
-      <img src={currency} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "COLOR MASTER":
-      <img src={color} alt="country" className="w-[23px] flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "UNIT OF MEASUREMENT MASTER": <img />,
-    "PAY TERM MASTER":
-      <img src={payterm} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "TAX TERM MASTER":
-      <img src={taxterm} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    //  <HiOutlineReceiptTax size={20} />
-    ,
-    "TAX TEMPLATE":
-      <img src={taxtemplate} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    //  <HiReceiptTax size={20} />
-    ,
-    "SIZE MASTER":
-      <img src={size} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <PiSock size={20} />
-    ,
-    "SIZE TEMPLATE MASTER":
-      <img src={sizetemplate} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <TbRulerMeasure2 size={20} />
-    ,
-    "LOCATION MASTER":
-      <img src={location} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <IoLocationOutline size={20} />
-    ,
-    "STYLE MASTER":
-      <img src={style} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <PiSockFill size={20} />
-    ,
-    "PROCESS MASTER":
-      <span className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow">
-        <img />
-      </span>
-    //  <MdWifiProtectedSetup size={20} /> 
-    ,
-    "PORTION MASTER": <img />,
-    "LOSS REASON MASTER":
-      <img src={lossreason} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <BsQuestionOctagon size={20} />
-    ,
-    "CONTENT MASTER":
-      <img src={yarncontent} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <FaCottonBureau size={20} />
-    ,
-    "YARN TYPE MASTER":
-      <img src={yarntype} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <GiYarn size={20} />
-    ,
-    "YARN MASTER":
-      <img src={yarn} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <Volleyball size={20} />
-    ,
-    "YARN BLEND MASTER":
-      <img src={yarnblend} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    // <PiYarnLight size={20} />
-    ,
-    "FABRIC TYPE MASTER": <img />,
-    "GSM MASTER": <img />,
-    "GAUGE MASTER": <img />,
-    "LOOP LENGTH MASTER": <img />,
-    "DESIGN MASTER": <img />,
-    "ACCESSORY ITEM MASTER":
-      <img src={accessoryitem} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "ACCESSORY MASTER":
-      <img src={accessory} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "COUNTS MASTER":
-      <img src={yarncount} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "ACCESSORY GROUP MASTER":
-      <img src={accessorygroup} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "SHOCKS MATERIAL MASTER":
-      <img src={material} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-    ,
-    "MACHINE MASTER":
-      <img src={Machine} alt="country" className="w-[23px]  flex justify-center items-center bg-white border-2 border-white rounded shadow" />
-  }
+    "COUNTRY MASTER": (
+      <img src={country} alt="country" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+    "EMPLOYEE MASTER": (
+      <img src={employee} alt="employee" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+    "STATE MASTER": (
+      <img src={state} alt="state" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+    "CITY MASTER": (
+      <img src={city} alt="city" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+    "DEPARTMENT MASTER": (
+      <img src={department} alt="department" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+    "DESIGNATION MASTER": (
+      <img src={empcategory} alt="designation" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+    "PARTY MASTER": (
+      <img src={party} alt="party" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+    "PARTY CATEGORY MASTER": (
+      <img src={partycategory} alt="party category" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    ),
+     "LINE MASTER": (
+      <img src={Line} alt="party category" className="w-6 h-6 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm" />
+    )
+  };
+
   return (
-    <div className="fixed top-[3.5%] left-[87px] z-50">
+    <div className="fixed top-[3.5%] left-[87px] z-50 bg">
       {isMainDropdownOpen && (
         <div
           onClick={() => setIsMainDropdownOpen(false)}
-          className="bg-black/50 fixed inset-0 -z-10"
+          className="fixed inset-0 bg-[ff1f0] z-40"
         ></div>
       )}
 
       {isMainDropdownOpen && (
-        <div className="bg-white p-4 rounded-lg shadow-2xl outline outline-1 outline-gray-300 h-[650px] overflow-y-auto w-[400px] transition-all duration-200 space-y-4">
-
-          <div className="relative">
-            <input
-              type="text"
-              name="masters"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
-              className="w-full pl-3 pr-10 py-2 text-sm text-gray-700 bg-gray-100 rounded-full outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="absolute inset-y-0 right-3 flex items-center text-gray-500">
-              <Search size={16} />
+        <div className="bg-white p-5 rounded-xl shadow-2xl border border-gray-200 h-[650px] overflow-y-auto w-[360px] transition-all duration-200 space-y-5 z-50 relative">
+          <div className="sticky top-0 bg-white pb-3 pt-1 z-10">
+            <h2 className="text-lg font-bold text-gray-800 mb-3">{heading}</h2>
+            
+            <div className="relative">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={`Search ${heading.toLowerCase()}...`}
+                className="w-full pl-4 pr-10 py-2 text-sm text-gray-700 bg-gray-50 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+              <div className="absolute inset-y-0 right-3 flex items-center text-gray-400">
+                <Search size={18} />
+              </div>
             </div>
           </div>
 
-          <ul className="space-y-2">
+          <ul className="space-y-5">
             {groups?.map((group) => (
-              <li key={group?.id} className="space-y-1">
+              <li key={group?.id} className="space-y-3">
                 {search.length === 0 && (
-                  <h3 className="text-sm font-semibold text-gray-700 pl-2 uppercase tracking-wide">
-                    {(group?.name + " Module").replace(/\b[a-z]/g, char => char.toUpperCase())}
+                  <h3 className="text-sm font-semibold text-gray-700 px-2 uppercase tracking-wider flex items-center">
+                    <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                    {group?.name.replace(/\b[a-z]/g, char => char.toUpperCase())}
                   </h3>
                 )}
 
-                <ul className="grid grid-cols-4 gap-2 pt-1">
+                <ul className="grid grid-cols-3 gap-3">
                   {filteredData
                     .filter(page => parseInt(page.pageGroupId) === parseInt(group.id))
                     .map(page => (
@@ -244,18 +107,19 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
                           setIsMainDropdownOpen(false);
                           setIsOpen(false);
                         }}
-                        className="bg-gray-100 hover:bg-gray-200 rounded-lg p-2 text-xs text-center cursor-pointer transition-all duration-150"
+                        className="bg-gray-50 hover:bg-indigo-50 border border-gray-100 hover:border-indigo-100 rounded-lg p-3 text-xs text-center cursor-pointer transition-all duration-150 shadow-sm hover:shadow-md"
                       >
-                        <div className="flex flex-col items-center justify-center">
-                          <div className="mb-1">
-                            {iconMapping[page?.name] || <span className="text-gray-400">🔘</span>}
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-gray-200 p-1.5 shadow-inner">
+                            {iconMapping[page?.name] || <span className="text-gray-400 text-xl">•</span>}
                           </div>
-                          <div className="text-[10px] leading-tight">
+                          <div className="text-xs font-medium text-gray-700 leading-tight">
                             {page?.name
                               .replace(/\bMASTER\b/g, "")
                               .trim()
-                              .toLowerCase()
-                              .replace(/\b[a-z]/g, (char) => char.toUpperCase())}
+                              .split(' ')
+                              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                              .join(' ')}
                           </div>
                         </div>
                       </li>
@@ -267,7 +131,7 @@ const SidebarComponent = ({ logo, groups, pages, isMainDropdownOpen, setIsMainDr
         </div>
       )}
     </div>
-
   );
 };
+
 export default SidebarComponent;
