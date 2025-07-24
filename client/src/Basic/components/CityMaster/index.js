@@ -169,7 +169,7 @@ export default function Form() {
         setId(id);
         setForm(true);
     }
-    const tableHeaders = ["S.NO", "City Name", "Code", "State", "Status", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    const tableHeaders = ["S.NO", "City Name",  "State", "Status", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
     const tableDataNames = ["index+1",  "dataObj.name", "dataObj.state.name", 'dataObj.active ? ACTIVE : INACTIVE', " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
     // if (!form)
     //     return (
@@ -198,8 +198,10 @@ export default function Form() {
                 onKeyDown={handleKeyDown}
 
             >
-                <div className='w-full flex justify-between mb-2 items-center px-0.5'>
-                    <h5 className='my-1'>City Master</h5>
+                 <div className="w-full flex bg-white p-1 justify-between  items-center">
+        <h1 className="text-2xl font-bold text-gray-800">
+         City Master
+        </h1>
                     <div className='flex items-center'>
                         <button onClick={() => { setForm(true); onNew() }} className='hover:bg-green-500 hover:text-white px-3 py-1 border border-green-600 text-green-600 text-xs rounded shadow-md'>+ Add New City</button>
                     </div>

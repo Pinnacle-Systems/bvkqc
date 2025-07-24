@@ -18,7 +18,7 @@ import {
   CompanyMaster,
   Dashboard,
   Role,
-  LineMaster
+  LineMaster,OrderImport,Allocation,Aql
 
 } from "../../components";
 
@@ -56,7 +56,7 @@ const ActiveTabList = () => {
     "ACCOUNT SETTINGS": <AccountSettings />,
     "CONTROL PANEL": <ControlPanel />,
     "EMPLOYEE MASTER": <EmployeeMaster />,
-    "PARTY MASTER": <PartyMaster />,
+    "BUYER MASTER": <PartyMaster />,
     "PARTY CATEGORY MASTER": <PartyCategorymaster />,
     "CURRENCY MASTER": <CurrencyMaster />,
     "COLOR MASTER": <ColorMaster />,
@@ -68,7 +68,10 @@ const ActiveTabList = () => {
     "HOMEPAGE": <MaxHomePage />,
     "MAX CONTROL PANEL": <MaxcontrolPanel />,
     "TAG TYPE MASTER": <TagTypeMater />,
-    "LINE MASTER": <LineMaster />
+    "LINE MASTER": <LineMaster />,
+    "ORDER IMPORT": <OrderImport />,
+    "ALLOCATION" : <Allocation />,
+    "AQL" : <Aql />
 
 
 

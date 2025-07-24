@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Loader from "../Loader";
 import "./Master.css";
-// import { ToggleButton } from '../Uis';
 import { Power, Table } from "lucide-react";
 import { FaTableList } from "react-icons/fa6";
 import { RiPlayListAddLine } from "react-icons/ri";
@@ -51,7 +50,6 @@ const Mastertable = ({
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  console.log(tableDataNames, "tableDataNames");
   
   return (
     <div className="row w-full mx-auto">
@@ -84,7 +82,7 @@ const Mastertable = ({
                 value={rowsPerPage}
                 onChange={(e) => {
                   setRowsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page when changing rows per page
+                  setCurrentPage(1);
                 }}
               >
                 {[10, 15, 20].map((num) => (
@@ -118,6 +116,8 @@ const Mastertable = ({
                               <th
                                 key={index}
                                 className={`px-4 py-2 text-left font-medium border-white/50 ${
+                                  index === 0 ? "w-[40px]" : "" // Add fixed width for first column (S.No)
+                                } ${
                                   index < tableHeaders.length - 1
                                     ? "border-r"
                                     : ""
@@ -145,7 +145,9 @@ const Mastertable = ({
                               ?.map((data, idx) => (
                                 <td
                                   key={idx}
-                                  className={`h-[32px] text-[12px] border-r border-gray-200 px-4`}
+                                  className={`h-[32px] text-[12px] border-r border-gray-200 px-4 ${
+                                    idx === 0 ? "w-[40px]" : "" // Add fixed width for first column (S.No)
+                                  }`}
                                   onClick={() => {
                                     onDataClick(dataObj?.id);
                                     setReadOnly(true);
@@ -155,7 +157,7 @@ const Mastertable = ({
                                 </td>
                               ))}
 
-                            <td className="px-2 py-1 w-[40px] border-gray-200 border-l h-8">
+                            <td className="px-2 py-1 w-[40px] border-gray-200 border h-8">
                               <div className="flex gap-2">
                                 {/* View */}
                                 <button
@@ -178,7 +180,7 @@ const Mastertable = ({
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  <span className="text-xs">view</span>
+                                  <span className="text-xs"></span>
                                 </button>
 
                                 {/* Edit */}
@@ -197,7 +199,7 @@ const Mastertable = ({
                                   >
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                   </svg>{" "}
-                                  <span className="text-xs">edit</span>
+                                  <span className="text-xs"></span>
                                 </button>
 
                                 {/* Delete */}
@@ -220,7 +222,7 @@ const Mastertable = ({
                                       clipRule="evenodd"
                                     />
                                   </svg>{" "}
-                                  <span className="text-xs">delete</span>
+                                  <span className="text-xs"></span>
                                 </button>
                               </div>
                             </td>

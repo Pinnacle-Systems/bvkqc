@@ -140,19 +140,19 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
   const { branchId } = getCommonParams();
   const { data: branch } = useGetBranchByIdQuery(branchId, { skip: !branchId });
 
-  const masterButtons = [
-    { icon: <Building size={18} />, name: "Company", tooltip: "Company Master", onClick: () => dispatch(push({ name: "COMPANY MASTER" })) },
+  // const masterButtons = [
+  //   { icon: <Building size={18} />, name: "Company", tooltip: "Company Master", onClick: () => dispatch(push({ name: "COMPANY MASTER" })) },
    
-    { icon: <Award size={18} />, name: "Branch", tooltip: "Employee Designation", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
-    { icon: <User size={18} />, name: "Employee", tooltip: "Employee Master", onClick: () => dispatch(push({ name: "EMPLOYEE MASTER" })) },
-    { icon: <Network size={18} />, name: "Department", tooltip: "Department Master", onClick: () => dispatch(push({ name: "DEPARTMENT MASTER" })) },
-    { icon: <Sliders size={18} />, name: "Line", tooltip: "Line Master", onClick: () => dispatch(push({ name: "LINE MASTER" })) },
-    { icon: <ShoppingBag size={18} />, name: "Buyer", tooltip: "Buyer Master", onClick: () => dispatch(push({ name: "PARTY MASTER" })) },
-     { icon: <Globe size={18} />, name: "Country", tooltip: "Country Master", onClick: () => dispatch(push({ name: "COUNTRY MASTER" })) },
-         { icon: <Map size={18} />, name: "State", tooltip: "State Master", onClick: () => dispatch(push({ name: "STATE MASTER" })) },
+  //   { icon: <Award size={18} />, name: "Branch", tooltip: "Employee Designation", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
+  //   { icon: <User size={18} />, name: "Employee", tooltip: "Employee Master", onClick: () => dispatch(push({ name: "EMPLOYEE MASTER" })) },
+  //   { icon: <Network size={18} />, name: "Department", tooltip: "Department Master", onClick: () => dispatch(push({ name: "DEPARTMENT MASTER" })) },
+  //   { icon: <Sliders size={18} />, name: "Line", tooltip: "Line Master", onClick: () => dispatch(push({ name: "LINE MASTER" })) },
+  //   { icon: <ShoppingBag size={18} />, name: "Buyer", tooltip: "Buyer Master", onClick: () => dispatch(push({ name: "BUYER MASTER" })) },
+  //    { icon: <Globe size={18} />, name: "Country", tooltip: "Country Master", onClick: () => dispatch(push({ name: "COUNTRY MASTER" })) },
+  //        { icon: <Map size={18} />, name: "State", tooltip: "State Master", onClick: () => dispatch(push({ name: "STATE MASTER" })) },
 
-    { icon: <MapPin size={18} />, name: "City", tooltip: "City Master", onClick: () => dispatch(push({ name: "CITY MASTER" })) },
-  ];
+  //   { icon: <MapPin size={18} />, name: "City", tooltip: "City Master", onClick: () => dispatch(push({ name: "CITY MASTER" })) },
+  // ];
 
   return (
     <div className='py-2 w-full flex justify-between items-center bg-[f1f1f0] shadow-sm fixed z-50 px-4 border-b border-gray-100'>
@@ -160,7 +160,7 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
         <img className="rounded-lg h-9 object-contain" src={logo} alt="Logo" />
       </div>
 
-      <div className="flex items-center space-x-1 bg-gray-50 rounded-lg p-1 shadow-inner border border-gray-200">
+      {/* <div className="flex items-center space-x-1 bg-gray-50 rounded-lg p-1 shadow-inner border border-gray-200">
         {masterButtons.map((item) => (
           <div key={item.name} className="relative group">
             <button 
@@ -184,7 +184,7 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
       <div className="flex items-center space-x-2">
         <div className="relative group">

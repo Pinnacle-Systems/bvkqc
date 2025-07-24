@@ -524,7 +524,7 @@ export default function Form({ partyId, onCloseForm }) {
     <div onKeyDown={handleKeyDown}>
       <>
         <div className="w-full flex justify-between mb-2 items-center px-0.5 p-2">
-          <h1 className="text-2xl font-bold text-gray-800"> Party Master</h1>
+          <h1 className="text-2xl font-bold text-gray-800"> Buyer Master</h1>
           <div className="flex items-center">
             <button
               onClick={() => {
