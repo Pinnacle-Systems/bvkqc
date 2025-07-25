@@ -517,14 +517,17 @@ export default function Form({ partyId, onCloseForm }) {
 
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           {console.log(allData, "alll")}
-          <Mastertable
-            columns={columns}
-            data={allData?.data || []}
-            onDataClick={onDataClick}
-            itemsPerPage={10}
-            setReadOnly={setReadOnly}
-            deleteData={deleteData}
-          />
+        <Mastertable
+              header={`Buyer List`}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              onDataClick={onDataClick}
+              tableHeaders={tableHeaders}
+              tableDataNames={tableDataNames}
+              data={allData?.data}
+              setReadOnly={setReadOnly}
+              deleteData={deleteData}
+            />
         </div>
       </>
 
@@ -561,15 +564,11 @@ export default function Form({ partyId, onCloseForm }) {
           <div className="h-full flex flex-col bg-[#f1f1f0]">
             {/* Header */}
             <div className="border-b py-2 px-4 mx-3 my-3 flex justify-between items-center sticky top-0 z-10 bg-white">
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {id
-                    ? readOnly
-                      ? "Party Master"
-                      : "Edit Party"
-                    : "Add New Party"}
-                </h2>
-              </div>
+              <div className="w-full flex bg-white p-1 justify-between  items-center">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Buyer Master
+        </h1>
+        </div>
               <div className="flex gap-2">
                 <button
                   type="button"

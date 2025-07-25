@@ -334,7 +334,7 @@ console.log(partyData?.data,"partdyData")
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1 min-w-[180px]">
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                Product Reference *
+                Order No *
               </label>
               <div className="relative">
                 <input
@@ -369,7 +369,7 @@ console.log(partyData?.data,"partdyData")
             
             <div className="min-w-[200px]">
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                Party
+                Buyer
               </label>
               <div className="relative">
                 <select
@@ -378,7 +378,7 @@ console.log(partyData?.data,"partdyData")
                   onChange={handlePartyChange}
                   className="w-full px-4 py-2 text-xs border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none"
                 >
-                  <option value="">Select party</option>
+                  <option value="">Select Buyer</option>
                   {partyData?.data?.map((party) => (
                     <option key={party.id} value={party.id}>
                       {party.name} ({party.aliasName})

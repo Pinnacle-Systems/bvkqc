@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useGetSizeTableMasterQuery, useGetSizeTableMasterByReferenceQuery } from "../../../redux/uniformService/SizeTableMasterService";
+import { useGetSizeTableMasterQuery, useGetAllocationMasterQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import secureLocalStorage from 'react-secure-storage';
 import { useAddSampleMutation } from "../../../redux/uniformService/QualityControlService";
+
 const Aql = () => {
   const [selectedReference, setSelectedReference] = useState('');
   const [inspectionDate] = useState(new Date().toISOString().split('T')[0]);
@@ -11,6 +12,7 @@ const Aql = () => {
   const [checkValues, setCheckValues] = useState({});
   const [savedSizes, setSavedSizes] = useState([]);
   const [savedMeasurements, setSavedMeasurements] = useState({});
+  const [partialSavedMeasurements, setPartialSavedMeasurements] = useState({});
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
     lastSaved: null,
@@ -21,32 +23,26 @@ const Aql = () => {
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
 
-  // Generate a unique storage key based on company and reference
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
 
-  // Fetch size table data
   const { data: sizeData } = useGetSizeTableMasterQuery(
     { productReference: selectedReference },
     { skip: !selectedReference }
   );
 
-  // Fetch all references
-  const { data: sizeTableData } = useGetSizeTableMasterByReferenceQuery();
-
-  // Mutation for submitting AQL inspection
+  const { data: sizeTableData } = useGetAllocationMasterQuery();
   const [submitAQLInspection] = useAddSampleMutation();
 
-  // Extract unique references
   const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
   const selectedProduct = sizeData?.data;
   const availableSizes = selectedProduct?.availableSizes || [];
 
-  // Load saved data from localStorage
   const loadSavedData = () => {
     const savedData = secureLocalStorage.getItem(storageKey);
     if (savedData) {
       setSavedSizes(savedData.savedSizes || []);
       setSavedMeasurements(savedData.savedMeasurements || {});
+      setPartialSavedMeasurements(savedData.partialSavedMeasurements || {});
       setFormStatus(prev => ({
         ...prev,
         lastSaved: new Date(savedData.lastUpdated).toLocaleString()
@@ -54,22 +50,23 @@ const Aql = () => {
     } else {
       setSavedSizes([]);
       setSavedMeasurements({});
+      setPartialSavedMeasurements({});
     }
     setSelectedSize('');
     setCheckValues({});
     setMeasurements([]);
   };
 
-  // Save data to localStorage
   const saveDataToStorage = () => {
     if (!selectedReference) return;
-    
+
     const formData = {
       savedSizes,
       savedMeasurements,
+      partialSavedMeasurements,
       lastUpdated: new Date().toISOString()
     };
-    
+
     secureLocalStorage.setItem(storageKey, formData);
     setFormStatus(prev => ({
       ...prev,
@@ -78,25 +75,22 @@ const Aql = () => {
     }));
   };
 
-  // Initialize form
   useEffect(() => {
     if (selectedReference) {
       loadSavedData();
     }
   }, [selectedReference]);
 
-  // Auto-save when data changes
   useEffect(() => {
     if (selectedReference && formStatus.isDirty) {
       const saveTimer = setTimeout(() => {
         saveDataToStorage();
-      }, 1000); // Debounce saving
+      }, 1000);
 
       return () => clearTimeout(saveTimer);
     }
-  }, [savedSizes, savedMeasurements, selectedReference, formStatus.isDirty]);
+  }, [savedSizes, savedMeasurements, partialSavedMeasurements, selectedReference, formStatus.isDirty]);
 
-  // Load measurements for selected size
   useEffect(() => {
     if (selectedProduct && selectedSize) {
       const measurementData = selectedProduct.measurements
@@ -115,11 +109,10 @@ const Aql = () => {
 
       setMeasurements(measurementData);
 
-      // Initialize check values with saved data or empty array
-      const savedSizeData = savedMeasurements[selectedSize] || {};
+      const savedData = savedMeasurements[selectedSize] || partialSavedMeasurements[selectedSize] || {};
       const initialCheckValues = {};
-       measurementData.forEach(m => {
-       initialCheckValues[m.id] = savedSizeData[m.id] || Array(7).fill('');
+      measurementData.forEach(m => {
+        initialCheckValues[m.id] = savedData[m.id] || Array(7).fill('');
       });
 
       setCheckValues(initialCheckValues);
@@ -127,9 +120,8 @@ const Aql = () => {
       setMeasurements([]);
       setCheckValues({});
     }
-  }, [selectedProduct, selectedSize, savedMeasurements]);
+  }, [selectedProduct, selectedSize, savedMeasurements, partialSavedMeasurements]);
 
-  // Handle measurement value changes
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     setCheckValues(prev => ({
       ...prev,
@@ -139,22 +131,41 @@ const Aql = () => {
     setFormStatus(prev => ({ ...prev, isDirty: true }));
   };
 
-  // Check if all measurements for a size are complete
   const isSizeComplete = (size) => {
     const sizeData = savedMeasurements[size];
     if (!sizeData) return false;
-    
+
     return measurements.every(measurement => {
       const values = sizeData[measurement.id];
       return values && values.length === 7 && values.every(val => val !== '');
     });
   };
 
-  // Save current size data
+  const isSizePartiallySaved = (size) => {
+    return Object.keys(partialSavedMeasurements).includes(size) && 
+           !isSizeComplete(size);
+  };
+
+  const handlePartialSave = () => {
+    if (!selectedSize) return;
+
+    const updatedPartialMeasurements = {
+      ...partialSavedMeasurements,
+      [selectedSize]: checkValues
+    };
+    setPartialSavedMeasurements(updatedPartialMeasurements);
+
+    if (!savedSizes.includes(selectedSize)) {
+      setSavedSizes(prev => [...prev, selectedSize]);
+    }
+
+    setFormStatus(prev => ({ ...prev, isDirty: true }));
+    alert('Partially saved measurements for this size.');
+  };
+
   const handleSaveSize = () => {
     if (!selectedSize) return;
 
-    // Validate all measurements are filled
     const isComplete = measurements.every(measurement => {
       return checkValues[measurement.id] &&
         checkValues[measurement.id].length === 7 &&
@@ -162,35 +173,52 @@ const Aql = () => {
     });
 
     if (!isComplete) {
-      alert('Please fill all measurements for all 7 pieces before saving this size.');
+      alert('Please fill all measurements for all 7 pieces before fully saving this size.');
       return;
     }
 
-    // Update saved measurements
     const updatedMeasurements = {
       ...savedMeasurements,
       [selectedSize]: checkValues
     };
     setSavedMeasurements(updatedMeasurements);
 
-    // Add to saved sizes if new
+    const updatedPartial = {...partialSavedMeasurements};
+    delete updatedPartial[selectedSize];
+    setPartialSavedMeasurements(updatedPartial);
+
     if (!savedSizes.includes(selectedSize)) {
       setSavedSizes(prev => [...prev, selectedSize]);
     }
 
-    // Clear current selection
     setSelectedSize('');
     setShowSizeDropdown(false);
     setFormStatus(prev => ({ ...prev, isDirty: true }));
   };
 
-  // Load a previously saved size
   const handleLoadSize = (size) => {
     setSelectedSize(size);
     setShowSizeDropdown(false);
   };
 
-  // Submit all data to API
+  const checkTolerance = (measurement, value) => {
+    if (!value || isNaN(value)) return '';
+    const numericValue = parseFloat(value);
+    const standardValue = parseFloat(measurement.standardValue);
+    const toleranceMin = parseFloat(measurement.toleranceMin);
+    const toleranceMax = parseFloat(measurement.toleranceMax);
+
+    const deviation = numericValue - standardValue;
+
+    if (deviation < 0 && Math.abs(deviation) > Math.abs(toleranceMin)) {
+      return 'bg-red-100 text-red-800';
+    }
+    else if (deviation > 0 && deviation > toleranceMax) {
+      return 'bg-red-100 text-red-800';
+    }
+    return 'bg-green-100 text-green-800';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -199,7 +227,6 @@ const Aql = () => {
       return;
     }
 
-    // Validate all saved sizes are complete
     const allSizesComplete = savedSizes.every(size => isSizeComplete(size));
     if (!allSizesComplete) {
       alert('Please complete all measurements for all saved sizes before submitting.');
@@ -209,7 +236,6 @@ const Aql = () => {
     setFormStatus(prev => ({ ...prev, isSubmitting: true }));
 
     try {
-      // Prepare submission data
       const submissionData = {
         companyId,
         reference: selectedReference,
@@ -231,12 +257,10 @@ const Aql = () => {
         }))
       };
 
-      // Submit to API
       const response = await submitAQLInspection(submissionData).unwrap();
-      
+
       if (response.success) {
         alert('AQL Form submitted successfully!');
-        // Clear form after successful submission
         secureLocalStorage.removeItem(storageKey);
         resetForm();
       } else {
@@ -250,26 +274,6 @@ const Aql = () => {
     }
   };
 
-  // Check if value is within tolerance
-  const checkTolerance = (measurement, value) => {
-    if (!value || isNaN(value)) return '';
-    const numericValue = parseFloat(value);
-    const standardValue = parseFloat(measurement.standardValue);
-    const toleranceMin = parseFloat(measurement.toleranceMin);
-    const toleranceMax = parseFloat(measurement.toleranceMax);
-
-    const deviation = numericValue - standardValue;
-
-    if (deviation < 0 && Math.abs(deviation) > Math.abs(toleranceMin)) {
-      return 'bg-red-100 text-red-800';
-    }
-    else if (deviation > 0 && deviation > toleranceMax) {
-      return 'bg-red-100 text-red-800';
-    }
-    return 'bg-green-100 text-green-800';
-  };
-
-  // Reset form completely
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
       secureLocalStorage.removeItem(storageKey);
@@ -284,6 +288,7 @@ const Aql = () => {
     setCheckValues({});
     setSavedSizes([]);
     setSavedMeasurements({});
+    setPartialSavedMeasurements({});
     setFormStatus({
       isDirty: false,
       lastSaved: null,
@@ -291,11 +296,15 @@ const Aql = () => {
     });
   };
 
-
-  // Manually save current progress
   const handleManualSave = () => {
     saveDataToStorage();
     alert('Form progress saved successfully!');
+  };
+
+  const getSizeStatus = (size) => {
+    if (isSizeComplete(size)) return 'complete';
+    if (isSizePartiallySaved(size)) return 'partial';
+    return 'none';
   };
 
   return (
@@ -405,23 +414,29 @@ const Aql = () => {
                     {showSizeDropdown && (
                       <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-xs ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto focus:outline-none">
                         {availableSizes.length > 0 ? (
-                          availableSizes.map((size, index) => (
-                            <div
-                              key={index}
-                              className={`px-3 py-1 hover:bg-blue-50 cursor-pointer ${savedSizes.includes(size) ? (isSizeComplete(size) ? 'bg-green-50' : 'bg-yellow-50') : ''
+                          availableSizes.map((size, index) => {
+                            const status = getSizeStatus(size);
+                            return (
+                              <div
+                                key={index}
+                                className={`px-3 py-1 hover:bg-blue-50 cursor-pointer ${
+                                  status === 'complete' ? 'bg-green-50' : 
+                                  status === 'partial' ? 'bg-yellow-50' : ''
                                 }`}
-                              onClick={() => handleLoadSize(size)}
-                            >
-                              <div className="flex justify-between items-center">
-                                <span>{size}</span>
-                                {savedSizes.includes(size) && (
-                                  <span className={isSizeComplete(size) ? 'text-green-500' : 'text-yellow-500'}>
-                                    {isSizeComplete(size) ? '✓' : '...'}
-                                  </span>
-                                )}
+                                onClick={() => handleLoadSize(size)}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span>{size}</span>
+                                  {status === 'complete' && (
+                                    <span className="text-green-500">✓</span>
+                                  )}
+                                  {status === 'partial' && (
+                                    <span className="text-yellow-500">~</span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))
+                            );
+                          })
                         ) : (
                           <div className="px-3 py-1 text-gray-500">No sizes available</div>
                         )}
@@ -434,21 +449,26 @@ const Aql = () => {
               {/* Saved sizes indicator */}
               {savedSizes.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-xs font-medium text-gray-700 mb-1">Completed Sizes:</p>
+                  <p className="text-xs font-medium text-gray-700 mb-1">Saved Sizes:</p>
                   <div className="flex flex-wrap gap-2">
-                    {savedSizes.map((size, index) => (
-                      <span
-                        key={index}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${isSizeComplete(size)
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
+                    {savedSizes.map((size, index) => {
+                      const status = getSizeStatus(size);
+                      return (
+                        <span
+                          key={index}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
+                            status === 'complete' ? 'bg-green-100 text-green-800' :
+                            status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
                           }`}
-                        onClick={() => handleLoadSize(size)}
-                      >
-                        {size}
-                        {isSizeComplete(size) ? ' ✓' : ' ...'}
-                      </span>
-                    ))}
+                          onClick={() => handleLoadSize(size)}
+                        >
+                          {size}
+                          {status === 'complete' ? ' ✓' : 
+                           status === 'partial' ? ' ~' : ''}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -499,7 +519,13 @@ const Aql = () => {
                                   type="number"
                                   step="0.01"
                                   value={value}
-                                  onChange={(e) => handleCheckValueChange(measurement.id, index, e.target.value)}
+                                  onChange={(e) =>
+                                    handleCheckValueChange(measurement.id, index, e.target.value)
+                                  }
+                                  onBlur={(e) => {
+                                    const formatted = parseFloat(e.target.value || 0).toFixed(2);
+                                    handleCheckValueChange(measurement.id, index, formatted);
+                                  }}
                                   className={`w-full px-1 py-1 text-xs border rounded-sm text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
                                     }`}
                                 />
@@ -523,27 +549,46 @@ const Aql = () => {
                   Reset
                 </button>
 
-                {measurements.length > 0 && !savedSizes.includes(selectedSize) && (
-                  <button
-                    type="button"
-                    onClick={handleSaveSize}
-                    disabled={!selectedSize}
-                    className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${!selectedSize
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700'
+                {measurements.length > 0 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handlePartialSave}
+                      disabled={!selectedSize}
+                      className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${
+                        !selectedSize
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-yellow-500 hover:bg-yellow-600'
                       }`}
-                  >
-                    Save Size
-                  </button>
+                    >
+                      Partial Save
+                    </button>
+
+                    {!savedSizes.includes(selectedSize) && (
+                      <button
+                        type="button"
+                        onClick={handleSaveSize}
+                        disabled={!selectedSize}
+                        className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${
+                          !selectedSize
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        }`}
+                      >
+                        Save Size
+                      </button>
+                    )}
+                  </>
                 )}
 
                 <button
                   type="submit"
                   disabled={savedSizes.length === 0 || !savedSizes.every(size => isSizeComplete(size)) || formStatus.isSubmitting}
-                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${savedSizes.length === 0 || !savedSizes.every(size => isSizeComplete(size))
+                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${
+                    savedSizes.length === 0 || !savedSizes.every(size => isSizeComplete(size))
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700'
-                    }`}
+                  }`}
                 >
                   {formStatus.isSubmitting ? 'Submitting...' : 'Submit All'}
                 </button>
@@ -554,5 +599,6 @@ const Aql = () => {
       </div>
     </div>
   );
-}
+};
+
 export default Aql;

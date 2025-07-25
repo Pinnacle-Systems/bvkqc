@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 // Create Allocation
 export const createAllocation = async (req, res) => {
   try {
-    const { partyId, branchId, lineMasterId, deliveryDate, reference } = req.body;
+    const { partyId, branchId, lineMasterId, deliveryDate, reference,allocationDate } = req.body;
 
     if (!partyId || !branchId || !lineMasterId || !deliveryDate || !reference) {
       return res.status(400).json({
@@ -19,6 +19,7 @@ export const createAllocation = async (req, res) => {
         branchId: parseInt(branchId),
         lineMasterId: parseInt(lineMasterId),
         DeliveryDate: new Date(deliveryDate),
+        allocationDate: new Date(allocationDate) ,
         reference,
       },
     });

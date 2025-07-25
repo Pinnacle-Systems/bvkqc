@@ -841,4 +841,5 @@ model Allocation {
   createdAt     DateTime    @default(now())
   DeliveryDate  DateTime
   reference     String
+  allocationDate DateTime? 
 }

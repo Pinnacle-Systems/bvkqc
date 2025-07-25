@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sidebar, Dashboard, Header, HomePage } from "../../components";
+import { Sidebar,  Header, HomePage } from "../../components";
 import Modal from "../../../UiComponents/Modal";
 import { BranchAndFinyearForm, LogoutConfirm } from "../../components";
 import ActiveTabList from "../../components/ActiveTabList";
@@ -101,7 +101,7 @@ const Home = () => {
                 <ActiveTabList />
               </div>
               {openTabs.tabs.length === 0 &&
-                dispatch(push({ name: "HOMEPAGE" }))}
+                dispatch(push({ name: "DASHBOARD" }))}
             </div>
           )}
         </div>
