@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useGetSizeTableMasterQuery, useGetAllocationMasterQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import secureLocalStorage from 'react-secure-storage';
-import { useAddSampleMutation } from "../../../redux/uniformService/QualityControlService";
+import { useAddAqlInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
 
 const Aql = () => {
   const [selectedReference, setSelectedReference] = useState('');
   const [inspectionDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedSize, setSelectedSize] = useState('');
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
+  onst [allMeasurementsCache, setAllMeasurementsCache] = useState({});
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
   const [savedSizes, setSavedSizes] = useState([]);
@@ -18,6 +19,8 @@ const Aql = () => {
     lastSaved: null,
     isSubmitting: false
   });
+
+  const PIECES_COUNT = 5; // Changed from 7 to 5 pieces
 
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
@@ -31,7 +34,7 @@ const Aql = () => {
   );
 
   const { data: sizeTableData } = useGetAllocationMasterQuery();
-  const [submitAQLInspection] = useAddSampleMutation();
+  const [addAqlInspection, { isLoading: isSubmitting }] = useAddAqlInspectionMutation();
 
   const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
   const selectedProduct = sizeData?.data;
@@ -47,14 +50,15 @@ const Aql = () => {
         ...prev,
         lastSaved: new Date(savedData.lastUpdated).toLocaleString()
       }));
+
+      if (savedData.savedSizes?.length > 0 && !selectedSize) {
+        setSelectedSize(savedData.savedSizes[0]);
+      }
     } else {
       setSavedSizes([]);
       setSavedMeasurements({});
       setPartialSavedMeasurements({});
     }
-    setSelectedSize('');
-    setCheckValues({});
-    setMeasurements([]);
   };
 
   const saveDataToStorage = () => {
@@ -78,6 +82,8 @@ const Aql = () => {
   useEffect(() => {
     if (selectedReference) {
       loadSavedData();
+    } else {
+      resetForm();
     }
   }, [selectedReference]);
 
@@ -94,25 +100,25 @@ const Aql = () => {
   useEffect(() => {
     if (selectedProduct && selectedSize) {
       const measurementData = selectedProduct.measurements
-        .filter(m => m.values.some(v => v.size === selectedSize))
-        .map(m => {
-          const valueObj = m.values.find(v => v.size === selectedSize);
+        ?.filter(m => m.values?.some(v => v.size === selectedSize))
+        ?.map(m => {
+          const valueObj = m.values?.find(v => v.size === selectedSize);
           return {
             id: m.id,
             name: m.description,
-            standardValue: valueObj.value,
+            standardValue: valueObj?.value,
             toleranceMin: m.toleranceMin || '0',
             toleranceMax: m.toleranceMax || '0',
             unit: m.unit || ''
           };
-        });
+        }) || [];
 
       setMeasurements(measurementData);
 
       const savedData = savedMeasurements[selectedSize] || partialSavedMeasurements[selectedSize] || {};
       const initialCheckValues = {};
       measurementData.forEach(m => {
-        initialCheckValues[m.id] = savedData[m.id] || Array(7).fill('');
+        initialCheckValues[m.id] = savedData[m.id] || Array(PIECES_COUNT).fill('');
       });
 
       setCheckValues(initialCheckValues);
@@ -137,13 +143,13 @@ const Aql = () => {
 
     return measurements.every(measurement => {
       const values = sizeData[measurement.id];
-      return values && values.length === 7 && values.every(val => val !== '');
+      return values && values.length === PIECES_COUNT && values.every(val => val !== '');
     });
   };
 
   const isSizePartiallySaved = (size) => {
-    return Object.keys(partialSavedMeasurements).includes(size) && 
-           !isSizeComplete(size);
+    return partialSavedMeasurements.hasOwnProperty(size) &&
+      !isSizeComplete(size);
   };
 
   const handlePartialSave = () => {
@@ -168,12 +174,12 @@ const Aql = () => {
 
     const isComplete = measurements.every(measurement => {
       return checkValues[measurement.id] &&
-        checkValues[measurement.id].length === 7 &&
+        checkValues[measurement.id].length === PIECES_COUNT &&
         checkValues[measurement.id].every(val => val !== '');
     });
 
     if (!isComplete) {
-      alert('Please fill all measurements for all 7 pieces before fully saving this size.');
+      alert(`Please fill all measurements for all ${PIECES_COUNT} pieces before fully saving this size.`);
       return;
     }
 
@@ -183,7 +189,7 @@ const Aql = () => {
     };
     setSavedMeasurements(updatedMeasurements);
 
-    const updatedPartial = {...partialSavedMeasurements};
+    const updatedPartial = { ...partialSavedMeasurements };
     delete updatedPartial[selectedSize];
     setPartialSavedMeasurements(updatedPartial);
 
@@ -219,6 +225,30 @@ const Aql = () => {
     return 'bg-green-100 text-green-800';
   };
 
+  const prepareDatabasePayload = () => {
+    return {
+      companyId: companyId.toString(),
+      reference: selectedReference,
+      inspectionDate: new Date(inspectionDate),
+      samples: savedSizes.map(size => ({
+        size: size,
+        measurements: measurements.map(measurement => ({
+          measurementId: measurement.id,
+          measurementName: measurement.name,
+          standardValue: measurement.standardValue.toString(),
+          toleranceMin: measurement.toleranceMin.toString(),
+          toleranceMax: measurement.toleranceMax.toString(),
+          unit: measurement.unit,
+          values: (savedMeasurements[size]?.[measurement.id] || []).map((value, index) => ({
+            pieceNumber: index + 1,
+            actualValue: value.toString(),
+            status: value ? checkTolerance(measurement, value).includes('red') ? 'out_of_tolerance' : 'within_tolerance' : 'not_measured'
+          }))
+        }))
+      }))
+    };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -227,37 +257,13 @@ const Aql = () => {
       return;
     }
 
-    const allSizesComplete = savedSizes.every(size => isSizeComplete(size));
-    if (!allSizesComplete) {
-      alert('Please complete all measurements for all saved sizes before submitting.');
-      return;
-    }
-
     setFormStatus(prev => ({ ...prev, isSubmitting: true }));
 
     try {
-      const submissionData = {
-        companyId,
-        reference: selectedReference,
-        inspectionDate,
-        sizes: savedSizes.map(size => ({
-          size,
-          measurements: measurements.map(m => ({
-            measurementId: m.id,
-            measurementName: m.name,
-            standardValue: parseFloat(m.standardValue),
-            toleranceMin: parseFloat(m.toleranceMin),
-            toleranceMax: parseFloat(m.toleranceMax),
-            unit: m.unit,
-            values: savedMeasurements[size][m.id].map((val, idx) => ({
-              pieceNumber: idx + 1,
-              actualValue: parseFloat(val)
-            }))
-          }))
-        }))
-      };
+      const payload = prepareDatabasePayload();
+      console.log('Submitting payload:', payload);
 
-      const response = await submitAQLInspection(submissionData).unwrap();
+      const response = await addAqlInspection(payload).unwrap();
 
       if (response.success) {
         alert('AQL Form submitted successfully!');
@@ -371,7 +377,6 @@ const Aql = () => {
                   </div>
                 </div>
 
-                {/* Inspection Date */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Inspection Date
@@ -391,7 +396,6 @@ const Aql = () => {
                   </div>
                 </div>
 
-                {/* Size dropdown */}
                 <div className="mb-4">
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Size <span className="text-red-500">*</span>
@@ -401,8 +405,8 @@ const Aql = () => {
                       type="button"
                       onClick={() => setShowSizeDropdown(!showSizeDropdown)}
                       disabled={!selectedReference}
-                      className={`w-full px-3 py-2 text-left text-xs border border-gray-300 rounded-md shadow-sm flex justify-between items-center ${!selectedReference ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'
-                        }`}
+                      className={`w-full px-3 py-2 text-left text-xs border rounded-md shadow-sm flex justify-between items-center ${!selectedReference ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'
+                        } ${selectedSize ? 'border-blue-500' : 'border-gray-300'}`}
                     >
                       <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
                         {selectedSize || 'Select size'}
@@ -419,19 +423,18 @@ const Aql = () => {
                             return (
                               <div
                                 key={index}
-                                className={`px-3 py-1 hover:bg-blue-50 cursor-pointer ${
-                                  status === 'complete' ? 'bg-green-50' : 
-                                  status === 'partial' ? 'bg-yellow-50' : ''
-                                }`}
+                                className={`px-3 py-1 hover:bg-blue-50 cursor-pointer flex justify-between items-center ${status === 'complete' ? 'bg-green-50' :
+                                    status === 'partial' ? 'bg-yellow-50' : ''
+                                  } ${selectedSize === size ? 'bg-blue-50' : ''}`}
                                 onClick={() => handleLoadSize(size)}
                               >
-                                <div className="flex justify-between items-center">
-                                  <span>{size}</span>
+                                <span>{size}</span>
+                                <div className="flex items-center">
                                   {status === 'complete' && (
-                                    <span className="text-green-500">✓</span>
+                                    <span className="text-green-500 ml-2">✓</span>
                                   )}
                                   {status === 'partial' && (
-                                    <span className="text-yellow-500">~</span>
+                                    <span className="text-yellow-500 ml-2">~</span>
                                   )}
                                 </div>
                               </div>
@@ -454,19 +457,24 @@ const Aql = () => {
                     {savedSizes.map((size, index) => {
                       const status = getSizeStatus(size);
                       return (
-                        <span
+                        <button
                           key={index}
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
-                            status === 'complete' ? 'bg-green-100 text-green-800' :
-                            status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}
+                          type="button"
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${selectedSize === size ? 'ring-2 ring-blue-500' : ''
+                            } ${status === 'complete' ? 'bg-green-100 text-green-800' :
+                              status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                            }`}
                           onClick={() => handleLoadSize(size)}
                         >
                           {size}
-                          {status === 'complete' ? ' ✓' : 
-                           status === 'partial' ? ' ~' : ''}
-                        </span>
+                          {status === 'complete' && (
+                            <span className="ml-1">✓</span>
+                          )}
+                          {status === 'partial' && (
+                            <span className="ml-1">~</span>
+                          )}
+                        </button>
                       );
                     })}
                   </div>
@@ -489,12 +497,12 @@ const Aql = () => {
                           <th rowSpan="2" className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
                             Tolerance
                           </th>
-                          <th colSpan="7" className="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                            Pieces (1-7)
+                          <th colSpan={PIECES_COUNT} className="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                            Pieces (1-{PIECES_COUNT})
                           </th>
                         </tr>
                         <tr>
-                          {[1, 2, 3, 4, 5, 6, 7].map(num => (
+                          {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
                             <th key={num} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
                               #{num}
                             </th>
@@ -516,20 +524,40 @@ const Aql = () => {
                             {checkValues[measurement.id]?.map((value, index) => (
                               <td key={index} className="px-1 py-1 whitespace-nowrap">
                                 <input
-                                  type="number"
-                                  step="0.01"
+                                  type="text"
                                   value={value}
-                                  onChange={(e) =>
-                                    handleCheckValueChange(measurement.id, index, e.target.value)
-                                  }
+                                  onChange={(e) => {
+                                    let raw = e.target.value;
+
+                                    // Remove any non-digit or dot character except one dot
+                                    raw = raw.replace(/[^\d.]/g, '');
+
+                                    // Prevent multiple decimals
+                                    const parts = raw.split('.');
+                                    if (parts.length > 2) return;
+
+                                    // Limit to 2 digits after decimal
+                                    if (parts[1]?.length > 2) return;
+
+                                    handleCheckValueChange(measurement.id, index, raw);
+                                  }}
                                   onBlur={(e) => {
-                                    const formatted = parseFloat(e.target.value || 0).toFixed(2);
-                                    handleCheckValueChange(measurement.id, index, formatted);
+                                    let val = e.target.value;
+
+                                    // If whole number or longer, format by dividing by 10
+                                    if (/^\d{3}$/.test(val)) {
+                                      val = (parseFloat(val) / 10).toFixed(2); // e.g. 233 → 23.30
+                                    } else {
+                                      val = parseFloat(val || 0).toFixed(2);
+                                    }
+
+                                    handleCheckValueChange(measurement.id, index, val);
                                   }}
                                   className={`w-full px-1 py-1 text-xs border rounded-sm text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
                                     }`}
                                 />
                               </td>
+
                             ))}
                           </tr>
                         ))}
@@ -555,42 +583,37 @@ const Aql = () => {
                       type="button"
                       onClick={handlePartialSave}
                       disabled={!selectedSize}
-                      className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${
-                        !selectedSize
+                      className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${!selectedSize
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-yellow-500 hover:bg-yellow-600'
-                      }`}
+                        }`}
                     >
                       Partial Save
                     </button>
 
-                    {!savedSizes.includes(selectedSize) && (
-                      <button
-                        type="button"
-                        onClick={handleSaveSize}
-                        disabled={!selectedSize}
-                        className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${
-                          !selectedSize
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700'
+                    <button
+                      type="button"
+                      onClick={handleSaveSize}
+                      disabled={!selectedSize}
+                      className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${!selectedSize
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-blue-600 hover:bg-blue-700'
                         }`}
-                      >
-                        Save Size
-                      </button>
-                    )}
+                    >
+                      Save Size
+                    </button>
                   </>
                 )}
 
                 <button
                   type="submit"
-                  disabled={savedSizes.length === 0 || !savedSizes.every(size => isSizeComplete(size)) || formStatus.isSubmitting}
-                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${
-                    savedSizes.length === 0 || !savedSizes.every(size => isSizeComplete(size))
+                  disabled={savedSizes.length === 0 || isSubmitting}
+                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${savedSizes.length === 0
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700'
-                  }`}
+                    }`}
                 >
-                  {formStatus.isSubmitting ? 'Submitting...' : 'Submit All'}
+                  {isSubmitting ? 'Submitting...' : 'Submit All'}
                 </button>
               </div>
             </form>

@@ -25,7 +25,7 @@ import {
   excessQty,
   email, orderImport,
   controlPanel,
-  TagType,LineMaster,sizeTable, allocation
+  TagType,LineMaster,sizeTable, allocation,aql
 
 } from './src/routes/index.js';
 
@@ -101,6 +101,7 @@ app.use("/controlPanel", controlPanel);
 app.use("/tagType", TagType);
 app.use("/lineMaster", LineMaster)
 app.use("/sizeTable",sizeTable)
+app.use("/aql",aql)
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);

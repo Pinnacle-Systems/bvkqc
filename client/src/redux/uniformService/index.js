@@ -9,7 +9,7 @@ export { default as GsmApi } from './GsmMasterServices'
 export { default as LoopLengthApi } from './LoopLengthMasterServices'
 export { default as DiaApi } from './DiaMasterServices'
 export { default as PoApi } from './PoServices'
-
+export { default as AqlInspectionApi } from './AqlInspectionService'
 export { default as AccessoryGroupMasterApi } from './AccessoryGroupMasterServices'
 export { default as AccessoryItemMasterApi } from './AccessoryItemMasterServices'
 export { default as AccessoryMasterApi } from './AccessoryMasterServices'

@@ -813,12 +813,13 @@ model Measurement {
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
-  description  String
-  dimension    String?
-  toleranceMin String?
-  toleranceMax String?
-  values       MeasurementValue[]
-  createdAt    DateTime           @default(now())
+  description       String
+  dimension         String?
+  toleranceMin      String?
+  toleranceMax      String?
+  values            MeasurementValue[]
+  createdAt         DateTime            @default(now())
+  SampleMeasurement SampleMeasurement[]
 }
 
 model MeasurementValue {
@@ -831,15 +832,57 @@ model MeasurementValue {
 }
 
 model Allocation {
-  id Int @id @default(autoincrement())
-  Party        Party?      @relation(fields: [partyId], references: [id])
-  partyId      Int?
-  LineMaster   LineMaster? @relation(fields: [lineMasterId], references: [id])
-  lineMasterId Int?
-  Branch       Branch?     @relation(fields: [branchId], references: [id])
-  branchId     Int?
-  createdAt     DateTime    @default(now())
-  DeliveryDate  DateTime
-  reference     String
-  allocationDate DateTime? 
+  id             Int         @id @default(autoincrement())
+  Party          Party?      @relation(fields: [partyId], references: [id])
+  partyId        Int?
+  LineMaster     LineMaster? @relation(fields: [lineMasterId], references: [id])
+  lineMasterId   Int?
+  Branch         Branch?     @relation(fields: [branchId], references: [id])
+  branchId       Int?
+  createdAt      DateTime    @default(now())
+  DeliveryDate   DateTime
+  reference      String
+  allocationDate DateTime?
+}
+
+model AqlInspection {
+  id             String   @id @default(cuid())
+  companyId      String
+  reference      String
+  inspectionDate DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  samples        Sample[]
+}
+
+model Sample {
+  id              String              @id @default(cuid())
+  aqlInspectionId String
+  inspection      AqlInspection       @relation(fields: [aqlInspectionId], references: [id])
+  size            String
+  measurements    SampleMeasurement[]
+  createdAt       DateTime            @default(now())
+}
+
+model SampleMeasurement {
+  id            String        @id @default(cuid())
+  sampleId      String
+  sample        Sample        @relation(fields: [sampleId], references: [id])
+  measurementId String
+  measurement   Measurement   @relation(fields: [measurementId], references: [id])
+  standardValue String
+  toleranceMin  String
+  toleranceMax  String
+  unit          String
+  values        SampleValue[]
+  createdAt     DateTime      @default(now())
+}
+
+model SampleValue {
+  id                  String            @id @default(cuid())
+  sampleMeasurementId String
+  measurement         SampleMeasurement @relation(fields: [sampleMeasurementId], references: [id])
+  pieceNumber         Int
+  actualValue         String
+  createdAt           DateTime          @default(now())
 }
