@@ -844,45 +844,60 @@ model Allocation {
   reference      String
   allocationDate DateTime?
 }
-
 model AqlInspection {
-  id             String   @id @default(cuid())
+  id             Int         @id @default(autoincrement())
   companyId      String
-  reference      String
+  reference      String      @unique
   inspectionDate DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
   samples        Sample[]
+
+  @@index([companyId])
+  @@index([reference])
 }
 
 model Sample {
-  id              String              @id @default(cuid())
-  aqlInspectionId String
-  inspection      AqlInspection       @relation(fields: [aqlInspectionId], references: [id])
+  id              Int               @id @default(autoincrement())
+  aqlInspectionId Int
+  inspection      AqlInspection     @relation(fields: [aqlInspectionId], references: [id], onDelete: Cascade)
   size            String
   measurements    SampleMeasurement[]
-  createdAt       DateTime            @default(now())
+  createdAt       DateTime          @default(now())
+
+  @@index([aqlInspectionId])
 }
 
 model SampleMeasurement {
-  id            String        @id @default(cuid())
-  sampleId      String
-  sample        Sample        @relation(fields: [sampleId], references: [id])
+  id            Int             @id @default(autoincrement())
+  sampleId      Int
+  sample        Sample          @relation(fields: [sampleId], references: [id], onDelete: Cascade)
   measurementId String
-  measurement   Measurement   @relation(fields: [measurementId], references: [id])
-  standardValue String
-  toleranceMin  String
-  toleranceMax  String
+  measurement   Measurement     @relation(fields: [measurementId], references: [id])
+  standardValue Float
+  toleranceMin  Float
+  toleranceMax  Float
   unit          String
   values        SampleValue[]
-  createdAt     DateTime      @default(now())
+  createdAt     DateTime        @default(now())
+
+  @@index([sampleId])
+  @@index([measurementId])
 }
 
 model SampleValue {
-  id                  String            @id @default(cuid())
-  sampleMeasurementId String
-  measurement         SampleMeasurement @relation(fields: [sampleMeasurementId], references: [id])
+  id                  Int               @id @default(autoincrement())
+  sampleMeasurementId Int
+  measurement         SampleMeasurement @relation(fields: [sampleMeasurementId], references: [id], onDelete: Cascade)
   pieceNumber         Int
-  actualValue         String
+  actualValue         Float
+  status              ValueStatus       @default(within_tolerance)
   createdAt           DateTime          @default(now())
+
+  @@index([sampleMeasurementId])
+}
+
+enum ValueStatus {
+  within_tolerance
+  out_of_tolerance
 }

@@ -8,7 +8,7 @@ const Aql = () => {
   const [inspectionDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedSize, setSelectedSize] = useState('');
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
-  onst [allMeasurementsCache, setAllMeasurementsCache] = useState({});
+  const [allMeasurementsCache, setAllMeasurementsCache] = useState({});
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
   const [savedSizes, setSavedSizes] = useState([]);
@@ -226,34 +226,40 @@ const Aql = () => {
   };
 
   const prepareDatabasePayload = () => {
+    // Only include sizes that have complete measurements
+    const validSamples = savedSizes.filter(size => 
+      isSizeComplete(size)
+    ).map(size => ({
+      size: size,
+      measurements: measurements.map(measurement => ({
+        measurementId: measurement.id,
+        measurementName: measurement.name,
+        standardValue: measurement.standardValue.toString(),
+        toleranceMin: measurement.toleranceMin.toString(),
+        toleranceMax: measurement.toleranceMax.toString(),
+        unit: measurement.unit,
+        values: (savedMeasurements[size]?.[measurement.id] || []).map((value, index) => ({
+          pieceNumber: index + 1,
+          actualValue: value.toString(),
+          status: value ? checkTolerance(measurement, value).includes('red') ? 'out_of_tolerance' : 'within_tolerance' : 'not_measured'
+        }))
+      }))
+    }));
+
     return {
       companyId: companyId.toString(),
       reference: selectedReference,
       inspectionDate: new Date(inspectionDate),
-      samples: savedSizes.map(size => ({
-        size: size,
-        measurements: measurements.map(measurement => ({
-          measurementId: measurement.id,
-          measurementName: measurement.name,
-          standardValue: measurement.standardValue.toString(),
-          toleranceMin: measurement.toleranceMin.toString(),
-          toleranceMax: measurement.toleranceMax.toString(),
-          unit: measurement.unit,
-          values: (savedMeasurements[size]?.[measurement.id] || []).map((value, index) => ({
-            pieceNumber: index + 1,
-            actualValue: value.toString(),
-            status: value ? checkTolerance(measurement, value).includes('red') ? 'out_of_tolerance' : 'within_tolerance' : 'not_measured'
-          }))
-        }))
-      }))
+      samples: validSamples
     };
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (savedSizes.length === 0) {
-      alert('Please save at least one size before submitting.');
+    const validSamples = savedSizes.filter(size => isSizeComplete(size));
+    if (validSamples.length === 0) {
+      alert('Please save at least one complete size (all measurements filled) before submitting.');
       return;
     }
 
@@ -607,8 +613,8 @@ const Aql = () => {
 
                 <button
                   type="submit"
-                  disabled={savedSizes.length === 0 || isSubmitting}
-                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${savedSizes.length === 0
+                  disabled={savedSizes.filter(size => isSizeComplete(size)).length === 0 || isSubmitting}
+                  className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all ${savedSizes.filter(size => isSizeComplete(size)).length === 0
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700'
                     }`}

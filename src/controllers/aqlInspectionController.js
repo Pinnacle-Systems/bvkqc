@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
 
 class AqlInspectionError extends Error {
   constructor(message, statusCode = 400) {
@@ -9,72 +12,104 @@ class AqlInspectionError extends Error {
   }
 }
 
-// Utility functions
-const validateRequiredFields = (data, fields) => {
-  const missingFields = fields.filter(field => !data[field]);
+// Enhanced validation functions
+const validateInspectionPayload = (payload) => {
+  if (!payload) {
+    throw new AqlInspectionError('Request body is required');
+  }
+
+  const requiredFields = ['companyId', 'reference', 'inspectionDate', 'samples'];
+  const missingFields = requiredFields.filter(field => !payload[field]);
+  
   if (missingFields.length > 0) {
-    throw new AqlInspectionError(`Missing required fields: ${missingFields.join(', ')}`);
+    throw new AqlInspectionError(
+      `Missing required fields: ${missingFields.join(', ')}`
+    );
+  }
+
+  if (!Array.isArray(payload.samples)) {
+    throw new AqlInspectionError('Samples must be an array');
+  }
+
+  if (payload.samples.length === 0) {
+    throw new AqlInspectionError('At least one sample is required');
   }
 };
 
-const validateSamples = (samples) => {
-  if (!Array.isArray(samples) || samples.length === 0) {
-    throw new AqlInspectionError('Samples must be a non-empty array');
+const validateSample = (sample, index) => {
+  if (!sample.size) {
+    throw new AqlInspectionError(`Sample at index ${index} is missing size`);
   }
 
-  samples.forEach((sample, index) => {
-    if (!sample.size) {
-      throw new AqlInspectionError(`Sample at index ${index} is missing size`);
-    }
-    if (!Array.isArray(sample.measurements) || sample.measurements.length === 0) {
-      throw new AqlInspectionError(`Sample ${sample.size} has no measurements`);
-    }
-  });
+  if (!Array.isArray(sample.measurements)) {
+    throw new AqlInspectionError(`Sample ${sample.size} measurements must be an array`);
+  }
+
+  if (sample.measurements.length === 0) {
+    throw new AqlInspectionError(`Sample ${sample.size} must have at least one measurement`);
+  }
 };
 
-const validateMeasurements = (measurements, size) => {
-  measurements.forEach((measurement, index) => {
-    if (!measurement.measurementId) {
-      throw new AqlInspectionError(`Measurement at index ${index} in size ${size} is missing measurementId`);
-    }
-    if (measurement.standardValue === undefined || measurement.standardValue === null) {
-      throw new AqlInspectionError(`Measurement ${measurement.measurementId} in size ${size} is missing standardValue`);
-    }
-    if (!Array.isArray(measurement.values) || measurement.values.length === 0) {
-      throw new AqlInspectionError(`Measurement ${measurement.measurementId} in size ${size} has no values`);
-    }
-  });
+const validateMeasurement = (measurement, sampleSize, index) => {
+  if (!measurement.measurementId) {
+    throw new AqlInspectionError(
+      `Measurement at index ${index} in sample ${sampleSize} is missing measurementId`
+    );
+  }
+
+  if (measurement.standardValue === undefined || measurement.standardValue === null) {
+    throw new AqlInspectionError(
+      `Measurement ${measurement.measurementId} in sample ${sampleSize} is missing standardValue`
+    );
+  }
+
+  if (!Array.isArray(measurement.values)) {
+    throw new AqlInspectionError(
+      `Measurement ${measurement.measurementId} in sample ${sampleSize} values must be an array`
+    );
+  }
+
+  if (measurement.values.length === 0) {
+    throw new AqlInspectionError(
+      `Measurement ${measurement.measurementId} in sample ${sampleSize} must have at least one value`
+    );
+  }
 };
 
-// Main controller functions
+const validateValue = (value, measurementId, index) => {
+  if (value.actualValue === undefined || value.actualValue === null) {
+    throw new AqlInspectionError(
+      `Value at index ${index} for measurement ${measurementId} is missing actualValue`
+    );
+  }
+};
+
 export const createAqlInspection = async (req, res) => {
   try {
-    const { companyId, reference, inspectionDate, samples } = req.body;
+    validateInspectionPayload(req.body);
 
-    // Validate top-level fields
-    validateRequiredFields(req.body, ['companyId', 'reference', 'inspectionDate', 'samples']);
-    
-    // Validate samples structure
-    validateSamples(samples);
-    
-    // Validate each sample's measurements
-    samples.forEach(sample => {
-      validateMeasurements(sample.measurements, sample.size);
+    req.body.samples.forEach((sample, sampleIndex) => {
+      validateSample(sample, sampleIndex);
+      
+      sample.measurements.forEach((measurement, measurementIndex) => {
+        validateMeasurement(measurement, sample.size, measurementIndex);
+        
+        measurement.values.forEach((value, valueIndex) => {
+          validateValue(value, measurement.measurementId, valueIndex);
+        });
+      });
     });
 
-    // Create inspection with all nested data
-    const inspection = await prisma.$transaction(async (tx) => {
-      // 1. Create main inspection record
+    const result = await prisma.$transaction(async (tx) => {
       const inspection = await tx.aqlInspection.create({
         data: {
-          companyId,
-          reference,
-          inspectionDate: new Date(inspectionDate),
+          companyId: req.body.companyId,
+          reference: req.body.reference,
+          inspectionDate: new Date(req.body.inspectionDate),
         },
       });
 
-      // 2. Process samples in parallel
-      await Promise.all(samples.map(async (sample) => {
+      const samplePromises = req.body.samples.map(async (sample) => {
         const createdSample = await tx.sample.create({
           data: {
             aqlInspectionId: inspection.id,
@@ -82,33 +117,37 @@ export const createAqlInspection = async (req, res) => {
           },
         });
 
-        // 3. Process measurements in parallel
-        await Promise.all(sample.measurements.map(async (measurement) => {
+        const measurementPromises = sample.measurements.map(async (measurement) => {
           const createdMeasurement = await tx.sampleMeasurement.create({
             data: {
               sampleId: createdSample.id,
               measurementId: measurement.measurementId,
-              standardValue: measurement.standardValue,
-              toleranceMin: measurement.toleranceMin || '0',
-              toleranceMax: measurement.toleranceMax || '0',
+              standardValue: parseFloat(measurement.standardValue),
+              toleranceMin: parseFloat(measurement.toleranceMin || '0'),
+              toleranceMax: parseFloat(measurement.toleranceMax || '0'),
               unit: measurement.unit || '',
             },
           });
 
           // 4. Create values in bulk
-          if (measurement.values && measurement.values.length > 0) {
-            await tx.sampleValue.createMany({
-              data: measurement.values.map((value, index) => ({
-                sampleMeasurementId: createdMeasurement.id,
-                pieceNumber: value.pieceNumber || index + 1,
-                actualValue: value.actualValue,
-              })),
-            });
-          }
-        }));
-      }));
+          const valueData = measurement.values.map((value) => ({
+            sampleMeasurementId: createdMeasurement.id,
+            pieceNumber: value.pieceNumber || 0, // Default to 0 if not provided
+            actualValue: parseFloat(value.actualValue),
+            status: value.status || 'within_tolerance',
+          }));
 
-      // Return the complete inspection with relations
+          await tx.sampleValue.createMany({ data: valueData });
+
+          return createdMeasurement;
+        });
+
+        await Promise.all(measurementPromises);
+        return createdSample;
+      });
+
+      await Promise.all(samplePromises);
+
       return tx.aqlInspection.findUnique({
         where: { id: inspection.id },
         include: {
@@ -133,71 +172,32 @@ export const createAqlInspection = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      data: transformInspectionData(inspection),
+      data: transformInspectionData(result),
     });
 
   } catch (error) {
     console.error('AQL Inspection Error:', error);
-    
-    const statusCode = error.statusCode || 500;
-    const message = error instanceof AqlInspectionError 
-      ? error.message 
-      : 'Failed to create AQL inspection';
 
-    return res.status(statusCode).json({
-      success: false,
-      error: message,
-      ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
-    });
-  }
-};
+    const statusCode = error instanceof AqlInspectionError 
+      ? error.statusCode 
+      : 500;
 
-export const getAqlInspectionById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    validateRequiredFields({ id }, ['id']);
-
-    const inspection = await prisma.aqlInspection.findUnique({
-      where: { id },
-      include: {
-        samples: {
-          include: {
-            measurements: {
-              include: {
-                values: true,
-                measurement: {
-                  select: {
-                    id: true,
-                    description: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!inspection) {
-      throw new AqlInspectionError('AQL inspection not found', 404);
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: transformInspectionData(inspection),
-    });
-
-  } catch (error) {
-    console.error('Error fetching AQL inspection:', error);
-    const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json({
+    const errorResponse = {
       success: false,
       error: error.message,
-    });
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.stack = error.stack;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        errorResponse.prismaError = error.meta;
+      }
+    }
+
+    return res.status(statusCode).json(errorResponse);
   }
 };
 
-// Utility function to transform inspection data
 function transformInspectionData(inspection) {
   if (!inspection) return null;
 
@@ -208,10 +208,10 @@ function transformInspectionData(inspection) {
     inspectionDate: inspection.inspectionDate,
     createdAt: inspection.createdAt,
     updatedAt: inspection.updatedAt,
-    samples: inspection.samples?.map(sample => ({
+    samples: inspection.samples?.map((sample) => ({
       id: sample.id,
       size: sample.size,
-      measurements: sample.measurements?.map(measurement => ({
+      measurements: sample.measurements?.map((measurement) => ({
         id: measurement.id,
         measurementId: measurement.measurementId,
         measurementName: measurement.measurement?.description,
@@ -219,11 +219,16 @@ function transformInspectionData(inspection) {
         toleranceMin: measurement.toleranceMin,
         toleranceMax: measurement.toleranceMax,
         unit: measurement.unit,
-        values: measurement.values?.map(value => ({
+        values: measurement.values?.map((value) => ({
           pieceNumber: value.pieceNumber,
           actualValue: value.actualValue,
+          status: value.status,
         })),
       })),
     })),
   };
 }
+
+export const aqlInspectionController = {
+  createAqlInspection,
+};
