@@ -11,13 +11,11 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
   }),
   tagTypes: ["AqlInspection"],
   endpoints: (builder) => ({
-    // Get all AQL inspections
     getAqlInspections: builder.query({
-      query: ({ companyId, startDate, endDate }) => ({
+      query: () => ({
         url: AQL_INSPECTION_API,
         method: "GET",
-        params: { companyId, startDate, endDate },
-      }),
+              }),
       providesTags: ["AqlInspection"],
     }),
 

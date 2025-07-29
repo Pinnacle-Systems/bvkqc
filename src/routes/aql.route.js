@@ -1,8 +1,8 @@
 import { Router } from 'express';
 const router = Router();
-import { createAqlInspection } from '../controllers/aqlInspectionController.js';
+import { createAqlInspection,getAllReferences } from '../controllers/aqlInspectionController.js';
 
-// router.get('/',getAqlInspectionById)
+router.get('/',getAllReferences)
 
 router.post('/', createAqlInspection);
 

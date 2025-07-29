@@ -12,7 +12,6 @@ class AqlInspectionError extends Error {
   }
 }
 
-// Enhanced validation functions
 const validateInspectionPayload = (payload) => {
   if (!payload) {
     throw new AqlInspectionError('Request body is required');
@@ -129,16 +128,14 @@ export const createAqlInspection = async (req, res) => {
             },
           });
 
-          // 4. Create values in bulk
           const valueData = measurement.values.map((value) => ({
             sampleMeasurementId: createdMeasurement.id,
-            pieceNumber: value.pieceNumber || 0, // Default to 0 if not provided
+            pieceNumber: value.pieceNumber || 0,
             actualValue: parseFloat(value.actualValue),
             status: value.status || 'within_tolerance',
           }));
 
           await tx.sampleValue.createMany({ data: valueData });
-
           return createdMeasurement;
         });
 
@@ -177,11 +174,90 @@ export const createAqlInspection = async (req, res) => {
 
   } catch (error) {
     console.error('AQL Inspection Error:', error);
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    const errorResponse = {
+      success: false,
+      error: error.message,
+    };
 
-    const statusCode = error instanceof AqlInspectionError 
-      ? error.statusCode 
-      : 500;
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.stack = error.stack;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        errorResponse.prismaError = error.meta;
+      }
+    }
 
+    return res.status(statusCode).json(errorResponse);
+  }
+};
+
+export const getAllAqlInspectionsId = async (req, res) => {
+  try {
+    const inspections = await prisma.aqlInspection.findMany({
+      include: {
+        samples: {
+          include: {
+            measurements: {
+              include: {
+                values: true,
+                measurement: {
+                  select: {
+                    id: true,
+                    description: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',  
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: inspections.map(transformInspectionData),
+    });
+
+  } catch (error) {
+    console.error('Get All AQL Inspections Error:', error);
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    const errorResponse = {
+      success: false,
+      error: error.message,
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.stack = error.stack;
+    }
+
+    return res.status(statusCode).json(errorResponse);
+  }
+};
+export const getAllReferences = async (req, res) => {
+  try {
+    const references = await prisma.aqlInspection.findMany({
+      select: {
+        id: true,
+        reference: true,
+        inspectionDate: true,
+        createdAt: true
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: references,
+    });
+
+  } catch (error) {
+    console.error('Get All References Error:', error);
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
@@ -220,9 +296,11 @@ function transformInspectionData(inspection) {
         toleranceMax: measurement.toleranceMax,
         unit: measurement.unit,
         values: measurement.values?.map((value) => ({
+          id: value.id,
           pieceNumber: value.pieceNumber,
           actualValue: value.actualValue,
           status: value.status,
+          createdAt: value.createdAt,
         })),
       })),
     })),
@@ -231,4 +309,5 @@ function transformInspectionData(inspection) {
 
 export const aqlInspectionController = {
   createAqlInspection,
+  getAllReferences
 };

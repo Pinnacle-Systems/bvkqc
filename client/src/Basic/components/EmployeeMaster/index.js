@@ -7,11 +7,8 @@ import {
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
 } from "../../../redux/services/EmployeeMasterService";
-import { useGetCountriesQuery } from "../../../redux/services/CountryMasterService";
 import { useGetCityQuery } from "../../../redux/services/CityMasterService";
 import LiveWebCam from "../LiveWebCam";
-import FormHeader from "../FormHeader";
-import FormReport from "../FormReportTemplate";
 import { toast } from "react-toastify";
 import {
   TextInput,
