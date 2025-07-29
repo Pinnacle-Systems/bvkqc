@@ -193,7 +193,23 @@ export const createAqlInspection = async (req, res) => {
 
 export const getAllAqlInspectionsId = async (req, res) => {
   try {
-    const inspections = await prisma.aqlInspection.findMany({
+    const { id } = req.params; // Get id from URL params
+
+    if (!id) {
+      throw new AqlInspectionError('Inspection ID is required', 400);
+    }
+
+    // Convert string ID to number
+    const inspectionId = parseInt(id, 10);
+    if (isNaN(inspectionId)) {
+      throw new AqlInspectionError('Invalid inspection ID format', 400);
+    }
+
+    // Use findUnique instead of findMany since we're querying by ID
+    const inspection = await prisma.aqlInspection.findUnique({
+      where: {
+        id: inspectionId, // Use the converted number
+      },
       include: {
         samples: {
           include: {
@@ -211,18 +227,19 @@ export const getAllAqlInspectionsId = async (req, res) => {
           },
         },
       },
-      orderBy: {
-        createdAt: 'desc',  
-      },
     });
+
+    if (!inspection) {
+      throw new AqlInspectionError(`No inspection found with ID ${id}`, 404);
+    }
 
     return res.status(200).json({
       success: true,
-      data: inspections.map(transformInspectionData),
+      data: transformInspectionData(inspection), // Single inspection doesn't need map
     });
 
   } catch (error) {
-    console.error('Get All AQL Inspections Error:', error);
+    console.error('Get AQL Inspection by ID Error:', error);
     const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
