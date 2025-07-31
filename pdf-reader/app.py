@@ -4,28 +4,31 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024 
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 
-def extract_page_tables(pdf_stream, target_page=7):
+def extract_page_tables(pdf_stream, target_page=6):  # Changed default to page 6
     try:
         with pdfplumber.open(pdf_stream) as pdf:
             total_pages = len(pdf.pages)
             
+            # Validate target page
             if target_page > total_pages or target_page < 1:
                 return [], total_pages, f"Page {target_page} does not exist in the PDF", ""
             
-            page = pdf.pages[target_page-1]
+            page_index = target_page - 1  # Convert to 0-based index
+            page = pdf.pages[page_index]
             full_text = page.extract_text()
             tables = page.extract_tables()
+            
             valid_tables = []
             for table_index, table in enumerate(tables):
                 cleaned_table = []
                 for row in table:
                     cleaned_row = [cell.replace('\n', ' ').strip() if cell else '' for cell in row]
-                    if any(cleaned_row):  
+                    if any(cleaned_row):  # Skip empty rows
                         cleaned_table.append(cleaned_row)
                 
-                if cleaned_table:
+                if cleaned_table:  # Only add non-empty tables
                     valid_tables.append({
                         "page": target_page,
                         "table_index": table_index + 1,
@@ -55,7 +58,13 @@ def extract_page_tables_route():
         if not pdf_file.filename.lower().endswith('.pdf'):
             return jsonify({'error': 'Invalid file type. Only PDF files are allowed'}), 400
         
-        tables, page_count, error, full_text = extract_page_tables(pdf_file.stream)
+        # Get target page from request (default to page 6)
+        target_page = request.form.get('target_page', default=6, type=int)
+        
+        tables, page_count, error, full_text = extract_page_tables(
+            pdf_file.stream, 
+            target_page=target_page
+        )
         
         if error:
             return jsonify({'error': error}), 400
@@ -64,7 +73,8 @@ def extract_page_tables_route():
             'tables': tables,
             'page_count': page_count,
             'table_count': len(tables),
-            'full_text': full_text
+            'full_text': full_text,
+            'requested_page': target_page
         })
     
     except Exception as e:

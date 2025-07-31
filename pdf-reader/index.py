@@ -14,6 +14,7 @@ html = '''
     <hr>
     <pre>{{ text }}</pre>
 '''
+""
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_pdf():
