@@ -99,8 +99,8 @@ async function create(body) {
     processDetails, mailId, cityId, pincode,
     panNo, tinNo, cstNo, cstDate, yarn, fabric,
     cinNo, faxNo, website, partyType, gstNo,
-    currencyId, costCode, priceDetails, shippingAddress,
-    contactDetails, accessoryGroup, accessoryItemList,
+    currencyId, costCode, 
+    accessoryGroup, 
     companyId, active, userId,
   } = await body;
 
@@ -114,8 +114,8 @@ async function create(body) {
   isClient: isClient ?? false,
       isIgst: isIgst ?? false,
       mailId: mailId || null,
-      cityId: cityId ? parseInt(cityId) : undefined,
-      pincode: pincode ? parseInt(pincode) : undefined, // 🔧 fix: convert to Int
+City: cityId ? { connect: { id: parseInt(cityId) } } : undefined,
+      pincode: pincode ? parseInt(pincode) : undefined,
       panNo: panNo || null,
       tinNo: tinNo || null,
       cstNo: cstNo || null,
@@ -172,7 +172,7 @@ async function update(id, body) {
     isClient: isClient ?? false,
     isIgst: isIgst ?? false,
     mailId: mailId || null,
-    cityId: cityId ? parseInt(cityId) : undefined,
+City: cityId ? { connect: { id: parseInt(cityId) } } : undefined,
     pincode: pincode ? parseInt(pincode) : undefined,
     panNo: panNo || null,
     tinNo: tinNo || null,
