@@ -176,14 +176,19 @@ export const getReference = async (req, res) => {
   try {
     const products = await prisma.product.findMany({
       select: {
+        id: true,
         reference: true,
-        id: true
-      },
+        Party: {
+          select: {
+            name: true,
+          }
+        }
+      }
     });
 
     return res.status(200).json({
       success: true,
-      data: products, 
+      data: products,
     });
   } catch (error) {
     console.error('Error retrieving references:', error);
@@ -194,6 +199,7 @@ export const getReference = async (req, res) => {
     });
   }
 };
+
 
 
 
