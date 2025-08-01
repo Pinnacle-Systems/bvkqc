@@ -178,6 +178,7 @@ export const getReference = async (req, res) => {
       select: {
         id: true,
         reference: true,
+        partyId: true,
         Party: {
           select: {
             name: true,

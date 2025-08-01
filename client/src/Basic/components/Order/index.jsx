@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback,useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -286,23 +286,25 @@ const AllocationForm = () => {
   const [deleteAllocation] = useDeleteAllocationMasterMutation();
 
   // Form Configuration
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      partyId: "",
-      branchId: "",
-      lineMasterId: "",
-      deliveryDate: null,
-      allocationDate: null,
-      reference: "",
-    },
-  });
+// Update the useForm destructuring to include watch
+const {
+  register,
+  handleSubmit,
+  control,
+  reset,
+  setValue,
+  watch, 
+  formState: { errors },
+} = useForm({
+  defaultValues: {
+    partyId: "",
+    branchId: "",
+    lineMasterId: "",
+    deliveryDate: null,
+    allocationDate: null,
+    reference: "",
+  },
+});
 
   // Helper Functions
   const validateFutureDate = (date) => {
@@ -379,6 +381,26 @@ const AllocationForm = () => {
       setReadOnly(true);
     }
   }, [allocations.data, setValue]);
+  const watchReference = watch("reference")
+  console.log(watchReference,"watchReference")
+  const selectedSizeTable = useMemo(() => {
+    if (!watchReference || !sizeTableData?.data) return null;
+    return sizeTableData.data.find(item => item.reference === watchReference);
+  }, [watchReference, sizeTableData]);
+console.log(selectedSizeTable,"selectedSizeTable")
+  // Find the party for the selected reference
+  const selectedParty = useMemo(() => {
+    if (!selectedSizeTable) return null;
+    return parties?.data?.find(party => party.id === selectedSizeTable.partyId);
+  }, [selectedSizeTable, parties]);
+  console.log(selectedParty,"selectedParty")
+
+  // Auto-fill partyId when reference changes
+  useEffect(() => {
+    if (watchReference && !readOnly && selectedSizeTable) {
+      setValue("partyId", selectedSizeTable.partyId);
+    }
+  }, [watchReference, selectedSizeTable, setValue, readOnly]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this allocation?")) {
@@ -499,25 +521,47 @@ const AllocationForm = () => {
                     Buyer <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <select
-                      {...register("partyId", {
-                        required: "Party selection is required",
-                        valueAsNumber: true,
-                      })}
-                      disabled={readOnly || partiesLoading}
-                      className={`w-full px-4 py-2 text-xs border rounded-xl shadow-sm appearance-none
-                        ${errors.partyId
-                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                        }`}
-                    >
-                      <option value="">Select party</option>
-                      {parties?.data?.map((party) => (
-                        <option key={party.id} value={party.id}>
-                          {party.name} ({party.aliasName})
-                        </option>
-                      ))}
-                    </select>
+                    {watchReference && selectedParty ? (
+                      <input
+                        type="text"
+                        readOnly
+                        value={`${selectedParty.name} (${selectedParty.aliasName})`}
+                        className="w-full px-4 py-2 text-xs border border-gray-300 rounded-xl shadow-sm bg-gray-100 cursor-not-allowed"
+                      />
+                    ) : (
+                      <select
+                        {...register("partyId", {
+                          required: "Party selection is required",
+                          valueAsNumber: true,
+                        })}
+                        disabled={readOnly || partiesLoading}
+                        className={`w-full px-4 py-2 text-xs border rounded-xl shadow-sm appearance-none
+          ${errors.partyId
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                          }`}
+                      >
+                        <option value="">Select party</option>
+                        {parties?.data?.map((party) => (
+                          <option key={party.id} value={party.id}>
+                            {party.name} ({party.aliasName})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {watchReference && selectedParty && (
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 text-green-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
                   {errors.partyId && (
                     <p className="mt-1 text-xs text-red-600">
@@ -525,7 +569,6 @@ const AllocationForm = () => {
                     </p>
                   )}
                 </div>
-
                 {/* Branch Field */}
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
