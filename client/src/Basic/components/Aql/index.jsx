@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useGetSizeTableMasterQuery, useGetAllocationMasterQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import secureLocalStorage from 'react-secure-storage';
-import { useAddAqlInspectionMutation, useGetAqlInspectionsQuery, useGetAqlInspectionByIdQuery, useDeleteAqlInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
+import { useAddAqlInspectionMutation, useGetAqlInspectionsQuery, useGetAqlInspectionByIdQuery, useDeleteAqlInspectionMutation,useUpdateAqlInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
 import Mastertable from '../MasterTable/Mastertable';
 import { toast } from 'react-toastify';
 
@@ -13,7 +13,6 @@ const Aql = () => {
   const [newItem, setNewItem] = useState(false);
 
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
-  const [allMeasurementsCache, setAllMeasurementsCache] = useState({});
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
   const [savedSizes, setSavedSizes] = useState([]);
@@ -477,6 +476,7 @@ useEffect(() => {
             tableDataNames={tableDataNames}
             data={mergedReportData}
             deleteData={deleteData}
+            setReadOnly={setReadOnly}
           />
         </>
       ) : (

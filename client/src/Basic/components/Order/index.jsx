@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback,useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -23,7 +23,6 @@ import {
   RiFileSearchLine,
 } from "react-icons/ri";
 
-// Helper function to safely format dates
 const safeFormatDate = (dateString, dateFormat = "MM/dd/yyyy") => {
   if (!dateString) return <span className="text-gray-400">N/A</span>;
 
@@ -36,7 +35,6 @@ const safeFormatDate = (dateString, dateFormat = "MM/dd/yyyy") => {
   }
 };
 
-// Extract the table component for better separation of concerns
 const AllocationMasterTable = ({
   data,
   onView,
@@ -48,18 +46,26 @@ const AllocationMasterTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-    const term = searchTerm.toLowerCase();
-    return data.filter(
-      (item) =>
-        item.Party?.name?.toLowerCase().includes(term) ||
-        item.Branch?.branchName?.toLowerCase().includes(term) ||
-        item.LineMaster?.lineName?.toLowerCase().includes(term) ||
-        item.reference?.toLowerCase().includes(term) ||
-        safeFormatDate(item.deliveryDate, "MMM dd, yyyy").toLowerCase().includes(term)
+const filteredData = useMemo(() => {
+  if (!data) return [];
+  const term = searchTerm.toLowerCase();
+  
+  return data.filter((item) => {
+    // Format the date first
+    const formattedDate = format(
+      item.deliveryDate ? new Date(item.deliveryDate) : null,
+      "MMM dd, yyyy"
+    ).toLowerCase();
+
+    return (
+      item.Party?.name?.toLowerCase().includes(term) ||
+      item.Branch?.branchName?.toLowerCase().includes(term) ||
+      item.LineMaster?.lineName?.toLowerCase().includes(term) ||
+      item.reference?.toLowerCase().includes(term) ||
+      formattedDate.includes(term)
     );
-  }, [data, searchTerm]);
+  });
+}, [data, searchTerm]);
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const currentData = useMemo(() => {
@@ -140,7 +146,7 @@ const AllocationMasterTable = ({
                     {safeFormatDate(allocation.allocationDate)}
                   </td>
                   <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {safeFormatDate(allocation.deliveryDate)}
+                    {safeFormatDate(allocation.DeliveryDate)}
                   </td>
                   <td className="px-3 py-2 border border-gray-300 text-right">
                     <div className="flex justify-end space-x-1">
@@ -249,8 +255,7 @@ const AllocationForm = () => {
   const [showForm, setShowForm] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // API Hooks
+  
   const {
     data: parties = [],
     isLoading: partiesLoading,
@@ -285,28 +290,28 @@ const AllocationForm = () => {
   const [updateAllocation] = useUpdateAllocationMasterMutation();
   const [deleteAllocation] = useDeleteAllocationMasterMutation();
 
-  // Form Configuration
-// Update the useForm destructuring to include watch
-const {
-  register,
-  handleSubmit,
-  control,
-  reset,
-  setValue,
-  watch, 
-  formState: { errors },
-} = useForm({
-  defaultValues: {
-    partyId: "",
-    branchId: "",
-    lineMasterId: "",
-    deliveryDate: null,
-    allocationDate: null,
-    reference: "",
-  },
-});
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      partyId: "",
+      branchId: "",
+      lineMasterId: "",
+      deliveryDate: null,
+      allocationDate: null,
+      reference: "",
+    },
+  });
 
-  // Helper Functions
+  const watchReference = watch("reference");
+  const watchPartyId = watch("partyId");
+
   const validateFutureDate = (date) => {
     if (!date) return "Date is required";
     return isAfter(date, today) || isToday(date) || "Date must be today or in the future";
@@ -314,14 +319,37 @@ const {
 
   const uniqueReferences = useMemo(() => {
     if (!allocations?.data || !sizeTableData?.data) return [];
-    const allocatedRefs = new Set(allocations.data.map((item) => item.reference));
-    return sizeTableData.data
-      .filter((item) => !allocatedRefs.has(item.reference))
-      .map((item) => item.reference)
-      .filter((ref, index, self) => self.indexOf(ref) === index);
-  }, [allocations, sizeTableData]);
+    
+    const allocatedRefs = new Set(
+      allocations.data
+        .filter(item => item.id !== selectedId) // Exclude current allocation if editing
+        .map(item => item.reference)
+    );
+    
+    const allRefs = sizeTableData.data.map(item => item.reference);
+    
+    return [...new Set(allRefs)] // Get all unique references
+      .filter(ref => !allocatedRefs.has(ref) || ref === watchReference); // Include current reference if editing
+  }, [allocations, sizeTableData, selectedId, watchReference]);
 
-  // Handlers
+  const selectedSizeTable = useMemo(() => {
+    if (!watchReference || !sizeTableData?.data) return null;
+    return sizeTableData.data.find(item => item.reference === watchReference);
+  }, [watchReference, sizeTableData]);
+
+  const selectedParty = useMemo(() => {
+    if (selectedSizeTable) {
+      return parties?.data?.find(party => party.id === selectedSizeTable.partyId);
+    }
+    return parties?.data?.find(party => party.id === watchPartyId);
+  }, [selectedSizeTable, parties, watchPartyId]);
+
+  useEffect(() => {
+    if (watchReference && !readOnly && selectedSizeTable) {
+      setValue("partyId", selectedSizeTable.partyId);
+    }
+  }, [watchReference, selectedSizeTable, setValue, readOnly]);
+
   const handleFormSubmit = async (formData) => {
     setIsSubmitting(true);
     try {
@@ -359,7 +387,7 @@ const {
       setValue("branchId", allocation.branchId);
       setValue("lineMasterId", allocation.lineMasterId);
       setValue("reference", allocation.reference);
-      setValue("deliveryDate", allocation.deliveryDate ? new Date(allocation.deliveryDate) : null);
+      setValue("deliveryDate", allocation.DeliveryDate ? new Date(allocation.DeliveryDate) : null);
       setValue("allocationDate", allocation.allocationDate ? new Date(allocation.allocationDate) : null);
       setShowForm(true);
       setReadOnly(false);
@@ -368,39 +396,18 @@ const {
 
   const handleView = useCallback((id) => {
     const allocation = allocations.data?.find((item) => item.id === id);
-    console.log(allocation.reference, "allocation")
     if (allocation) {
       setSelectedId(id);
       setValue("partyId", allocation.partyId);
       setValue("branchId", allocation.branchId);
       setValue("lineMasterId", allocation.lineMasterId);
       setValue("reference", allocation.reference);
-      setValue("deliveryDate", allocation.deliveryDate ? new Date(allocation.deliveryDate) : null);
+      setValue("deliveryDate", allocation.DeliveryDate ? new Date(allocation.DeliveryDate) : null);
       setValue("allocationDate", allocation.allocationDate ? new Date(allocation.allocationDate) : null);
       setShowForm(true);
       setReadOnly(true);
     }
   }, [allocations.data, setValue]);
-  const watchReference = watch("reference")
-  console.log(watchReference,"watchReference")
-  const selectedSizeTable = useMemo(() => {
-    if (!watchReference || !sizeTableData?.data) return null;
-    return sizeTableData.data.find(item => item.reference === watchReference);
-  }, [watchReference, sizeTableData]);
-console.log(selectedSizeTable,"selectedSizeTable")
-  // Find the party for the selected reference
-  const selectedParty = useMemo(() => {
-    if (!selectedSizeTable) return null;
-    return parties?.data?.find(party => party.id === selectedSizeTable.partyId);
-  }, [selectedSizeTable, parties]);
-  console.log(selectedParty,"selectedParty")
-
-  // Auto-fill partyId when reference changes
-  useEffect(() => {
-    if (watchReference && !readOnly && selectedSizeTable) {
-      setValue("partyId", selectedSizeTable.partyId);
-    }
-  }, [watchReference, selectedSizeTable, setValue, readOnly]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this allocation?")) {
@@ -477,7 +484,6 @@ console.log(selectedSizeTable,"selectedSizeTable")
 
             <form onSubmit={handleSubmit(handleFormSubmit)} className="p-5 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {/* Reference Field */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
                     Order No <span className="text-red-500">*</span>
@@ -487,6 +493,7 @@ console.log(selectedSizeTable,"selectedSizeTable")
                       {...register("reference", {
                         required: "Reference selection is required",
                       })}
+                      value={watchReference || ""}
                       disabled={readOnly || sizeTableLoading}
                       className={`w-full px-4 py-2 text-xs border rounded-xl shadow-sm appearance-none
                         ${errors.reference
@@ -514,8 +521,6 @@ console.log(selectedSizeTable,"selectedSizeTable")
                     </p>
                   )}
                 </div>
-
-                {/* Party Field */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
                     Buyer <span className="text-red-500">*</span>
@@ -536,7 +541,7 @@ console.log(selectedSizeTable,"selectedSizeTable")
                         })}
                         disabled={readOnly || partiesLoading}
                         className={`w-full px-4 py-2 text-xs border rounded-xl shadow-sm appearance-none
-          ${errors.partyId
+                          ${errors.partyId
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                             : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                           }`}
@@ -569,7 +574,6 @@ console.log(selectedSizeTable,"selectedSizeTable")
                     </p>
                   )}
                 </div>
-                {/* Branch Field */}
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
                     Branch <span className="text-red-500">*</span>
@@ -599,8 +603,6 @@ console.log(selectedSizeTable,"selectedSizeTable")
                     </p>
                   )}
                 </div>
-
-                {/* Line Field */}
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
                     Line <span className="text-red-500">*</span>
@@ -630,15 +632,11 @@ console.log(selectedSizeTable,"selectedSizeTable")
                     </p>
                   )}
                 </div>
-
-
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-
-                {/* Today's Date */}
                 <div>
                   <label className="block text-[11px] font-medium text-gray-600 mb-1">
-                    Today's Date
+                    Allocation Generate Date
                   </label>
                   <input
                     type="text"
@@ -647,8 +645,6 @@ console.log(selectedSizeTable,"selectedSizeTable")
                     className="block w-full px-3 py-1.5 text-xs border border-gray-300 bg-gray-100 rounded-md shadow-sm cursor-not-allowed"
                   />
                 </div>
-
-                {/* Allocation Date */}
                 <div>
                   <label className="block text-[11px] font-medium text-gray-600 mb-1">
                     Allocation Date <span className="text-red-500">*</span>
@@ -668,7 +664,7 @@ console.log(selectedSizeTable,"selectedSizeTable")
                         disabled={readOnly}
                         placeholderText="Select date"
                         className={`block w-full px-3 py-1.5 text-xs rounded-md shadow-sm
-            ${errors.allocationDate
+                          ${errors.allocationDate
                             ? "border border-red-300 focus:ring-red-500 focus:border-red-500"
                             : "border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                           }`}
@@ -681,8 +677,6 @@ console.log(selectedSizeTable,"selectedSizeTable")
                     </p>
                   )}
                 </div>
-
-                {/* Delivery Date */}
                 <div>
                   <label className="block text-[11px] font-medium text-gray-600 mb-1">
                     Delivery Date <span className="text-red-500">*</span>
@@ -702,7 +696,7 @@ console.log(selectedSizeTable,"selectedSizeTable")
                         disabled={readOnly}
                         placeholderText="Select date"
                         className={`block w-full px-3 py-1.5 text-xs rounded-md shadow-sm
-            ${errors.deliveryDate
+                          ${errors.deliveryDate
                             ? "border border-red-300 focus:ring-red-500 focus:border-red-500"
                             : "border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                           }`}
@@ -716,9 +710,6 @@ console.log(selectedSizeTable,"selectedSizeTable")
                   )}
                 </div>
               </div>
-
-              {/* Date Section */}
-
               <div className="flex justify-end space-x-2 pt-3 border-t border-gray-200">
                 <button
                   type="button"

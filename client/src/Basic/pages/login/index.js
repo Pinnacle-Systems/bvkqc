@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Eye, EyeOff, Zap, Server, Database, Cpu, FlaskConical, ShoppingCart, Hospital, Factory } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import secureLocalStorage from "react-secure-storage";
 import axios from "axios";
@@ -9,93 +9,61 @@ import Modal from '../../../UiComponents/Modal';
 import BranchAndFinYearForm from '../../components/BranchAndFinyear';
 import { PRODUCT_ADMIN_HOME_PATH } from '../../../Route/urlPaths';
 import { toast } from 'react-toastify';
-import logobanner from '../../../assets/logobanner.avif'
+
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
 const Login = () => {
-
-
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isGlobalOpen, setIsGlobalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [planExpirationDate, setPlanExpirationDate] = useState("");
+  const [activeProduct, setActiveProduct] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
+
+  const products = [
+    { icon: <Factory className="h-6 w-6 text-indigo-400" />, title: "Textile ERP", bg: "bg-gradient-to-br from-indigo-500 to-purple-600" },
+    { icon: <Hospital className="h-6 w-6 text-emerald-400" />, title: "Hospital Management", bg: "bg-gradient-to-br from-emerald-500 to-teal-600" },
+    { icon: <FlaskConical className="h-6 w-6 text-amber-400" />, title: "Textile Lab ERP", bg: "bg-gradient-to-br from-amber-500 to-orange-600" },
+    { icon: <Cpu className="h-6 w-6 text-blue-400" />, title: "Hardware Solutions", bg: "bg-gradient-to-br from-blue-500 to-cyan-600" },
+    { icon: <Server className="h-6 w-6 text-violet-400" />, title: "Cloud & IoT", bg: "bg-gradient-to-br from-violet-500 to-fuchsia-600" },
+    { icon: <ShoppingCart className="h-6 w-6 text-rose-400" />, title: "Retail POS", bg: "bg-gradient-to-br from-rose-500 to-pink-600" },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setActiveProduct((prev) => (prev + 1) % products.length);
+        setIsAnimating(false);
+      }, 500);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const validate = () => {
     const errors = {};
-
-
-    if (!username) {
-      errors.email = "Email is required";
-    }
-
-    if (!password) {
-      errors.password = "Password is required";
-    }
-
-
+    if (!username) errors.email = "Username is required";
+    if (!password) errors.password = "Password is required";
     return errors;
   };
-// Cloud Sync Icon
-const CloudSyncIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11l-4-4m0 0l4-4m-4 4h18" />
-  </svg>
-);
-
-// AI Icon
-const AIIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-  </svg>
-);
-
-// Factory Icon
-const FactoryIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-  </svg>
-);
-
-// Smartphone Icon
-const SmartphoneIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-  </svg>
-);
-
-// Beaker Icon
-const BeakerIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-  </svg>
-);
-
-// Shopping Cart Icon
-const ShoppingCartIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-  </svg>
-);
-
-  const data = { username, password }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    const validateErrors = validate()
-    setErrors(validateErrors)
+    e.preventDefault();
+    const validateErrors = validate();
+    setErrors(validateErrors);
+    
     if (Object.keys(validateErrors).length === 0) {
+      setLoading(true);
       axios({
         method: "post",
         url: BASE_URL + LOGIN_API,
-        data: data,
+        data: { username, password },
       }).then(
         (result) => {
-          console.log(result, "result")
           if (result.status === 200) {
             if (result.data.statusCode === 0) {
               sessionStorage.setItem("sessionId", generateSessionId());
@@ -108,8 +76,6 @@ const ShoppingCartIcon = ({ className }) => (
                   sessionStorage.getItem("sessionId") + "username",
                   result.data.userInfo.username
                 );
-                console.log(result.data.userInfo, ' result.data.userInfo')
-
                 secureLocalStorage.setItem(
                   sessionStorage.getItem("sessionId") + "userType",
                   result.data.userInfo.userType
@@ -145,14 +111,14 @@ const ShoppingCartIcon = ({ className }) => (
                     sessionStorage.getItem("sessionId") + "userEmail",
                     result.data.userInfo.email
                   );
-                  secureLocalStorage.setItem(
+                    secureLocalStorage.setItem(
                     sessionStorage.getItem("sessionId") + "userCompanyId",
                     result.data.userInfo.role.companyId
                   );
                   secureLocalStorage.setItem(
-                  sessionStorage.getItem("sessionId") + "userCompanyId",
-                  result.data.userInfo.role.companyId
-              );
+                    sessionStorage.getItem("sessionId") + "userCompanyId",
+                    result.data.userInfo.role.companyId
+                  );
                   secureLocalStorage.setItem(
                     sessionStorage.getItem("sessionId") + "defaultAdmin",
                     JSON.stringify(result.data.userInfo.role.defaultRole)
@@ -166,8 +132,7 @@ const ShoppingCartIcon = ({ className }) => (
                     result.data.userInfo.partyType
                   );
                   secureLocalStorage.setItem(
-                    sessionStorage.getItem("sessionId") +
-                    "latestActivePlanExpireDate",
+                    sessionStorage.getItem("sessionId") + "latestActivePlanExpireDate",
                     new Date(
                       result.data.userInfo.role.company.Subscription[0].expireAt
                     ).toDateString()
@@ -185,12 +150,10 @@ const ShoppingCartIcon = ({ className }) => (
                 }
               }
             } else {
-              console.log(result)
               toast.error(result.data.message);
-              setLoading(false);
             }
           }
-          console.log("result", result.data.data);
+          setLoading(false);
         },
         (error) => {
           console.log(error);
@@ -198,190 +161,195 @@ const ShoppingCartIcon = ({ className }) => (
           setLoading(false);
         }
       );
-    };
-  }
-
+    } else {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       <Modal
         isOpen={isGlobalOpen}
-        onClose={() => {
-          setIsGlobalOpen(false);
-        }}
+        onClose={() => setIsGlobalOpen(false)}
         widthClass={""}
       >
         <BranchAndFinYearForm setIsGlobalOpen={setIsGlobalOpen} />
       </Modal>
-    <div className=" w-full grid  h-screen bg-beige">
-  <div className="min-h-screen  flex">
-    <div className="w-full bg-gradient-to-br from-indigo-900 to-blue-800 p-5 flex flex-col overflow-y-auto">
-      <div className="mb-5">
-       <img className='w-52' src='https://www.pinnaclesystems.co.in/assets/imgs/pages/home5/logo.PNG' />
-      </div>
 
-     <div className="space-y-4 ">
-  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
-    <div className="absolute inset-0 border border-white/20 rounded-xl" />
-    <div className="flex items-start space-x-3">
-      <div className="p-2 bg-white/5 rounded-md">
-        <FactoryIcon className="h-5 w-5 text-blue-300" />
-      </div>
-      <div>
-        <h3 className="text-white text-lg mb-1">ERP for Textile Industries</h3>
-        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
-         An ERP (Enterprise Resource Planning) system tailored for textile industries streamlines and optimizes various operations, from supply chain management to production planning and inventory control
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
-    <div className="absolute inset-0 border border-white/20 rounded-xl" />
-    <div className="flex items-start space-x-3">
-      <div className="p-2 bg-white/5 rounded-md">
-        <SmartphoneIcon className="h-5 w-5 text-blue-300" />
-      </div>
-      <div>
-        <h3 className="text-white text-lg mb-1">Payroll management system</h3>
-        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
-          Payroll management system with mobile app integration, employee self-service 
-          portal, and real-time attendance tracking.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
-    <div className="absolute inset-0 border border-white/20 rounded-xl" />
-    <div className="flex items-start space-x-3">
-      <div className="p-2 bg-white/5 rounded-md">
-        <BeakerIcon className="h-5 w-5 text-blue-300" />
-      </div>
-      <div>
-        <h3 className="text-white text-lg mb-1">ERP For Textile Lab</h3>
-        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
-         Certainly, cloud and IoT (Internet of Things) solutions are increasingly important for various industries, including textiles.
-          These technologies can offer enhanced efficiency, real-time monitoring, data analytics, and scalability.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
-    <div className="absolute inset-0 border border-white/20 rounded-xl" />
-    <div className="flex items-start space-x-3">
-      <div className="p-2 bg-white/5 rounded-md">
-        <ShoppingCartIcon className="h-5 w-5 text-blue-300" />
-      </div>
-      <div>
-        <h3 className="text-white text-lg mb-1">POS</h3>
-        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
-          Retail Point of Sale system with inventory management, customer loyalty programs, 
-          and multi-store support.
-        </p>
-      </div>
-    </div>
-  </div>
-  <div className="group relative bg-white/10 backdrop-blur-sm p-4 rounded-xl transition-transform hover:scale-[1.03]">
-    <div className="absolute inset-0 border border-white/20 rounded-xl" />
-    <div className="flex items-start space-x-3">
-      <div className="p-2 bg-white/5 rounded-md">
-        <FactoryIcon className="h-5 w-5 text-blue-300" />
-      </div>
-      <div>
-        <h3 className="text-white text-lg mb-1">Hospital Management</h3>
-        <p className="text-blue-100 text-[12px] tracking-wider  leading-snug">
-         Streamline hospital operations with an integrated ERP solution. Manage patient records, billing, and resource allocation efficiently. Enhance patient care through seamless coordination and data-driven insights.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-    </div>
-
-<div 
-  className="w-full bg-gray-100 flex items-center justify-center p-12"
-  style={{ 
-    backgroundImage: `url(${logobanner})`, 
-    backgroundSize: 'cover', 
-    backgroundPosition: 'center' 
-  }}>   <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10 transition-all hover:shadow-3xl">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-          <input
-            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder="Enter your credentials"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 overflow-hidden relative p-4">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <div 
+              key={i}
+              className="absolute rounded-full bg-white/5"
+              style={{
+                width: `${Math.random() * 300 + 100}px`,
+                height: `${Math.random() * 300 + 100}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                filter: 'blur(40px)',
+                animation: `pulse ${Math.random() * 10 + 10}s infinite alternate`
+              }}
+            />
+          ))}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3.5 text-gray-400 hover:text-blue-600 transition-colors"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+        {/* Main container */}
+        <div className="relative z-10 w-full max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row rounded-3xl overflow-hidden shadow-2xl backdrop-blur-lg bg-white/5 border border-white/10">
+            {/* Product showcase - left side */}
+            <div className="w-full lg:w-1/2 p-8 md:p-12 flex flex-col">
+              {/* <div className="mb-8">
+                <div className="flex items-center space-x-3">
+                  <Zap className="h-8 w-8 text-yellow-400 animate-pulse" />
+                  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500">
+                    PINNACLE SYSTEMS
+                  </span>
+                </div>
+              </div> */}
+
+              <div className="flex-1 flex flex-col justify-center">
+                <h2 className="text-4xl font-bold text-white mb-6 leading-tight">
+                  Enterprise <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Solutions</span> <br/>For Modern Businesses
+                </h2>
+                
+                <div className="relative h-40 mb-8">
+                  {products.map((product, index) => (
+                    <div 
+                      key={index}
+                      className={`absolute inset-0 transition-all duration-500 ease-in-out rounded-2xl p-6 flex flex-col justify-end ${product.bg} 
+                        ${index === activeProduct ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
+                    >
+                      <div className="text-white">
+                        <div className="flex items-center mb-4">
+                          {product.icon}
+                          <h3 className="text-2xl font-bold ml-3">{product.title}</h3>
+                        </div>
+                        <p className="text-white/80">
+                          {index === 0 && "Comprehensive textile manufacturing solution with inventory and production management"}
+                          {index === 1 && "Integrated hospital management system for patient care and administration"}
+                          {index === 2 && "Specialized ERP for textile testing labs with quality control features"}
+                          {index === 3 && "Custom hardware configurations and IT infrastructure solutions"}
+                          {index === 4 && "Cloud-based systems with IoT integration for real-time analytics"}
+                          {index === 5 && "Retail point of sale with inventory and customer management"}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex space-x-2 justify-center">
+                  {products.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setActiveProduct(index)}
+                      className={`h-2 w-2 rounded-full transition-all ${index === activeProduct ? 'bg-white w-6' : 'bg-white/30'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Login form - right side */}
+            <div className="w-full lg:w-1/2 p-8 md:p-12 bg-gradient-to-br from-gray-800 to-gray-900 relative overflow-hidden">
+              <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl"></div>
+              <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+                <p className="text-gray-400 mb-8">Sign in to your dashboard</p>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <div className="relative">
+                      <input
+                        className="w-full px-4 py-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all"
+                        placeholder="Enter your username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
+                      {errors.username && <p className="text-red-400 text-xs mt-1">{errors.username}</p>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className="w-full px-4 py-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 pr-12"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3.5 text-gray-400 hover:text-blue-400 transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                      {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input 
+                        type="checkbox"
+                        className="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-300">Remember me</span>
+                    </label>
+                    <a href="#" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                      Forgot password?
+                    </a>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3.5 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center group"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <span className="group-hover:scale-110 transition-transform">Access Platform</span>
+                    )}
+                  </button>
+                </form>
+
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-400">
+                    New to Pinnacle? {' '}
+                    <a 
+                      onClick={() => navigate('/register')} 
+                      className="text-blue-400 hover:text-blue-300 cursor-pointer font-medium transition-colors"
+                    >
+                      Create an account
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </div>
-
-        <div className="flex items-center justify-between">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input 
-              type="checkbox"
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-600">Remember me</span>
-          </label>
-          <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
-            Forgot password?
-          </a>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-lg font-semibold hover:shadow-lg transition-all"
-        >
-          Access Platform
-        </button>
-      </form>
-
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          New to Pinnacle? {' '}
-          <a 
-            onClick={() => navigate('/register')} 
-            className="text-blue-600 hover:text-blue-800 cursor-pointer font-medium transition-colors"
-          >
-            Create Account
-          </a>
-        </p>
       </div>
-    </div>
-  </div>
-  </div>
-</div>
 
+      <style jsx global>{`
+        @keyframes pulse {
+          0% { opacity: 0.1; transform: scale(1); }
+          50% { opacity: 0.3; transform: scale(1.1); }
+          100% { opacity: 0.1; transform: scale(1); }
+        }
+      `}</style>
     </>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
