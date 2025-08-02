@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useGetSizeTableMasterQuery, useGetAllocationMasterQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import secureLocalStorage from 'react-secure-storage';
-import { useAddAqlInspectionMutation, useGetAqlInspectionsQuery, useGetAqlInspectionByIdQuery, useDeleteAqlInspectionMutation,useUpdateAqlInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
-import Mastertable from '../MasterTable/Mastertable';
+import { useAddAqlInspectionMutation, useGetAqlInspectionsQuery, useGetAqlInspectionByIdQuery, useDeleteAqlInspectionMutation, useUpdateAqlInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
+import Mastertable from '../MasterTable/MaterTable1.jsx';
 import { toast } from 'react-toastify';
 
 const Aql = () => {
@@ -25,11 +25,10 @@ const Aql = () => {
   });
   const [readOnly, setReadOnly] = useState(false);
   const { data: aqlData } = useGetAqlInspectionsQuery();
-  const PIECES_COUNT = 5; 
+  const PIECES_COUNT = 5;
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
-console.log(checkValues,"checkValues")
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
 
   const { data: sizeData } = useGetSizeTableMasterQuery(
@@ -50,7 +49,7 @@ console.log(checkValues,"checkValues")
   const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
   const selectedProduct = sizeData?.data;
   const availableSizes = selectedProduct?.availableSizes || [];
- 
+
   useEffect(() => {
     if (sizeTableData?.data && aqlData?.data) {
       const merged = aqlData.data.map(aqlItem => {
@@ -95,7 +94,6 @@ console.log(checkValues,"checkValues")
 
   const loadSavedData = () => {
     const savedData = secureLocalStorage.getItem(storageKey);
-    console.log("loadSavedData working")
     if (savedData) {
       setSavedSizes(savedData.savedSizes || []);
       setSavedMeasurements(savedData.savedMeasurements || {});
@@ -109,7 +107,7 @@ console.log(checkValues,"checkValues")
         setSelectedSize(savedData.savedSizes[0]);
       }
     } else {
-      if(id) return
+      if (id) return
       setSavedSizes([]);
       setSavedMeasurements({});
       setPartialSavedMeasurements({});
@@ -137,7 +135,7 @@ console.log(checkValues,"checkValues")
   useEffect(() => {
     if (selectedReference) {
       loadSavedData();
-    } 
+    }
   }, [selectedReference]);
 
   useEffect(() => {
@@ -150,87 +148,84 @@ console.log(checkValues,"checkValues")
     }
   }, [savedSizes, savedMeasurements, partialSavedMeasurements, selectedReference, formStatus.isDirty]);
 
-const syncFormWithDb = useCallback((data) => {
-  if (!data) return;
-  setSelectedReference(data.reference || '');
-  if (data.inspectionDate) {
-    setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
-  }
-  
-  const savedSizesArr = data.samples?.map(sample => sample.size) || [];
-  setSavedSizes(savedSizesArr);
-  
-  const savedMeas = {};
-  
-  data.samples?.forEach(sample => {
-    const size = sample.size;
-    savedMeas[size] = {};
+  const syncFormWithDb = useCallback((data) => {
+    if (!data) return;
+    setSelectedReference(data.reference || '');
+    if (data.inspectionDate) {
+      setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
+    }
 
-    sample.measurements?.forEach(measurement => {
-      // Initialize array with empty strings
-      const values = Array(PIECES_COUNT).fill('');
-      
-      // Fill with actual values where they exist
-      measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
-        if (valueObj.pieceNumber <= PIECES_COUNT) {
-          values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
-        }
+    const savedSizesArr = data.samples?.map(sample => sample.size) || [];
+    setSavedSizes(savedSizesArr);
+
+    const savedMeas = {};
+
+    data.samples?.forEach(sample => {
+      const size = sample.size;
+      savedMeas[size] = {};
+
+      sample.measurements?.forEach(measurement => {
+        const values = Array(PIECES_COUNT).fill('');
+        measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
+          if (valueObj.pieceNumber <= PIECES_COUNT) {
+            values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
+          }
+        });
+
+        savedMeas[size][measurement.measurementId] = values;
       });
-      
-      savedMeas[size][measurement.measurementId] = values;
     });
-  });
 
-  setSavedMeasurements(savedMeas);
-  setPartialSavedMeasurements({});
-  
-  if (savedSizesArr.length > 0) {
-    setSelectedSize(savedSizesArr[0]);
-  }
-  setReadOnly(true);
-}, []);
- 
+    setSavedMeasurements(savedMeas);
+    setPartialSavedMeasurements({});
+
+    if (savedSizesArr.length > 0) {
+      setSelectedSize(savedSizesArr[0]);
+    }
+    setReadOnly(true);
+  }, []);
+
   useEffect(() => {
-  if (singleData?.data && !formStatus.isDirty) {
-    syncFormWithDb(singleData.data);
-  }
-}, [singleData, syncFormWithDb, formStatus.isDirty]);
-useEffect(() => {
-  if (selectedProduct && selectedSize) {
-    const measurementData = selectedProduct.measurements
-      ?.filter(m => m.values?.some(v => v.size === selectedSize))
-      ?.map(m => {
-        const valueObj = m.values?.find(v => v.size === selectedSize);
-        return {
-          id: m.id,
-          name: m.description,
-          standardValue: valueObj?.value,
-          toleranceMin: m.toleranceMin || '0',
-          toleranceMax: m.toleranceMax || '0',
-          unit: m.unit || ''
-        };
-      }) || [];
+    if (singleData?.data && !formStatus.isDirty) {
+      syncFormWithDb(singleData.data);
+    }
+  }, [singleData, syncFormWithDb, formStatus.isDirty]);
 
-    setMeasurements(measurementData);
+  useEffect(() => {
+    if (selectedProduct && selectedSize) {
+      const measurementData = selectedProduct.measurements
+        ?.filter(m => m.values?.some(v => v.size === selectedSize))
+        ?.map(m => {
+          const valueObj = m.values?.find(v => v.size === selectedSize);
+          return {
+            id: m.id,
+            name: m.description,
+            standardValue: valueObj?.value,
+            toleranceMin: m.toleranceMin || '0',
+            toleranceMax: m.toleranceMax || '0',
+            unit: m.unit || ''
+          };
+        }) || [];
 
-    // Always check savedMeasurements first, then partial
-    const sizeData = savedMeasurements[selectedSize] || partialSavedMeasurements[selectedSize] || {};
-    const initialCheckValues = {};
-    
-    measurementData.forEach(m => {
-      initialCheckValues[m.id] = sizeData[m.id] || Array(PIECES_COUNT).fill('');
-    });
+      setMeasurements(measurementData);
 
-    setCheckValues(initialCheckValues);
-  } else {
-    setMeasurements([]);
-    setCheckValues({});
-  }
-}, [selectedProduct, selectedSize, savedMeasurements, partialSavedMeasurements]);
-  console.log(savedMeasurements,"savedMeasurements")
+      const sizeData = savedMeasurements[selectedSize] || partialSavedMeasurements[selectedSize] || {};
+      const initialCheckValues = {};
+
+      measurementData.forEach(m => {
+        initialCheckValues[m.id] = sizeData[m.id] || Array(PIECES_COUNT).fill('');
+      });
+
+      setCheckValues(initialCheckValues);
+    } else {
+      setMeasurements([]);
+      setCheckValues({});
+    }
+  }, [selectedProduct, selectedSize, savedMeasurements, partialSavedMeasurements]);
+
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     if (readOnly) return;
-    
+
     setCheckValues(prev => ({
       ...prev,
       [measurementId]: prev[measurementId].map((val, idx) =>
@@ -238,7 +233,6 @@ useEffect(() => {
     }));
     setFormStatus(prev => ({ ...prev, isDirty: true }));
   };
-  
 
   const isSizeComplete = (size) => {
     const sizeData = savedMeasurements[size];
@@ -291,7 +285,6 @@ useEffect(() => {
       [selectedSize]: checkValues
     };
     setSavedMeasurements(updatedMeasurements);
-    console.log(savedMeasurements,"savedMeasurements")
 
     const updatedPartial = { ...partialSavedMeasurements };
     delete updatedPartial[selectedSize];
@@ -311,7 +304,7 @@ useEffect(() => {
     setSelectedSize(size);
     setShowSizeDropdown(false);
   };
- console.log(savedSizes,"savedSizes")
+
   const checkTolerance = (measurement, value) => {
     if (!value || isNaN(value)) return '';
     const numericValue = parseFloat(value);
@@ -343,7 +336,7 @@ useEffect(() => {
         toleranceMax: measurement.toleranceMax.toString(),
         unit: measurement.unit,
         values: (savedMeasurements[size]?.[measurement.id] || [])
-          .slice(0, PIECES_COUNT) // Only take first 5 pieces
+          .slice(0, PIECES_COUNT)
           .map((value, index) => ({
             pieceNumber: index + 1,
             actualValue: value.toString(),
@@ -421,20 +414,23 @@ useEffect(() => {
     return 'none';
   };
 
+  const [deleteId, setDeleteId] = useState(null);
+
   const onDataClick = (id) => {
     setId(id);
     setNewItem(true);
   };
 
   const deleteData = async () => {
-    if (id) {
+    if (deleteId) {
       if (!window.confirm("Are you sure to delete this inspection?")) {
         return;
       }
       try {
-        await removeData(id);
+        await removeData(deleteId);
         setId("");
         toast.success("Deleted Successfully");
+        setDeleteId(null)
         setNewItem(false);
       } catch (error) {
         toast.error("Something went wrong");
@@ -458,11 +454,11 @@ useEffect(() => {
         <>
           <div className="bg-white px-4 py-2 flex items-center justify-between">
             <h1 className="text-lg font-bold text-gray-800">AQL Inspection Report</h1>
-            <button 
+            <button
               onClick={() => {
                 setId('');
                 setNewItem(true);
-              }} 
+              }}
               className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-3 py-1 text-xs"
             >
               Add New +
@@ -477,6 +473,7 @@ useEffect(() => {
             data={mergedReportData}
             deleteData={deleteData}
             setReadOnly={setReadOnly}
+            setDeleteId={setDeleteId}
           />
         </>
       ) : (
@@ -497,7 +494,7 @@ useEffect(() => {
 
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-                  <div className="grid grid-cols-3 w-1/2 md:grid-cols-3 gap-3 mb-4">
+                  <div className="grid grid-cols-3 md:grid-cols-3 gap-3 mb-4 md:w-1/2">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Order Id <span className="text-red-500">*</span>
@@ -542,7 +539,7 @@ useEffect(() => {
                       </div>
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-4 w-16">
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Size <span className="text-red-500">*</span>
                       </label>
@@ -556,7 +553,7 @@ useEffect(() => {
                             ${selectedSize ? 'border-blue-500' : 'border-gray-300'}`}
                         >
                           <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
-                            {selectedSize || 'Select size'}
+                            {selectedSize || 'size'}
                           </span>
                           <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -595,7 +592,7 @@ useEffect(() => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {savedSizes.length > 0 && (
                     <div className="mb-4">
                       <p className="text-xs font-medium text-gray-700 mb-1">Saved Sizes:</p>
@@ -626,11 +623,73 @@ useEffect(() => {
                       </div>
                     </div>
                   )}
-                  
+
                   {measurements.length > 0 && (
                     <div className="flex-1 overflow-hidden flex flex-col mb-3">
-                      <div className="overflow-auto flex-1">
-                        <table className="min-w-full bg-white border border-gray-200">
+                      <div className="overflow-auto flex-1 pb-4">
+                        {/* Mobile Card View */}
+                        <div className="md:hidden grid grid-cols-1 gap-4">
+                          {measurements.map(measurement => (
+                            <div
+                              key={measurement.id}
+                              className="bg-white border border-gray-200 rounded-lg shadow-sm p-4"
+                            >
+                              <div className="flex justify-between items-center mb-3 pb-2 border-b">
+                                <h3 className="text-sm font-medium text-gray-800">
+                                  {measurement.name} ({measurement.unit})
+                                </h3>
+                                <div className="text-xs text-gray-500">
+                                  Std: {measurement.standardValue}
+                                  <span className="ml-1">
+                                    (-{measurement.toleranceMin}/+{measurement.toleranceMax})
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-5  sm:grid-cols-3 gap-3">
+                                {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(pieceIndex => (
+                                  <div key={pieceIndex} className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">
+                                      Piece #{pieceIndex + 1}
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={checkValues[measurement.id]?.[pieceIndex] || ''}
+                                      onChange={(e) => {
+                                        if (readOnly) return;
+                                        let raw = e.target.value;
+                                        raw = raw.replace(/[^\d.]/g, '');
+                                        const parts = raw.split('.');
+                                        if (parts.length > 2) return;
+                                        if (parts[1]?.length > 2) return;
+
+                                        handleCheckValueChange(measurement.id, pieceIndex, raw);
+                                      }}
+                                      onBlur={(e) => {
+                                        if (readOnly) return;
+                                        let val = e.target.value;
+                                        if (/^\d{3}$/.test(val)) {
+                                          val = (parseFloat(val) / 10).toFixed(2);
+                                        } else {
+                                          val = parseFloat(val || 0).toFixed(2);
+                                        }
+                                        handleCheckValueChange(measurement.id, pieceIndex, val);
+                                      }}
+                                      className={`w-full px-3 py-2 text-sm border rounded-md text-center ${checkValues[measurement.id]?.[pieceIndex]
+                                          ? checkTolerance(measurement, checkValues[measurement.id][pieceIndex])
+                                          : 'border-gray-300'
+                                        } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                                      readOnly={readOnly}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <table className="hidden md:table min-w-full bg-white border border-gray-200">
                           <thead className="bg-gray-50 sticky top-0">
                             <tr>
                               <th rowSpan="2" className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
@@ -685,7 +744,7 @@ useEffect(() => {
                                         if (readOnly) return;
                                         let val = e.target.value;
                                         if (/^\d{3}$/.test(val)) {
-                                          val = (parseFloat(val) / 10).toFixed(2); 
+                                          val = (parseFloat(val) / 10).toFixed(2);
                                         } else {
                                           val = parseFloat(val || 0).toFixed(2);
                                         }
@@ -706,13 +765,13 @@ useEffect(() => {
                     </div>
                   )}
 
-                  <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200">
+                  <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-gray-200">
                     {!readOnly && (
                       <>
                         <button
                           type="button"
                           onClick={handleReset}
-                          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all"
+                          className="px-3 py-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0"
                         >
                           Reset
                         </button>
@@ -723,7 +782,7 @@ useEffect(() => {
                               type="button"
                               onClick={handlePartialSave}
                               disabled={!selectedSize}
-                              className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all 
+                              className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
                                 ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'}`}
                             >
                               Partial Save
@@ -733,7 +792,7 @@ useEffect(() => {
                               type="button"
                               onClick={handleSaveSize}
                               disabled={!selectedSize}
-                              className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all 
+                              className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
                                 ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
                             >
                               Save Size
@@ -747,7 +806,7 @@ useEffect(() => {
                       <button
                         type="submit"
                         disabled={savedSizes.filter(size => isSizeComplete(size)).length === 0 || isSubmitting}
-                        className={`px-4 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all 
+                        className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
                           ${savedSizes.filter(size => isSizeComplete(size)).length === 0
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-green-600 hover:bg-green-700'}`}

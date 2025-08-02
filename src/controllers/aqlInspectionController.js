@@ -323,8 +323,198 @@ function transformInspectionData(inspection) {
     })),
   };
 }
+export const updateAqlInspection = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    if (!id) {
+      throw new AqlInspectionError('Inspection ID is required', 400);
+    }
+
+    validateInspectionPayload(req.body);
+
+    // Validate all samples and measurements
+    req.body.samples.forEach((sample, sampleIndex) => {
+      validateSample(sample, sampleIndex);
+      
+      sample.measurements.forEach((measurement, measurementIndex) => {
+        validateMeasurement(measurement, sample.size, measurementIndex);
+        
+        measurement.values.forEach((value, valueIndex) => {
+          validateValue(value, measurement.measurementId, valueIndex);
+        });
+      });
+    });
+
+    const result = await prisma.$transaction(async (tx) => {
+      // First delete all related data (cascading deletes would work too)
+      await tx.sampleValue.deleteMany({
+        where: {
+          measurement: {
+            sample: {
+              aqlInspectionId: parseInt(id)
+            }
+          }
+        }
+      });
+
+      await tx.sampleMeasurement.deleteMany({
+        where: {
+          sample: {
+            aqlInspectionId: parseInt(id)
+          }
+        }
+      });
+
+      await tx.sample.deleteMany({
+        where: {
+          aqlInspectionId: parseInt(id)
+        }
+      });
+
+      // Update the main inspection record
+      const updatedInspection = await tx.aqlInspection.update({
+        where: { id: parseInt(id) },
+        data: {
+          reference: req.body.reference,
+          inspectionDate: new Date(req.body.inspectionDate),
+          updatedAt: new Date(),
+        },
+      });
+
+      // Recreate all samples and measurements
+      const samplePromises = req.body.samples.map(async (sample) => {
+        const createdSample = await tx.sample.create({
+          data: {
+            aqlInspectionId: updatedInspection.id,
+            size: sample.size,
+          },
+        });
+
+        const measurementPromises = sample.measurements.map(async (measurement) => {
+          const createdMeasurement = await tx.sampleMeasurement.create({
+            data: {
+              sampleId: createdSample.id,
+              measurementId: measurement.measurementId,
+              standardValue: parseFloat(measurement.standardValue),
+              toleranceMin: parseFloat(measurement.toleranceMin || '0'),
+              toleranceMax: parseFloat(measurement.toleranceMax || '0'),
+              unit: measurement.unit || '',
+            },
+          });
+
+          const valueData = measurement.values.map((value) => ({
+            sampleMeasurementId: createdMeasurement.id,
+            pieceNumber: value.pieceNumber || 0,
+            actualValue: parseFloat(value.actualValue),
+            status: value.status || 'within_tolerance',
+          }));
+
+          await tx.sampleValue.createMany({ data: valueData });
+          return createdMeasurement;
+        });
+
+        await Promise.all(measurementPromises);
+        return createdSample;
+      });
+
+      await Promise.all(samplePromises);
+
+      return tx.aqlInspection.findUnique({
+        where: { id: updatedInspection.id },
+        include: {
+          samples: {
+            include: {
+              measurements: {
+                include: {
+                  values: true,
+                  measurement: {
+                    select: {
+                      id: true,
+                      description: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: transformInspectionData(result),
+    });
+
+  } catch (error) {
+    console.error('Update AQL Inspection Error:', error);
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    const errorResponse = {
+      success: false,
+      error: error.message,
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.stack = error.stack;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        errorResponse.prismaError = error.meta;
+      }
+    }
+
+    return res.status(statusCode).json(errorResponse);
+  }
+};
+export const deleteAqlInspection = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(id,"id")
+
+    if (!id) {
+      throw new AqlInspectionError('Inspection ID is required', 400);
+    }
+
+    // First check if the inspection exists
+    const inspection = await prisma.aqlInspection.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!inspection) {
+      throw new AqlInspectionError(`Inspection with ID ${id} not found`, 404);
+    }
+
+    // Delete the inspection (cascading deletes will handle related records)
+    await prisma.aqlInspection.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `AQL Inspection with ID ${id} deleted successfully`,
+    });
+
+  } catch (error) {
+    console.error('Delete AQL Inspection Error:', error);
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    const errorResponse = {
+      success: false,
+      error: error.message,
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.stack = error.stack;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        errorResponse.prismaError = error.meta;
+      }
+    }
+
+    return res.status(statusCode).json(errorResponse);
+  }
+};
 export const aqlInspectionController = {
   createAqlInspection,
-  getAllReferences
+  getAllReferences,
+  getAllAqlInspectionsId,
+  updateAqlInspection,
+  deleteAqlInspection
 };
