@@ -701,6 +701,130 @@ CREATE TABLE `LineMaster` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `Product` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `reference` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `partyId` INTEGER NULL,
+
+    UNIQUE INDEX `Product_reference_key`(`reference`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Measurement` (
+    `id` VARCHAR(191) NOT NULL,
+    `productId` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NOT NULL,
+    `dimension` VARCHAR(191) NULL,
+    `toleranceMin` VARCHAR(191) NULL,
+    `toleranceMax` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `MeasurementValue` (
+    `id` VARCHAR(191) NOT NULL,
+    `measurementId` VARCHAR(191) NOT NULL,
+    `size` VARCHAR(191) NOT NULL,
+    `value` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Allocation` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `partyId` INTEGER NULL,
+    `lineMasterId` INTEGER NULL,
+    `branchId` INTEGER NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `DeliveryDate` DATETIME(3) NOT NULL,
+    `reference` VARCHAR(191) NOT NULL,
+    `allocationDate` DATETIME(3) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `AqlInspection` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `companyId` VARCHAR(191) NOT NULL,
+    `reference` VARCHAR(191) NOT NULL,
+    `inspectionDate` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `AqlInspection_reference_key`(`reference`),
+    INDEX `AqlInspection_companyId_idx`(`companyId`),
+    INDEX `AqlInspection_reference_idx`(`reference`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Sample` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `aqlInspectionId` INTEGER NOT NULL,
+    `size` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `Sample_aqlInspectionId_idx`(`aqlInspectionId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `SampleMeasurement` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `sampleId` INTEGER NOT NULL,
+    `measurementId` VARCHAR(191) NOT NULL,
+    `standardValue` DOUBLE NOT NULL,
+    `toleranceMin` DOUBLE NOT NULL,
+    `toleranceMax` DOUBLE NOT NULL,
+    `unit` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `SampleMeasurement_sampleId_idx`(`sampleId`),
+    INDEX `SampleMeasurement_measurementId_idx`(`measurementId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `SampleValue` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `sampleMeasurementId` INTEGER NOT NULL,
+    `pieceNumber` INTEGER NOT NULL,
+    `actualValue` DOUBLE NOT NULL,
+    `status` ENUM('within_tolerance', 'out_of_tolerance') NOT NULL DEFAULT 'within_tolerance',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `SampleValue_sampleMeasurementId_idx`(`sampleMeasurementId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `LineAllocationInchargeMaster` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `empId` INTEGER NULL,
+    `branchId` INTEGER NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `InchargeLineListMaster` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `lineAllocationInchargeMasterId` INTEGER NULL,
+    `lineMasterId` INTEGER NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Page` ADD CONSTRAINT `Page_pageGroupId_fkey` FOREIGN KEY (`pageGroupId`) REFERENCES `PageGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -928,3 +1052,45 @@ ALTER TABLE `LineMaster` ADD CONSTRAINT `LineMaster_companyId_fkey` FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE `LineMaster` ADD CONSTRAINT `LineMaster_empId_fkey` FOREIGN KEY (`empId`) REFERENCES `Employee`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Product` ADD CONSTRAINT `Product_partyId_fkey` FOREIGN KEY (`partyId`) REFERENCES `Party`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Measurement` ADD CONSTRAINT `Measurement_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `Product`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MeasurementValue` ADD CONSTRAINT `MeasurementValue_measurementId_fkey` FOREIGN KEY (`measurementId`) REFERENCES `Measurement`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Allocation` ADD CONSTRAINT `Allocation_partyId_fkey` FOREIGN KEY (`partyId`) REFERENCES `Party`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Allocation` ADD CONSTRAINT `Allocation_lineMasterId_fkey` FOREIGN KEY (`lineMasterId`) REFERENCES `LineMaster`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Allocation` ADD CONSTRAINT `Allocation_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Sample` ADD CONSTRAINT `Sample_aqlInspectionId_fkey` FOREIGN KEY (`aqlInspectionId`) REFERENCES `AqlInspection`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `SampleMeasurement` ADD CONSTRAINT `SampleMeasurement_sampleId_fkey` FOREIGN KEY (`sampleId`) REFERENCES `Sample`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `SampleMeasurement` ADD CONSTRAINT `SampleMeasurement_measurementId_fkey` FOREIGN KEY (`measurementId`) REFERENCES `Measurement`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `SampleValue` ADD CONSTRAINT `SampleValue_sampleMeasurementId_fkey` FOREIGN KEY (`sampleMeasurementId`) REFERENCES `SampleMeasurement`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LineAllocationInchargeMaster` ADD CONSTRAINT `LineAllocationInchargeMaster_empId_fkey` FOREIGN KEY (`empId`) REFERENCES `Employee`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LineAllocationInchargeMaster` ADD CONSTRAINT `LineAllocationInchargeMaster_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_lineAllocationInchargeMasterId_fkey` FOREIGN KEY (`lineAllocationInchargeMasterId`) REFERENCES `LineAllocationInchargeMaster`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_lineMasterId_fkey` FOREIGN KEY (`lineMasterId`) REFERENCES `LineMaster`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
