@@ -229,22 +229,24 @@ const Mastertable = ({
                               index % 2 === 0 ? "bg-white" : "bg-gray-100"
                             } cursor-pointer`}
                           >
-                            {tableDataNames
-                              ?.filter((data) => data !== " ")
-                              ?.map((data, idx) => (
-                                <td
-                                  key={idx}
-                                  className={`h-[32px] text-[12px] border-r border-gray-200 px-4 ${
-                                    idx === 0 ? "w-[40px]" : ""
-                                  }`}
-                                  onClick={() => {
-                                    onDataClick(dataObj?.id);
-                                    setReadOnly(true);
-                                  }}
-                                >
-                                  {eval(data)}
-                                </td>
-                              ))}
+                      {tableDataNames
+  ?.filter((data) => data.trim() !== "")
+  ?.map((data, idx) => (
+    <td
+      key={idx}
+      className={`h-[32px] text-[12px] border-r border-gray-200 px-4 ${
+        idx === 0 ? "w-[40px]" : ""
+      }`}
+      onClick={() => {
+        onDataClick(dataObj?.id);
+        setReadOnly(true);
+      }}
+    >
+      {dataObj?.[data] ?? "-"}
+    </td>
+  ))}
+
+
 
                             <td className="px-2 py-1 w-[40px] border-gray-200 border h-8">
                               <div className="flex gap-1">
