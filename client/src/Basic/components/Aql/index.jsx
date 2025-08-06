@@ -959,15 +959,16 @@ const Aql = () => {
                           </>
                         )}
 
-                        <button
-                          type="button"
-                          onClick={handleCompare}
-                          className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
+                       {savedSizes.filter(size => isSizeComplete(size)).length >= 5 && (
+                          <button
+                            type="button"
+                            onClick={handleCompare}
+                            className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
                               ${savedSizes.filter(size => isSizeComplete(size)).length < 5 ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
-                        >
-                          Compare
-                        </button>
-
+                          >
+                            Compare
+                          </button>
+                        )}
                       </>
                     )}
 
