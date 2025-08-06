@@ -102,6 +102,9 @@ app.use("/tagType", TagType);
 app.use("/lineMaster", LineMaster)
 app.use("/sizeTable",sizeTable)
 app.use("/aql",aql)
+app.use("/lineAllocation", LineMaster)
+
+
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);

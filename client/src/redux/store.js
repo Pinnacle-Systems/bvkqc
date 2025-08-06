@@ -39,6 +39,7 @@ import {
   TermsAndConditionsMasterApi,
   CurrencyMasterApi,
   machineMasterApi,
+  lineAllocationMasterApi,
 } from "./services";
 import projectPaymentFormApi from "./services/ProjectPaymentService";
 import {
@@ -177,6 +178,7 @@ const commonReducers = {
   percentageMaster: PercentageApi.reducer,
   Email: EmailApi.reducer,
   tagTypeMaster: tagTypeMasterApi.reducer,
+  lineAllocationMaster : lineAllocationMasterApi.reducer,
   [ProductionReceiptApi.reducerPath]: ProductionReceiptApi.reducer,
 };
 const commonMiddleware = [
@@ -267,6 +269,7 @@ const commonMiddleware = [
   PercentageApi.middleware,
   EmailApi.middleware,
   tagTypeMasterApi.middleware,
+  lineAllocationMasterApi.middleware,
 ];
 
 const store = configureStore({
