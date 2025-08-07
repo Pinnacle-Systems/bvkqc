@@ -27,7 +27,8 @@ const Mastertable = ({
   deleteData,
   setDeleteId,
   onApprove,
-  onReject
+  onReject ,
+  setIsDetailView
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -260,7 +261,7 @@ const Mastertable = ({
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {currentData.map((dataObj, index) => (
+                      {currentData.map((dataObj, index) => (  
                         <React.Fragment key={index}>
                           <tr 
                             className={`hover:bg-gray-50 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
@@ -276,7 +277,22 @@ const Mastertable = ({
                               {dataObj.ayanCondition || 'N/A'}
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
-                              {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
+                              {/* {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
+                               */}
+                               <button onClick={ (e)  =>  {
+                                 e.stopPropagation();
+                                setIsDetailView(true)
+                               } } >
+                                 <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="20"
+                                      height="20"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path d="M10 3C5.5 3 2 10 2 10s3.5 7 8 7 8-7 8-7-3.5-7-8-7zm0 12c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z" />
+                                    </svg>
+                               </button>
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {formatDate(dataObj.inspectionDate)}

@@ -33,6 +33,7 @@ export { default as controlPanel } from "./controlPanel.js"
 export { default as TagType } from "./tagType.rote.js"
 export {default as sizeTable} from "./sizeTable.route.js"
 export {default as aql} from "./aql.route.js"
+export { default as InchargeLineListMaster }  from "./LineAllocationInchargeMaster.route.js"
 
 
 

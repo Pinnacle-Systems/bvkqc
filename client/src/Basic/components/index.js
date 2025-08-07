@@ -38,4 +38,4 @@ export { default as GridTable } from "./GridTable";
 export { default as Role } from "./RoleMaster";
 export {default as Allocation} from "./Order";
 export { default as Aql} from "./Aql"
-export { default as LineAllocation} from "./LineAllocationMaster"
+export { default as InchargeLineListMaster} from "./InchargeLineListMaster"

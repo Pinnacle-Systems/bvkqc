@@ -89,5 +89,5 @@ export const  EMAIL_API  = "email"
 export const  CONTROL_PANEL_API  = "controlPanel"
 export const  TAG_TYPE_API  = "tagType"
 export const AQL_INSPECTION_API = "aql"
-export const LINE_ALLOCATION_API = "lineAllocation"
+export const LINE_ALLOCATION_API = "InchargeLineList"
 

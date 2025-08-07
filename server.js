@@ -25,7 +25,8 @@ import {
   excessQty,
   email, orderImport,
   controlPanel,
-  TagType,LineMaster,sizeTable, allocation,aql
+  TagType,LineMaster,sizeTable, allocation,aql,
+  InchargeLineListMaster
 
 } from './src/routes/index.js';
 
@@ -102,7 +103,7 @@ app.use("/tagType", TagType);
 app.use("/lineMaster", LineMaster)
 app.use("/sizeTable",sizeTable)
 app.use("/aql",aql)
-app.use("/lineAllocation", LineMaster)
+app.use("/InchargeLineList", InchargeLineListMaster)
 
 
 app.get("/retreiveFile/:fileName", (req, res) => {

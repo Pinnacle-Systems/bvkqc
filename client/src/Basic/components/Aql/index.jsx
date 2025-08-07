@@ -4,6 +4,8 @@ import secureLocalStorage from 'react-secure-storage';
 import { useAddAqlInspectionMutation, useGetAqlInspectionsQuery, useGetAqlInspectionByIdQuery, useDeleteAqlInspectionMutation, useUpdateAqlInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
 import Mastertable from '../MasterTable/MaterTable1.jsx';
 import { toast } from 'react-toastify';
+import Modal from '../../../UiComponents/Modal/index.js';
+import LineDeatils from './LineDetails.jsx';
 
 const Aql = () => {
   const [selectedReference, setSelectedReference] = useState('');
@@ -21,6 +23,7 @@ const Aql = () => {
   const [savedSizes, setSavedSizes] = useState([]);
   const [savedMeasurements, setSavedMeasurements] = useState({});
   const [partialSavedMeasurements, setPartialSavedMeasurements] = useState({});
+  const [isDetailView,setIsDetailView]   =  useState(false)
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
     lastSaved: null,
@@ -698,6 +701,16 @@ const extractMeasurements = (data) => {
 
   return (
     <>
+         <Modal
+            isOpen={isDetailView}
+            widthClass={`${"w-[50%] h-[70%]"}`}
+            onClose={() => {
+              setIsDetailView(false)
+            }}
+
+          >
+            <LineDeatils/>
+          </Modal>
       {newItem === false ? (
         <>
           <div className="bg-white px-4 py-2 flex items-center justify-between">
@@ -722,6 +735,8 @@ const extractMeasurements = (data) => {
             deleteData={deleteData}
             setReadOnly={setReadOnly}
             setDeleteId={setDeleteId}
+            setIsDetailView = {setIsDetailView}
+            isDetailView = {isDetailView}
           />
         </>
       ) : (
