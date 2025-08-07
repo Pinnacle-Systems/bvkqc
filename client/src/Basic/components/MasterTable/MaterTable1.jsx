@@ -1,8 +1,7 @@
-// Mastertable.jsx
 import React, { useState } from "react";
 import Loader from "../Loader";
 import "./Master.css";
-import { Power, Table, Check, X } from "lucide-react";
+import { Power, Table, Check, X, Eye, Edit, Trash } from "lucide-react";
 import { FaTableList } from "react-icons/fa6";
 import { RiPlayListAddLine } from "react-icons/ri";
 
@@ -32,6 +31,7 @@ const Mastertable = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const totalPages = Math.ceil(data?.length / rowsPerPage);
 
@@ -39,35 +39,57 @@ const Mastertable = ({
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  
+
+  const toggleRowExpand = (id) => {
+    setExpandedRow(expandedRow === id ? null : id);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
-    <div className="row w-full mx-auto">
-      <div className="text-xs col-12 px-0 bg-[f1f1f0] bg-opacity-15 rounded-lg border shadow-md">
-        <div className="flex justify-between mx-3 items-center py-1">
+    <div className="w-full mx-auto">
+      <div className="text-xs px-0 bg-[#f1f1f0] bg-opacity-15 rounded-lg border shadow-md">
+        <div className="flex justify-between mx-3 items-center py-3">
           <div className="text-normal flex items-center text-gray-600">
-            <RiPlayListAddLine size={20} className=" mr-0.5" />
-            &nbsp;{" "}
-            <div className="my-0">
-              <div className=" text-[13px] text-black my-0">{header}</div>
-            </div>
+            <RiPlayListAddLine size={20} className="mr-2" />
+            <div className="text-lg font-semibold text-gray-800">{header}</div>
           </div>
-          <div className="flex items-center">
-            <input
-              type="text"
-              className="text-sm bg-gray-100 focus:outline-none border border-gray-300 w-full rounded-md px-2 py-1 text-normal"
-              id="id"
-              placeholder="Search"
-              value={searchValue}
-              onChange={(e) => {
-                setSearchValue(e.target.value);
-              }}
-            />
-            <div className="flex items-center  ml-3">
-              <label className=" text-gray-700 text-normal text-nowrap mr-1">
-                select rows:
-              </label>
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <input
+                type="text"
+                className="text-sm bg-gray-50 focus:outline-none border border-gray-300 rounded-md px-3 py-2 pl-10 w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+              <svg
+                className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <div className="flex items-center">
+              <label className="text-gray-700 text-sm mr-2">Rows:</label>
               <select
-                className="ml-2 p-1 border text-normal bg-gray-100 border-gray-300 py-1.5 rounded-md"
+                className="p-1.5 border text-sm bg-gray-50 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={rowsPerPage}
                 onChange={(e) => {
                   setRowsPerPage(Number(e.target.value));
@@ -85,290 +107,298 @@ const Mastertable = ({
         </div>
 
         {loading ? (
-          <Loader />
+          <div className="flex justify-center items-center h-64">
+            <Loader />
+          </div>
         ) : (
           <>
             {data?.length === 0 ? (
-              <div className="flex-1 flex justify-center bg-white  text-gray-800 items-center text-xl py-3">
-                <p>No Data Found...! </p>
+              <div className="flex-1 flex justify-center bg-white text-gray-500 items-center text-lg py-8">
+                <p>No inspection records found</p>
               </div>
             ) : (
               <>
-                {/* Mobile Card View */}
-                <div className="md:hidden space-y-3 p-3">
+                <div className="md:hidden space-y-4 p-4">
                   {currentData?.map((dataObj, index) => (
-                    <div 
+                    <div
                       key={index}
-                      className="bg-white border border-gray-200 rounded-lg shadow-sm p-4"
+                      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
                     >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900">
-                            {dataObj?.reference || 'N/A'}
-                          </h3>
-                          <p className="text-xs text-gray-500 mt-1">
-                            ID: {dataObj?.id || 'N/A'}
-                          </p>
+                      <div
+                        className="p-4 cursor-pointer"
+                        onClick={() => toggleRowExpand(dataObj.id)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">
+                              {dataObj?.reference || 'N/A'}
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Inspection: {formatDate(dataObj?.inspectionDate)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              ID: {dataObj?.id || 'N/A'}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xs text-gray-500">
-                            {dataObj?.inspectionDate 
-                              ? new Date(dataObj.inspectionDate).toLocaleDateString() 
-                              : 'N/A'}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                        <div>
-                          <p className="text-gray-500">Party</p>
-                          <p className="font-medium">
-                            {dataObj?.allocationDetails?.[0]?.partyName || 'N/A'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Line</p>
-                          <p className="font-medium">
-                            {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Delivery</p>
-                          <p className="font-medium">
-                            {dataObj?.allocationDetails?.[0]?.deliveryDate 
-                              ? new Date(dataObj.allocationDetails[0].deliveryDate).toLocaleDateString() 
-                              : 'N/A'}
-                          </p>
+                        
+                        <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <p className="text-gray-500 font-medium">Party</p>
+                            <p>
+                              {dataObj?.allocationDetails?.[0]?.partyName || 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500 font-medium">Line</p>
+                            <p>
+                              {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
+                            </p>
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="mt-4 flex flex-wrap justify-end gap-2">
-                        <button
-                          onClick={() => {
-                            onDataClick(dataObj?.id);
-                            setReadOnly(true);
-                          }}
-                          className="text-blue-600 flex items-center gap-1 px-3 py-1.5 bg-blue-50 rounded text-xs border border-blue-200"
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => {
-                            onDataClick(dataObj?.id);
-                            setReadOnly(false);
-                          }}
-                          className="text-green-600 flex items-center gap-1 px-3 py-1.5 bg-green-50 rounded text-xs border border-green-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            onDataClick(dataObj?.id);
-                            setDeleteId(dataObj.id);
-                            deleteData();
-                          }}
-                          className="text-red-600 flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded text-xs border border-red-200"
-                        >
-                          Delete
-                        </button>
-                        {/* Approve Button */}
-                        <button
-                          onClick={() => onApprove(dataObj.id)}
-                          className="text-white bg-green-600 flex items-center gap-1 px-3 py-1.5 rounded text-xs border border-green-700"
-                        >
-                          <Check size={14} /> Approve
-                        </button>
-                        {/* Reject Button */}
-                        <button
-                          onClick={() => onReject(dataObj.id)}
-                          className="text-white bg-red-600 flex items-center gap-1 px-3 py-1.5 rounded text-xs border border-red-700"
-                        >
-                          <X size={14} /> Reject
-                        </button>
-                      </div>
+                      {expandedRow === dataObj.id && (
+                        <div className="border-t border-gray-200 p-4 bg-gray-50">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-500 font-medium">Allocation Date</p>
+                              <p>
+                                {formatDate(dataObj?.allocationDetails?.[0]?.allocationDate)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 font-medium">Delivery Date</p>
+                              <p>
+                                {formatDate(dataObj?.allocationDetails?.[0]?.deliveryDate)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 font-medium">Created At</p>
+                              <p>{formatDate(dataObj?.createdAt)}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 flex flex-wrap justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                onDataClick(dataObj?.id);
+                                setReadOnly(true);
+                              }}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-white text-blue-600 rounded-md text-xs border border-blue-200 hover:bg-blue-50"
+                            >
+                              <Eye size={14} /> View
+                            </button>
+                            <button
+                              onClick={() => {
+                                onDataClick(dataObj?.id);
+                                setReadOnly(false);
+                              }}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-white text-green-600 rounded-md text-xs border border-green-200 hover:bg-green-50"
+                            >
+                              <Edit size={14} /> Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                setDeleteId(dataObj.id);
+                                deleteData();
+                              }}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-white text-red-600 rounded-md text-xs border border-red-200 hover:bg-red-50"
+                            >
+                              <Trash size={14} /> Delete
+                            </button>
+                            <button
+                              onClick={() => onApprove(dataObj.id)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
+                            >
+                              <Check size={14} /> Approve
+                            </button>
+                            <button
+                              onClick={() => onReject(dataObj.id)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
+                            >
+                              <X size={14} /> Reject
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
 
-                {/* Desktop Table View */}
-                <div className="hidden md:block bg-white overflow-auto custom-scrollbar border-y border-gray-300 h-[65vh]">
-                  {currentData?.length > 0 && (
-                    <table className="min-w-full text-normal border-collapse text-[12px]">
-                      <thead className="bg-gray-200 text-gray-800">
-                        <tr>
-                          {tableHeaders
-                            ?.filter((heading) => heading !== " ")
-                            ?.map((column, index) => (
-                              <th
-                                key={index}
-                                className={`px-4 py-2 text-left font-medium border-white/50 ${
-                                  index === 0 ? "w-[40px]" : ""
-                                } ${
-                                  index < tableHeaders.length - 1
-                                    ? "border-r"
-                                    : ""
-                                }`}
-                              >
-                                {column}
-                              </th>
-                            ))}
-                          <th className="px-4 py-2 text-left font-medium border border-white/50">
-                            Actions
-                          </th>
-                             <th className="px-4 py-2 text-left font-medium border border-white/50">
-                           Approval Status
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {currentData.map((dataObj, index) => (
-                          <tr
-                            key={index}
-                            className={`hover:bg-gray-50 transition-colors border-b border-gray-200 ${
-                              index % 2 === 0 ? "bg-white" : "bg-gray-100"
-                            } cursor-pointer`}
+                <div className="hidden md:block bg-white overflow-auto custom-scrollbar border border-gray-200 max-h-[65vh]">
+                  <table className="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Reference
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Party
+                        </th>
+                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                       Ironing
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Line
+                        </th>
+                      
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Inspection Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Delivery Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Approval
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {currentData.map((dataObj, index) => (
+                        <React.Fragment key={index}>
+                          <tr 
+                            className={`hover:bg-gray-50 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                            onClick={() => toggleRowExpand(dataObj.id)}
                           >
-                            {tableDataNames
-                              ?.filter((data) => data !== " ")
-                              ?.map((data, idx) => (
-                                <td
-                                  key={idx}
-                                  className={`h-[32px] text-[12px] border-r border-gray-200 px-4 ${
-                                    idx === 0 ? "w-[40px]" : ""
-                                  }`}
-                                  onClick={() => {
-                                    onDataClick(dataObj?.id);
-                                    setReadOnly(true);
-                                  }}
-                                >
-                                  {eval(data)}
-                                </td>
-                              ))}
-
-                            <td className="px-2 py-1 w-[40px] border-gray-200 border h-8">
-                              <div className="flex gap-1">
+                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {dataObj.reference}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                              {dataObj?.allocationDetails?.[0]?.partyName || 'N/A'}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {dataObj.ayanCondition || 'N/A'}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                              {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                              {formatDate(dataObj.inspectionDate)}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                              {formatDate(dataObj?.allocationDetails?.[0]?.deliveryDate)}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                              <div className="flex space-x-2">
                                 <button
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     onDataClick(dataObj?.id);
                                     setReadOnly(true);
                                   }}
-                                  className="text-blue-800 flex items-center gap-1 px-2 py-1.5 bg-blue-50 rounded"
+                                  className="text-blue-600 hover:text-blue-800"
                                   title="View"
                                 >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
+                                  <Eye size={16} />
                                 </button>
-
                                 <button
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     onDataClick(dataObj?.id);
                                     setReadOnly(false);
                                   }}
-                                  className="text-green-800 flex items-center gap-1 px-2 py-1.5 bg-green-50 rounded"
+                                  className="text-green-600 hover:text-green-800"
                                   title="Edit"
                                 >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                  </svg>{" "}
+                                  <Edit size={16} />
                                 </button>
-
                                 <button
-                                  onClick={() => {
-                                    onDataClick(dataObj?.id);
-                                   setDeleteId(dataObj.id)
-                                   deleteData()
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteId(dataObj.id);
+                                    deleteData();
                                   }}
-                                  className="text-red-800 flex items-center gap-1 px-2 py-1.5 bg-red-50 rounded"
+                                  className="text-red-600 hover:text-red-800"
                                   title="Delete"
                                 >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>{" "}
+                                  <Trash size={16} />
                                 </button>
-                                
-                             
                               </div>
                             </td>
-                            <td className="px-2 flex gap-2 py-1 w-[80px]  h-8">
-                                   {/* Approve Button */}
+                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                              <div className="flex space-x-2">
                                 <button
-                                  onClick={() => onApprove(dataObj.id)}
-                                  className="text-white bg-green-600 flex items-center gap-1 px-2 py-1.5 rounded"
-                                  title="Approve"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onApprove(dataObj.id);
+                                  }}
+                                  className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700 flex items-center"
                                 >
-                                  <Check size={14} />Approve
+                                  <Check size={14} className="mr-1" /> Approve
                                 </button>
-                                
-                                {/* Reject Button */}
                                 <button
-                                  onClick={() => onReject(dataObj.id)}
-                                  className="text-white bg-red-600 flex items-center gap-1 px-2 py-1.5 rounded"
-                                  title="Reject"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onReject(dataObj.id);
+                                  }}
+                                  className="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700 flex items-center"
                                 >
-                                  <X size={14} />Reject
+                                  <X size={14} className="mr-1" /> Reject
                                 </button>
+                              </div>
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
+                          {expandedRow === dataObj.id && (
+                            <tr className="bg-gray-50">
+                              <td colSpan="7" className="px-6 py-2">
+                                <div className="grid grid-cols-3 gap-4 text-sm">
+                                  <div>
+                                    <p className="text-gray-500 font-medium">Allocation Date</p>
+                                    <p>{formatDate(dataObj?.allocationDetails?.[0]?.allocationDate)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500 font-medium">Created At</p>
+                                    <p>{formatDate(dataObj.createdAt)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500 font-medium">Branch</p>
+                                    <p>{dataObj?.allocations?.[0]?.Branch?.branchName || 'N/A'}</p>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                {/* Pagination Controls */}
-                <div className="flex justify-center items-center mt-2  my-2 text-normal font-semibold">
-                  <button
-                    className={`text-xs text-stone-900 rounded ${
-                      currentPage === 1
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-400"
-                    }`}
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                  >
-                    &lt;&nbsp;
-                  </button>
 
-                  <span className="text-gray-700">
-                    {currentPage} / {totalPages}
-                  </span>
-
-                  <button
-                    className={`text-xs text-stone-900 rounded ${
-                      currentPage === totalPages
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-400"
-                    }`}
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                  >
-                    &nbsp;&gt;
-                  </button>
+                <div className="px-4 py-3 flex items-center justify-between border border-gray-200 sm:px-6">
+                  <div className="flex-1 flex justify-between items-center">
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
+                        currentPage === 1
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      Previous
+                    </button>
+                    <div className="text-sm text-gray-700">
+                      Page <span className="font-medium">{currentPage}</span> of{' '}
+                      <span className="font-medium">{totalPages}</span>
+                    </div>
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
+                        currentPage === totalPages
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               </>
             )}

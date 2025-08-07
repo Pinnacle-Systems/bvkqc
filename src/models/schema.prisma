@@ -847,16 +847,17 @@ model Allocation {
   reference      String
   allocationDate DateTime?
 }
-
 model AqlInspection {
-  id             Int      @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   companyId      String
-  reference      String   @unique
+  reference      String
   inspectionDate DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  ayanCondition  AyanCondition @default(BEFORE)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   samples        Sample[]
 
+  @@unique([reference, ayanCondition])
   @@index([companyId])
   @@index([reference])
 }
@@ -901,11 +902,15 @@ model SampleValue {
   @@index([sampleMeasurementId])
 }
 
+enum AyanCondition {
+  BEFORE
+  AFTER
+}
+
 enum ValueStatus {
   within_tolerance
   out_of_tolerance
 }
-
 model LineAllocationInchargeMaster {
   id                     Int                      @id @default(autoincrement())
   Employee               Employee?                @relation(fields: [empId], references: [id])
@@ -917,7 +922,7 @@ model LineAllocationInchargeMaster {
 
 model InchargeLineListMaster {
   id                             Int                           @id @default(autoincrement())
-  LineAllocationInchargeMaster   LineAllocationInchargeMaster? @relation(fields: [lineAllocationInchargeMasterId], references: [id])
+  LineAllocationInchargeMaster   LineAllocationInchargeMaster? @relation(fields: [lineAllocationInchargeMasterId], references: [id], onDelete: Cascade)
   lineAllocationInchargeMasterId Int?
   LineMaster                     LineMaster?                   @relation(fields: [lineMasterId], references: [id])
   lineMasterId                   Int?

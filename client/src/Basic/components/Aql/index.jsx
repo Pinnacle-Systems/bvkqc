@@ -11,6 +11,9 @@ const Aql = () => {
   const [id, setId] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [newItem, setNewItem] = useState(false);
+  const [ayanCondition, setAyanCondition] = useState('before'); // 'before' or 'after'
+  const [showCompare, setShowCompare] = useState(false);
+  const [compareData, setCompareData] = useState({ before: {}, after: {} });
 
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [measurements, setMeasurements] = useState([]);
@@ -29,7 +32,7 @@ const Aql = () => {
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
-  const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
+  const storageKey = `aqlFormData_${companyId}_${selectedReference}_${ayanCondition}`;
 
   const { data: sizeData } = useGetSizeTableMasterQuery(
     { productReference: selectedReference },
@@ -69,11 +72,10 @@ const Aql = () => {
           }))
         };
       });
-
+       console.log(merged,"merged")
       setMergedReportData(merged);
     }
   }, [sizeTableData, aqlData]);
-
   const tableHeaders = [
     "ID",
     "Reference",
@@ -89,29 +91,39 @@ const Aql = () => {
     "new Date(dataObj?.inspectionDate).toLocaleDateString()",
     "dataObj?.allocationDetails?.[0]?.partyName || 'N/A'",
     "dataObj?.allocationDetails?.[0]?.lineName || 'N/A'",
-    "dataObj?.allocationDetails?.[0]?.deliveryDate ? new Date(dataObj.allocationDetails[0].deliveryDate).toLocaleDateString() : 'N/A'",
+    "dataObj?.allocationDetails?.[0]?.deliveryDate ? new Date(dataObj.allocationDetails[0.deliveryDate).toLocaleDateString() : 'N/A'",
   ];
 
   const loadSavedData = () => {
-    const savedData = secureLocalStorage.getItem(storageKey);
-    if (savedData) {
-      setSavedSizes(savedData.savedSizes || []);
-      setSavedMeasurements(savedData.savedMeasurements || {});
-      setPartialSavedMeasurements(savedData.partialSavedMeasurements || {});
+    const beforeData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}_before`);
+    const afterData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}_after`);
+
+    const currentData = secureLocalStorage.getItem(storageKey);
+
+    if (currentData) {
+      setSavedSizes(currentData.savedSizes || []);
+      setSavedMeasurements(currentData.savedMeasurements || {});
+      setPartialSavedMeasurements(currentData.partialSavedMeasurements || {});
       setFormStatus(prev => ({
         ...prev,
-        lastSaved: new Date(savedData.lastUpdated).toLocaleString()
+        lastSaved: new Date(currentData.lastUpdated).toLocaleString()
       }));
 
-      if (savedData.savedSizes?.length > 0 && !selectedSize) {
-        setSelectedSize(savedData.savedSizes[0]);
+      if (currentData.savedSizes?.length > 0 && !selectedSize) {
+        setSelectedSize(currentData.savedSizes[0]);
       }
     } else {
-      if (id) return
+      if (id) return;
       setSavedSizes([]);
       setSavedMeasurements({});
       setPartialSavedMeasurements({});
     }
+
+    // Set compare data
+    setCompareData({
+      before: beforeData || {},
+      after: afterData || {}
+    });
   };
 
   const saveDataToStorage = () => {
@@ -121,6 +133,7 @@ const Aql = () => {
       savedSizes,
       savedMeasurements,
       partialSavedMeasurements,
+      ayanCondition,
       lastUpdated: new Date().toISOString()
     };
 
@@ -130,13 +143,19 @@ const Aql = () => {
       isDirty: false,
       lastSaved: new Date().toLocaleString()
     }));
+
+    // Update compare data
+    setCompareData(prev => ({
+      ...prev,
+      [ayanCondition]: formData
+    }));
   };
 
   useEffect(() => {
     if (selectedReference) {
       loadSavedData();
     }
-  }, [selectedReference]);
+  }, [selectedReference, ayanCondition]);
 
   useEffect(() => {
     if (selectedReference && formStatus.isDirty) {
@@ -146,7 +165,7 @@ const Aql = () => {
 
       return () => clearTimeout(saveTimer);
     }
-  }, [savedSizes, savedMeasurements, partialSavedMeasurements, selectedReference, formStatus.isDirty]);
+  }, [savedSizes, savedMeasurements, partialSavedMeasurements, selectedReference, formStatus.isDirty, ayanCondition]);
 
   const syncFormWithDb = useCallback((data) => {
     if (!data) return;
@@ -192,36 +211,53 @@ const Aql = () => {
   }, [singleData, syncFormWithDb, formStatus.isDirty]);
 
   useEffect(() => {
-    if (selectedProduct && selectedSize) {
-      const measurementData = selectedProduct.measurements
-        ?.filter(m => m.values?.some(v => v.size === selectedSize))
-        ?.map(m => {
-          const valueObj = m.values?.find(v => v.size === selectedSize);
-          return {
-            id: m.id,
-            name: m.description,
-            standardValue: valueObj?.value,
-            toleranceMin: m.toleranceMin || '0',
-            toleranceMax: m.toleranceMax || '0',
-            unit: m.unit || ''
-          };
-        }) || [];
+    try {
+      if (selectedProduct && selectedSize) {
+        // Extract measurement data based on selected size
+        const measurementData =
+          selectedProduct.measurements?.filter(m =>
+            m.values?.some(v => v.size === selectedSize)
+          )?.map(m => {
+            const valueObj = m.values?.find(v => v.size === selectedSize);
 
-      setMeasurements(measurementData);
+            return {
+              id: m.id,
+              name: m.description || 'Unnamed',
+              standardValue: valueObj?.value ?? '',
+              toleranceMin: m.toleranceMin ?? '0',
+              toleranceMax: m.toleranceMax ?? '0',
+              unit: m.unit ?? ''
+            };
+          }) || [];
 
-      const sizeData = savedMeasurements[selectedSize] || partialSavedMeasurements[selectedSize] || {};
-      const initialCheckValues = {};
+        setMeasurements(measurementData);
 
-      measurementData.forEach(m => {
-        initialCheckValues[m.id] = sizeData[m.id] || Array(PIECES_COUNT).fill('');
-      });
+        // Try to get previously saved values
+        const sizeData =
+          savedMeasurements?.[selectedSize] ||
+          partialSavedMeasurements?.[selectedSize] ||
+          {};
 
-      setCheckValues(initialCheckValues);
-    } else {
+        const initialCheckValues = {};
+
+        measurementData.forEach(m => {
+          initialCheckValues[m.id] = sizeData[m.id] ?? Array(PIECES_COUNT).fill('');
+        });
+
+        setCheckValues(initialCheckValues);
+      } else {
+        // Reset if nothing is selected
+        setMeasurements([]);
+        setCheckValues({});
+      }
+    } catch (error) {
+      console.error('Error in useEffect [selectedProduct, selectedSize]:', error);
+      // Optional: You can set fallback empty states here too
       setMeasurements([]);
       setCheckValues({});
     }
   }, [selectedProduct, selectedSize, savedMeasurements, partialSavedMeasurements]);
+
 
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     if (readOnly) return;
@@ -323,6 +359,7 @@ const Aql = () => {
     return 'bg-green-100 text-green-800';
   };
 
+
   const prepareDatabasePayload = () => {
     const validSamples = savedSizes.filter(size =>
       isSizeComplete(size)
@@ -348,11 +385,12 @@ const Aql = () => {
     return {
       companyId: companyId.toString(),
       reference: selectedReference,
+      ayanCondition: ayanCondition.toUpperCase(),
       inspectionDate: new Date(inspectionDate),
-      samples: validSamples
+      samples: validSamples,
+
     };
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -370,7 +408,7 @@ const Aql = () => {
 
       if (response.success) {
         toast.success('AQL Form submitted successfully!');
-        secureLocalStorage.removeItem(storageKey);
+        // secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}_${ayanCondition}`);
         resetForm();
       } else {
         throw new Error(response.message || 'Submission failed');
@@ -382,6 +420,7 @@ const Aql = () => {
       setFormStatus(prev => ({ ...prev, isSubmitting: false }));
     }
   };
+
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
@@ -406,6 +445,8 @@ const Aql = () => {
     });
     setReadOnly(false);
     setId('');
+    setAyanCondition('before');
+    setShowCompare(false);
   };
 
   const getSizeStatus = (size) => {
@@ -446,6 +487,146 @@ const Aql = () => {
     }
     setNewItem(false);
     resetForm();
+  };
+
+  const toggleAyanCondition = () => {
+    if (formStatus.isDirty) {
+      if (!window.confirm('You have unsaved changes. Switching ayan condition will lose your changes. Continue?')) {
+        return;
+      }
+    }
+    setAyanCondition(prev => prev === 'before' ? 'after' : 'before');
+    setSelectedSize('');
+    setFormStatus(prev => ({ ...prev, isDirty: false }));
+  };
+
+  const handleCompare = () => {
+    if (!selectedReference) {
+      toast.error('Please select a reference first');
+      return;
+    }
+
+    const beforeData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}_before`);
+    const afterData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}_after`);
+
+    if (!beforeData || !afterData) {
+      toast.error('Both before and after ayaning data must be saved to compare');
+      return;
+    }
+
+    setCompareData({
+      before: beforeData,
+      after: afterData
+    });
+    setShowCompare(true);
+  };
+  const renderCompareTable = () => {
+    if (!showCompare || !selectedSize) return null;
+
+    const beforeValues = compareData.before.savedMeasurements?.[selectedSize] || {};
+    const afterValues = compareData.after.savedMeasurements?.[selectedSize] || {};
+
+    return (
+      <div className="mt-4 border-t pt-4">
+        <h3 className="text-sm font-bold mb-2">Comparison for Size: {selectedSize}</h3>
+
+        {/* Desktop Table View (hidden on mobile) */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                  Measurement
+                </th>
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                  Std Value
+                </th>
+                <th rowSpan="2" className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                  Tolerance
+                </th>
+                {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                  <th key={num} colSpan={2} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                    Piece #{num}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                <th></th>
+                <th></th>
+                {Array.from({ length: PIECES_COUNT }, (_, i) => (
+                  <React.Fragment key={i}>
+                    <th className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Before</th>
+                    <th className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">After</th>
+                  </React.Fragment>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {measurements.map(measurement => (
+                <tr key={measurement.id}>
+                  <td className="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
+                    {measurement.name} ({measurement.unit})
+                  </td>
+                  <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
+                    {measurement.standardValue}
+                  </td>
+                  <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
+                    -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                  </td>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => (
+                    <React.Fragment key={index}>
+                      <td className={`px-1 py-1 whitespace-nowrap text-xs text-center ${beforeValues[measurement.id]?.[index] ? checkTolerance(measurement, beforeValues[measurement.id][index]) : ''}`}>
+                        {beforeValues[measurement.id]?.[index] || '-'}
+                      </td>
+                      <td className={`px-1 py-1 whitespace-nowrap text-xs text-center ${afterValues[measurement.id]?.[index] ? checkTolerance(measurement, afterValues[measurement.id][index]) : ''}`}>
+                        {afterValues[measurement.id]?.[index] || '-'}
+                      </td>
+                    </React.Fragment>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Card View (shown on mobile) */}
+        <div className="md:hidden space-y-4">
+          {measurements.map(measurement => (
+            <div key={measurement.id} className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+              <div className="flex justify-between items-center mb-3 pb-2 border-b">
+                <h3 className="text-sm font-medium text-gray-800">
+                  {measurement.name} ({measurement.unit})
+                </h3>
+                <div className="text-xs text-gray-500">
+                  Std: {measurement.standardValue}
+                  <span className="ml-1">
+                    (-{measurement.toleranceMin}/+{measurement.toleranceMax})
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(pieceIndex => (
+                  <div key={pieceIndex} className="grid grid-cols-3 gap-2">
+                    <div className="text-xs text-gray-500 flex items-center">
+                      Piece #{pieceIndex + 1}
+                    </div>
+                    <div className={`px-2 py-1 text-xs text-center rounded ${beforeValues[measurement.id]?.[pieceIndex] ? checkTolerance(measurement, beforeValues[measurement.id][pieceIndex]) : 'bg-gray-100'}`}>
+                      <div className="text-xs text-gray-500 mb-1">Before</div>
+                      {beforeValues[measurement.id]?.[pieceIndex] || '-'}
+                    </div>
+                    <div className={`px-2 py-1 text-xs text-center rounded ${afterValues[measurement.id]?.[pieceIndex] ? checkTolerance(measurement, afterValues[measurement.id][pieceIndex]) : 'bg-gray-100'}`}>
+                      <div className="text-xs text-gray-500 mb-1">After</div>
+                      {afterValues[measurement.id]?.[pieceIndex] || '-'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -494,7 +675,7 @@ const Aql = () => {
 
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-                  <div className="grid grid-cols-3 md:grid-cols-3 gap-3 mb-4 md:w-1/2">
+                  <div className="w-full md:w-1/2 grid grid-cols-4 md:grid-cols-4 gap-3 mb-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Order Id <span className="text-red-500">*</span>
@@ -539,7 +720,23 @@ const Aql = () => {
                       </div>
                     </div>
 
-                    <div className="mb-4 w-16">
+                    <div className="flex items-end mb-5">
+                      <button
+                        type="button"
+                        onClick={toggleAyanCondition}
+                        disabled={readOnly}
+                        className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm flex items-center justify-center
+                          ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
+                          ${ayanCondition === 'before' ? 'border-blue-500 bg-blue-50' : 'border-purple-500 bg-purple-50'}`}
+                      >
+                        <span>{ayanCondition === 'before' ? 'Before Ayaning' : 'After Ayaning'}</span>
+                        <svg className="h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="mb-4 w-20">
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Size <span className="text-red-500">*</span>
                       </label>
@@ -646,14 +843,14 @@ const Aql = () => {
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-5  sm:grid-cols-3 gap-3">
+                              <div className="grid grid-cols-5 sm:grid-cols-3 gap-3">
                                 {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(pieceIndex => (
                                   <div key={pieceIndex} className="flex flex-col">
                                     <label className="text-xs text-gray-500 mb-1">
                                       Piece #{pieceIndex + 1}
                                     </label>
                                     <input
-                                      type="text"
+                                      type="number"
                                       value={checkValues[measurement.id]?.[pieceIndex] || ''}
                                       onChange={(e) => {
                                         if (readOnly) return;
@@ -676,8 +873,8 @@ const Aql = () => {
                                         handleCheckValueChange(measurement.id, pieceIndex, val);
                                       }}
                                       className={`w-full px-3 py-2 text-sm border rounded-md text-center ${checkValues[measurement.id]?.[pieceIndex]
-                                          ? checkTolerance(measurement, checkValues[measurement.id][pieceIndex])
-                                          : 'border-gray-300'
+                                        ? checkTolerance(measurement, checkValues[measurement.id][pieceIndex])
+                                        : 'border-gray-300'
                                         } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                       readOnly={readOnly}
                                     />
@@ -765,6 +962,8 @@ const Aql = () => {
                     </div>
                   )}
 
+                  {renderCompareTable()}
+
                   <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-gray-200">
                     {!readOnly && (
                       <>
@@ -799,6 +998,17 @@ const Aql = () => {
                             </button>
                           </>
                         )}
+
+                        {/* {savedSizes.filter(size => isSizeComplete(size)).length >= 5 && ( */}
+                        <button
+                          type="button"
+                          onClick={handleCompare}
+                          className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
+                              ${savedSizes.filter(size => isSizeComplete(size)).length < 5 ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+                        >
+                          Compare
+                        </button>
+                        {/* )} */}
                       </>
                     )}
 

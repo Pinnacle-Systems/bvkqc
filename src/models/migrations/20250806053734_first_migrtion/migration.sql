@@ -758,12 +758,13 @@ CREATE TABLE `AqlInspection` (
     `companyId` VARCHAR(191) NOT NULL,
     `reference` VARCHAR(191) NOT NULL,
     `inspectionDate` DATETIME(3) NOT NULL,
+    `ayanCondition` ENUM('BEFORE', 'AFTER') NOT NULL DEFAULT 'BEFORE',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `AqlInspection_reference_key`(`reference`),
     INDEX `AqlInspection_companyId_idx`(`companyId`),
     INDEX `AqlInspection_reference_idx`(`reference`),
+    UNIQUE INDEX `AqlInspection_reference_ayanCondition_key`(`reference`, `ayanCondition`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
