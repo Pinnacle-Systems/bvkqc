@@ -922,7 +922,7 @@ model LineAllocationInchargeMaster {
 
 model InchargeLineListMaster {
   id                             Int                           @id @default(autoincrement())
-  LineAllocationInchargeMaster   LineAllocationInchargeMaster? @relation(fields: [lineAllocationInchargeMasterId], references: [id])
+  LineAllocationInchargeMaster   LineAllocationInchargeMaster? @relation(fields: [lineAllocationInchargeMasterId], references: [id], onDelete: Cascade)
   lineAllocationInchargeMasterId Int?
   LineMaster                     LineMaster?                   @relation(fields: [lineMasterId], references: [id])
   lineMasterId                   Int?
