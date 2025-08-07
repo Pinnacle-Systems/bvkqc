@@ -101,6 +101,7 @@ export const MultiSelectDropdown = ({
         value={selected}
         onChange={readOnly ? () => {} : setSelected}
         labelledBy="Select"
+        readOnly={readOnly}
       />
     </div>
   );
@@ -1080,7 +1081,7 @@ export const DropdownWithSearchNew = ({
           hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""
           } ${className}`}
         
-        disabled={disabled}
+        // disabled={readOnly}
         readOnly={readOnly}
         value={value || ""}
         onChange={(e) => {

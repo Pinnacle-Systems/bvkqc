@@ -19,7 +19,8 @@ import {
   Dashboard,
   Role,
   LineMaster,OrderImport,Allocation,Aql,
-  LineAllocation
+  LineAllocation,
+  InchargeLineListMaster
 
 } from "../../components";
 import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
@@ -63,7 +64,7 @@ const ActiveTabList = () => {
     "ORDER IMPORT": <OrderImport />,
     "ALLOCATION" : <Allocation />,
     "AQL" : <Aql />,
-    "LINE ALLOCATION MASTER" :  <LineAllocation/>
+    "INCHARGE LINE LIST MASTER" :  <InchargeLineListMaster/>
 
 
 

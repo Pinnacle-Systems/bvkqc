@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-import { get, getOne, getSearch, create, update, remove } from '../controllers/lineMaster.controller.js';
+import { get, getOne, getSearch, create, update, remove } from '../controllers/LineAllocationInchargeMaster.controller.js';
 
 
 router.post('/', create);
