@@ -1,39 +1,54 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error'],
+  log: ["query", "info", "warn", "error"],
 });
 
 class AqlInspectionError extends Error {
   constructor(message, statusCode = 400) {
     super(message);
-    this.name = 'AqlInspectionError';
+    this.name = "AqlInspectionError";
     this.statusCode = statusCode;
   }
 }
 
 const validateInspectionPayload = (payload) => {
   if (!payload) {
-    throw new AqlInspectionError('Request body is required');
+    throw new AqlInspectionError("Request body is required");
   }
 
-  const requiredFields = ['companyId', 'reference', 'inspectionDate', 'samples', 'ayanCondition'];
-  const missingFields = requiredFields.filter(field => !payload[field]);
-  
+  if (!payload.ayanCondition) {
+    payload.ayanCondition = "BEFORE";
+  }
+
+  payload.ayanCondition = payload.ayanCondition.toUpperCase();
+
+  const requiredFields = [
+    "companyId",
+    "reference",
+    "inspectionDate",
+    "samples",
+  ];
+  const missingFields = requiredFields.filter((field) => !payload[field]);
+
   if (missingFields.length > 0) {
-    throw new AqlInspectionError(`Missing required fields: ${missingFields.join(', ')}`);
+    throw new AqlInspectionError(
+      `Missing required fields: ${missingFields.join(", ")}`
+    );
   }
 
-  if (!['BEFORE', 'AFTER'].includes(payload.ayanCondition)) {
-    throw new AqlInspectionError('Ayan condition must be either BEFORE or AFTER');
+  if (!["BEFORE", "AFTER"].includes(payload.ayanCondition)) {
+    throw new AqlInspectionError(
+      "Ayan condition must be either BEFORE or AFTER"
+    );
   }
 
   if (!Array.isArray(payload.samples)) {
-    throw new AqlInspectionError('Samples must be an array');
+    throw new AqlInspectionError("Samples must be an array");
   }
 
   if (payload.samples.length === 0) {
-    throw new AqlInspectionError('At least one sample is required');
+    throw new AqlInspectionError("At least one sample is required");
   }
 };
 
@@ -43,35 +58,52 @@ const validateSample = (sample, index) => {
   }
 
   if (!Array.isArray(sample.measurements)) {
-    throw new AqlInspectionError(`Sample ${sample.size} measurements must be an array`);
+    throw new AqlInspectionError(
+      `Sample ${sample.size} measurements must be an array`
+    );
   }
 
   if (sample.measurements.length === 0) {
-    throw new AqlInspectionError(`Sample ${sample.size} must have at least one measurement`);
+    throw new AqlInspectionError(
+      `Sample ${sample.size} must have at least one measurement`
+    );
   }
 };
 
 const validateMeasurement = (measurement, sampleSize, index) => {
   if (!measurement.measurementId) {
-    throw new AqlInspectionError(`Measurement at index ${index} in sample ${sampleSize} is missing measurementId`);
+    throw new AqlInspectionError(
+      `Measurement at index ${index} in sample ${sampleSize} is missing measurementId`
+    );
   }
 
-  if (measurement.standardValue === undefined || measurement.standardValue === null) {
-    throw new AqlInspectionError(`Measurement ${measurement.measurementId} in sample ${sampleSize} is missing standardValue`);
+  if (
+    measurement.standardValue === undefined ||
+    measurement.standardValue === null
+  ) {
+    throw new AqlInspectionError(
+      `Measurement ${measurement.measurementId} in sample ${sampleSize} is missing standardValue`
+    );
   }
 
   if (!Array.isArray(measurement.values)) {
-    throw new AqlInspectionError(`Measurement ${measurement.measurementId} in sample ${sampleSize} values must be an array`);
+    throw new AqlInspectionError(
+      `Measurement ${measurement.measurementId} in sample ${sampleSize} values must be an array`
+    );
   }
 
   if (measurement.values.length === 0) {
-    throw new AqlInspectionError(`Measurement ${measurement.measurementId} in sample ${sampleSize} must have at least one value`);
+    throw new AqlInspectionError(
+      `Measurement ${measurement.measurementId} in sample ${sampleSize} must have at least one value`
+    );
   }
 };
 
 const validateValue = (value, measurementId, index) => {
   if (value.actualValue === undefined || value.actualValue === null) {
-    throw new AqlInspectionError(`Value at index ${index} for measurement ${measurementId} is missing actualValue`);
+    throw new AqlInspectionError(
+      `Value at index ${index} for measurement ${measurementId} is missing actualValue`
+    );
   }
 };
 
@@ -111,23 +143,31 @@ const transformInspectionData = (inspection) => {
 
 export const createAqlInspection = async (req, res) => {
   try {
+    if (!req.body.ayanCondition) {
+      req.body.ayanCondition = "BEFORE";
+    }
+    console.log(req.body.ayanCondition, "req.body.ayanCondition");
+    req.body.ayanCondition = req.body.ayanCondition.toUpperCase();
+
     validateInspectionPayload(req.body);
+
     const existingInspection = await prisma.aqlInspection.findUnique({
       where: {
         reference_ayanCondition: {
           reference: req.body.reference,
-          ayanCondition: req.body.ayanCondition
-        }
-      }
+          ayanCondition: req.body.ayanCondition,
+        },
+      },
     });
 
     if (existingInspection) {
       throw new AqlInspectionError(
-        `An inspection with reference ${req.body.reference} and condition ${req.body.ayanCondition} already exists`,
+        `Inspection already exists for reference ${req.body.reference} and condition ${req.body.ayanCondition}`,
         409
       );
     }
 
+    // Process samples validation
     req.body.samples.forEach((sample, sampleIndex) => {
       validateSample(sample, sampleIndex);
       sample.measurements.forEach((measurement, measurementIndex) => {
@@ -148,36 +188,40 @@ export const createAqlInspection = async (req, res) => {
         },
       });
 
-      await Promise.all(req.body.samples.map(async (sample) => {
-        const createdSample = await tx.sample.create({
-          data: {
-            aqlInspectionId: inspection.id,
-            size: sample.size,
-          },
-        });
-
-        await Promise.all(sample.measurements.map(async (measurement) => {
-          const createdMeasurement = await tx.sampleMeasurement.create({
+      await Promise.all(
+        req.body.samples.map(async (sample) => {
+          const createdSample = await tx.sample.create({
             data: {
-              sampleId: createdSample.id,
-              measurementId: measurement.measurementId,
-              standardValue: parseFloat(measurement.standardValue),
-              toleranceMin: parseFloat(measurement.toleranceMin || '0'),
-              toleranceMax: parseFloat(measurement.toleranceMax || '0'),
-              unit: measurement.unit || '',
+              aqlInspectionId: inspection.id,
+              size: sample.size,
             },
           });
 
-          await tx.sampleValue.createMany({
-            data: measurement.values.map((value) => ({
-              sampleMeasurementId: createdMeasurement.id,
-              pieceNumber: value.pieceNumber || 0,
-              actualValue: parseFloat(value.actualValue),
-              status: value.status || 'within_tolerance',
-            })),
-          });
-        }));
-      }));
+          await Promise.all(
+            sample.measurements.map(async (measurement) => {
+              const createdMeasurement = await tx.sampleMeasurement.create({
+                data: {
+                  sampleId: createdSample.id,
+                  measurementId: measurement.measurementId,
+                  standardValue: parseFloat(measurement.standardValue),
+                  toleranceMin: parseFloat(measurement.toleranceMin || "0"),
+                  toleranceMax: parseFloat(measurement.toleranceMax || "0"),
+                  unit: measurement.unit || "",
+                },
+              });
+
+              await tx.sampleValue.createMany({
+                data: measurement.values.map((value) => ({
+                  sampleMeasurementId: createdMeasurement.id,
+                  pieceNumber: value.pieceNumber || 0,
+                  actualValue: parseFloat(value.actualValue),
+                  status: value.status || "within_tolerance",
+                })),
+              });
+            })
+          );
+        })
+      );
 
       return tx.aqlInspection.findUnique({
         where: { id: inspection.id },
@@ -205,16 +249,21 @@ export const createAqlInspection = async (req, res) => {
       success: true,
       data: transformInspectionData(result),
     });
-
   } catch (error) {
-    console.error('AQL Inspection Error:', error);
-    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("AQL Inspection Error:", {
+      message: error.message,
+      stack: error.stack,
+      payload: req.body,
+    });
+
+    const statusCode =
+      error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       errorResponse.stack = error.stack;
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         errorResponse.prismaError = error.meta;
@@ -230,12 +279,12 @@ export const getAqlInspectionById = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      throw new AqlInspectionError('Inspection ID is required', 400);
+      throw new AqlInspectionError("Inspection ID is required", 400);
     }
 
     const inspectionId = parseInt(id, 10);
     if (isNaN(inspectionId)) {
-      throw new AqlInspectionError('Invalid inspection ID format', 400);
+      throw new AqlInspectionError("Invalid inspection ID format", 400);
     }
 
     const inspection = await prisma.aqlInspection.findUnique({
@@ -267,16 +316,16 @@ export const getAqlInspectionById = async (req, res) => {
       success: true,
       data: transformInspectionData(inspection),
     });
-
   } catch (error) {
-    console.error('Get AQL Inspection by ID Error:', error);
-    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("Get AQL Inspection by ID Error:", error);
+    const statusCode =
+      error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       errorResponse.stack = error.stack;
     }
 
@@ -287,9 +336,10 @@ export const getAqlInspectionById = async (req, res) => {
 export const getAqlInspectionsByReference = async (req, res) => {
   try {
     const { reference } = req.params;
+    console.log("all aql reefence");
 
     if (!reference) {
-      throw new AqlInspectionError('Reference is required', 400);
+      throw new AqlInspectionError("Reference is required", 400);
     }
 
     const inspections = await prisma.aqlInspection.findMany({
@@ -312,21 +362,28 @@ export const getAqlInspectionsByReference = async (req, res) => {
         },
       },
       orderBy: {
-        ayanCondition: 'asc', 
+        ayanCondition: "asc",
       },
     });
 
     if (!inspections || inspections.length === 0) {
-      throw new AqlInspectionError(`No inspections found for reference ${reference}`, 404);
+      throw new AqlInspectionError(
+        `No inspections found for reference ${reference}`,
+        404
+      );
     }
 
     const result = {
       reference,
-      beforeAyaning: inspections.find(i => i.ayanCondition === 'BEFORE') 
-        ? transformInspectionData(inspections.find(i => i.ayanCondition === 'BEFORE'))
+      beforeAyaning: inspections.find((i) => i.ayanCondition === "BEFORE")
+        ? transformInspectionData(
+            inspections.find((i) => i.ayanCondition === "BEFORE")
+          )
         : null,
-      afterAyaning: inspections.find(i => i.ayanCondition === 'AFTER') 
-        ? transformInspectionData(inspections.find(i => i.ayanCondition === 'AFTER'))
+      afterAyaning: inspections.find((i) => i.ayanCondition === "AFTER")
+        ? transformInspectionData(
+            inspections.find((i) => i.ayanCondition === "AFTER")
+          )
         : null,
     };
 
@@ -334,16 +391,16 @@ export const getAqlInspectionsByReference = async (req, res) => {
       success: true,
       data: result,
     });
-
   } catch (error) {
-    console.error('Get AQL Inspections by Reference Error:', error);
-    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("Get AQL Inspections by Reference Error:", error);
+    const statusCode =
+      error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       errorResponse.stack = error.stack;
     }
 
@@ -354,29 +411,31 @@ export const getAqlInspectionsByReference = async (req, res) => {
 export const getAllReferences = async (req, res) => {
   try {
     const references = await prisma.aqlInspection.findMany({
-      distinct: ['reference'],
       select: {
+        id: true,
         reference: true,
+        inspectionDate: true,
+        createdAt: true,
       },
       orderBy: {
-        reference: 'asc',
+        createdAt: "desc",
       },
     });
 
     return res.status(200).json({
       success: true,
-      data: references.map(r => r.reference),
+      data: references,
     });
-
   } catch (error) {
-    console.error('Get All References Error:', error);
-    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("Get All References Error:", error);
+    const statusCode =
+      error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       errorResponse.stack = error.stack;
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         errorResponse.prismaError = error.meta;
@@ -392,7 +451,7 @@ export const updateAqlInspection = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      throw new AqlInspectionError('Inspection ID is required', 400);
+      throw new AqlInspectionError("Inspection ID is required", 400);
     }
 
     validateInspectionPayload(req.body);
@@ -412,24 +471,24 @@ export const updateAqlInspection = async (req, res) => {
         where: {
           measurement: {
             sample: {
-              aqlInspectionId: parseInt(id)
-            }
-          }
-        }
+              aqlInspectionId: parseInt(id),
+            },
+          },
+        },
       });
 
       await tx.sampleMeasurement.deleteMany({
         where: {
           sample: {
-            aqlInspectionId: parseInt(id)
-          }
-        }
+            aqlInspectionId: parseInt(id),
+          },
+        },
       });
 
       await tx.sample.deleteMany({
         where: {
-          aqlInspectionId: parseInt(id)
-        }
+          aqlInspectionId: parseInt(id),
+        },
       });
 
       const updatedInspection = await tx.aqlInspection.update({
@@ -441,36 +500,40 @@ export const updateAqlInspection = async (req, res) => {
           updatedAt: new Date(),
         },
       });
-      await Promise.all(req.body.samples.map(async (sample) => {
-        const createdSample = await tx.sample.create({
-          data: {
-            aqlInspectionId: updatedInspection.id,
-            size: sample.size,
-          },
-        });
-
-        await Promise.all(sample.measurements.map(async (measurement) => {
-          const createdMeasurement = await tx.sampleMeasurement.create({
+      await Promise.all(
+        req.body.samples.map(async (sample) => {
+          const createdSample = await tx.sample.create({
             data: {
-              sampleId: createdSample.id,
-              measurementId: measurement.measurementId,
-              standardValue: parseFloat(measurement.standardValue),
-              toleranceMin: parseFloat(measurement.toleranceMin || '0'),
-              toleranceMax: parseFloat(measurement.toleranceMax || '0'),
-              unit: measurement.unit || '',
+              aqlInspectionId: updatedInspection.id,
+              size: sample.size,
             },
           });
 
-          await tx.sampleValue.createMany({
-            data: measurement.values.map((value) => ({
-              sampleMeasurementId: createdMeasurement.id,
-              pieceNumber: value.pieceNumber || 0,
-              actualValue: parseFloat(value.actualValue),
-              status: value.status || 'within_tolerance',
-            })),
-          });
-        }));
-      }));
+          await Promise.all(
+            sample.measurements.map(async (measurement) => {
+              const createdMeasurement = await tx.sampleMeasurement.create({
+                data: {
+                  sampleId: createdSample.id,
+                  measurementId: measurement.measurementId,
+                  standardValue: parseFloat(measurement.standardValue),
+                  toleranceMin: parseFloat(measurement.toleranceMin || "0"),
+                  toleranceMax: parseFloat(measurement.toleranceMax || "0"),
+                  unit: measurement.unit || "",
+                },
+              });
+
+              await tx.sampleValue.createMany({
+                data: measurement.values.map((value) => ({
+                  sampleMeasurementId: createdMeasurement.id,
+                  pieceNumber: value.pieceNumber || 0,
+                  actualValue: parseFloat(value.actualValue),
+                  status: value.status || "within_tolerance",
+                })),
+              });
+            })
+          );
+        })
+      );
       return tx.aqlInspection.findUnique({
         where: { id: updatedInspection.id },
         include: {
@@ -497,16 +560,16 @@ export const updateAqlInspection = async (req, res) => {
       success: true,
       data: transformInspectionData(result),
     });
-
   } catch (error) {
-    console.error('Update AQL Inspection Error:', error);
-    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("Update AQL Inspection Error:", error);
+    const statusCode =
+      error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       errorResponse.stack = error.stack;
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         errorResponse.prismaError = error.meta;
@@ -522,12 +585,12 @@ export const deleteAqlInspection = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      throw new AqlInspectionError('Inspection ID is required', 400);
+      throw new AqlInspectionError("Inspection ID is required", 400);
     }
 
     const inspectionId = parseInt(id, 10);
     if (isNaN(inspectionId)) {
-      throw new AqlInspectionError('Invalid inspection ID format', 400);
+      throw new AqlInspectionError("Invalid inspection ID format", 400);
     }
 
     const inspection = await prisma.aqlInspection.findUnique({
@@ -545,16 +608,16 @@ export const deleteAqlInspection = async (req, res) => {
       success: true,
       message: `AQL Inspection with ID ${id} deleted successfully`,
     });
-
   } catch (error) {
-    console.error('Delete AQL Inspection Error:', error);
-    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("Delete AQL Inspection Error:", error);
+    const statusCode =
+      error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       errorResponse.stack = error.stack;
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         errorResponse.prismaError = error.meta;

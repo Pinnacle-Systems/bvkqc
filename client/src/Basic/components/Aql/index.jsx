@@ -72,11 +72,10 @@ const Aql = () => {
           }))
         };
       });
-
+       console.log(merged,"merged")
       setMergedReportData(merged);
     }
   }, [sizeTableData, aqlData]);
-
   const tableHeaders = [
     "ID",
     "Reference",
@@ -360,12 +359,12 @@ const Aql = () => {
     return 'bg-green-100 text-green-800';
   };
 
+
   const prepareDatabasePayload = () => {
     const validSamples = savedSizes.filter(size =>
       isSizeComplete(size)
     ).map(size => ({
       size: size,
-      ayanCondition: ayanCondition,
       measurements: measurements.map(measurement => ({
         measurementId: measurement.id,
         measurementName: measurement.name,
@@ -386,11 +385,12 @@ const Aql = () => {
     return {
       companyId: companyId.toString(),
       reference: selectedReference,
+      ayanCondition: ayanCondition.toUpperCase(),
       inspectionDate: new Date(inspectionDate),
-      samples: validSamples
+      samples: validSamples,
+
     };
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -408,8 +408,7 @@ const Aql = () => {
 
       if (response.success) {
         toast.success('AQL Form submitted successfully!');
-        secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}_before`);
-        secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}_after`);
+        // secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}_${ayanCondition}`);
         resetForm();
       } else {
         throw new Error(response.message || 'Submission failed');
@@ -421,6 +420,7 @@ const Aql = () => {
       setFormStatus(prev => ({ ...prev, isSubmitting: false }));
     }
   };
+
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
@@ -520,7 +520,6 @@ const Aql = () => {
     });
     setShowCompare(true);
   };
-
   const renderCompareTable = () => {
     if (!showCompare || !selectedSize) return null;
 
@@ -530,61 +529,102 @@ const Aql = () => {
     return (
       <div className="mt-4 border-t pt-4">
         <h3 className="text-sm font-bold mb-2">Comparison for Size: {selectedSize}</h3>
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                Measurement
-              </th>
-              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                Std Value
-              </th>
-              <th rowSpan="2" className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                Tolerance
-              </th>
-              {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                <th key={num} colSpan={2} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                  Piece #{num}
+
+        {/* Desktop Table View (hidden on mobile) */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                  Measurement
                 </th>
-              ))}
-            </tr>
-            <tr>
-              <th></th>
-              <th></th>
-              {Array.from({ length: PIECES_COUNT }, (_, i) => (
-                <React.Fragment key={i}>
-                  <th className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Before</th>
-                  <th className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">After</th>
-                </React.Fragment>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {measurements.map(measurement => (
-              <tr key={measurement.id}>
-                <td className="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
-                  {measurement.name} ({measurement.unit})
-                </td>
-                <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
-                  {measurement.standardValue}
-                </td>
-                <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
-                  -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                </td>
-                {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => (
-                  <React.Fragment key={index}>
-                    <td className={`px-1 py-1 whitespace-nowrap text-xs text-center ${beforeValues[measurement.id]?.[index] ? checkTolerance(measurement, beforeValues[measurement.id][index]) : ''}`}>
-                      {beforeValues[measurement.id]?.[index] || '-'}
-                    </td>
-                    <td className={`px-1 py-1 whitespace-nowrap text-xs text-center ${afterValues[measurement.id]?.[index] ? checkTolerance(measurement, afterValues[measurement.id][index]) : ''}`}>
-                      {afterValues[measurement.id]?.[index] || '-'}
-                    </td>
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                  Std Value
+                </th>
+                <th rowSpan="2" className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                  Tolerance
+                </th>
+                {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                  <th key={num} colSpan={2} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                    Piece #{num}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                <th></th>
+                <th></th>
+                {Array.from({ length: PIECES_COUNT }, (_, i) => (
+                  <React.Fragment key={i}>
+                    <th className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Before</th>
+                    <th className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">After</th>
                   </React.Fragment>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {measurements.map(measurement => (
+                <tr key={measurement.id}>
+                  <td className="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
+                    {measurement.name} ({measurement.unit})
+                  </td>
+                  <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
+                    {measurement.standardValue}
+                  </td>
+                  <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
+                    -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                  </td>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => (
+                    <React.Fragment key={index}>
+                      <td className={`px-1 py-1 whitespace-nowrap text-xs text-center ${beforeValues[measurement.id]?.[index] ? checkTolerance(measurement, beforeValues[measurement.id][index]) : ''}`}>
+                        {beforeValues[measurement.id]?.[index] || '-'}
+                      </td>
+                      <td className={`px-1 py-1 whitespace-nowrap text-xs text-center ${afterValues[measurement.id]?.[index] ? checkTolerance(measurement, afterValues[measurement.id][index]) : ''}`}>
+                        {afterValues[measurement.id]?.[index] || '-'}
+                      </td>
+                    </React.Fragment>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Card View (shown on mobile) */}
+        <div className="md:hidden space-y-4">
+          {measurements.map(measurement => (
+            <div key={measurement.id} className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+              <div className="flex justify-between items-center mb-3 pb-2 border-b">
+                <h3 className="text-sm font-medium text-gray-800">
+                  {measurement.name} ({measurement.unit})
+                </h3>
+                <div className="text-xs text-gray-500">
+                  Std: {measurement.standardValue}
+                  <span className="ml-1">
+                    (-{measurement.toleranceMin}/+{measurement.toleranceMax})
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(pieceIndex => (
+                  <div key={pieceIndex} className="grid grid-cols-3 gap-2">
+                    <div className="text-xs text-gray-500 flex items-center">
+                      Piece #{pieceIndex + 1}
+                    </div>
+                    <div className={`px-2 py-1 text-xs text-center rounded ${beforeValues[measurement.id]?.[pieceIndex] ? checkTolerance(measurement, beforeValues[measurement.id][pieceIndex]) : 'bg-gray-100'}`}>
+                      <div className="text-xs text-gray-500 mb-1">Before</div>
+                      {beforeValues[measurement.id]?.[pieceIndex] || '-'}
+                    </div>
+                    <div className={`px-2 py-1 text-xs text-center rounded ${afterValues[measurement.id]?.[pieceIndex] ? checkTolerance(measurement, afterValues[measurement.id][pieceIndex]) : 'bg-gray-100'}`}>
+                      <div className="text-xs text-gray-500 mb-1">After</div>
+                      {afterValues[measurement.id]?.[pieceIndex] || '-'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
@@ -635,7 +675,7 @@ const Aql = () => {
 
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-                  <div className="grid grid-cols-3  w-1/2  md:grid-cols-4 gap-3 mb-4">
+                  <div className="w-full md:w-1/2 grid grid-cols-4 md:grid-cols-4 gap-3 mb-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Order Id <span className="text-red-500">*</span>
@@ -810,7 +850,7 @@ const Aql = () => {
                                       Piece #{pieceIndex + 1}
                                     </label>
                                     <input
-                                      type="text"
+                                      type="number"
                                       value={checkValues[measurement.id]?.[pieceIndex] || ''}
                                       onChange={(e) => {
                                         if (readOnly) return;
@@ -959,16 +999,16 @@ const Aql = () => {
                           </>
                         )}
 
-                       {savedSizes.filter(size => isSizeComplete(size)).length >= 5 && (
-                          <button
-                            type="button"
-                            onClick={handleCompare}
-                            className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
+                        {/* {savedSizes.filter(size => isSizeComplete(size)).length >= 5 && ( */}
+                        <button
+                          type="button"
+                          onClick={handleCompare}
+                          className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-all flex-grow md:flex-grow-0
                               ${savedSizes.filter(size => isSizeComplete(size)).length < 5 ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
-                          >
-                            Compare
-                          </button>
-                        )}
+                        >
+                          Compare
+                        </button>
+                        {/* )} */}
                       </>
                     )}
 
