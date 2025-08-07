@@ -276,49 +276,100 @@ export const createAqlInspection = async (req, res) => {
 export const getAqlInspectionById = async (req, res) => {
   try {
     const { id } = req.params;
-
-    if (!id) {
-      throw new AqlInspectionError("Inspection ID is required", 400);
+    const reference = id
+    
+    if (!reference) {
+      throw new AqlInspectionError("Reference is required", 400);
     }
 
-    const inspectionId = parseInt(id, 10);
-    if (isNaN(inspectionId)) {
-      throw new AqlInspectionError("Invalid inspection ID format", 400);
-    }
-
-    const inspection = await prisma.aqlInspection.findUnique({
-      where: { id: inspectionId },
-      include: {
-        samples: {
-          include: {
-            measurements: {
-              include: {
-                values: true,
-                measurement: {
-                  select: {
-                    id: true,
-                    description: true,
+    // Fetch both BEFORE and AFTER inspections
+    const [beforeInspection, afterInspection] = await Promise.all([
+      prisma.aqlInspection.findUnique({
+        where: {
+          reference_ayanCondition: {
+            reference,
+            ayanCondition: "BEFORE"
+          }
+        },
+        include: {
+          samples: {
+            include: {
+              measurements: {
+                include: {
+                  values: true,
+                  measurement: {
+                    select: {
+                      id: true,
+                      description: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
+      }),
+      prisma.aqlInspection.findUnique({
+        where: {
+          reference_ayanCondition: {
+            reference,
+            ayanCondition: "AFTER"
+          }
+        },
+        include: {
+          samples: {
+            include: {
+              measurements: {
+                include: {
+                  values: true,
+                  measurement: {
+                    select: {
+                      id: true,
+                      description: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+    ]);
 
-    if (!inspection) {
-      throw new AqlInspectionError(`No inspection found with ID ${id}`, 404);
+    if (!beforeInspection && !afterInspection) {
+      throw new AqlInspectionError(`No inspections found for reference ${reference}`, 404);
+    }
+
+    // Compare logic
+    const comparison = {
+      reference,
+      before: beforeInspection ? transformInspectionData(beforeInspection) : null,
+      after: afterInspection ? transformInspectionData(afterInspection) : null,
+      differences: []
+    };
+
+    // Add your comparison logic here
+    if (beforeInspection && afterInspection) {
+      // Example comparison - customize based on your needs
+      if (beforeInspection.inspectionDate.getTime() !== afterInspection.inspectionDate.getTime()) {
+        comparison.differences.push({
+          field: "inspectionDate",
+          before: beforeInspection.inspectionDate,
+          after: afterInspection.inspectionDate
+        });
+      }
+
+      // Add more comparison fields as needed
     }
 
     return res.status(200).json({
       success: true,
-      data: transformInspectionData(inspection),
+      data: comparison
     });
+
   } catch (error) {
-    console.error("Get AQL Inspection by ID Error:", error);
-    const statusCode =
-      error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("Compare AQL Inspections Error:", error);
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
@@ -331,7 +382,6 @@ export const getAqlInspectionById = async (req, res) => {
     return res.status(statusCode).json(errorResponse);
   }
 };
-
 export const getAqlInspectionsByReference = async (req, res) => {
   try {
     const { reference } = req.params;

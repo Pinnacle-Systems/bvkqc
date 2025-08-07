@@ -184,7 +184,7 @@ const Mastertable = ({
                           <div className="mt-4 flex flex-wrap justify-end gap-2">
                             <button
                               onClick={() => {
-                                onDataClick(dataObj?.id);
+                                onDataClick(dataObj?.reference);
                                 setReadOnly(true);
                               }}
                               className="flex items-center gap-1 px-3 py-1.5 bg-white text-blue-600 rounded-md text-xs border border-blue-200 hover:bg-blue-50"
@@ -289,7 +289,7 @@ const Mastertable = ({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onDataClick(dataObj?.id);
+                                    onDataClick(dataObj?.reference);
                                     setReadOnly(true);
                                   }}
                                   className="text-blue-600 hover:text-blue-800"

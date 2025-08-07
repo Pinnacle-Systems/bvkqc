@@ -182,9 +182,18 @@ export const getReference = async (req, res) => {
         Party: {
           select: {
             name: true,
-          }
-        }
-      }
+          },
+        },
+        measurements: {
+          select: {
+            values: {
+              select: {
+                size: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     return res.status(200).json({
@@ -200,6 +209,7 @@ export const getReference = async (req, res) => {
     });
   }
 };
+
 
 
 

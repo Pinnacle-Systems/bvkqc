@@ -167,48 +167,87 @@ const Aql = () => {
     }
   }, [savedSizes, savedMeasurements, partialSavedMeasurements, selectedReference, formStatus.isDirty, ayanCondition]);
 
-  const syncFormWithDb = useCallback((data) => {
-    if (!data) return;
+  // const syncFormWithDb = useCallback((data) => {
+  //   if (!data) return;
+  //   setSelectedReference(data.reference || '');
+  //   if (data.inspectionDate) {
+  //     setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
+  //   }
+
+  //   const savedSizesArr = data.samples?.map(sample => sample.size) || [];
+  //   setSavedSizes(savedSizesArr);
+
+  //   const savedMeas = {};
+
+  //   data.samples?.forEach(sample => {
+  //     const size = sample.size;
+  //     savedMeas[size] = {};
+
+  //     sample.measurements?.forEach(measurement => {
+  //       const values = Array(PIECES_COUNT).fill('');
+  //       measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
+  //         if (valueObj.pieceNumber <= PIECES_COUNT) {
+  //           values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
+  //         }
+  //       });
+
+  //       savedMeas[size][measurement.measurementId] = values;
+  //     });
+  //   });
+
+  //   setSavedMeasurements(savedMeas);
+  //   setPartialSavedMeasurements({});
+
+  //   if (savedSizesArr.length > 0) {
+  //     setSelectedSize(savedSizesArr[0]);
+  //   }
+  //   setReadOnly(true);
+  // }, []);
+
+useEffect(() => {
+  if (singleData?.data && !formStatus.isDirty) {
+    const data = singleData.data;
     setSelectedReference(data.reference || '');
+    
     if (data.inspectionDate) {
       setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
     }
 
-    const savedSizesArr = data.samples?.map(sample => sample.size) || [];
-    setSavedSizes(savedSizesArr);
+    // Set the appropriate data based on ayanCondition
+    const conditionData = ayanCondition === 'before' ? data.before : data.after;
+    
+    if (conditionData) {
+      const savedSizesArr = conditionData.samples?.map(sample => sample.size) || [];
+      setSavedSizes(savedSizesArr);
 
-    const savedMeas = {};
+      const savedMeas = {};
+      conditionData.samples?.forEach(sample => {
+        const size = sample.size;
+        savedMeas[size] = {};
 
-    data.samples?.forEach(sample => {
-      const size = sample.size;
-      savedMeas[size] = {};
+        sample.measurements?.forEach(measurement => {
+          const values = Array(PIECES_COUNT).fill('');
+          measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
+            if (valueObj.pieceNumber <= PIECES_COUNT) {
+              values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
+            }
+          });
 
-      sample.measurements?.forEach(measurement => {
-        const values = Array(PIECES_COUNT).fill('');
-        measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
-          if (valueObj.pieceNumber <= PIECES_COUNT) {
-            values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
-          }
+          savedMeas[size][measurement.measurementId] = values;
         });
-
-        savedMeas[size][measurement.measurementId] = values;
       });
-    });
 
-    setSavedMeasurements(savedMeas);
-    setPartialSavedMeasurements({});
+      setSavedMeasurements(savedMeas);
+      setPartialSavedMeasurements({});
 
-    if (savedSizesArr.length > 0) {
-      setSelectedSize(savedSizesArr[0]);
+      if (savedSizesArr.length > 0) {
+        setSelectedSize(savedSizesArr[0]);
+      }
     }
+    
     setReadOnly(true);
-  }, []);
-
-  useEffect(() => {
-    if (singleData?.data && !formStatus.isDirty) {
-      syncFormWithDb(singleData.data);
-    }
-  }, [singleData, syncFormWithDb, formStatus.isDirty]);
+  }
+}, [singleData, formStatus.isDirty, ayanCondition]);
 
   useEffect(() => {
     try {
@@ -456,12 +495,12 @@ const Aql = () => {
   };
 
   const [deleteId, setDeleteId] = useState(null);
-
-  const onDataClick = (id) => {
-    setId(id);
-    setNewItem(true);
-  };
-
+const onDataClick = (id) => {
+  setId(id);
+  setNewItem(true);
+  setShowCompare(false); 
+  setAyanCondition('before'); 
+};
   const deleteData = async () => {
     if (deleteId) {
       if (!window.confirm("Are you sure to delete this inspection?")) {
@@ -500,26 +539,54 @@ const Aql = () => {
     setFormStatus(prev => ({ ...prev, isDirty: false }));
   };
 
-  const handleCompare = () => {
-    if (!selectedReference) {
-      toast.error('Please select a reference first');
-      return;
+const handleCompare = () => {
+  if (!singleData?.data) {
+    toast.error('No data available for comparison');
+    return;
+  }
+
+  const beforeData = singleData.data.before;
+  const afterData = singleData.data.after;
+
+  if (!beforeData || !afterData) {
+    toast.error('Both before and after data must be available to compare');
+    return;
+  }
+
+  setCompareData({
+    before: {
+      savedMeasurements: extractMeasurements(beforeData),
+      samples: beforeData.samples
+    },
+    after: {
+      savedMeasurements: extractMeasurements(afterData),
+      samples: afterData.samples
     }
+  });
+  setShowCompare(true);
+};
 
-    const beforeData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}_before`);
-    const afterData = secureLocalStorage.getItem(`aqlFormData_${companyId}_${selectedReference}_after`);
-
-    if (!beforeData || !afterData) {
-      toast.error('Both before and after ayaning data must be saved to compare');
-      return;
-    }
-
-    setCompareData({
-      before: beforeData,
-      after: afterData
+// Helper function to extract measurements
+const extractMeasurements = (data) => {
+  const measurements = {};
+  data.samples?.forEach(sample => {
+    const size = sample.size;
+    measurements[size] = {};
+    
+    sample.measurements?.forEach(measurement => {
+      const values = Array(PIECES_COUNT).fill('');
+      measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
+        if (valueObj.pieceNumber <= PIECES_COUNT) {
+          values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
+        }
+      });
+      
+      measurements[size][measurement.measurementId] = values;
     });
-    setShowCompare(true);
-  };
+  });
+  
+  return measurements;
+};
   const renderCompareTable = () => {
     if (!showCompare || !selectedSize) return null;
 
@@ -735,6 +802,49 @@ const Aql = () => {
                         </svg>
                       </button>
                     </div>
+                    {id && (
+  <div className="flex gap-2 mb-4">
+    <button
+      type="button"
+      onClick={() => {
+        setAyanCondition('before');
+        setShowCompare(false);
+      }}
+      className={`px-3 py-1 text-xs rounded-md ${
+        ayanCondition === 'before' && !showCompare
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-200 text-gray-800'
+      }`}
+    >
+      Before
+    </button>
+    <button
+      type="button"
+      onClick={() => {
+        setAyanCondition('after');
+        setShowCompare(false);
+      }}
+      className={`px-3 py-1 text-xs rounded-md ${
+        ayanCondition === 'after' && !showCompare
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-200 text-gray-800'
+      }`}
+    >
+      After
+    </button>
+    <button
+      type="button"
+      onClick={() => setShowCompare(true)}
+      className={`px-3 py-1 text-xs rounded-md ${
+        showCompare
+          ? 'bg-purple-600 text-white'
+          : 'bg-gray-200 text-gray-800'
+      }`}
+    >
+      Compare
+    </button>
+  </div>
+)}
 
                     <div className="mb-4 w-20">
                       <label className="block text-xs font-medium text-gray-700 mb-1">
