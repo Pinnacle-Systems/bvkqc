@@ -12,6 +12,8 @@ import Modal from "../../../UiComponents/Modal";
 import { multiSelectOption } from "../../../Utils/contructObject";
 import { useGetEmployeeCategoryQuery } from "../../../redux/services/EmployeeCategoryMasterService";
 import { useGetBranchQuery } from "../../../redux/services/BranchMasterService";
+import { useGetOrderImportQuery } from "../../../redux/services/OrderImportService";
+import {  useGetSizeTableMasterByReferenceQuery } from "../../../redux/uniformService/SizeTableMasterService";
 
 
 const MODEL = "Line Allocation Master";
@@ -28,6 +30,7 @@ export default function LineMaster() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedLineList,setSelectedLineList] = useState([]);
   const [employeeCategoryId,setEmployeeCategoryId]  = useState("")
+  const [orderId,setOrderId]  = useState('')
   const [branchId,setBranchId] = useState("")
   const childRecord = useRef(0);
 
@@ -64,7 +67,15 @@ export default function LineMaster() {
 
 
 
-console.log(id ? true  : false,"optionssssssss")
+  const {
+    data: sizeTableData,
+    isLoading: sizeTableLoading,
+    error: sizeTableError,
+  } = useGetSizeTableMasterByReferenceQuery();
+
+
+
+console.log(orderId,"orderId")
 
   const lineOptions =   multiSelectOption(lineData ? lineData?.data : [], "lineName", "id") 
 
@@ -135,6 +146,7 @@ console.log(id ? true  : false,"optionssssssss")
     setLineName("");
     setActive(true);
     setEmployeeCategoryId("");
+    setSelectedLineList([])
   };
 
   // Validation
@@ -197,6 +209,8 @@ console.log(id ? true  : false,"optionssssssss")
       }
       setId("");
       setForm(false);
+      refetch()
+
     } catch (error) {
       toast.error("Deletion failed");
     }
@@ -255,7 +269,7 @@ console.log(id ? true  : false,"optionssssssss")
       { form && (
         <Modal
           isOpen={form}
-          widthClass={"w-[55%] h-[55%]"}
+          widthClass={"w-[55%] h-[60%]"}
           onClose={() => {
             setForm(false);
             setErrors({});
@@ -277,6 +291,16 @@ console.log(id ? true  : false,"optionssssssss")
             emptyErrors={() => setErrors({})}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <DropdownWithSearchNew
+                label={"Incharge"}
+                options={sizeTableData?.data}
+                value = {orderId}
+                setValue = {setOrderId}
+                labelField={"reference"}
+                readOnly={readOnly}
+              
+            />
 
 
              <DropdownWithSearchNew
