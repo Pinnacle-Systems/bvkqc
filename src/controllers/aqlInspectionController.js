@@ -167,7 +167,6 @@ export const createAqlInspection = async (req, res) => {
       );
     }
 
-    // Process samples validation
     req.body.samples.forEach((sample, sampleIndex) => {
       validateSample(sample, sampleIndex);
       sample.measurements.forEach((measurement, measurementIndex) => {
@@ -416,6 +415,7 @@ export const getAllReferences = async (req, res) => {
         reference: true,
         inspectionDate: true,
         createdAt: true,
+        ayanCondition: true
       },
       orderBy: {
         createdAt: "desc",
