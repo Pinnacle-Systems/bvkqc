@@ -92,7 +92,7 @@ export const MultiSelectDropdown = ({
   console.log(options, "oiptiosn");
   return (
     <div
-      className={`m-1  md:grid-cols-3 items-center z-0 md:my-0.5 md:py-3 data ${className}`}
+      className={`m-1  md:grid-cols-3 items-center z-0 md:my-0.5  data ${className}`}
     >
       <label className={`block text-xs font-bold text-slate-700 mb-1 ${labelName}`}>{name}</label>
       <MultiSelect
