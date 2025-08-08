@@ -36,6 +36,6 @@ export { default as LocationMaster } from "./LocationMaster";
 export { default as MachineMaster } from "./MachineMaster";
 export { default as GridTable } from "./GridTable";
 export { default as Role } from "./RoleMaster";
-export {default as Allocation} from "./Order";
+export {default as Allocation} from "./Allocation";
 export { default as Aql} from "./Aql"
 export { default as InchargeLineListMaster} from "./InchargeLineListMaster"
