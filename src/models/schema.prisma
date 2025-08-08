@@ -171,57 +171,58 @@ model User {
 }
 
 model Employee {
-  id                           Int                            @id @default(autoincrement())
-  name                         String?
-  email                        String?                        @unique
-  regNo                        String?                        @unique
-  chamberNo                    String?
-  department                   Department?                    @relation(fields: [departmentId], references: [id])
-  departmentId                 Int?
-  joiningDate                  DateTime?
-  fatherName                   String?
-  dob                          DateTime?
-  gender                       Gender?
-  maritalStatus                MaritalStatus?
-  bloodGroup                   BloodGroup?
-  panNo                        String?
-  consultFee                   String?
-  salaryPerMonth               String?
-  commissionCharges            String?
-  mobile                       BigInt?
-  accountNo                    String?
-  ifscNo                       String?
-  branchName                   String?
-  degree                       String?
-  specialization               String?
-  localAddress                 String?
-  localCity                    City?                          @relation("localCity", fields: [localCityId], references: [id])
-  localCityId                  Int?
-  localPincode                 Int?
-  permAddress                  String?
-  permCity                     City?                          @relation("permCity", fields: [permCityId], references: [id])
-  permCityId                   Int?
-  permPincode                  Int?
-  active                       Boolean?                       @default(true)
-  image                        Bytes?                         @db.LongBlob
-  Branch                       Branch?                        @relation(fields: [branchId], references: [id])
-  branchId                     Int?
-  EmployeeCategory             EmployeeCategory?              @relation(fields: [employeeCategoryId], references: [id])
-  employeeCategoryId           Int?
-  permanent                    Boolean?                       @default(false)
-  leavingReason                String?
-  leavingDate                  DateTime?
-  canRejoin                    Boolean?                       @default(true)
-  rejoinReason                 String?
-  createdAt                    DateTime?                      @default(now())
-  updatedAt                    DateTime?                      @updatedAt
-  createdBy                    User?                          @relation("createdBy", fields: [createdById], references: [id])
-  createdById                  Int?
-  updatedBy                    User?                          @relation("updatedBy", fields: [updatedById], references: [id])
-  updatedById                  Int?
-  User                         User[]
-  LineMaster                   LineMaster[]
-  LineAllocationInchargeMaster LineAllocationInchargeMaster[]
+  id                 Int               @id @default(autoincrement())
+  name               String?
+  email              String?           @unique
+  regNo              String?           @unique
+  chamberNo          String?
+  department         Department?       @relation(fields: [departmentId], references: [id])
+  departmentId       Int?
+  joiningDate        DateTime?
+  fatherName         String?
+  dob                DateTime?
+  gender             Gender?
+  maritalStatus      MaritalStatus?
+  bloodGroup         BloodGroup?
+  panNo              String?
+  consultFee         String?
+  salaryPerMonth     String?
+  commissionCharges  String?
+  mobile             BigInt?
+  accountNo          String?
+  ifscNo             String?
+  branchName         String?
+  degree             String?
+  specialization     String?
+  localAddress       String?
+  localCity          City?             @relation("localCity", fields: [localCityId], references: [id])
+  localCityId        Int?
+  localPincode       Int?
+  permAddress        String?
+  permCity           City?             @relation("permCity", fields: [permCityId], references: [id])
+  permCityId         Int?
+  permPincode        Int?
+  active             Boolean?          @default(true)
+  image              Bytes?            @db.LongBlob
+  Branch             Branch?           @relation(fields: [branchId], references: [id])
+  branchId           Int?
+  EmployeeCategory   EmployeeCategory? @relation(fields: [employeeCategoryId], references: [id])
+  employeeCategoryId Int?
+  permanent          Boolean?          @default(false)
+  leavingReason      String?
+  leavingDate        DateTime?
+  canRejoin          Boolean?          @default(true)
+  rejoinReason       String?
+  createdAt          DateTime?         @default(now())
+  updatedAt          DateTime?         @updatedAt
+  createdBy          User?             @relation("createdBy", fields: [createdById], references: [id])
+  createdById        Int?
+  updatedBy          User?             @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById        Int?
+  User               User[]
+  LineMaster         LineMaster[]
+  lineAllocationsByEmpId  LineAllocationInchargeMaster[] @relation("empIdRelation")
+  lineAllocationsByUserId LineAllocationInchargeMaster[] @relation("userIdRelation")
 }
 
 model FinYear {
@@ -801,7 +802,7 @@ model LineMaster {
 }
 
 model Product {
-  id           String        @id @default(cuid())
+  id           Int           @id @default(autoincrement())
   name         String
   reference    String        @unique
   description  String?
@@ -812,8 +813,8 @@ model Product {
 }
 
 model Measurement {
-  id        String  @id @default(cuid())
-  productId String
+  id        Int     @id @default(autoincrement())
+  productId Int
   product   Product @relation(fields: [productId], references: [id])
 
   description       String
@@ -826,8 +827,8 @@ model Measurement {
 }
 
 model MeasurementValue {
-  id            String      @id @default(cuid())
-  measurementId String
+  id            Int         @id @default(autoincrement())
+  measurementId Int
   measurement   Measurement @relation(fields: [measurementId], references: [id])
   size          String
   value         String
@@ -847,6 +848,7 @@ model Allocation {
   reference      String
   allocationDate DateTime?
 }
+
 model AqlInspection {
   id             Int           @id @default(autoincrement())
   companyId      String
@@ -877,7 +879,7 @@ model SampleMeasurement {
   id            Int           @id @default(autoincrement())
   sampleId      Int
   sample        Sample        @relation(fields: [sampleId], references: [id], onDelete: Cascade)
-  measurementId String
+  measurementId Int
   measurement   Measurement   @relation(fields: [measurementId], references: [id])
   standardValue Float
   toleranceMin  Float
@@ -911,13 +913,17 @@ enum ValueStatus {
   within_tolerance
   out_of_tolerance
 }
+
 model LineAllocationInchargeMaster {
   id                     Int                      @id @default(autoincrement())
-  Employee               Employee?                @relation(fields: [empId], references: [id])
+  employeeByEmpId        Employee?                @relation("empIdRelation", fields: [empId], references: [id])
   empId                  Int?
   Branch                 Branch?                  @relation(fields: [branchId], references: [id])
   branchId               Int?
   InchargeLineListMaster InchargeLineListMaster[]
+  employeeByUserId       Employee?                @relation("userIdRelation", fields: [UserId], references: [id])
+  UserId                 Int?
+  orderId                String?
 }
 
 model InchargeLineListMaster {
@@ -926,4 +932,5 @@ model InchargeLineListMaster {
   lineAllocationInchargeMasterId Int?
   LineMaster                     LineMaster?                   @relation(fields: [lineMasterId], references: [id])
   lineMasterId                   Int?
+  Size                           String?
 }
