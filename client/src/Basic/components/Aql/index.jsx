@@ -13,7 +13,7 @@ const Aql = () => {
   const [id, setId] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [newItem, setNewItem] = useState(false);
-  const [ayanCondition, setAyanCondition] = useState('before'); // 'before' or 'after'
+  const [ayanCondition, setAyanCondition] = useState('before'); 
   const [showCompare, setShowCompare] = useState(false);
   const [compareData, setCompareData] = useState({ before: {}, after: {} });
 
@@ -450,7 +450,7 @@ useEffect(() => {
 
       if (response.success) {
         toast.success('AQL Form submitted successfully!');
-        // secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}_${ayanCondition}`);
+        secureLocalStorage.removeItem(`aqlFormData_${companyId}_${selectedReference}_${ayanCondition}`);
         resetForm();
       } else {
         throw new Error(response.message || 'Submission failed');
