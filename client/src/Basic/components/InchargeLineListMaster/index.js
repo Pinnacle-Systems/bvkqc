@@ -14,6 +14,7 @@ import { useGetEmployeeCategoryQuery } from "../../../redux/services/EmployeeCat
 import { useGetBranchQuery } from "../../../redux/services/BranchMasterService";
 import { useGetOrderImportQuery } from "../../../redux/services/OrderImportService";
 import {  useGetSizeTableMasterByReferenceQuery } from "../../../redux/uniformService/SizeTableMasterService";
+import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
 
 
 const MODEL = "Line Allocation Master";
@@ -73,6 +74,10 @@ export default function LineMaster() {
     error: sizeTableError,
   } = useGetSizeTableMasterByReferenceQuery();
 
+  
+  const {
+    data: singleOrderData = [],
+  } = useGetOrderByIdQuery(orderId , {skip: !orderId});
 
 
 console.log(orderId,"orderId")

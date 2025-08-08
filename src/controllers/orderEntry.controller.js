@@ -14,7 +14,7 @@ async function get(req, res, next) {
 
 async function getOne(req, res, next) {
     try {
-        res.json(await _getOne(req));
+        res.json(await _getOne(req.params.id));
         console.log(res.statusCode);
     } catch (err) {
         console.error(`Error`, err.message);

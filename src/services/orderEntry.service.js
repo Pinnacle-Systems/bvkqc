@@ -132,32 +132,33 @@ async function get(req) {
 
 
 
-async function getOne(req) {
+async function getOne(id) {
 
-    const id = req.params.id
-    const salesReport = req.query.salesReport
+    
 
-
-    let data = await prisma.order.findUnique({
+    let data = await prisma.product.findUnique({
         where: {
-            id: parseInt(id)
+            id: id
         },
-        include: {
-            orderBillItems: true,
-            attachments: true,
-            Manufacture: {
-                select: {
-                    id: true,
-                    name: true
-                }
-            },
-            Vendor: {
-                select: {
-                    id: true,
-                    name: true
-                }
-            }
+        include : {
+            measurements : {
+                select : {
+                    id : true ,
+                    productId : true , 
+                    description : true ,
+                    dimension  : true  ,
+                    toleranceMax  : true  ,
+                    toleranceMin   : true  ,
+                    createdAt   : true ,
+                    values  : true
+                }   
+                
+            } ,
+            
+            
+            
         }
+        
     });
 
     if (!data) return NoRecordFound("Order Bill");
