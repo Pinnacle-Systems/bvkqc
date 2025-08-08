@@ -703,7 +703,7 @@ CREATE TABLE `LineMaster` (
 
 -- CreateTable
 CREATE TABLE `Product` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `reference` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
@@ -716,8 +716,8 @@ CREATE TABLE `Product` (
 
 -- CreateTable
 CREATE TABLE `Measurement` (
-    `id` VARCHAR(191) NOT NULL,
-    `productId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `productId` INTEGER NOT NULL,
     `description` VARCHAR(191) NOT NULL,
     `dimension` VARCHAR(191) NULL,
     `toleranceMin` VARCHAR(191) NULL,
@@ -729,8 +729,8 @@ CREATE TABLE `Measurement` (
 
 -- CreateTable
 CREATE TABLE `MeasurementValue` (
-    `id` VARCHAR(191) NOT NULL,
-    `measurementId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `measurementId` INTEGER NOT NULL,
     `size` VARCHAR(191) NOT NULL,
     `value` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -783,7 +783,7 @@ CREATE TABLE `Sample` (
 CREATE TABLE `SampleMeasurement` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `sampleId` INTEGER NOT NULL,
-    `measurementId` VARCHAR(191) NOT NULL,
+    `measurementId` INTEGER NOT NULL,
     `standardValue` DOUBLE NOT NULL,
     `toleranceMin` DOUBLE NOT NULL,
     `toleranceMax` DOUBLE NOT NULL,
@@ -1091,7 +1091,7 @@ ALTER TABLE `LineAllocationInchargeMaster` ADD CONSTRAINT `LineAllocationIncharg
 ALTER TABLE `LineAllocationInchargeMaster` ADD CONSTRAINT `LineAllocationInchargeMaster_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_lineAllocationInchargeMasterId_fkey` FOREIGN KEY (`lineAllocationInchargeMasterId`) REFERENCES `LineAllocationInchargeMaster`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_lineAllocationInchargeMasterId_fkey` FOREIGN KEY (`lineAllocationInchargeMasterId`) REFERENCES `LineAllocationInchargeMaster`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_lineMasterId_fkey` FOREIGN KEY (`lineMasterId`) REFERENCES `LineMaster`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
