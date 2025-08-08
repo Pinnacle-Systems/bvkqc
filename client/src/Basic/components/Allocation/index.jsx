@@ -274,6 +274,8 @@ const AllocationForm = () => {
     error: sizeTableError,
   } = useGetSizeTableMasterByReferenceQuery();
 
+  console.log(sizeTableData,"sizeTableData")
+
   const {
     data: branches = [],
     isLoading: branchesLoading,
@@ -285,6 +287,11 @@ const AllocationForm = () => {
     isLoading: allocationsLoading,
     refetch: refetchAllocations,
   } = useGetAllocationMasterQuery();
+
+  
+
+    console.log(allocations,"allocations")
+
 
   const [createAllocation] = useAddAllocationMasterMutation();
   const [updateAllocation] = useUpdateAllocationMasterMutation();
