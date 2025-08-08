@@ -189,6 +189,7 @@ export const getReference = async (req, res) => {
             values: {
               select: {
                 size: true,
+                id : true
               },
             },
           },

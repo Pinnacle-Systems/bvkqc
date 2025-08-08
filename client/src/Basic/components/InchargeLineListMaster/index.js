@@ -29,11 +29,13 @@ export default function LineMaster() {
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedLineList,setSelectedLineList] = useState([]);
+
   const [employeeCategoryId,setEmployeeCategoryId]  = useState("")
   const [orderId,setOrderId]  = useState('')
   const [branchId,setBranchId] = useState("")
   const childRecord = useRef(0);
+  const [selectedLineList,setSelectedLineList] = useState([]);
+  const [selectedSizeList,setSelectedSizeList] = useState([]);
 
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "currentBranchId"
@@ -74,20 +76,25 @@ export default function LineMaster() {
     error: sizeTableError,
   } = useGetSizeTableMasterByReferenceQuery();
 
-  
-  const {
-    data: singleOrderData = [],
-  } = useGetOrderByIdQuery(orderId , {skip: !orderId});
 
+// let sizeList;
+//   useEffect (()  => {
+//       if (sizeTableData) {
+//    sizeList = sizeTableData ? sizeTableData?.data?.filter(item =>  item.id === orderId)?.[0]?.measurements[0]  :  []
+//    setSelectedSizeList( multiSelectOption(sizeList ? sizeList : [], "size", "id") )
+//       }
+//   },[sizeTableData])
 
-console.log(orderId,"orderId")
 
   const lineOptions =   multiSelectOption(lineData ? lineData?.data : [], "lineName", "id") 
 
-  console.log(lineOptions,"lineOptions")
+
+  const sizeList = sizeTableData ? sizeTableData?.data?.filter(item =>  item.id === orderId)?.[0]?.measurements[0]?.values  :  []
 
 
 
+
+  console.log(selectedSizeList,"selectedSizeList")
 
         const {
     data: branchList,
@@ -139,9 +146,8 @@ console.log(orderId,"orderId")
       setReadOnly(true);
       setBranchId(data?.branchId ? data?.branchId  : "" )
       setEmployeeCategoryId(data?.empId || "");
-      setSelectedLineList(data?.InchargeLineListMaster  ? data?.InchargeLineListMaster  : [] )
-              setSelectedLineList(data ? data?.InchargeLineListMaster.map((line) => { return { value: line.lineMasterId, label: line?.LineMaster?.lineName } }) : [])
-
+      setSelectedLineList(data ? data?.InchargeLineListMaster.map((line) => { return { value: line.lineMasterId, label: line?.LineMaster?.lineName } }) : [])
+      // setSelectedSizeList()
     }
   }, [id]);
 
@@ -296,18 +302,7 @@ console.log(orderId,"orderId")
             emptyErrors={() => setErrors({})}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        <DropdownWithSearchNew
-                label={"Incharge"}
-                options={sizeTableData?.data}
-                value = {orderId}
-                setValue = {setOrderId}
-                labelField={"reference"}
-                readOnly={readOnly}
               
-            />
-
-
              <DropdownWithSearchNew
                 label={"Branch"}
                 options={branchList?.data}
@@ -317,17 +312,27 @@ console.log(orderId,"orderId")
                 readOnly={readOnly}
 
             />
-            <DropdownWithSearchNew
-                label={"Incharge"}
-                options={employeeOptions}
-                value = {employeeCategoryId}
-                setValue = {setEmployeeCategoryId}
-                labelField={"name"}
+
+        <DropdownWithSearchNew
+                label={"Reference No  "}
+                options={sizeTableData?.data}
+                value = {orderId}
+                setValue = {setOrderId}
+                labelField={"reference"}
                 readOnly={readOnly}
               
             />
-            <MultiSelectDropdown
-                name = {"lineName"}
+    <MultiSelectDropdown
+                name = {"Size List"}
+                options={ multiSelectOption(sizeList ? sizeList : [], "size", "id") }
+                labelField={"size"}
+                selected={selectedSizeList ||  []}
+                setSelected={setSelectedSizeList}
+                readOnly={readOnly}
+
+                />
+  <MultiSelectDropdown
+                name = {"line List"}
                 options={lineOptions}
                 labelField={"name"}
                 selected={selectedLineList}
@@ -335,10 +340,20 @@ console.log(orderId,"orderId")
                 readOnly={readOnly}
 
                 />
+            <DropdownWithSearchNew
+                label={"Qc Incharge"}
+                options={employeeOptions}
+                value = {employeeCategoryId}
+                setValue = {setEmployeeCategoryId}
+                labelField={"name"}
+                readOnly={readOnly}
+              
+            />
+          
 
     
 
-           <div className="mt-10">
+           {/* <div className="mt-10">
             
               <ToggleButton
                 name="Status"
@@ -348,7 +363,7 @@ console.log(orderId,"orderId")
                 required
                 readOnly={readOnly}
               />
-            </div>       
+            </div>        */}
             </div>
 
           </MastersForm>
