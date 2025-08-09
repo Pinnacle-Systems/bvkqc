@@ -151,21 +151,21 @@ export const createAqlInspection = async (req, res) => {
 
     validateInspectionPayload(req.body);
 
-    const existingInspection = await prisma.aqlInspection.findUnique({
-      where: {
-        reference_ayanCondition: {
-          reference: req.body.reference,
-          ayanCondition: req.body.ayanCondition,
-        },
-      },
-    });
+    // const existingInspection = await prisma.aqlInspection.findUnique({
+    //   where: {
+    //     reference_ayanCondition: {
+    //       reference: req.body.reference,
+    //       ayanCondition: req.body.ayanCondition,
+    //     },
+    //   },
+    // });
 
-    if (existingInspection) {
-      throw new AqlInspectionError(
-        `Inspection already exists for reference ${req.body.reference} and condition ${req.body.ayanCondition}`,
-        409
-      );
-    }
+    // if (existingInspection) {
+    //   throw new AqlInspectionError(
+    //     `Inspection already exists for reference ${req.body.reference} and condition ${req.body.ayanCondition}`,
+    //     409
+    //   );
+    // }
 
     req.body.samples.forEach((sample, sampleIndex) => {
       validateSample(sample, sampleIndex);
@@ -276,100 +276,78 @@ export const createAqlInspection = async (req, res) => {
 export const getAqlInspectionById = async (req, res) => {
   try {
     const { id } = req.params;
-    const reference = id
-    
+    const reference = id;
+
     if (!reference) {
       throw new AqlInspectionError("Reference is required", 400);
     }
 
-    // Fetch both BEFORE and AFTER inspections
-    const [beforeInspection, afterInspection] = await Promise.all([
-      prisma.aqlInspection.findUnique({
-        where: {
-          reference_ayanCondition: {
-            reference,
-            ayanCondition: "BEFORE"
-          }
-        },
-        include: {
-          samples: {
-            include: {
-              measurements: {
-                include: {
-                  values: true,
-                  measurement: {
-                    select: {
-                      id: true,
-                      description: true,
-                    },
+    // Get all inspections for this reference
+    const inspections = await prisma.aqlInspection.findMany({
+      where: { reference },
+      include: {
+        samples: {
+          include: {
+            measurements: {
+              include: {
+                values: true,
+                measurement: {
+                  select: {
+                    id: true,
+                    description: true,
                   },
                 },
               },
             },
           },
         },
-      }),
-      prisma.aqlInspection.findUnique({
-        where: {
-          reference_ayanCondition: {
-            reference,
-            ayanCondition: "AFTER"
-          }
-        },
-        include: {
-          samples: {
-            include: {
-              measurements: {
-                include: {
-                  values: true,
-                  measurement: {
-                    select: {
-                      id: true,
-                      description: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      })
-    ]);
+      },
+    });
 
-    if (!beforeInspection && !afterInspection) {
-      throw new AqlInspectionError(`No inspections found for reference ${reference}`, 404);
+    if (inspections.length === 0) {
+      throw new AqlInspectionError(
+        `No inspections found for reference ${reference}`,
+        404
+      );
     }
+
+    // Separate BEFORE and AFTER inspections
+    const beforeInspection = inspections.find(
+      (item) => item.ayanCondition === "BEFORE"
+    );
+    const afterInspection = inspections.find(
+      (item) => item.ayanCondition === "AFTER"
+    );
 
     // Compare logic
     const comparison = {
       reference,
       before: beforeInspection ? transformInspectionData(beforeInspection) : null,
       after: afterInspection ? transformInspectionData(afterInspection) : null,
-      differences: []
+      differences: [],
     };
 
-    // Add your comparison logic here
     if (beforeInspection && afterInspection) {
-      // Example comparison - customize based on your needs
-      if (beforeInspection.inspectionDate.getTime() !== afterInspection.inspectionDate.getTime()) {
+      if (
+        beforeInspection.inspectionDate.getTime() !==
+        afterInspection.inspectionDate.getTime()
+      ) {
         comparison.differences.push({
           field: "inspectionDate",
           before: beforeInspection.inspectionDate,
-          after: afterInspection.inspectionDate
+          after: afterInspection.inspectionDate,
         });
       }
-
-      // Add more comparison fields as needed
     }
 
     return res.status(200).json({
       success: true,
-      data: comparison
+      data: comparison,
     });
-
   } catch (error) {
     console.error("Compare AQL Inspections Error:", error);
-    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
+    const statusCode =
+      error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
@@ -382,6 +360,9 @@ export const getAqlInspectionById = async (req, res) => {
     return res.status(statusCode).json(errorResponse);
   }
 };
+
+
+
 export const getAqlInspectionsByReference = async (req, res) => {
   try {
     const { reference } = req.params;
