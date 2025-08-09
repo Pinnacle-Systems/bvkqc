@@ -42,6 +42,18 @@ const Aql = () => {
   const [readOnly, setReadOnly] = useState(false);
   const [isDetailView, setIsDetailView] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
+  const [isTabletView, setIsTabletView] = useState(window.innerWidth >= 768 && window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth < 768);
+      setIsTabletView(window.innerWidth >= 768 && window.innerWidth < 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { data: aqlData } = useGetAqlInspectionsQuery();
   const { data: sizeData } = useGetSizeTableMasterQuery(
@@ -64,6 +76,7 @@ const Aql = () => {
   const availableSizes = selectedProduct?.availableSizes || [];
 
   const [mergedReportData, setMergedReportData] = useState([]);
+  
   useEffect(() => {
     if (sizeTableData?.data && aqlData?.data) {
       const merged = aqlData.data.map(aqlItem => {
@@ -130,75 +143,78 @@ const Aql = () => {
     }
   }, [formData, selectedReference, formStatus.isDirty]);
 
-useEffect(() => {
-  if (singleData?.data && !formStatus.isDirty) {
-    const data = singleData.data;
-    setSelectedReference(data.reference || '');
-    setId(data.id || '');
+  useEffect(() => {
+    if (singleData?.data && !formStatus.isDirty) {
+      const data = singleData.data;
+      setSelectedReference(data.reference || '');
+      setId(data.id || '');
 
-    if (data.inspectionDate) {
-      setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
-    }
-
-    const newFormData = {
-      before: {
-        savedSizes: [],
-        savedMeasurements: {},
-        partialSavedMeasurements: {}
-      },
-      after: {
-        savedSizes: [],
-        savedMeasurements: {},
-        partialSavedMeasurements: {}
+      if (data.inspectionDate) {
+        setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
       }
-    };
 
-    // Process before data
-    if (data.before && Array.isArray(data.before)) {
-      newFormData.before.savedSizes = data.before.map(sample => sample.size);
+      const newFormData = {
+        before: {
+          savedSizes: [],
+          savedMeasurements: {},
+          partialSavedMeasurements: {}
+        },
+        after: {
+          savedSizes: [],
+          savedMeasurements: {},
+          partialSavedMeasurements: {}
+        }
+      };
 
-      data.before.forEach(sample => {
-        const size = sample.size;
-        newFormData.before.savedMeasurements[size] = {};
+      if (data.before && Array.isArray(data.before)) {
+        newFormData.before.savedSizes = data.before.map(sample => sample.size);
 
-        sample.measurements?.forEach(measurement => {
-          const values = Array(PIECES_COUNT).fill('');
-          measurement.values?.forEach(valueObj => {
-            if (valueObj.pieceNumber <= PIECES_COUNT) {
-              values[valueObj.pieceNumber - 1] = valueObj.actualValue?.toString() || '';
-            }
+        data.before.forEach(sample => {
+          const size = sample.size;
+          newFormData.before.savedMeasurements[size] = {};
+
+          sample.measurements?.forEach(measurement => {
+            const values = Array(PIECES_COUNT).fill('');
+            measurement.values?.forEach(valueObj => {
+              if (valueObj.pieceNumber <= PIECES_COUNT) {
+                values[valueObj.pieceNumber - 1] = valueObj.actualValue?.toString() || '';
+              }
+            });
+
+            newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
           });
-
-          newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
         });
-      });
-    }
+      }
 
-    // Process after data
-    if (data.after && Array.isArray(data.after)) {
-      newFormData.after.savedSizes = data.after.map(sample => sample.size);
+      if (data.after && Array.isArray(data.after)) {
+        newFormData.after.savedSizes = data.after.map(sample => sample.size);
 
-      data.after.forEach(sample => {
-        const size = sample.size;
-        newFormData.after.savedMeasurements[size] = {};
+        data.after.forEach(sample => {
+          const size = sample.size;
+          newFormData.after.savedMeasurements[size] = {};
 
-        sample.measurements?.forEach(measurement => {
-          const values = Array(PIECES_COUNT).fill('');
-          measurement.values?.forEach(valueObj => {
-            if (valueObj.pieceNumber <= PIECES_COUNT) {
-              values[valueObj.pieceNumber - 1] = valueObj.actualValue?.toString() || '';
-            }
+          sample.measurements?.forEach(measurement => {
+            const values = Array(PIECES_COUNT).fill('');
+            measurement.values?.forEach(valueObj => {
+              if (valueObj.pieceNumber <= PIECES_COUNT) {
+                values[valueObj.pieceNumber - 1] = valueObj.actualValue?.toString() || '';
+              }
+            });
+
+            newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
           });
-
-          newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
         });
-      });
-    }
+      }
 
-    setFormData(newFormData);
-    setReadOnly(true);
-  }
-}, [singleData, formStatus.isDirty]);
+      setFormData(newFormData);
+      setReadOnly(true);
+      
+      const firstSize = data.before?.[0]?.size || data.after?.[0]?.size;
+      if (firstSize) {
+        setSelectedSize(firstSize);
+      }
+    }
+  }, [singleData, formStatus.isDirty]);
 
   useEffect(() => {
     if (selectedProduct && selectedSize) {
@@ -284,54 +300,72 @@ useEffect(() => {
     toast.info('Partially saved measurements for this size.');
   };
 
-const handleLoadSize = (size) => {
-  setSelectedSize(size);
-  setShowSizeDropdown(false);
-  const sizeData = formData[ayanCondition].savedMeasurements?.[size] || 
-                  formData[ayanCondition].partialSavedMeasurements?.[size] || {};
-  
-  const initialCheckValues = {};
-  measurements.forEach(m => {
-    initialCheckValues[m.id] = sizeData[m.id] ?? Array(PIECES_COUNT).fill('');
-  });
-  
-  setCheckValues(initialCheckValues);
-};
+  const handleLoadSize = (size) => {
+    setSelectedSize(size);
+    setShowSizeDropdown(false);
+    
+    const measurementData = selectedProduct?.measurements
+      ?.filter(m => m.values?.some(v => v.size === size))
+      ?.map(m => {
+        const valueObj = m.values?.find(v => v.size === size);
+        return {
+          id: m.id,
+          name: m.description || 'Unnamed',
+          standardValue: valueObj?.value ?? '',
+          toleranceMin: m.toleranceMin ?? '0',
+          toleranceMax: m.toleranceMax ?? '0',
+          unit: m.unit ?? ''
+        };
+      }) || [];
 
-const handleReset = () => {
-  if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
-    secureLocalStorage.removeItem(storageKey);
-    setFormData({
-      before: {
-        savedSizes: [],
-        savedMeasurements: {},
-        partialSavedMeasurements: {}
-      },
-      after: {
-        savedSizes: [],
-        savedMeasurements: {},
-        partialSavedMeasurements: {}
-      }
-    });
-    setSelectedSize('');
-    setCheckValues({});
-    setFormStatus({
-      isDirty: false,
-      lastSaved: null,
-      isSubmitting: false
-    });
-    toast.info('Form has been reset');
-  }
-};
+    setMeasurements(measurementData);
 
-const canCompare = () => {
-  const beforeComplete = formData.before.savedSizes.filter(size => 
-    isSizeComplete(size, 'before')).length;
-  const afterComplete = formData.after.savedSizes.filter(size => 
-    isSizeComplete(size, 'after')).length;
-  
-  return beforeComplete >= 2 && afterComplete >= 2;
-};  const handleSaveSize = () => {
+    const sizeData = formData[ayanCondition].savedMeasurements?.[size] || 
+                    formData[ayanCondition].partialSavedMeasurements?.[size] || {};
+    
+    const initialCheckValues = {};
+    measurementData.forEach(m => {
+      initialCheckValues[m.id] = sizeData[m.id] ?? Array(PIECES_COUNT).fill('');
+    });
+    
+    setCheckValues(initialCheckValues);
+  };
+
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
+      secureLocalStorage.removeItem(storageKey);
+      setFormData({
+        before: {
+          savedSizes: [],
+          savedMeasurements: {},
+          partialSavedMeasurements: {}
+        },
+        after: {
+          savedSizes: [],
+          savedMeasurements: {},
+          partialSavedMeasurements: {}
+        }
+      });
+      setSelectedSize('');
+      setCheckValues({});
+      setFormStatus({
+        isDirty: false,
+        lastSaved: null,
+        isSubmitting: false
+      });
+    }
+  };
+
+  const canCompare = () => {
+    const beforeComplete = formData.before.savedSizes.filter(size => 
+      isSizeComplete(size, 'before')).length;
+    const afterComplete = formData.after.savedSizes.filter(size => 
+      isSizeComplete(size, 'after')).length;
+    
+    return beforeComplete >= 2 && afterComplete >= 2;
+  };
+
+  const handleSaveSize = () => {
     if (!selectedSize || readOnly) return;
 
     const isComplete = measurements.every(measurement => {
@@ -366,6 +400,7 @@ const canCompare = () => {
     setFormStatus(prev => ({ ...prev, isDirty: true }));
     toast.success('Size measurements saved successfully!');
   };
+
   const checkTolerance = (measurement, value) => {
     if (!value || isNaN(value)) return '';
     const numericValue = parseFloat(value);
@@ -383,6 +418,7 @@ const canCompare = () => {
     }
     return 'bg-green-100 text-green-800';
   };
+
   const prepareDatabasePayload = () => {
     const prepareConditionData = (condition) => {
       return formData[condition].savedSizes
@@ -418,6 +454,7 @@ const canCompare = () => {
       after: prepareConditionData('after')
     };
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -457,8 +494,8 @@ const canCompare = () => {
       setFormStatus(prev => ({ ...prev, isSubmitting: false }));
     }
   };
+
   const resetForm = () => {
-    if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
       secureLocalStorage.removeItem(storageKey);
       setSelectedReference('');
       setSelectedSize('');
@@ -485,8 +522,7 @@ const canCompare = () => {
       setId('');
       setAyanCondition('before');
       setShowCompare(false);
-      toast.info('Form has been reset');
-    }
+    
   };
 
   const toggleAyanCondition = () => {
@@ -501,16 +537,6 @@ const canCompare = () => {
   };
 
   const handleCompare = () => {
-    const beforeComplete = formData.before.savedSizes.filter(size =>
-      isSizeComplete(size, 'before')).length;
-    const afterComplete = formData.after.savedSizes.filter(size =>
-      isSizeComplete(size, 'after')).length;
-
-    // if (beforeComplete < 2 || afterComplete < 2) {
-    //   toast.error('You need at least 2 complete sizes in both before and after conditions to compare');
-    //   return;
-    // }
-
     setShowCompare(true);
   };
 
@@ -518,8 +544,10 @@ const canCompare = () => {
     if (!showCompare) return null;
 
     const commonSizes = [...new Set([
-      ...formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')),
-      ...formData.after.savedSizes.filter(size => isSizeComplete(size, 'after'))
+      ...formData.before.savedSizes.filter(size => 
+        isSizeComplete(size, 'before')),
+      ...formData.after.savedSizes.filter(size => 
+        isSizeComplete(size, 'after'))
     ])];
 
     if (commonSizes.length === 0) {
@@ -534,14 +562,32 @@ const canCompare = () => {
       <div className="mt-6 border-t pt-4">
         <h3 className="text-lg font-bold mb-4">Before vs After Comparison</h3>
 
-        {/* Size selector */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Select Size to Compare
           </label>
           <select
             value={selectedSize}
-            onChange={(e) => setSelectedSize(e.target.value)}
+            onChange={(e) => {
+              setSelectedSize(e.target.value);
+              const size = e.target.value;
+              if (size) {
+                const measurementData = selectedProduct?.measurements
+                  ?.filter(m => m.values?.some(v => v.size === size))
+                  ?.map(m => {
+                    const valueObj = m.values?.find(v => v.size === size);
+                    return {
+                      id: m.id,
+                      name: m.description || 'Unnamed',
+                      standardValue: valueObj?.value ?? '',
+                      toleranceMin: m.toleranceMin ?? '0',
+                      toleranceMax: m.toleranceMax ?? '0',
+                      unit: m.unit ?? ''
+                    };
+                  }) || [];
+                setMeasurements(measurementData);
+              }
+            }}
             className="w-full md:w-1/4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select a size</option>
@@ -551,7 +597,7 @@ const canCompare = () => {
           </select>
         </div>
 
-        {selectedSize && (
+        {selectedSize && measurements.length > 0 && (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-200">
               <thead className="bg-gray-50">
@@ -576,6 +622,7 @@ const canCompare = () => {
                   ))}
                 </tr>
               </thead>
+              
               <tbody className="divide-y divide-gray-200">
                 {measurements.map(measurement => (
                   <tr key={measurement.id}>
@@ -590,16 +637,18 @@ const canCompare = () => {
                     </td>
                     {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => (
                       <React.Fragment key={index}>
-                        <td className={`px-2 py-2 text-center text-sm ${formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
+                        <td className={`px-2 py-2 text-center text-sm ${
+                          formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
                             checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][index]) :
                             'bg-gray-50'
-                          }`}>
+                        }`}>
                           {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
                         </td>
-                        <td className={`px-2 py-2 text-center text-sm ${formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
+                        <td className={`px-2 py-2 text-center text-sm ${
+                          formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
                             checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][index]) :
                             'bg-gray-50'
-                          }`}>
+                        }`}>
                           {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
                         </td>
                       </React.Fragment>
@@ -637,6 +686,7 @@ const canCompare = () => {
     setNewItem(true);
     setShowCompare(false);
     setAyanCondition('before');
+    setSelectedSize('')
   };
 
   const deleteData = async () => {
@@ -665,6 +715,410 @@ const canCompare = () => {
     setNewItem(false);
     resetForm();
   };
+
+  const renderFormControls = () => (
+    <div className={`grid ${isMobileView ? 'grid-cols-3' : 'grid-cols-1 md:grid-cols-5'} gap-4 mb-4`}>
+      <div>
+        <label className="block text-xs font-medium text-gray-700 mb-1">
+          Order Id <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={selectedReference}
+          onChange={(e) => {
+            setSelectedReference(e.target.value);
+            setSelectedSize('');
+            setFormStatus(prev => ({ ...prev, isDirty: false }));
+          }}
+          className="w-full px-3 py-2 text-xs border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
+          required
+          disabled={readOnly}
+        >
+          <option value="">Select a reference</option>
+          {references.map((ref, index) => (
+            <option key={index} value={ref}>{ref}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-gray-700 mb-1">
+          Inspection Date
+        </label>
+        <input
+          type="date"
+          value={inspectionDate}
+          onChange={(e) => !readOnly && setInspectionDate(e.target.value)}
+          readOnly={readOnly}
+          className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+        />
+      </div>
+
+      <div className="flex items-end">
+        <button
+          type="button"
+          onClick={toggleAyanCondition}
+          disabled={readOnly}
+          className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm flex items-center justify-center
+            ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
+            ${ayanCondition === 'before' ? 'border-blue-500 bg-blue-50' : 'border-purple-500 bg-purple-50'}`}
+        >
+          <span>{ayanCondition === 'before' ? 'Before Ayaning' : 'After Ayaning'}</span>
+          <svg className="h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-gray-700 mb-1">
+          Size <span className="text-red-500">*</span>
+        </label>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => !readOnly && setShowSizeDropdown(!showSizeDropdown)}
+            disabled={!selectedReference || readOnly}
+            className={`w-full px-3 py-2 text-left text-xs border rounded-md shadow-sm flex justify-between items-center 
+              ${!selectedReference || readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
+              ${selectedSize ? 'border-blue-500' : 'border-gray-300'}`}
+          >
+            <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
+              {selectedSize || 'Select size'}
+            </span>
+            <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+          {showSizeDropdown && (
+            <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-xs ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto focus:outline-none">
+              {availableSizes.length > 0 ? (
+                availableSizes.map((size, index) => {
+                  const status = getSizeStatus(size, ayanCondition);
+                  return (
+                    <div
+                      key={index}
+                      className={`px-3 py-1 hover:bg-blue-50 cursor-pointer flex justify-between items-center 
+                        ${status === 'complete' ? 'bg-green-50' : status === 'partial' ? 'bg-yellow-50' : ''}
+                        ${selectedSize === size ? 'bg-blue-50' : ''}`}
+                      onClick={() => handleLoadSize(size)}
+                    >
+                      <span>{size}</span>
+                      <div className="flex items-center">
+                        {status === 'complete' && (
+                          <span className="text-green-500 ml-2">✓</span>
+                        )}
+                        {status === 'partial' && (
+                          <span className="text-yellow-500 ml-2">~</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="px-3 py-1 text-gray-500">No sizes available</div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {!isMobileView && (
+        <div className="flex items-end">
+          <button
+            type="button"
+            onClick={handleCompare}
+            className={`px-3 py-2 rounded-md shadow-sm h-9 text-xs font-medium text-white
+              ${!canCompare() ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+          >
+            Compare
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderMeasurementsTable = () => {
+    if (measurements.length === 0) return null;
+
+    if (isMobileView) {
+      return (
+        <div className="flex-1 overflow-hidden flex flex-col mb-3">
+          <div className="overflow-auto flex-1 pb-4">
+            {measurements.map(measurement => (
+              <div key={measurement.id} className="mb-4 border rounded-lg p-3 bg-white">
+                <div className="flex justify-between items-center mb-2">
+                  <h4 className="text-sm font-medium text-gray-900">
+                    {measurement.name} ({measurement.unit})
+                  </h4>
+                  <div className="text-xs text-gray-500">
+                    Std: {measurement.standardValue} (Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax})
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-5 gap-2">
+                  {checkValues[measurement.id]?.map((value, index) => (
+                    <div key={index} className="flex flex-col">
+                      <label className="text-xs text-gray-500 mb-1">Piece #{index + 1}</label>
+                      <input
+                        type="text"
+                        value={value}
+                        onChange={(e) => {
+                          if (readOnly) return;
+                          let raw = e.target.value;
+                          raw = raw.replace(/[^\d.]/g, '');
+                          const parts = raw.split('.');
+                          if (parts.length > 2) return;
+                          if (parts[1]?.length > 2) return;
+
+                          handleCheckValueChange(measurement.id, index, raw);
+                        }}
+                        onBlur={(e) => {
+                          if (readOnly) return;
+                          let val = e.target.value;
+                          if (/^\d{3}$/.test(val)) {
+                            val = (parseFloat(val) / 10).toFixed(2);
+                          } else {
+                            val = parseFloat(val || 0).toFixed(2);
+                          }
+                          handleCheckValueChange(measurement.id, index, val);
+                        }}
+                        className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
+                          ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+                          ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        readOnly={readOnly}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    } else if (isTabletView) {
+      return (
+        <div className="flex-1 overflow-hidden flex flex-col mb-3">
+          <div className="overflow-auto flex-1 pb-4">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Measurement
+                  </th>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                    <th key={num} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #{num}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {measurements.map(measurement => (
+                  <tr key={measurement.id}>
+                    <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">
+                      <div>{measurement.name}</div>
+                      <div className="text-xs text-gray-500">
+                        Std: {measurement.standardValue}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                      </div>
+                    </td>
+                    {checkValues[measurement.id]?.map((value, index) => (
+                      <td key={index} className="px-1 py-1 whitespace-nowrap">
+                        <input
+                          type="text"
+                          value={value}
+                          onChange={(e) => {
+                            if (readOnly) return;
+                            let raw = e.target.value;
+                            raw = raw.replace(/[^\d.]/g, '');
+                            const parts = raw.split('.');
+                            if (parts.length > 2) return;
+                            if (parts[1]?.length > 2) return;
+
+                            handleCheckValueChange(measurement.id, index, raw);
+                          }}
+                          onBlur={(e) => {
+                            if (readOnly) return;
+                            let val = e.target.value;
+                            if (/^\d{3}$/.test(val)) {
+                              val = (parseFloat(val) / 10).toFixed(2);
+                            } else {
+                              val = parseFloat(val || 0).toFixed(2);
+                            }
+                            handleCheckValueChange(measurement.id, index, val);
+                          }}
+                          className={`w-full px-1 py-1 text-xs border rounded-sm text-center 
+                            ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+                            ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                          readOnly={readOnly}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex-1 overflow-hidden flex flex-col mb-3">
+          <div className="overflow-auto flex-1 pb-4">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Measurement
+                  </th>
+                  <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Std Value
+                  </th>
+                  <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tolerance
+                  </th>
+                  <th colSpan={PIECES_COUNT} className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Pieces (1-{PIECES_COUNT})
+                  </th>
+                </tr>
+                <tr>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                    <th key={num} className="px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #{num}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {measurements.map(measurement => (
+                  <tr key={measurement.id}>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {measurement.name} ({measurement.unit})
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                      {measurement.standardValue}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                      -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                    </td>
+                    {checkValues[measurement.id]?.map((value, index) => (
+                      <td key={index} className="px-2 py-2 whitespace-nowrap">
+                        <input
+                          type="text"
+                          value={value}
+                          onChange={(e) => {
+                            if (readOnly) return;
+                            let raw = e.target.value;
+                            raw = raw.replace(/[^\d.]/g, '');
+                            const parts = raw.split('.');
+                            if (parts.length > 2) return;
+                            if (parts[1]?.length > 2) return;
+
+                            handleCheckValueChange(measurement.id, index, raw);
+                          }}
+                          onBlur={(e) => {
+                            if (readOnly) return;
+                            let val = e.target.value;
+                            if (/^\d{3}$/.test(val)) {
+                              val = (parseFloat(val) / 10).toFixed(2);
+                            } else {
+                              val = parseFloat(val || 0).toFixed(2);
+                            }
+                            handleCheckValueChange(measurement.id, index, val);
+                          }}
+                          className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
+                            ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+                            ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                          readOnly={readOnly}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  const renderActionButtons = () => (
+    <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-gray-200">
+      {!readOnly && (
+        <>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="px-3 py-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Reset
+          </button>
+
+          {measurements.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePartialSave}
+                disabled={!selectedSize}
+                className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
+                  ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'}`}
+              >
+                Partial Save
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveSize}
+                disabled={!selectedSize}
+                className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
+                  ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                Save Size
+              </button>
+            </>
+          )}
+
+          {isMobileView && (
+            <button
+              type="button"
+              onClick={handleCompare}
+              className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
+                ${!canCompare() ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+            >
+              Compare
+            </button>
+          )}
+        </>
+      )}
+
+      {!readOnly && (
+        <button
+          type="submit"
+          disabled={
+            formStatus.isSubmitting ||
+            (
+              formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')).length === 0 &&
+              formData.after.savedSizes.filter(size => isSizeComplete(size, 'after')).length === 0
+            )
+          }
+          className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
+            ${formStatus.isSubmitting ||
+              (
+                formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')).length === 0 &&
+                formData.after.savedSizes.filter(size => isSizeComplete(size, 'after')).length === 0
+              )
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-green-600 hover:bg-green-700'
+            }`}
+        >
+          {formStatus.isSubmitting ? 'Submitting...' : 'Submit All'}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -722,122 +1176,8 @@ const canCompare = () => {
 
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Order Id <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={selectedReference}
-                        onChange={(e) => {
-                          setSelectedReference(e.target.value);
-                          setSelectedSize('');
-                          setFormStatus(prev => ({ ...prev, isDirty: false }));
-                        }}
-                        className="w-full px-3 py-2 text-xs border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
-                        required
-                        disabled={readOnly}
-                      >
-                        <option value="">Select a reference</option>
-                        {references.map((ref, index) => (
-                          <option key={index} value={ref}>{ref}</option>
-                        ))}
-                      </select>
-                    </div>
+                  {renderFormControls()}
 
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Inspection Date
-                      </label>
-                      <input
-                        type="date"
-                        value={inspectionDate}
-                        onChange={(e) => !readOnly && setInspectionDate(e.target.value)}
-                        readOnly={readOnly}
-                        className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                      />
-                    </div>
-
-                    <div className="flex items-end">
-                      <button
-                        type="button"
-                        onClick={toggleAyanCondition}
-                        disabled={readOnly}
-                        className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm flex items-center justify-center
-                          ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
-                          ${ayanCondition === 'before' ? 'border-blue-500 bg-blue-50' : 'border-purple-500 bg-purple-50'}`}
-                      >
-                        <span>{ayanCondition === 'before' ? 'Before Ayaning' : 'After Ayaning'}</span>
-                        <svg className="h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Size <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => !readOnly && setShowSizeDropdown(!showSizeDropdown)}
-                          disabled={!selectedReference || readOnly}
-                          className={`w-full px-3 py-2 text-left text-xs border rounded-md shadow-sm flex justify-between items-center 
-                            ${!selectedReference || readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
-                            ${selectedSize ? 'border-blue-500' : 'border-gray-300'}`}
-                        >
-                          <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
-                            {selectedSize || 'Select size'}
-                          </span>
-                          <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                        {showSizeDropdown && (
-                          <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-xs ring-1 ring-black ring-opacity-5 max-h-60 overflow-auto focus:outline-none">
-                            {availableSizes.length > 0 ? (
-                              availableSizes.map((size, index) => {
-                                const status = getSizeStatus(size, ayanCondition);
-                                return (
-                                  <div
-                                    key={index}
-                                    className={`px-3 py-1 hover:bg-blue-50 cursor-pointer flex justify-between items-center 
-                                      ${status === 'complete' ? 'bg-green-50' : status === 'partial' ? 'bg-yellow-50' : ''}
-                                      ${selectedSize === size ? 'bg-blue-50' : ''}`}
-                                    onClick={() => handleLoadSize(size)}
-                                  >
-                                    <span>{size}</span>
-                                    <div className="flex items-center">
-                                      {status === 'complete' && (
-                                        <span className="text-green-500 ml-2">✓</span>
-                                      )}
-                                      {status === 'partial' && (
-                                        <span className="text-yellow-500 ml-2">~</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })
-                            ) : (
-                              <div className="px-3 py-1 text-gray-500">No sizes available</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                         <button
-                          type="button"
-                          onClick={handleCompare}
-                          // disabled={!canCompare()}
-                          className={`px-3 py-2 rounded-md shadow-sm h-9 mt-5 text-xs font-medium text-white
-                            ${!canCompare() ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
-                        >
-                          Compare
-                        </button>
-                  </div>
-
-                  {/* Saved sizes indicators */}
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-4">
                       <div className="flex-1">
@@ -891,162 +1231,11 @@ const canCompare = () => {
                     </div>
                   </div>
 
-                  {/* Measurements table */}
-                  {measurements.length > 0 && (
-                    <div className="flex-1 overflow-hidden flex flex-col mb-3">
-                      <div className="overflow-auto flex-1 pb-4">
-                        <table className="min-w-full bg-white border border-gray-200">
-                          <thead className="bg-gray-50 sticky top-0">
-                            <tr>
-                              <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Measurement
-                              </th>
-                              <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Std Value
-                              </th>
-                              <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tolerance
-                              </th>
-                              <th colSpan={PIECES_COUNT} className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Pieces (1-{PIECES_COUNT})
-                              </th>
-                            </tr>
-                            <tr>
-                              {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                                <th key={num} className="px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  #{num}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-200">
-                            {measurements.map(measurement => (
-                              <tr key={measurement.id}>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                  {measurement.name} ({measurement.unit})
-                                </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {measurement.standardValue}
-                                </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                                </td>
-                                {checkValues[measurement.id]?.map((value, index) => (
-                                  <td key={index} className="px-2 py-2 whitespace-nowrap">
-                                    <input
-                                      type="text"
-                                      value={value}
-                                      onChange={(e) => {
-                                        if (readOnly) return;
-                                        let raw = e.target.value;
-                                        raw = raw.replace(/[^\d.]/g, '');
-                                        const parts = raw.split('.');
-                                        if (parts.length > 2) return;
-                                        if (parts[1]?.length > 2) return;
+                  {renderMeasurementsTable()}
 
-                                        handleCheckValueChange(measurement.id, index, raw);
-                                      }}
-                                      onBlur={(e) => {
-                                        if (readOnly) return;
-                                        let val = e.target.value;
-                                        if (/^\d{3}$/.test(val)) {
-                                          val = (parseFloat(val) / 10).toFixed(2);
-                                        } else {
-                                          val = parseFloat(val || 0).toFixed(2);
-                                        }
-                                        handleCheckValueChange(measurement.id, index, val);
-                                      }}
-                                      className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-                                        ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-                                        ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                                      readOnly={readOnly}
-                                    />
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Comparison section */}
                   {renderCompareTable()}
 
-                  {/* Form actions */}
-                  <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-gray-200">
-                    {!readOnly && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={handleReset}
-                          className="px-3 py-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50"
-                        >
-                          Reset
-                        </button>
-
-                        {measurements.length > 0 && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={handlePartialSave}
-                              disabled={!selectedSize}
-                              className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                                ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'}`}
-                            >
-                              Partial Save
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={handleSaveSize}
-                              disabled={!selectedSize}
-                              className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                                ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-                            >
-                              Save Size
-                            </button>
-                          </>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={handleCompare}
-                          // disabled={!canCompare()}
-                          className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                            ${!canCompare() ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
-                        >
-                          Compare
-                        </button>
-                      </>
-                    )}
-
-                    {!readOnly && (
-                      <button
-                        type="submit"
-                        disabled={
-                          formStatus.isSubmitting ||
-                          (
-                            formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')).length === 0 &&
-                            formData.after.savedSizes.filter(size => isSizeComplete(size, 'after')).length === 0
-                          )
-                        }
-                        className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-      ${formStatus.isSubmitting ||
-                            (
-                              formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')).length === 0 &&
-                              formData.after.savedSizes.filter(size => isSizeComplete(size, 'after')).length === 0
-                            )
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-green-600 hover:bg-green-700'
-                          }`}
-                      >
-                        {formStatus.isSubmitting ? 'Submitting...' : 'Submit All'}
-                      </button>
-                    )}
-
-                  </div>
+                  {renderActionButtons()}
                 </form>
               </div>
             </div>
