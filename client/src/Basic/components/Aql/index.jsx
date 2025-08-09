@@ -130,72 +130,75 @@ const Aql = () => {
     }
   }, [formData, selectedReference, formStatus.isDirty]);
 
-  useEffect(() => {
-    if (singleData?.data && !formStatus.isDirty) {
-      const data = singleData.data;
-      setSelectedReference(data.reference || '');
+useEffect(() => {
+  if (singleData?.data && !formStatus.isDirty) {
+    const data = singleData.data;
+    setSelectedReference(data.reference || '');
+    setId(data.id || '');
 
-      if (data.inspectionDate) {
-        setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
-      }
-
-      const newFormData = {
-        before: {
-          savedSizes: [],
-          savedMeasurements: {},
-          partialSavedMeasurements: {}
-        },
-        after: {
-          savedSizes: [],
-          savedMeasurements: {},
-          partialSavedMeasurements: {}
-        }
-      };
-
-      if (data.before) {
-        newFormData.before.savedSizes = data.before.samples?.map(sample => sample.size) || [];
-
-        data.before.samples?.forEach(sample => {
-          const size = sample.size;
-          newFormData.before.savedMeasurements[size] = {};
-
-          sample.measurements?.forEach(measurement => {
-            const values = Array(PIECES_COUNT).fill('');
-            measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
-              if (valueObj.pieceNumber <= PIECES_COUNT) {
-                values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
-              }
-            });
-
-            newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
-          });
-        });
-      }
-
-      if (data.after) {
-        newFormData.after.savedSizes = data.after.samples?.map(sample => sample.size) || [];
-
-        data.after.samples?.forEach(sample => {
-          const size = sample.size;
-          newFormData.after.savedMeasurements[size] = {};
-
-          sample.measurements?.forEach(measurement => {
-            const values = Array(PIECES_COUNT).fill('');
-            measurement.values?.slice(0, PIECES_COUNT).forEach(valueObj => {
-              if (valueObj.pieceNumber <= PIECES_COUNT) {
-                values[valueObj.pieceNumber - 1] = valueObj.actualValue.toString();
-              }
-            });
-
-            newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
-          });
-        });
-      }
-
-      setFormData(newFormData);
-      setReadOnly(true);
+    if (data.inspectionDate) {
+      setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
     }
-  }, [singleData, formStatus.isDirty]);
+
+    const newFormData = {
+      before: {
+        savedSizes: [],
+        savedMeasurements: {},
+        partialSavedMeasurements: {}
+      },
+      after: {
+        savedSizes: [],
+        savedMeasurements: {},
+        partialSavedMeasurements: {}
+      }
+    };
+
+    // Process before data
+    if (data.before && Array.isArray(data.before)) {
+      newFormData.before.savedSizes = data.before.map(sample => sample.size);
+
+      data.before.forEach(sample => {
+        const size = sample.size;
+        newFormData.before.savedMeasurements[size] = {};
+
+        sample.measurements?.forEach(measurement => {
+          const values = Array(PIECES_COUNT).fill('');
+          measurement.values?.forEach(valueObj => {
+            if (valueObj.pieceNumber <= PIECES_COUNT) {
+              values[valueObj.pieceNumber - 1] = valueObj.actualValue?.toString() || '';
+            }
+          });
+
+          newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
+        });
+      });
+    }
+
+    // Process after data
+    if (data.after && Array.isArray(data.after)) {
+      newFormData.after.savedSizes = data.after.map(sample => sample.size);
+
+      data.after.forEach(sample => {
+        const size = sample.size;
+        newFormData.after.savedMeasurements[size] = {};
+
+        sample.measurements?.forEach(measurement => {
+          const values = Array(PIECES_COUNT).fill('');
+          measurement.values?.forEach(valueObj => {
+            if (valueObj.pieceNumber <= PIECES_COUNT) {
+              values[valueObj.pieceNumber - 1] = valueObj.actualValue?.toString() || '';
+            }
+          });
+
+          newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
+        });
+      });
+    }
+
+    setFormData(newFormData);
+    setReadOnly(true);
+  }
+}, [singleData, formStatus.isDirty]);
 
   useEffect(() => {
     if (selectedProduct && selectedSize) {
@@ -719,7 +722,7 @@ const canCompare = () => {
 
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Order Id <span className="text-red-500">*</span>
@@ -823,6 +826,15 @@ const canCompare = () => {
                         )}
                       </div>
                     </div>
+                         <button
+                          type="button"
+                          onClick={handleCompare}
+                          // disabled={!canCompare()}
+                          className={`px-3 py-2 rounded-md shadow-sm h-9 mt-5 text-xs font-medium text-white
+                            ${!canCompare() ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+                        >
+                          Compare
+                        </button>
                   </div>
 
                   {/* Saved sizes indicators */}
