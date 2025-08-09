@@ -848,31 +848,35 @@ model Allocation {
   reference      String
   allocationDate DateTime?
 }
-
 model AqlInspection {
-  id             Int           @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   companyId      String
   reference      String
   inspectionDate DateTime
-  ayanCondition  AyanCondition @default(BEFORE)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  samples        Sample[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
+  // Explicitly named relations
+  beforeSamples  Sample[] @relation("BeforeSamples")
+  afterSamples   Sample[] @relation("AfterSamples")
 
   @@index([companyId])
   @@index([reference])
 }
 
 model Sample {
-  id              Int                 @id @default(autoincrement())
-  aqlInspectionId Int
-  inspection      AqlInspection       @relation(fields: [aqlInspectionId], references: [id], onDelete: Cascade)
-  size            String
-  measurements    SampleMeasurement[]
-  createdAt       DateTime            @default(now())
+  id                      Int            @id @default(autoincrement())
 
-  @@index([aqlInspectionId])
+  beforeAqlInspectionId   Int?
+  afterAqlInspectionId    Int?
+
+  beforeInspection        AqlInspection? @relation("BeforeSamples", fields: [beforeAqlInspectionId], references: [id], onDelete: Cascade)
+  afterInspection         AqlInspection? @relation("AfterSamples", fields: [afterAqlInspectionId], references: [id], onDelete: Cascade)
+
+  size                    String
+  measurements            SampleMeasurement[]
+  condition               AyanCondition @default(BEFORE)
+  createdAt               DateTime      @default(now())
 }
 
 model SampleMeasurement {

@@ -115,12 +115,33 @@ const transformInspectionData = (inspection) => {
     companyId: inspection.companyId,
     reference: inspection.reference,
     inspectionDate: inspection.inspectionDate,
-    ayanCondition: inspection.ayanCondition,
     createdAt: inspection.createdAt,
     updatedAt: inspection.updatedAt,
-    samples: inspection.samples?.map((sample) => ({
+    before: inspection.beforeSamples?.map((sample) => ({
       id: sample.id,
       size: sample.size,
+      condition: sample.condition,
+      measurements: sample.measurements?.map((measurement) => ({
+        id: measurement.id,
+        measurementId: measurement.measurementId,
+        measurementName: measurement.measurement?.description,
+        standardValue: measurement.standardValue,
+        toleranceMin: measurement.toleranceMin,
+        toleranceMax: measurement.toleranceMax,
+        unit: measurement.unit,
+        values: measurement.values?.map((value) => ({
+          id: value.id,
+          pieceNumber: value.pieceNumber,
+          actualValue: value.actualValue,
+          status: value.status,
+          createdAt: value.createdAt,
+        })),
+      })),
+    })),
+    after: inspection.afterSamples?.map((sample) => ({
+      id: sample.id,
+      size: sample.size,
+      condition: sample.condition,
       measurements: sample.measurements?.map((measurement) => ({
         id: measurement.id,
         measurementId: measurement.measurementId,
@@ -146,26 +167,43 @@ export const createAqlInspection = async (req, res) => {
     if (!req.body.ayanCondition) {
       req.body.ayanCondition = "BEFORE";
     }
-    console.log(req.body.ayanCondition, "req.body.ayanCondition");
     req.body.ayanCondition = req.body.ayanCondition.toUpperCase();
 
     validateInspectionPayload(req.body);
 
-    // const existingInspection = await prisma.aqlInspection.findUnique({
-    //   where: {
-    //     reference_ayanCondition: {
-    //       reference: req.body.reference,
-    //       ayanCondition: req.body.ayanCondition,
-    //     },
-    //   },
-    // });
+    // Check if inspection with this reference exists
+    let inspection = await prisma.aqlInspection.findUnique({
+      where: {
+        reference: req.body.reference,
+      },
+      include: {
+        beforeSamples: true,
+        afterSamples: true,
+      },
+    });
 
-    // if (existingInspection) {
-    //   throw new AqlInspectionError(
-    //     `Inspection already exists for reference ${req.body.reference} and condition ${req.body.ayanCondition}`,
-    //     409
-    //   );
-    // }
+    // If inspection doesn't exist, create it
+    if (!inspection) {
+      inspection = await prisma.aqlInspection.create({
+        data: {
+          companyId: req.body.companyId,
+          reference: req.body.reference,
+          inspectionDate: new Date(req.body.inspectionDate),
+        },
+      });
+    }
+
+    // Check if samples for this condition already exist
+    const existingSamples = req.body.ayanCondition === "BEFORE" 
+      ? inspection.beforeSamples 
+      : inspection.afterSamples;
+
+    if (existingSamples.length > 0) {
+      throw new AqlInspectionError(
+        `${req.body.ayanCondition} samples already exist for reference ${req.body.reference}`,
+        409
+      );
+    }
 
     req.body.samples.forEach((sample, sampleIndex) => {
       validateSample(sample, sampleIndex);
@@ -178,54 +216,55 @@ export const createAqlInspection = async (req, res) => {
     });
 
     const result = await prisma.$transaction(async (tx) => {
-      const inspection = await tx.aqlInspection.create({
-        data: {
-          companyId: req.body.companyId,
-          reference: req.body.reference,
-          inspectionDate: new Date(req.body.inspectionDate),
-          ayanCondition: req.body.ayanCondition,
-        },
-      });
-
-      await Promise.all(
-        req.body.samples.map(async (sample) => {
-          const createdSample = await tx.sample.create({
-            data: {
-              aqlInspectionId: inspection.id,
-              size: sample.size,
-            },
-          });
-
-          await Promise.all(
-            sample.measurements.map(async (measurement) => {
-              const createdMeasurement = await tx.sampleMeasurement.create({
-                data: {
-                  sampleId: createdSample.id,
-                  measurementId: measurement.measurementId,
-                  standardValue: parseFloat(measurement.standardValue),
-                  toleranceMin: parseFloat(measurement.toleranceMin || "0"),
-                  toleranceMax: parseFloat(measurement.toleranceMax || "0"),
-                  unit: measurement.unit || "",
-                },
-              });
-
-              await tx.sampleValue.createMany({
-                data: measurement.values.map((value) => ({
-                  sampleMeasurementId: createdMeasurement.id,
+      const sampleData = {
+        size: req.body.samples[0].size, // Assuming one sample per condition for simplicity
+        condition: req.body.ayanCondition,
+        ...(req.body.ayanCondition === "BEFORE" 
+          ? { beforeAqlInspectionId: inspection.id }
+          : { afterAqlInspectionId: inspection.id }),
+        measurements: {
+          create: req.body.samples.flatMap(sample => 
+            sample.measurements.map(measurement => ({
+              measurementId: measurement.measurementId,
+              standardValue: parseFloat(measurement.standardValue),
+              toleranceMin: parseFloat(measurement.toleranceMin || "0"),
+              toleranceMax: parseFloat(measurement.toleranceMax || "0"),
+              unit: measurement.unit || "",
+              values: {
+                create: measurement.values.map(value => ({
                   pieceNumber: value.pieceNumber || 0,
                   actualValue: parseFloat(value.actualValue),
                   status: value.status || "within_tolerance",
                 })),
-              });
-            })
-          );
-        })
-      );
+              },
+            }))
+          ),
+        },
+      };
+
+      await tx.sample.create({
+        data: sampleData,
+      });
 
       return tx.aqlInspection.findUnique({
         where: { id: inspection.id },
         include: {
-          samples: {
+          beforeSamples: {
+            include: {
+              measurements: {
+                include: {
+                  values: true,
+                  measurement: {
+                    select: {
+                      id: true,
+                      description: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          afterSamples: {
             include: {
               measurements: {
                 include: {
@@ -276,17 +315,30 @@ export const createAqlInspection = async (req, res) => {
 export const getAqlInspectionById = async (req, res) => {
   try {
     const { id } = req.params;
-    const reference = id;
 
-    if (!reference) {
-      throw new AqlInspectionError("Reference is required", 400);
+    if (!id) {
+      throw new AqlInspectionError("Inspection ID is required", 400);
     }
 
-    // Get all inspections for this reference
-    const inspections = await prisma.aqlInspection.findMany({
-      where: { reference },
+    const inspection = await prisma.aqlInspection.findUnique({
+      where: { id: parseInt(id) },
       include: {
-        samples: {
+        beforeSamples: {
+          include: {
+            measurements: {
+              include: {
+                values: true,
+                measurement: {
+                  select: {
+                    id: true,
+                    description: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        afterSamples: {
           include: {
             measurements: {
               include: {
@@ -304,48 +356,19 @@ export const getAqlInspectionById = async (req, res) => {
       },
     });
 
-    if (inspections.length === 0) {
+    if (!inspection) {
       throw new AqlInspectionError(
-        `No inspections found for reference ${reference}`,
+        `No inspection found with ID ${id}`,
         404
       );
     }
 
-    // Separate BEFORE and AFTER inspections
-    const beforeInspection = inspections.find(
-      (item) => item.ayanCondition === "BEFORE"
-    );
-    const afterInspection = inspections.find(
-      (item) => item.ayanCondition === "AFTER"
-    );
-
-    // Compare logic
-    const comparison = {
-      reference,
-      before: beforeInspection ? transformInspectionData(beforeInspection) : null,
-      after: afterInspection ? transformInspectionData(afterInspection) : null,
-      differences: [],
-    };
-
-    if (beforeInspection && afterInspection) {
-      if (
-        beforeInspection.inspectionDate.getTime() !==
-        afterInspection.inspectionDate.getTime()
-      ) {
-        comparison.differences.push({
-          field: "inspectionDate",
-          before: beforeInspection.inspectionDate,
-          after: afterInspection.inspectionDate,
-        });
-      }
-    }
-
     return res.status(200).json({
       success: true,
-      data: comparison,
+      data: transformInspectionData(inspection),
     });
   } catch (error) {
-    console.error("Compare AQL Inspections Error:", error);
+    console.error("Get AQL Inspection Error:", error);
     const statusCode =
       error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
@@ -361,21 +384,33 @@ export const getAqlInspectionById = async (req, res) => {
   }
 };
 
-
-
 export const getAqlInspectionsByReference = async (req, res) => {
   try {
     const { reference } = req.params;
-    console.log("all aql reefence");
 
     if (!reference) {
       throw new AqlInspectionError("Reference is required", 400);
     }
 
-    const inspections = await prisma.aqlInspection.findMany({
+    const inspection = await prisma.aqlInspection.findFirst({
       where: { reference },
       include: {
-        samples: {
+        beforeSamples: {
+          include: {
+            measurements: {
+              include: {
+                values: true,
+                measurement: {
+                  select: {
+                    id: true,
+                    description: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        afterSamples: {
           include: {
             measurements: {
               include: {
@@ -391,35 +426,18 @@ export const getAqlInspectionsByReference = async (req, res) => {
           },
         },
       },
-      orderBy: {
-        ayanCondition: "asc",
-      },
     });
 
-    if (!inspections || inspections.length === 0) {
+    if (!inspection) {
       throw new AqlInspectionError(
-        `No inspections found for reference ${reference}`,
+        `No inspection found for reference ${reference}`,
         404
       );
     }
 
-    const result = {
-      reference,
-      beforeAyaning: inspections.find((i) => i.ayanCondition === "BEFORE")
-        ? transformInspectionData(
-            inspections.find((i) => i.ayanCondition === "BEFORE")
-          )
-        : null,
-      afterAyaning: inspections.find((i) => i.ayanCondition === "AFTER")
-        ? transformInspectionData(
-            inspections.find((i) => i.ayanCondition === "AFTER")
-          )
-        : null,
-    };
-
     return res.status(200).json({
       success: true,
-      data: result,
+      data: transformInspectionData(inspection),
     });
   } catch (error) {
     console.error("Get AQL Inspections by Reference Error:", error);
@@ -446,16 +464,38 @@ export const getAllReferences = async (req, res) => {
         reference: true,
         inspectionDate: true,
         createdAt: true,
-        ayanCondition: true
+        updatedAt: true,
+        beforeSamples: {
+          select: {
+            condition: true,
+          },
+          take: 1,
+        },
+        afterSamples: {
+          select: {
+            condition: true,
+          },
+          take: 1,
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
+    const formattedReferences = references.map(ref => ({
+      id: ref.id,
+      reference: ref.reference,
+      inspectionDate: ref.inspectionDate,
+      createdAt: ref.createdAt,
+      updatedAt: ref.updatedAt,
+      hasBefore: ref.beforeSamples.length > 0,
+      hasAfter: ref.afterSamples.length > 0,
+    }));
+
     return res.status(200).json({
       success: true,
-      data: references,
+      data: formattedReferences,
     });
   } catch (error) {
     console.error("Get All References Error:", error);
@@ -498,11 +538,15 @@ export const updateAqlInspection = async (req, res) => {
     });
 
     const result = await prisma.$transaction(async (tx) => {
+      // First delete all related data for the condition we're updating
+      const condition = req.body.ayanCondition.toUpperCase();
+      const relationField = condition === "BEFORE" ? "beforeSamples" : "afterSamples";
+
       await tx.sampleValue.deleteMany({
         where: {
           measurement: {
             sample: {
-              aqlInspectionId: parseInt(id),
+              [condition === "BEFORE" ? "beforeAqlInspectionId" : "afterAqlInspectionId"]: parseInt(id),
             },
           },
         },
@@ -511,64 +555,75 @@ export const updateAqlInspection = async (req, res) => {
       await tx.sampleMeasurement.deleteMany({
         where: {
           sample: {
-            aqlInspectionId: parseInt(id),
+            [condition === "BEFORE" ? "beforeAqlInspectionId" : "afterAqlInspectionId"]: parseInt(id),
           },
         },
       });
 
       await tx.sample.deleteMany({
         where: {
-          aqlInspectionId: parseInt(id),
+          [condition === "BEFORE" ? "beforeAqlInspectionId" : "afterAqlInspectionId"]: parseInt(id),
         },
       });
 
+      // Update the inspection details
       const updatedInspection = await tx.aqlInspection.update({
         where: { id: parseInt(id) },
         data: {
           reference: req.body.reference,
           inspectionDate: new Date(req.body.inspectionDate),
-          ayanCondition: req.body.ayanCondition,
           updatedAt: new Date(),
         },
       });
-      await Promise.all(
-        req.body.samples.map(async (sample) => {
-          const createdSample = await tx.sample.create({
-            data: {
-              aqlInspectionId: updatedInspection.id,
-              size: sample.size,
-            },
-          });
 
-          await Promise.all(
-            sample.measurements.map(async (measurement) => {
-              const createdMeasurement = await tx.sampleMeasurement.create({
-                data: {
-                  sampleId: createdSample.id,
-                  measurementId: measurement.measurementId,
-                  standardValue: parseFloat(measurement.standardValue),
-                  toleranceMin: parseFloat(measurement.toleranceMin || "0"),
-                  toleranceMax: parseFloat(measurement.toleranceMax || "0"),
-                  unit: measurement.unit || "",
-                },
-              });
-
-              await tx.sampleValue.createMany({
-                data: measurement.values.map((value) => ({
-                  sampleMeasurementId: createdMeasurement.id,
+      // Create new samples for the condition
+      const sampleData = {
+        size: req.body.samples[0].size,
+        condition,
+        [condition === "BEFORE" ? "beforeAqlInspectionId" : "afterAqlInspectionId"]: updatedInspection.id,
+        measurements: {
+          create: req.body.samples.flatMap(sample => 
+            sample.measurements.map(measurement => ({
+              measurementId: measurement.measurementId,
+              standardValue: parseFloat(measurement.standardValue),
+              toleranceMin: parseFloat(measurement.toleranceMin || "0"),
+              toleranceMax: parseFloat(measurement.toleranceMax || "0"),
+              unit: measurement.unit || "",
+              values: {
+                create: measurement.values.map(value => ({
                   pieceNumber: value.pieceNumber || 0,
                   actualValue: parseFloat(value.actualValue),
                   status: value.status || "within_tolerance",
                 })),
-              });
-            })
-          );
-        })
-      );
+              },
+            }))
+          ),
+        },
+      };
+
+      await tx.sample.create({
+        data: sampleData,
+      });
+
       return tx.aqlInspection.findUnique({
         where: { id: updatedInspection.id },
         include: {
-          samples: {
+          beforeSamples: {
+            include: {
+              measurements: {
+                include: {
+                  values: true,
+                  measurement: {
+                    select: {
+                      id: true,
+                      description: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          afterSamples: {
             include: {
               measurements: {
                 include: {
@@ -631,8 +686,45 @@ export const deleteAqlInspection = async (req, res) => {
     if (!inspection) {
       throw new AqlInspectionError(`Inspection with ID ${id} not found`, 404);
     }
-    await prisma.aqlInspection.delete({
-      where: { id: inspectionId },
+
+    await prisma.$transaction(async (tx) => {
+      // Delete all related data
+      await tx.sampleValue.deleteMany({
+        where: {
+          measurement: {
+            sample: {
+              OR: [
+                { beforeAqlInspectionId: inspectionId },
+                { afterAqlInspectionId: inspectionId },
+              ],
+            },
+          },
+        },
+      });
+
+      await tx.sampleMeasurement.deleteMany({
+        where: {
+          sample: {
+            OR: [
+              { beforeAqlInspectionId: inspectionId },
+              { afterAqlInspectionId: inspectionId },
+            ],
+          },
+        },
+      });
+
+      await tx.sample.deleteMany({
+        where: {
+          OR: [
+            { beforeAqlInspectionId: inspectionId },
+            { afterAqlInspectionId: inspectionId },
+          ],
+        },
+      });
+
+      await tx.aqlInspection.delete({
+        where: { id: inspectionId },
+      });
     });
 
     return res.status(200).json({
