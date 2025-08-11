@@ -21,12 +21,12 @@ const Aql = () => {
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
- const companyId = secureLocalStorage.getItem(
+  const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
-  const userId =  secureLocalStorage.getItem(
-          sessionStorage.getItem("sessionId") + "userId"
-      )
+  const userId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userId"
+  )
   const [formData, setFormData] = useState({
     before: {
       savedSizes: [],
@@ -72,13 +72,13 @@ const Aql = () => {
   const [addAqlInspection] = useAddAqlInspectionMutation();
   const [updateAqlInspection] = useUpdateAqlInspectionMutation();
   const [removeData] = useDeleteAqlInspectionMutation();
-    const {
-      data: lines = [],
-      isLoading: linesLoading,
-      error: linesError,
-    } = useGetLineMasterQuery({ params: { companyId } });
+  const {
+    data: lines = [],
+    isLoading: linesLoading,
+    error: linesError,
+  } = useGetLineMasterQuery({ params: { companyId } });
   const PIECES_COUNT = 5;
- 
+
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
 
   const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
@@ -162,7 +162,10 @@ const Aql = () => {
       if (data.inspectionDate) {
         setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
       }
-
+if(data?.lineMasterId){
+  setSelectedLine(data?.lineMasterId)
+}
+console.log(selectedLine,"selectedLine")
       const newFormData = {
         before: {
           savedSizes: [],
@@ -439,7 +442,7 @@ const Aql = () => {
     }
     return 'bg-green-100 text-green-800';
   };
-  console.log(selectedLine,"selectedLine")
+  console.log(selectedLine, "selectedLine")
 
   const prepareDatabasePayload = () => {
     const prepareConditionData = (condition) => {
@@ -671,14 +674,14 @@ const Aql = () => {
                     {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => (
                       <React.Fragment key={index}>
                         <td className={`px-1 py-2 text-center text-sm ${formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
-                            checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][index]) :
-                            'bg-blue-50'
+                          checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][index]) :
+                          'bg-blue-50'
                           }`}>
                           {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
                         </td>
                         <td className={`px-1 py-2 text-center text-sm ${formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
-                            checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][index]) :
-                            'bg-purple-50'
+                          checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][index]) :
+                          'bg-purple-50'
                           }`}>
                           {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
                         </td>
@@ -713,8 +716,8 @@ const Aql = () => {
                         Piece #{pieceNum}
                       </div>
                       <div className={`text-center py-1 rounded ${formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] ?
-                          checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) :
-                          'bg-blue-50'
+                        checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) :
+                        'bg-blue-50'
                         }`}>
                         <div className="text-xs text-gray-500">Before</div>
                         <div className="font-medium">
@@ -722,8 +725,8 @@ const Aql = () => {
                         </div>
                       </div>
                       <div className={`text-center py-1 rounded ${formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] ?
-                          checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) :
-                          'bg-purple-50'
+                        checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) :
+                        'bg-purple-50'
                         }`}>
                         <div className="text-xs text-gray-500">After</div>
                         <div className="font-medium">
@@ -846,24 +849,24 @@ const Aql = () => {
           </svg>
         </button>
       </div>
-           <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1">
-        Line <span className="text-red-500">*</span>
-      </label>
-      <select
-        value={selectedLine}
-        onChange={(e) => setSelectedLine(e.target.value)}
-        disabled={readOnly || linesLoading}
-        className="mt-0.5 block w-full pl-2.5 pr-7 py-2 text-xs border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="">Select a line</option>
-        {lines?.data?.map((line) => (
-          <option key={line.id} value={line.id}>
-            {line.lineName}
-          </option>
-        ))}
-      </select>
-    </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">
+          Line <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={selectedLine}
+          onChange={(e) => setSelectedLine(e.target.value)}
+          disabled={readOnly || linesLoading}
+          className="mt-0.5 block w-full pl-2.5 pr-7 py-2 text-xs border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Select a line</option>
+          {lines?.data?.map((line) => (
+            <option key={line.id} value={line.id}>
+              {line.lineName}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className='flex gap-2'>
         <div className='w-1/3'>
           <label className="block text-xs font-medium  text-gray-700 mb-1">
@@ -928,7 +931,7 @@ const Aql = () => {
           </button>
         </div>
       </div>
-        
+
 
     </div>
   );
@@ -1102,11 +1105,12 @@ const Aql = () => {
                     {checkValues[measurement.id]?.map((value, index) => (
                       <td key={index} className="px-2 py-2 whitespace-nowrap">
                         <input
-                          type="text"
+                          type="text" // changed from "number"
                           value={value}
                           onChange={(e) => {
                             if (readOnly) return;
                             let raw = e.target.value;
+                            // Allow only digits and optional decimal
                             raw = raw.replace(/[^\d.]/g, '');
                             const parts = raw.split('.');
                             if (parts.length > 2) return;
@@ -1125,10 +1129,11 @@ const Aql = () => {
                             handleCheckValueChange(measurement.id, index, val);
                           }}
                           className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-                            ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-                            ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+    ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+    ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                           readOnly={readOnly}
                         />
+
                       </td>
                     ))}
                   </tr>

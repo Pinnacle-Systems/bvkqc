@@ -106,6 +106,8 @@ const transformInspectionData = (inspection) => {
     reference: inspection.reference,
     inspectionDate: inspection.inspectionDate,
     createdAt: inspection.createdAt,
+    lineMasterId:inspection.lineMasterId,
+    userId: inspection.userId,
     updatedAt: inspection.updatedAt,
     before: inspection.beforeSamples?.map(transformSample),
     after: inspection.afterSamples?.map(transformSample),
@@ -190,8 +192,8 @@ export const createAqlInspection = async (req, res) => {
         companyId: req.body.companyId,
         reference: req.body.reference,
         inspectionDate: new Date(req.body.inspectionDate),
-        lineMasterId : req.body.lineMasterId,
-        employeeId : req.body.userId
+        lineMasterId : parseInt(req.body.lineMasterId), 
+        // employeeId : parseInt( req.body.userId)
       },
     });
 
@@ -260,7 +262,7 @@ export const createAqlInspection = async (req, res) => {
 export const getAqlInspectionById = async (req, res) => {
   try {
     const { id } = req.params;
-
+   console.log(id,"id call")
     if (!id) {
       throw new AqlInspectionError("Inspection ID is required", 400);
     }
