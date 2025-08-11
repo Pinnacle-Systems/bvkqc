@@ -190,6 +190,8 @@ export const createAqlInspection = async (req, res) => {
         companyId: req.body.companyId,
         reference: req.body.reference,
         inspectionDate: new Date(req.body.inspectionDate),
+        lineMasterId : req.body.lineMasterId,
+        employeeId : req.body.userId
       },
     });
 

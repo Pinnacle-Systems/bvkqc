@@ -6,6 +6,8 @@ import Mastertable from '../MasterTable/MaterTable1.jsx';
 import { toast } from 'react-toastify';
 import Modal from '../../../UiComponents/Modal/index.js';
 import LineDeatils from './LineDetails.jsx';
+import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
+
 
 const Aql = () => {
   const [selectedReference, setSelectedReference] = useState('');
@@ -15,11 +17,16 @@ const Aql = () => {
   const [newItem, setNewItem] = useState(false);
   const [ayanCondition, setAyanCondition] = useState('before');
   const [showCompare, setShowCompare] = useState(false);
-
+  const [selectedLine, setSelectedLine] = useState("");
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
-
+ const companyId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "userCompanyId"
+  );
+  const userId =  secureLocalStorage.getItem(
+          sessionStorage.getItem("sessionId") + "userId"
+      )
   const [formData, setFormData] = useState({
     before: {
       savedSizes: [],
@@ -65,10 +72,13 @@ const Aql = () => {
   const [addAqlInspection] = useAddAqlInspectionMutation();
   const [updateAqlInspection] = useUpdateAqlInspectionMutation();
   const [removeData] = useDeleteAqlInspectionMutation();
+    const {
+      data: lines = [],
+      isLoading: linesLoading,
+      error: linesError,
+    } = useGetLineMasterQuery({ params: { companyId } });
   const PIECES_COUNT = 5;
-  const companyId = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "userCompanyId"
-  );
+ 
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
 
   const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
@@ -429,6 +439,7 @@ const Aql = () => {
     }
     return 'bg-green-100 text-green-800';
   };
+  console.log(selectedLine,"selectedLine")
 
   const prepareDatabasePayload = () => {
     const prepareConditionData = (condition) => {
@@ -459,6 +470,8 @@ const Aql = () => {
 
     return {
       companyId: companyId.toString(),
+      userId: userId,
+      lineMasterId: selectedLine,
       reference: selectedReference,
       inspectionDate: new Date(inspectionDate),
       before: prepareConditionData('before'),
@@ -833,6 +846,24 @@ const Aql = () => {
           </svg>
         </button>
       </div>
+           <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">
+        Line <span className="text-red-500">*</span>
+      </label>
+      <select
+        value={selectedLine}
+        onChange={(e) => setSelectedLine(e.target.value)}
+        disabled={readOnly || linesLoading}
+        className="mt-0.5 block w-full pl-2.5 pr-7 py-2 text-xs border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option value="">Select a line</option>
+        {lines?.data?.map((line) => (
+          <option key={line.id} value={line.id}>
+            {line.lineName}
+          </option>
+        ))}
+      </select>
+    </div>
       <div className='flex gap-2'>
         <div className='w-1/3'>
           <label className="block text-xs font-medium  text-gray-700 mb-1">
@@ -848,7 +879,7 @@ const Aql = () => {
               ${selectedSize ? 'border-blue-500' : 'border-gray-300'}`}
             >
               <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
-                {selectedSize || 'Select size'}
+                {selectedSize || ' size'}
               </span>
               <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -897,7 +928,8 @@ const Aql = () => {
           </button>
         </div>
       </div>
-      
+        
+
     </div>
   );
 
