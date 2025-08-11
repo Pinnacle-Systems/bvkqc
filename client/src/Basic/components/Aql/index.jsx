@@ -38,6 +38,7 @@ const Aql = () => {
       partialSavedMeasurements: {}
     }
   });
+   const [color, setColor] = useState("#ff0000");
 
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
@@ -866,6 +867,7 @@ console.log(selectedLine,"selectedLine")
           ))}
         </select>
       </div>
+      
       <div className='flex gap-2'>
         <div className='w-1/3'>
           <label className="block text-xs font-medium  text-gray-700 mb-1">

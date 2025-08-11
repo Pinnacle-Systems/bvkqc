@@ -234,14 +234,14 @@ const Mastertable = ({
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Reference
+                          Order Id
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Party
                         </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                           {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                        Ironing
-                        </th>
+                        </th> */}
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Line
                         </th>
@@ -273,9 +273,9 @@ const Mastertable = ({
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {dataObj?.allocationDetails?.[0]?.partyName || 'N/A'}
                             </td>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {/* <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                               {dataObj.ayanCondition || 'N/A'}
-                            </td>
+                            </td> */}
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {/* {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
                                */}
