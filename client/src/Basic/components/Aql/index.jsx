@@ -5,7 +5,6 @@ import { useAddAqlInspectionMutation, useGetAqlInspectionsQuery, useGetAqlInspec
 import Mastertable from '../MasterTable/MaterTable1.jsx';
 import { toast } from 'react-toastify';
 import Modal from '../../../UiComponents/Modal/index.js';
-import LineDeatils from './LineDetails.jsx';
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
 
 
@@ -1228,7 +1227,6 @@ console.log(selectedLine,"selectedLine")
         widthClass={`${"w-[50%] h-[70%]"}`}
         onClose={() => setIsDetailView(false)}
       >
-        <LineDeatils />
       </Modal>
 
       {newItem === false ? (
