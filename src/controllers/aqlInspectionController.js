@@ -405,41 +405,59 @@ export const getAqlInspectionsByReference = async (req, res) => {
 
 export const getAllReferences = async (req, res) => {
   try {
-    const references = await prisma.aqlInspection.findMany({
+ const references = await prisma.aqlInspection.findMany({
+  select: {
+    id: true,
+    reference: true,
+    inspectionDate: true,
+    createdAt: true,
+    updatedAt: true,
+    beforeSamples: {
+      select: {
+        condition: true,
+        size: true, // ✅ size from Sample model
+      },
+      take: 1,
+    },
+    afterSamples: {
+      select: {
+        condition: true,
+        size: true, // ✅ size from Sample model
+      },
+      take: 1,
+    },
+    LineMaster: {
       select: {
         id: true,
-        reference: true,
-        inspectionDate: true,
-        createdAt: true,
-        updatedAt: true,
-        beforeSamples: {
-          select: {
-            condition: true,
-          },
-          take: 1,
-        },
-        afterSamples: {
-          select: {
-            condition: true,
-          },
-          take: 1,
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+        lineName: true,
+        lineNo: true,
+        sewingMachineQty: true,
+        helperQty: true
+      }
+    }
+  },
+  orderBy: {
+    createdAt: "desc",
+  },
+});
 
-    const formattedReferences = references.map(ref => ({
-      id: ref.id,
-      reference: ref.reference,
-      inspectionDate: ref.inspectionDate,
-      createdAt: ref.createdAt,
-      updatedAt: ref.updatedAt,
-      hasBefore: ref.beforeSamples.length > 0,
-      hasAfter: ref.afterSamples.length > 0,
-    }));
+const formattedReferences = references.map(ref => ({
+  id: ref.id,
+  reference: ref.reference,
+  inspectionDate: ref.inspectionDate,
+  createdAt: ref.createdAt,
+  updatedAt: ref.updatedAt,
+  hasBefore: ref.beforeSamples.length > 0,
+  hasAfter: ref.afterSamples.length > 0,
+  beforeSize: ref.beforeSamples[0]?.size || null, 
+  afterSize: ref.afterSamples[0]?.size || null,  
+  lineDetails: ref.LineMaster ? {
+    name: ref.LineMaster.lineName,
+  } : null
+}));
 
+
+    
     return res.status(200).json({
       success: true,
       data: formattedReferences,
@@ -463,7 +481,6 @@ export const getAllReferences = async (req, res) => {
     return res.status(statusCode).json(errorResponse);
   }
 };
-
 export const updateAqlInspection = async (req, res) => {
   try {
     const { id } = req.params;

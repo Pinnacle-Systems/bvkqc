@@ -12,23 +12,17 @@ const ACTIVE = (
 );
 
 const Mastertable = ({
-  tableHeaders,
-  tableDataNames,
-  setId,
   data,
   loading,
   searchValue,
   setSearchValue,
-  rowActions = true,
   header,
-  setForm,
   onDataClick,
   setReadOnly,
   deleteData,
   setDeleteId,
   onApprove,
-  onReject ,
-  setIsDetailView
+  onReject,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -53,6 +47,30 @@ const Mastertable = ({
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const renderSizeStatus = (hasBefore, hasAfter, beforeSize, afterSize) => {
+    if (!hasBefore && !hasAfter) {
+      return (
+        <div className="text-xs text-gray-500 italic">No size data</div>
+      );
+    }
+
+    return (
+      <div className="flex items-center space-x-2">
+        {hasBefore && (
+          <div className={`px-2 py-1 rounded text-xs ${hasAfter ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+            Before: {beforeSize}
+          </div>
+        )}
+        {hasAfter && (
+          <div className={`px-2 py-1 rounded text-xs ${hasBefore ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+            After: {afterSize}
+          </div>
+        )}
+      
+      </div>
+    );
   };
 
   return (
@@ -155,9 +173,19 @@ const Mastertable = ({
                           <div>
                             <p className="text-gray-500 font-medium">Line</p>
                             <p>
-                              {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
+                              {dataObj?.lineDetails?.name || 'N/A'}
                             </p>
                           </div>
+                        </div>
+                        
+                        <div className="mt-3">
+                          <p className="text-gray-500 font-medium text-xs">Size Status</p>
+                          {renderSizeStatus(
+                            dataObj.hasBefore,
+                            dataObj.hasAfter,
+                            dataObj.beforeSize,
+                            dataObj.afterSize
+                          )}
                         </div>
                       </div>
                       
@@ -239,13 +267,12 @@ const Mastertable = ({
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Party
                         </th>
-                           {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Ironing
-                        </th> */}
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Line
                         </th>
-                      
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Size Status
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Inspection Date
                         </th>
@@ -273,26 +300,16 @@ const Mastertable = ({
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {dataObj?.allocationDetails?.[0]?.partyName || 'N/A'}
                             </td>
-                            {/* <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {dataObj.ayanCondition || 'N/A'}
-                            </td> */}
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
-                              {/* {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
-                               */}
-                               <button onClick={ (e)  =>  {
-                                 e.stopPropagation();
-                                setIsDetailView(true)
-                               } } >
-                                 <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="20"
-                                      height="20"
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
-                                      <path d="M10 3C5.5 3 2 10 2 10s3.5 7 8 7 8-7 8-7-3.5-7-8-7zm0 12c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z" />
-                                    </svg>
-                               </button>
+                              {dataObj?.lineDetails?.name || 'N/A'}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap">
+                              {renderSizeStatus(
+                                dataObj.hasBefore,
+                                dataObj.hasAfter,
+                                dataObj.beforeSize,
+                                dataObj.afterSize
+                              )}
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {formatDate(dataObj.inspectionDate)}
@@ -362,7 +379,7 @@ const Mastertable = ({
                           </tr>
                           {expandedRow === dataObj.id && (
                             <tr className="bg-gray-50">
-                              <td colSpan="7" className="px-6 py-2">
+                              <td colSpan="8" className="px-6 py-2">
                                 <div className="grid grid-cols-3 gap-4 text-sm">
                                   <div>
                                     <p className="text-gray-500 font-medium">Allocation Date</p>

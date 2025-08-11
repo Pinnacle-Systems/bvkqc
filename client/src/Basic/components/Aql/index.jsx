@@ -38,7 +38,7 @@ const Aql = () => {
       partialSavedMeasurements: {}
     }
   });
-   const [color, setColor] = useState("#ff0000");
+  const [color, setColor] = useState("#ff0000");
 
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
@@ -51,6 +51,7 @@ const Aql = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [isTabletView, setIsTabletView] = useState(window.innerWidth >= 768 && window.innerWidth < 1024);
+  console.log(readOnly, "readOnly")
 
   useEffect(() => {
     const handleResize = () => {
@@ -162,10 +163,10 @@ const Aql = () => {
       if (data.inspectionDate) {
         setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
       }
-if(data?.lineMasterId){
-  setSelectedLine(data?.lineMasterId)
-}
-console.log(selectedLine,"selectedLine")
+      if (data?.lineMasterId) {
+        setSelectedLine(data?.lineMasterId)
+      }
+      console.log(selectedLine, "selectedLine")
       const newFormData = {
         before: {
           savedSizes: [],
@@ -230,7 +231,6 @@ console.log(selectedLine,"selectedLine")
       }
 
       setFormData(newFormData);
-      setReadOnly(true);
 
       // Set the first available size for comparison
       const firstSize = data.before?.[0]?.size || data.after?.[0]?.size;
@@ -764,10 +764,11 @@ console.log(selectedLine,"selectedLine")
 
   const onDataClick = (id) => {
     setId(id);
+    setReadOnly(true);
     setNewItem(true);
     setShowCompare(false);
     setAyanCondition('before');
-    setSelectedSize('')
+    setSelectedSize('');
   };
 
   const deleteData = async () => {
@@ -867,7 +868,7 @@ console.log(selectedLine,"selectedLine")
           ))}
         </select>
       </div>
-      
+
       <div className='flex gap-2'>
         <div className='w-1/3'>
           <label className="block text-xs font-medium  text-gray-700 mb-1">
@@ -1024,38 +1025,42 @@ console.log(selectedLine,"selectedLine")
                         Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}
                       </div>
                     </td>
-                    {checkValues[measurement.id]?.map((value, index) => (
-                      <td key={index} className="px-1 py-1 whitespace-nowrap">
-                        <input
-                          type="text"
-                          value={value}
-                          onChange={(e) => {
-                            if (readOnly) return;
-                            let raw = e.target.value;
-                            raw = raw.replace(/[^\d.]/g, '');
-                            const parts = raw.split('.');
-                            if (parts.length > 2) return;
-                            if (parts[1]?.length > 2) return;
-
-                            handleCheckValueChange(measurement.id, index, raw);
-                          }}
-                          onBlur={(e) => {
-                            if (readOnly) return;
-                            let val = e.target.value;
-                            if (/^\d{3}$/.test(val)) {
-                              val = (parseFloat(val) / 10).toFixed(2);
-                            } else {
-                              val = parseFloat(val || 0).toFixed(2);
-                            }
-                            handleCheckValueChange(measurement.id, index, val);
-                          }}
-                          className={`w-full px-1 py-1 text-xs border rounded-sm text-center 
-                            ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-                            ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                          readOnly={readOnly}
-                        />
-                      </td>
-                    ))}
+                 {checkValues[measurement.id]?.map((value, index) => (
+  <td key={index} className="px-2 py-2 whitespace-nowrap">
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => {
+        if (readOnly) return;
+        let rawValue = e.target.value;
+        rawValue = rawValue.replace(/[^0-9.]/g, '');
+        const parts = rawValue.split('.');
+        if (parts.length > 2) {
+          rawValue = parts[0] + '.' + parts.slice(1).join('');
+        }
+        if (parts[1] && parts[1].length > 2) {
+          rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        
+        handleCheckValueChange(measurement.id, index, rawValue);
+      }}
+      onBlur={(e) => {
+        if (readOnly) return;
+        let val = e.target.value;
+        if (val === '') {
+          handleCheckValueChange(measurement.id, index, '');
+          return;
+        }
+        val = parseFloat(val).toFixed(2);
+        handleCheckValueChange(measurement.id, index, val);
+      }}
+      className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
+        ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+        ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+      readOnly={readOnly}
+    />
+  </td>
+))}
                   </tr>
                 ))}
               </tbody>
@@ -1103,40 +1108,50 @@ console.log(selectedLine,"selectedLine")
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                       -{measurement.toleranceMin}/+{measurement.toleranceMax}
                     </td>
-                    {checkValues[measurement.id]?.map((value, index) => (
-                      <td key={index} className="px-2 py-2 whitespace-nowrap">
-                        <input
-                          type="text" // changed from "number"
-                          value={value}
-                          onChange={(e) => {
-                            if (readOnly) return;
-                            let raw = e.target.value;
-                            // Allow only digits and optional decimal
-                            raw = raw.replace(/[^\d.]/g, '');
-                            const parts = raw.split('.');
-                            if (parts.length > 2) return;
-                            if (parts[1]?.length > 2) return;
-
-                            handleCheckValueChange(measurement.id, index, raw);
-                          }}
-                          onBlur={(e) => {
-                            if (readOnly) return;
-                            let val = e.target.value;
-                            if (/^\d{3}$/.test(val)) {
-                              val = (parseFloat(val) / 10).toFixed(2);
-                            } else {
-                              val = parseFloat(val || 0).toFixed(2);
-                            }
-                            handleCheckValueChange(measurement.id, index, val);
-                          }}
-                          className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-    ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-    ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                          readOnly={readOnly}
-                        />
-
-                      </td>
-                    ))}
+                 {checkValues[measurement.id]?.map((value, index) => (
+  <td key={index} className="px-2 py-2 whitespace-nowrap">
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => {
+        if (readOnly) return;
+        
+        // Allow only numbers and decimal point
+        let rawValue = e.target.value;
+        rawValue = rawValue.replace(/[^0-9.]/g, '');
+        
+        // Ensure only one decimal point
+        const parts = rawValue.split('.');
+        if (parts.length > 2) {
+          rawValue = parts[0] + '.' + parts.slice(1).join('');
+        }
+        
+        // Limit to 2 decimal places
+        if (parts[1] && parts[1].length > 2) {
+          rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        
+        handleCheckValueChange(measurement.id, index, rawValue);
+      }}
+      onBlur={(e) => {
+        if (readOnly) return;
+        let val = e.target.value;
+        if (val === '') {
+          handleCheckValueChange(measurement.id, index, '');
+          return;
+        }
+        
+        // Format to 2 decimal places
+        val = parseFloat(val).toFixed(2);
+        handleCheckValueChange(measurement.id, index, val);
+      }}
+      className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
+        ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+        ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+      readOnly={readOnly}
+    />
+  </td>
+))}
                   </tr>
                 ))}
               </tbody>
@@ -1207,7 +1222,7 @@ console.log(selectedLine,"selectedLine")
             )
           }
           className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-            ${formStatus.isSubmitting ||
+      ${formStatus.isSubmitting ||
               (
                 formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')).length === 0 &&
                 formData.after.savedSizes.filter(size => isSizeComplete(size, 'after')).length === 0
@@ -1216,7 +1231,11 @@ console.log(selectedLine,"selectedLine")
               : 'bg-green-600 hover:bg-green-700'
             }`}
         >
-          {formStatus.isSubmitting ? 'Submitting...' : 'Submit All'}
+          {formStatus.isSubmitting
+            ? 'Submitting...'
+            : id
+              ? 'Update'
+              : 'Submit All'}
         </button>
       )}
     </div>
