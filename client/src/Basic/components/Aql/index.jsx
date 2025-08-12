@@ -62,8 +62,7 @@ const Aql = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const { data: aqlData } = useGetAqlInspectionsQuery();
+const { data: aqlData, refetch: refetchAqlData } = useGetAqlInspectionsQuery();
   const { data: sizeData } = useGetSizeTableMasterQuery(
     { productReference: selectedReference },
     { skip: !selectedReference }
@@ -426,7 +425,7 @@ const Aql = () => {
   };
 
   const checkTolerance = (measurement, value) => {
-    if (!value || isNaN(value)) return '';
+    if (!value || isNaN(value) || value === '') return '';
     const numericValue = parseFloat(value);
     const standardValue = parseFloat(measurement.standardValue);
     const toleranceMin = parseFloat(measurement.toleranceMin);
@@ -444,13 +443,33 @@ const Aql = () => {
   };
   console.log(selectedLine, "selectedLine")
 
-  const prepareDatabasePayload = () => {
-    const prepareConditionData = (condition) => {
-      return formData[condition].savedSizes
-        .filter(size => isSizeComplete(size, condition))
-        .map(size => ({
+const prepareDatabasePayload = () => {
+  // Helper to get measurements for a specific size
+  const getMeasurementsForSize = (size) => {
+    return selectedProduct?.measurements
+      ?.filter(m => m.values?.some(v => v.size === size))
+      ?.map(m => {
+        const valueObj = m.values?.find(v => v.size === size);
+        return {
+          id: m.id,
+          name: m.description || 'Unnamed',
+          standardValue: valueObj?.value ?? '',
+          toleranceMin: m.toleranceMin ?? '0',
+          toleranceMax: m.toleranceMax ?? '0',
+          unit: m.unit ?? ''
+        };
+      }) || [];
+  };
+
+  const prepareConditionData = (condition) => {
+    return formData[condition].savedSizes
+      .filter(size => isSizeComplete(size, condition))
+      .map(size => {
+        const sizeMeasurements = getMeasurementsForSize(size);
+        
+        return {
           size: size,
-          measurements: measurements.map(measurement => ({
+          measurements: sizeMeasurements.map(measurement => ({
             measurementId: measurement.id,
             measurementName: measurement.name,
             standardValue: measurement.standardValue.toString(),
@@ -462,26 +481,28 @@ const Aql = () => {
               .map((value, index) => ({
                 pieceNumber: index + 1,
                 actualValue: value.toString(),
-                status: value ?
-                  checkTolerance(measurement, value).includes('red') ?
-                    'out_of_tolerance' : 'within_tolerance' :
-                  'not_measured'
+                status: value 
+                  ? checkTolerance(measurement, value).includes('red') 
+                    ? 'out_of_tolerance' 
+                    : 'within_tolerance'
+                  : 'not_measured'
               }))
           }))
-        }));
-    };
-
-    return {
-      companyId: companyId.toString(),
-      userId: userId,
-      lineMasterId: selectedLine,
-      reference: selectedReference,
-      inspectionDate: new Date(inspectionDate),
-      before: prepareConditionData('before'),
-      after: prepareConditionData('after')
-    };
+        };
+      });
   };
 
+  // Return the complete payload object
+  return {
+    reference: selectedReference,
+    inspectionDate: inspectionDate,
+    before: prepareConditionData('before'),
+    after: prepareConditionData('after'),
+    companyId:parseInt(companyId) ,
+    userId: userId,
+    lineMasterId: selectedLine
+  };
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -507,13 +528,13 @@ const Aql = () => {
         response = await addAqlInspection(payload).unwrap();
       }
 
-      if (response.success) {
-        toast.success('AQL Form submitted successfully!');
-        secureLocalStorage.removeItem(storageKey);
-        resetForm();
-      } else {
-        throw new Error(response.message || 'Submission failed');
-      }
+      // if (response.success) {
+      //   toast.success('AQL Form submitted successfully!');
+      //   secureLocalStorage.removeItem(storageKey);
+      //   resetForm();
+      // } else {
+      //   throw new Error(response.message || 'Submission failed');
+      // }
     } catch (error) {
       console.error('Submission error:', error);
       toast.error(`Failed to submit AQL form: ${error.message}`);
@@ -567,182 +588,244 @@ const Aql = () => {
     setShowCompare(true);
   };
 
-  const renderCompareTable = () => {
-    if (!showCompare) return null;
+ const renderCompareTable = () => {
+  if (!showCompare) return null;
 
-    const commonSizes = [...new Set([
-      ...formData.before.savedSizes.filter(size =>
-        isSizeComplete(size, 'before')),
-      ...formData.after.savedSizes.filter(size =>
-        isSizeComplete(size, 'after'))
-    ])];
+  const commonSizes = [...new Set([
+    ...formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')),
+    ...formData.after.savedSizes.filter(size => isSizeComplete(size, 'after'))
+  ])];
 
-    if (commonSizes.length === 0) {
-      return (
-        <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded text-sm">
-          No common sizes with complete data to compare
-        </div>
-      );
-    }
-
+  if (commonSizes.length === 0) {
     return (
-      <div className="mt-6 border-t pt-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold">Before vs After Comparison</h3>
-          <div className="w-full md:w-1/3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Size
-            </label>
-            <select
-              value={selectedSize}
-              onChange={(e) => {
-                setSelectedSize(e.target.value);
-                const size = e.target.value;
-                if (size) {
-                  const measurementData = selectedProduct?.measurements
-                    ?.filter(m => m.values?.some(v => v.size === size))
-                    ?.map(m => {
-                      const valueObj = m.values?.find(v => v.size === size);
-                      return {
-                        id: m.id,
-                        name: m.description || 'Unnamed',
-                        standardValue: valueObj?.value ?? '',
-                        toleranceMin: m.toleranceMin ?? '0',
-                        toleranceMax: m.toleranceMax ?? '0',
-                        unit: m.unit ?? ''
-                      };
-                    }) || [];
-                  setMeasurements(measurementData);
-                }
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-            >
-              <option value="">Select a size</option>
-              {commonSizes.map(size => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
-          </div>
+      <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded text-sm">
+        No common sizes with complete data to compare
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6 border-t pt-4">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-bold">Before vs After Comparison</h3>
+        <div className="w-full md:w-1/3">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Select Size
+          </label>
+          <select
+            value={selectedSize}
+            onChange={(e) => {
+              setSelectedSize(e.target.value);
+              const size = e.target.value;
+              if (size) {
+                const measurementData = selectedProduct?.measurements
+                  ?.filter(m => m.values?.some(v => v.size === size))
+                  ?.map(m => {
+                    const valueObj = m.values?.find(v => v.size === size);
+                    return {
+                      id: m.id,
+                      name: m.description || 'Unnamed',
+                      standardValue: valueObj?.value ?? '',
+                      toleranceMin: m.toleranceMin ?? '0',
+                      toleranceMax: m.toleranceMax ?? '0',
+                      unit: m.unit ?? ''
+                    };
+                  }) || [];
+                setMeasurements(measurementData);
+              }
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+          >
+            <option value="">Select a size</option>
+            {commonSizes.map(size => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
         </div>
+      </div>
 
-        {selectedSize && measurements.length > 0 && (
-          <div className="overflow-x-auto">
-            {/* Tablet-optimized table */}
-            <table className="min-w-full bg-white border border-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">
-                    Measurement
-                  </th>
-                  <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Standard
-                  </th>
-                  <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tolerance
-                  </th>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                    <React.Fragment key={num}>
-                      <th className="px-1 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-blue-50">
-                        #{num} Before
-                      </th>
-                      <th className="px-1 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-purple-50">
-                        #{num} After
-                      </th>
-                    </React.Fragment>
-                  ))}
-                </tr>
-              </thead>
+      {selectedSize && measurements.length > 0 && (
+        <>
+          {/* Mobile-optimized card view */}
+          {isMobileView && (
+            <div className="space-y-3">
+              {measurements.map(measurement => (
+                <div key={measurement.id} className="border rounded-lg bg-white shadow">
+                  <div className="bg-gray-50 px-3 py-2 border-b">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium text-sm">
+                        {measurement.name} ({measurement.unit})
+                      </h4>
+                      <div className="text-xs text-gray-500">
+                        Std: {measurement.standardValue}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Tolerance: -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                    </div>
+                  </div>
 
-              <tbody className="divide-y divide-gray-200">
-                {measurements.map(measurement => (
-                  <tr key={measurement.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white z-10">
-                      <div className="font-medium">{measurement.name}</div>
-                      <div className="text-xs text-gray-500">{measurement.unit}</div>
-                    </td>
-                    <td className="px-2 py-2 whitespace-nowrap text-center text-sm text-gray-500">
-                      {measurement.standardValue}
-                    </td>
-                    <td className="px-2 py-2 whitespace-nowrap text-center text-sm text-gray-500">
-                      <div className="text-xs">
-                        -{measurement.toleranceMin}
+                  <div className="p-2 grid grid-cols-2 gap-2">
+                    {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => {
+                      const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
+                      const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
+                      
+                      return (
+                        <div key={pieceNum} className="border rounded p-2">
+                          <div className="text-xs font-medium text-gray-700 mb-1">Piece #{pieceNum}</div>
+                          
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className={`text-center p-1 rounded ${
+                              beforeValue !== '-' 
+                                ? checkTolerance(measurement, beforeValue) 
+                                : 'bg-blue-50'
+                            }`}>
+                              <div className="text-xs font-medium text-blue-600">Before</div>
+                              <div className="text-sm font-medium">{beforeValue}</div>
+                            </div>
+                            
+                            <div className={`text-center p-1 rounded ${
+                              afterValue !== '-' 
+                                ? checkTolerance(measurement, afterValue) 
+                                : 'bg-purple-50'
+                            }`}>
+                              <div className="text-xs font-medium text-purple-600">After</div>
+                              <div className="text-sm font-medium">{afterValue}</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Tablet-optimized view */}
+          {isTabletView && !isMobileView && (
+            <div className="mt-4 space-y-4">
+              {measurements.map(measurement => (
+                <div key={measurement.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                  <div className="bg-gray-50 px-3 py-2 border-b">
+                    <h4 className="font-medium text-sm">
+                      {measurement.name} ({measurement.unit})
+                    </h4>
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Std: {measurement.standardValue}</span>
+                      <span>Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}</span>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-gray-100">
+                    {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => (
+                      <div key={pieceNum} className="grid grid-cols-3 gap-1 px-3 py-2">
+                        <div className="text-xs font-medium text-gray-500 self-center">
+                          Piece #{pieceNum}
+                        </div>
+                        <div className={`text-center py-1 rounded ${
+                          formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] 
+                            ? checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) 
+                            : 'bg-blue-50'
+                        }`}>
+                          <div className="text-xs text-gray-500">Before</div>
+                          <div className="font-medium">
+                            {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                          </div>
+                        </div>
+                        <div className={`text-center py-1 rounded ${
+                          formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] 
+                            ? checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) 
+                            : 'bg-purple-50'
+                        }`}>
+                          <div className="text-xs text-gray-500">After</div>
+                          <div className="font-medium">
+                            {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs">
-                        +{measurement.toleranceMax}
-                      </div>
-                    </td>
-                    {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => (
-                      <React.Fragment key={index}>
-                        <td className={`px-1 py-2 text-center text-sm ${formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
-                          checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][index]) :
-                          'bg-blue-50'
-                          }`}>
-                          {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
-                        </td>
-                        <td className={`px-1 py-2 text-center text-sm ${formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] ?
-                          checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][index]) :
-                          'bg-purple-50'
-                          }`}>
-                          {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
-                        </td>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Desktop view */}
+          {!isMobileView && !isTabletView && (
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white border border-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">
+                      Measurement
+                    </th>
+                    <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Standard
+                    </th>
+                    <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tolerance
+                    </th>
+                    {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                      <React.Fragment key={num}>
+                        <th className="px-1 py-2 text-center text-xs font-medium text-white uppercase tracking-wider bg-blue-600">
+                          #{num} Before
+                        </th>
+                        <th className="px-1 py-2 text-center text-xs font-medium text-white uppercase tracking-wider bg-purple-600">
+                          #{num} After
+                        </th>
                       </React.Fragment>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
 
-        {/* Alternative card view for smaller tablets */}
-        {selectedSize && measurements.length > 0 && isTabletView && (
-          <div className="mt-4 space-y-4 md:hidden">
-            {measurements.map(measurement => (
-              <div key={measurement.id} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-                <div className="bg-gray-50 px-3 py-2 border-b">
-                  <h4 className="font-medium text-sm">
-                    {measurement.name} ({measurement.unit})
-                  </h4>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>Std: {measurement.standardValue}</span>
-                    <span>Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}</span>
-                  </div>
-                </div>
-
-                <div className="divide-y divide-gray-100">
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => (
-                    <div key={pieceNum} className="grid grid-cols-3 gap-1 px-3 py-2">
-                      <div className="text-xs font-medium text-gray-500 self-center">
-                        Piece #{pieceNum}
-                      </div>
-                      <div className={`text-center py-1 rounded ${formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] ?
-                        checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) :
-                        'bg-blue-50'
-                        }`}>
-                        <div className="text-xs text-gray-500">Before</div>
-                        <div className="font-medium">
-                          {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                <tbody className="divide-y divide-gray-200">
+                  {measurements.map(measurement => (
+                    <tr key={measurement.id} className="hover:bg-gray-50">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white z-10">
+                        <div className="font-medium">{measurement.name}</div>
+                        <div className="text-xs text-gray-500">{measurement.unit}</div>
+                      </td>
+                      <td className="px-2 py-2 whitespace-nowrap text-center text-sm text-gray-500">
+                        {measurement.standardValue}
+                      </td>
+                      <td className="px-2 py-2 whitespace-nowrap text-center text-sm text-gray-500">
+                        <div className="text-xs">
+                          -{measurement.toleranceMin}
                         </div>
-                      </div>
-                      <div className={`text-center py-1 rounded ${formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] ?
-                        checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][pieceNum - 1]) :
-                        'bg-purple-50'
-                        }`}>
-                        <div className="text-xs text-gray-500">After</div>
-                        <div className="font-medium">
-                          {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                        <div className="text-xs">
+                          +{measurement.toleranceMax}
                         </div>
-                      </div>
-                    </div>
+                      </td>
+                      {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => (
+                        <React.Fragment key={index}>
+                          <td className={`px-1 py-2 text-center text-sm ${
+                            formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] 
+                              ? checkTolerance(measurement, formData.before.savedMeasurements[selectedSize][measurement.id][index]) 
+                              : 'bg-blue-50'
+                          }`}>
+                            {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
+                          </td>
+                          <td className={`px-1 py-2 text-center text-sm ${
+                            formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] 
+                              ? checkTolerance(measurement, formData.after.savedMeasurements[selectedSize][measurement.id][index]) 
+                              : 'bg-purple-50'
+                          }`}>
+                            {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-'}
+                          </td>
+                        </React.Fragment>
+                      ))}
+                    </tr>
                   ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
 
   const tableHeaders = [
     "ID",
@@ -762,32 +845,34 @@ const Aql = () => {
     "dataObj?.allocationDetails?.[0]?.deliveryDate ? new Date(dataObj.allocationDetails[0.deliveryDate).toLocaleDateString() : 'N/A'",
   ];
 
-  const onDataClick = (id) => {
-    setId(id);
-    setReadOnly(true);
-    setNewItem(true);
-    setShowCompare(false);
-    setAyanCondition('before');
-    setSelectedSize('');
-  };
-
-  const deleteData = async () => {
-    if (deleteId) {
-      if (!window.confirm("Are you sure to delete this inspection?")) {
-        return;
-      }
-      try {
-        await removeData(deleteId);
-        setId("");
-        toast.success("Deleted Successfully");
-        setDeleteId(null);
-        setNewItem(false);
-      } catch (error) {
-        toast.error("Something went wrong");
-      }
+const onDataClick = (id) => {
+  setId(id);
+  setReadOnly(true);
+  setNewItem(true);
+  setShowCompare(false);
+  setAyanCondition('before');
+  setSelectedSize('');
+  // Add this to ensure clean state before loading
+  setFormStatus(prev => ({ ...prev, isDirty: false }));
+};
+const deleteData = async () => {
+  if (deleteId) {
+    if (!window.confirm("Are you sure to delete this inspection?")) {
+      return;
     }
-  };
-
+    try {
+      await removeData(deleteId).unwrap(); // Make sure to unwrap the promise
+      setId("");
+      toast.success("Deleted Successfully");
+      setDeleteId(null);
+      setNewItem(false);
+      // Trigger a refetch of the AQL data
+      refetchAqlData();
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  }
+};
   const handleCancel = () => {
     if (formStatus.isDirty) {
       if (!window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
