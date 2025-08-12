@@ -1,17 +1,24 @@
 import pdfplumber
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+# Configure upload folder
+UPLOAD_FOLDER = '/tmp/pdf_uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
+
 @app.route('/')
 def home():
     return "PDF Extraction Service Running", 200
 
-def extract_page_tables(pdf_stream, target_page=6):
+def extract_page_tables(pdf_path, target_page=6):
     try:
-        with pdfplumber.open(pdf_stream) as pdf:
+        with pdfplumber.open(pdf_path) as pdf:
             total_pages = len(pdf.pages)
             
             if target_page > total_pages or target_page < 1:
@@ -60,12 +67,22 @@ def extract_page_tables_route():
         if not pdf_file.filename.lower().endswith('.pdf'):
             return jsonify({'error': 'Invalid file type. Only PDF files are allowed'}), 400
         
+        # Save the file temporarily
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], pdf_file.filename)
+        pdf_file.save(filepath)
+        
         target_page = request.form.get('target_page', default=6, type=int)
         
         tables, page_count, error, full_text = extract_page_tables(
-            pdf_file.stream, 
+            filepath, 
             target_page=target_page
         )
+        
+        # Clean up the temporary file
+        try:
+            os.remove(filepath)
+        except:
+            pass
         
         if error:
             return jsonify({'error': error}), 400

@@ -189,7 +189,7 @@ export const createAqlInspection = async (req, res) => {
     // Create new inspection (allowing duplicate references)
     const inspection = await prisma.aqlInspection.create({
       data: {
-        companyId: req.body.companyId,
+        companyId: String(req.body.companyId),
         reference: req.body.reference,
         inspectionDate: new Date(req.body.inspectionDate),
         lineMasterId : parseInt(req.body.lineMasterId), 
