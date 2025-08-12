@@ -45,49 +45,50 @@ export default function PdfTableExtractor() {
 
   } = useGetPartyQuery({ params, searchParams: searchValue });
   console.log(partyData?.data, "partdyData")
-const extractTables = async (file) => {
-  setIsLoading(true);
-  setError('');
-  setTables([]);
-  setPageCount(0);
-  setTableCount(0);
-  setShowText(false);
-  setSizeChartData([]);
-  setVisualData([]);
-  setSaveStatus({ success: false, message: '' });
 
-  const formData = new FormData();
-  formData.append('pdf', file);
-  formData.append('target_page', targetPage);
+  const extractTables = async (file) => {
+    setIsLoading(true);
+    setError('');
+    setTables([]);
+    setPageCount(0);
+    setTableCount(0);
+    setShowText(false);
+    setSizeChartData([]);
+    setVisualData([]);
+    setSaveStatus({ success: false, message: '' });
 
-  try {
-    // Update this line to use your server URL
-    const response = await fetch('https://agf.pinnaclesystems.co.in/extract-page-tables', {
-      method: 'POST',
-      body: formData,
-    });
+    const formData = new FormData();
+    formData.append('pdf', file);
+    formData.append('target_page', targetPage);
 
-    const data = await response.json();
-    if (response.ok) {
-      setTables(data.tables || []);
-      setPageCount(data.page_count || 0);
-      setTableCount(data.table_count || 0);
+    try {
+      const response = await fetch('http://localhost:5000/extract-page-tables', {
+        method: 'POST',
+        body: formData,
+      });
 
-      // Process size chart data
-      if (data.tables && data.tables.length > 0) {
-        const { sizeChart, visualMeasurements } = processSizeChartData(data.tables);
-        setSizeChartData(sizeChart);
-        setVisualData(visualMeasurements);
+      const data = await response.json();
+      if (response.ok) {
+        setTables(data.tables || []);
+        setPageCount(data.page_count || 0);
+        setTableCount(data.table_count || 0);
+
+        // Process size chart data
+        if (data.tables && data.tables.length > 0) {
+          const { sizeChart, visualMeasurements } = processSizeChartData(data.tables);
+          setSizeChartData(sizeChart);
+          setVisualData(visualMeasurements);
+        }
+      } else {
+        throw new Error(data.error || 'Failed to extract tables from PDF');
       }
-    } else {
-      throw new Error(data.error || 'Failed to extract tables from PDF');
+    } catch (error) {
+      setError(error.message || 'An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    setError(error.message || 'An unexpected error occurred');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
+
 
   // Improved table processing to handle uneven data
   const processSizeChartData = (tables) => {
