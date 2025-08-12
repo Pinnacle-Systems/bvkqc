@@ -45,7 +45,6 @@ export default function PdfTableExtractor() {
 
   } = useGetPartyQuery({ params, searchParams: searchValue });
   console.log(partyData?.data, "partdyData")
-
 const extractTables = async (file) => {
   setIsLoading(true);
   setError('');
@@ -89,7 +88,6 @@ const extractTables = async (file) => {
     setIsLoading(false);
   }
 };
-
 
   // Improved table processing to handle uneven data
   const processSizeChartData = (tables) => {
