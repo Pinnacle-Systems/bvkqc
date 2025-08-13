@@ -1,13 +1,39 @@
 import pdfplumber
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
+import fitz  # PyMuPDF
 
 app = Flask(__name__)
 CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
+
+# Simple HTML upload form for testing
+html = '''
+    <h2>Upload PDF File</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="pdf" accept=".pdf" required>
+        <button type="submit">Upload</button>
+    </form>
+    <hr>
+    <pre>{{ text }}</pre>
+'''
+
 @app.route('/')
 def home():
-    return "PDF Extraction Service Running", 200
+    return render_template_string(html, text="PDF Extraction Service Ready")
+
+@app.route('/test-pdf', methods=['GET', 'POST'])
+def test_pdf():
+    text = ""
+    if request.method == 'POST':
+        file = request.files['pdf']
+        if file:
+            pdf_data = file.read()
+            doc = fitz.open(stream=pdf_data, filetype="pdf")
+            for page in doc:
+                text += page.get_text()
+            doc.close()
+    return render_template_string(html, text=text)
 
 def extract_page_tables(pdf_stream, target_page=6):
     try:
