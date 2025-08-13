@@ -1,33 +1,39 @@
-# app.py
-from flask import Flask, request, render_template_string
-import fitz  # PyMuPDF
+from flask import Flask, request, jsonify
+import pdfplumber
 
 app = Flask(__name__)
 
-# Simple HTML upload form
-html = '''
-    <h2>Upload PDF File</h2>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="pdf" accept=".pdf" required>
-        <button type="submit">Upload</button>
-    </form>
-    <hr>
-    <pre>{{ text }}</pre>
-'''
-""
+# Default route to check if service is running
+@app.route('/', methods=['GET'])
+def home():
+    return "PDF Extraction Service Running", 200
 
-@app.route('/', methods=['GET', 'POST'])
-def upload_pdf():
-    text = ""
-    if request.method == 'POST':
-        file = request.files['pdf']
-        if file:
-            pdf_data = file.read()
-            doc = fitz.open(stream=pdf_data, filetype="pdf")
-            for page in doc:
-                text += page.get_text()
-            doc.close()
-    return render_template_string(html, text=text)
+
+# POST route for extracting tables from a specific page
+@app.route('/extract-page-tables', methods=['POST'])
+def extract_page_tables_endpoint():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    pdf_file = request.files['file']
+    try:
+        target_page = int(request.form.get('target_page', 1))
+    except ValueError:
+        return jsonify({"error": "Invalid target_page value"}), 400
+
+    try:
+        with pdfplumber.open(pdf_file) as pdf:
+            if target_page < 1 or target_page > len(pdf.pages):
+                return jsonify({"error": "Invalid page number"}), 400
+
+            page = pdf.pages[target_page - 1]
+            tables = page.extract_tables()
+            return jsonify({"tables": tables}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Make sure it listens on all interfaces in production
+    app.run(host='0.0.0.0', port=5000, debug=True)
