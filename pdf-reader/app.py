@@ -5,6 +5,9 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
+@app.route('/')
+def home():
+    return "PDF Extraction Service Running", 200
 
 def extract_page_tables(pdf_stream, target_page=6):
     try:
@@ -17,28 +20,14 @@ def extract_page_tables(pdf_stream, target_page=6):
             page_index = target_page - 1
             page = pdf.pages[page_index]
             full_text = page.extract_text()
+            tables = page.extract_tables()
             
-            # IMPROVED TABLE EXTRACTION WITH CUSTOM SETTINGS
-            table_settings = {
-                "vertical_strategy": "lines",
-                "horizontal_strategy": "lines",
-                "explicit_vertical_lines": page.curves + page.edges,
-                "explicit_horizontal_lines": page.curves + page.edges,
-                "intersection_tolerance": 15,
-            }
-            
-            tables = page.extract_tables(table_settings)
-            
-            # PROCESS TABLES MORE ACCURATELY
             valid_tables = []
             for table_index, table in enumerate(tables):
-                if not table or len(table) < 2:  # Skip empty/small tables
-                    continue
-                    
                 cleaned_table = []
                 for row in table:
                     cleaned_row = [cell.replace('\n', ' ').strip() if cell else '' for cell in row]
-                    if any(cell.strip() for cell in cleaned_row):  # Check for non-empty cells
+                    if any(cleaned_row):
                         cleaned_table.append(cleaned_row)
                 
                 if cleaned_table:
