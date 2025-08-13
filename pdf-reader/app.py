@@ -4,6 +4,7 @@ from flask_cors import CORS
 import logging
 import traceback
 import re
+import os
 
 # Create Flask app
 app = Flask(__name__)
@@ -16,6 +17,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @app.route('/')
 def home():
@@ -57,13 +59,16 @@ def extract_page_tables(pdf_stream, target_page=6):
             return valid_tables, total_pages, None, full_text
 
     except pdfplumber.pdfminer.pdfparser.PDFSyntaxError:
+        logger.error("Invalid PDF file format")
         return [], 0, "Invalid PDF file format", ""
     except pdfplumber.pdfminer.pdfparser.PDFPasswordIncorrect:
+        logger.error("PDF is password protected")
         return [], 0, "PDF is password protected", ""
     except Exception as e:
-        app.logger.error(f"Error during extraction: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error during extraction: {str(e)}\n{traceback.format_exc()}")
         return [], 0, f"Extraction error: {str(e)}", ""
 
+# CORRECTED ROUTE DEFINITION
 @app.route('/extract-page-tables', methods=['POST'])
 def extract_page_tables_route():
     try:
@@ -101,9 +106,18 @@ def extract_page_tables_route():
         })
 
     except Exception as e:
-        app.logger.error(f"Error in route: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in route: {str(e)}\n{traceback.format_exc()}")
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
-# Expose `app` for Gunicorn
+# Run with SSL in production
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    ssl_context = None
+    if os.environ.get('FLASK_ENV') == 'production':
+        ssl_context = 'adhoc'
+    
+    app.run(
+        host='0.0.0.0', 
+        port=5001, 
+        ssl_context=ssl_context,
+        debug=(os.environ.get('FLASK_ENV') != 'production')
+    )
