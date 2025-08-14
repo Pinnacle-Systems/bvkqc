@@ -1,10 +1,17 @@
 import pdfplumber
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import logging
+import traceback
 
 app = Flask(__name__)
 CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 @app.route('/')
 def home():
     return "PDF Extraction Service Running", 200
@@ -15,11 +22,11 @@ def extract_page_tables(pdf_stream, target_page=6):
             total_pages = len(pdf.pages)
             
             if target_page > total_pages or target_page < 1:
-                return [], total_pages, f"Page {target_page} does not exist in the PDF", ""
+                return [], total_pages, f"Page {target_page} does not exist in PDF (total pages: {total_pages})", ""
             
             page_index = target_page - 1
             page = pdf.pages[page_index]
-            full_text = page.extract_text()
+            full_text = page.extract_text() or ""
             tables = page.extract_tables()
             
             valid_tables = []
@@ -44,6 +51,7 @@ def extract_page_tables(pdf_stream, target_page=6):
     except pdfplumber.pdfminer.pdfparser.PDFPasswordIncorrect:
         return [], 0, "PDF is password protected", ""
     except Exception as e:
+        logger.error(f"Extraction error: {str(e)}\n{traceback.format_exc()}")
         return [], 0, f"Extraction error: {str(e)}", ""
 
 @app.route('/extract-page-tables', methods=['POST'])
@@ -58,7 +66,7 @@ def extract_page_tables_route():
             return jsonify({'error': 'No selected file'}), 400
             
         if not pdf_file.filename.lower().endswith('.pdf'):
-            return jsonify({'error': 'Invalid file type. Only PDF files are allowed'}), 400
+            return jsonify({'error': 'Invalid file type. Only PDF files allowed'}), 400
         
         target_page = request.form.get('target_page', default=6, type=int)
         
@@ -79,6 +87,7 @@ def extract_page_tables_route():
         })
     
     except Exception as e:
+        logger.error(f"Server error: {str(e)}\n{traceback.format_exc()}")
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
 if __name__ == '__main__':
