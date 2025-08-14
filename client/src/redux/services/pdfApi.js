@@ -1,9 +1,8 @@
-// services/pdfApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const pdfApi = createApi({
   reducerPath: "pdfApi",
-baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "https://agf.pinnaclesystems.co.in" }),
   endpoints: (builder) => ({
     extractPageTables: builder.mutation({
       query: (payload) => ({

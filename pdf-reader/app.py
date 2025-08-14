@@ -4,8 +4,10 @@ from flask_cors import CORS
 import logging
 import traceback
 
+# app = Flask(__name__)
+# CORS(app)
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://agf.pinnaclesystems.co.in"])
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 
 # Configure logging
