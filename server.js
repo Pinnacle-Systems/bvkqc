@@ -133,7 +133,7 @@ httpServer.listen(PORT, () => {
 
 app.post("/extract-page-tables", async (req, res) => {
   try {
-    const response = await fetch("http://localhost:5000/extract-page-tables", {
+    const response = await fetch("http://agf.pinnaclesystems.co.in:5000/extract-page-tables", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req.body)
