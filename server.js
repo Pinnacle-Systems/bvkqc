@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+const fileUpload = require('express-fileupload');
 
 import {
   employees, states, countries, cities,
@@ -30,6 +31,7 @@ import {
 
 } from './src/routes/index.js';
 
+app.use(fileUpload());
 
 import { socketMain } from './src/sockets/socket.js';
 
@@ -133,16 +135,20 @@ httpServer.listen(PORT, () => {
 
 app.post("/extract-page-tables", async (req, res) => {
   try {
-    const response = await fetch("http://agf.pinnaclesystems.co.in:5000/extract-page-tables", {
+    const formData = new FormData();
+    formData.append('pdf', req.files.pdf.data, req.files.pdf.name);
+    formData.append('target_page', req.body.target_page);
+
+    const response = await fetch("http://localhost:5000/extract-page-tables", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body)
+      body: formData
     });
+    
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Python service call failed" });
   }
 });
+
 

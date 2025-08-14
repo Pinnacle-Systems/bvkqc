@@ -6,8 +6,9 @@ import traceback
 
 # Initialize Flask app
 app = Flask(__name__)
+# Change to your actual frontend origin
 CORS(app, origins=["https://agf.pinnaclesystems.co.in"])
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -60,6 +61,8 @@ def extract_page_tables(pdf_stream, target_page=6):
 
 @app.route('/extract-page-tables', methods=['POST'])
 def extract_page_tables_route():
+    # code for extracting table
+
     """
     Route to handle PDF table extraction.
     Expects:
