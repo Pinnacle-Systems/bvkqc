@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { useAddSizeTableMasterMutation, useGetSizeTableMasterQuery } from "../../../redux/uniformService/SizeTableMasterService";
+import { useAddSizeTableMasterMutation } from "../../../redux/uniformService/SizeTableMasterService";
 import { useGetPartyQuery } from '../../../redux/services/PartyMasterService';
 import secureLocalStorage from 'react-secure-storage';
+import { useExtractPageTablesMutation } from '../../../redux/services/pdfApi';
+
 export default function PdfTableExtractor() {
   // State declarations
   const [tables, setTables] = useState([]);
@@ -17,34 +19,25 @@ export default function PdfTableExtractor() {
   const [visualData, setVisualData] = useState([]);
   const [saveStatus, setSaveStatus] = useState({ success: false, message: '' });
   const fileInputRef = useRef(null);
-  const [searchValue, setSearchValue] = useState("");
   const [selectedPartyId, setSelectedPartyId] = useState('');
   const [selectedParty, setSelectedParty] = useState(null);
+  
   const handlePartyChange = (e) => {
-    console.log(e.target.value, "handle")
     const partyId = e.target.value;
     setSelectedPartyId(partyId);
-
-    const foundParty = partyData.find(party => party.id === Number(partyId));
+    const foundParty = partyData?.data?.find(party => party.id === Number(partyId));
     setSelectedParty(foundParty || null);
   };
+
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
-  const params = {
-    companyId,
-  };
+  const params = { companyId };
 
-  // Redux RTK Query hook
+  // Redux RTK Query hooks
   const [addSizeTableMaster, { isLoading: isSaving }] = useAddSizeTableMasterMutation();
-  const { data: sizeData } = useGetSizeTableMasterQuery({
-    productReference: "KIABI INTERNATIONAL",
-  }); console.log(sizeData, "sizeData")
-  const {
-    data: partyData,
-
-  } = useGetPartyQuery({ params, searchParams: searchValue });
-  console.log(partyData?.data, "partdyData")
+  const [extractPageTables] = useExtractPageTablesMutation();
+  const { data: partyData } = useGetPartyQuery({ params });
 
   const extractTables = async (file) => {
     setIsLoading(true);
@@ -62,160 +55,23 @@ export default function PdfTableExtractor() {
     formData.append('target_page', targetPage);
 
     try {
-      const response = await fetch('http://localhost:5000/extract-page-tables', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await extractPageTables(formData).unwrap();
+      
+      setTables(response.tables || []);
+      setPageCount(response.page_count || 0);
+      setTableCount(response.table_count || 0);
 
-      const data = await response.json();
-      if (response.ok) {
-        setTables(data.tables || []);
-        setPageCount(data.page_count || 0);
-        setTableCount(data.table_count || 0);
-
-        // Process size chart data
-        if (data.tables && data.tables.length > 0) {
-          const { sizeChart, visualMeasurements } = processSizeChartData(data.tables);
-          setSizeChartData(sizeChart);
-          setVisualData(visualMeasurements);
-        }
-      } else {
-        throw new Error(data.error || 'Failed to extract tables from PDF');
+      // Use the pre-processed size charts from the backend
+      if (response.size_charts && response.size_charts.length > 0) {
+        const firstSizeChart = response.size_charts[0];
+        setSizeChartData(firstSizeChart.measurements || []);
+        setVisualData(firstSizeChart.visual_measurements || []);
       }
     } catch (error) {
-      setError(error.message || 'An unexpected error occurred');
+      setError(error.data?.error || error.message || 'Failed to extract tables from PDF');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Improved table processing to handle uneven data
-  const processSizeChartData = (tables) => {
-    let sizeChart = [];
-    let visualMeasurements = [];
-
-    // Find the main size chart table (largest table with size headers)
-    const mainTable = tables.reduce((largest, table) => {
-      if (!table.table || table.table.length < 2) return largest;
-
-      // Check if table has size headers (like "2 YEARS", "3 YEARS", etc.)
-      const hasSizeHeaders = table.table[0]?.some(header =>
-        /\d+\s*YEARS/i.test(header)
-      );
-
-      if (!hasSizeHeaders) return largest;
-
-      // Select the table with the most rows and columns
-      if (!largest || table.table.length > largest.table.length) {
-        return table;
-      }
-      return largest;
-    }, null);
-
-    if (!mainTable) return { sizeChart: [], visualMeasurements: [] };
-
-    const headers = mainTable.table[0];
-    const sizeHeaders = headers.filter(header => /\d+\s*YEARS/i.test(header));
-
-    // Find the description column index (most consistent column with text)
-    const descriptionIndex = headers.findIndex(header =>
-      header.toLowerCase().includes('description')
-    );
-
-    // Process each row of the table
-    for (let i = 1; i < mainTable.table.length; i++) {
-      const row = mainTable.table[i];
-      if (!row || row.length < 6) continue;
-
-      const firstCell = row[0] || '';
-
-      // Check if this is a visual measurement row
-      if (firstCell === 'VISUAL' || firstCell.includes('VISUAL')) {
-        // Process visual measurements
-        const visualRow = mainTable.table[i + 1];
-        if (visualRow && visualRow[2] && visualRow[2].includes('VISUAL')) {
-          const visualDescription = visualRow[2];
-          const visualValues = [];
-
-          for (let j = 0; j < sizeHeaders.length; j++) {
-            const size = sizeHeaders[j].replace('YEARS', '').trim();
-            const valueIndex = headers.indexOf(sizeHeaders[j]);
-            const value = valueIndex !== -1 && visualRow[valueIndex] ? visualRow[valueIndex] : '';
-
-            if (value) {
-              visualValues.push({
-                size,
-                value
-              });
-            }
-          }
-
-          if (visualDescription && visualValues.length > 0) {
-            visualMeasurements.push({
-              description: visualDescription,
-              values: visualValues
-            });
-          }
-        }
-        continue;
-      }
-
-      // Skip summary rows and empty rows
-      if (
-        firstCell.includes('Displaying') ||
-        row.some(cell => cell.includes('Displaying'))
-      ) {
-        continue;
-      }
-
-      // Find the description - use most reliable method
-      let description = '';
-      if (descriptionIndex !== -1 && row[descriptionIndex]) {
-        description = row[descriptionIndex];
-      } else {
-        // Fallback: find the longest text in the first few columns
-        for (let j = 0; j < 3; j++) {
-          if (row[j] && row[j].length > description.length) {
-            description = row[j];
-          }
-        }
-      }
-
-      // Find dimension values - look for TO-prefixed codes
-      const dimensionIndex = row.findIndex(cell => /^TO\d+[A-Z]*$/i.test(cell));
-      const dimension = dimensionIndex !== -1 ? row[dimensionIndex] : '';
-
-      // Find tolerance values
-      const toleranceMin = row.find(cell => /^[-−]?\d+\.\d+$/.test(cell)) || '';
-      const toleranceMax = row.find(cell => /^[+]?\d+\.\d+$/.test(cell)) || '';
-
-      // Extract size values
-      const values = [];
-      for (let j = 0; j < sizeHeaders.length; j++) {
-        const size = sizeHeaders[j].replace('YEARS', '').trim();
-        const valueIndex = headers.indexOf(sizeHeaders[j]);
-        const value = valueIndex !== -1 && row[valueIndex] ? row[valueIndex] : '';
-
-        if (value) {
-          values.push({
-            size,
-            value
-          });
-        }
-      }
-
-      if (description && values.length > 0) {
-        sizeChart.push({
-          description,
-          toleranceMin,
-          toleranceMax,
-          dimension,
-          values
-        });
-      }
-    }
-
-    return { sizeChart, visualMeasurements };
   };
 
   // Get all available sizes from the extracted data
@@ -245,58 +101,53 @@ export default function PdfTableExtractor() {
     });
   };
 
-const handleSaveSizeChart = async () => {
-  // Reset previous status
-  setError('');
-  setSaveStatus({ success: false, message: '' });
+  const handleSaveSizeChart = async () => {
+    setError('');
+    setSaveStatus({ success: false, message: '' });
 
-  // Validate inputs
-  if (!productReference) {
-    setError('Product reference is required');
-    return;
-  }
+    if (!productReference) {
+      setError('Product reference is required');
+      return;
+    }
 
-  if (sizeChartData.length === 0) {
-    setError('No size chart data to save');
-    return;
-  }
+    if (sizeChartData.length === 0) {
+      setError('No size chart data to save');
+      return;
+    }
 
-  try {
-    const payload = {
-      productReference,
-      measurements: sizeChartData,
-      visualMeasurements: visualData,
-      selectedPartyId: selectedPartyId,
-      companyId: companyId 
-    };
+    try {
+      const payload = {
+        productReference,
+        measurements: sizeChartData,
+        visualMeasurements: visualData,
+        selectedPartyId: selectedPartyId,
+        companyId: companyId 
+      };
 
-    const result = await addSizeTableMaster(payload).unwrap();
+      const result = await addSizeTableMaster(payload).unwrap();
 
-    if (result) {
-      setSaveStatus({
-        success: true,
-        message: `Size chart for ${productReference} saved successfully!`
-      });
+      if (result) {
+        setSaveStatus({
+          success: true,
+          message: `Size chart for ${productReference} saved successfully!`
+        });
+        
+        setTimeout(() => {
+          handleClear();
+          setSaveStatus({ success: false, message: '' });
+        }, 1000);
+      }
+    } catch (err) {
+      const errorMessage = err.data?.message || err.message || 'Failed to save size chart';
+      setError(errorMessage);
       
-      setTimeout(() => {
-        handleClear();
-        setSaveStatus({ success: false, message: '' });
-      }, 1000);
+      if (err.status === 401) {
+        setError('Session expired. Please refresh the page.');
+      } else if (err.status === 409) {
+        setError('This size chart already exists for the product reference.');
+      }
     }
-  } catch (err) {
-    console.error('Save failed:', err);
-    const errorMessage = err.data?.message || err.message || 'Failed to save size chart';
-    setError(errorMessage);
-    
-    // More detailed error handling
-    if (err.status === 401) {
-      setError('Session expired. Please refresh the page.');
-    } else if (err.status === 409) {
-      setError('This size chart already exists for the product reference.');
-    }
-  }
-};
-
+  };
 
   const getSizeValue = (measurement, size) => {
     const value = measurement.values.find(v => v.size === size);
@@ -310,7 +161,9 @@ const handleSaveSizeChart = async () => {
       setError('');
     } else {
       setError('Please upload a valid PDF file');
-      fileInputRef.current.value = '';
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -522,8 +375,6 @@ const handleSaveSizeChart = async () => {
             </div>
           </div>
 
-
-
           {error && (
             <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded flex items-start text-xs">
               <svg className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -675,46 +526,50 @@ const handleSaveSizeChart = async () => {
               </div>
 
               <div className="space-y-4">
-                {tables.map((tableData, index) => (
-                  <div key={index} className="border rounded overflow-hidden bg-white">
-                    <div className="bg-blue-50 px-2 py-1 border-b flex justify-between">
-                      <h3 className="text-xs font-medium text-blue-800">
-                        Table {tableData.table_index} (Page {tableData.page})
-                      </h3>
-                    </div>
+                {tables.map((tableData, index) => {
+                  // Handle both old and new table formats
+                  const tableContent = tableData.data || tableData.table;
+                  return (
+                    <div key={index} className="border rounded overflow-hidden bg-white">
+                      <div className="bg-blue-50 px-2 py-1 border-b flex justify-between">
+                        <h3 className="text-xs font-medium text-blue-800">
+                          Table {tableData.table_index} (Page {tableData.page})
+                        </h3>
+                      </div>
 
-                    <div className="overflow-x-auto text-xs">
-                      <table className="min-w-full">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            {tableData.table[0]?.map((header, headerIndex) => (
-                              <th
-                                key={headerIndex}
-                                className="p-1 text-left font-medium border-b border-gray-200"
-                              >
-                                {header || `Col ${headerIndex + 1}`}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {tableData.table.slice(1).map((row, rowIndex) => (
-                            <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                              {row.map((cell, cellIndex) => (
-                                <td
-                                  key={cellIndex}
-                                  className="p-1 border-b border-gray-200"
+                      <div className="overflow-x-auto text-xs">
+                        <table className="min-w-full">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              {tableContent[0]?.map((header, headerIndex) => (
+                                <th
+                                  key={headerIndex}
+                                  className="p-1 text-left font-medium border-b border-gray-200"
                                 >
-                                  {cell || '-'}
-                                </td>
+                                  {header || `Col ${headerIndex + 1}`}
+                                </th>
                               ))}
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {tableContent.slice(1).map((row, rowIndex) => (
+                              <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                {row.map((cell, cellIndex) => (
+                                  <td
+                                    key={cellIndex}
+                                    className="p-1 border-b border-gray-200"
+                                  >
+                                    {cell || '-'}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

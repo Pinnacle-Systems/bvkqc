@@ -131,3 +131,16 @@ httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
+app.post("/extract-page-tables", async (req, res) => {
+  try {
+    const response = await fetch("http://127.0.0.1:5000/extract-page-tables", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body)
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Python service call failed" });
+  }
+});
