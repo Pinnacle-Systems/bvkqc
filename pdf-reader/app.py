@@ -57,7 +57,9 @@ def extract_page_tables(pdf_stream, target_page=6):
         return [], 0, f"Extraction error: {str(e)}", ""
 
 @app.route('/extract-page-tables', methods=['POST'])
+
 def extract_page_tables_route():
+     print("Request received")
     try:
         if 'pdf' not in request.files:
             return jsonify({'error': 'No PDF file provided'}), 400
