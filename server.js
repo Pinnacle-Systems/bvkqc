@@ -141,6 +141,8 @@ app.post("/extract-page-tables", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Python service call failed" });
   }
 });
+
