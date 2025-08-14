@@ -4,8 +4,7 @@ from flask_cors import CORS
 import logging
 import traceback
 
-# app = Flask(__name__)
-# CORS(app)
+# Initialize Flask app
 app = Flask(__name__)
 CORS(app, origins=["https://agf.pinnaclesystems.co.in"])
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
@@ -19,10 +18,13 @@ def home():
     return "PDF Extraction Service Running", 200
 
 def extract_page_tables(pdf_stream, target_page=6):
+    """
+    Extract tables and text from a specific page in a PDF.
+    Returns: valid_tables, total_pages, error_message, full_text
+    """
     try:
         with pdfplumber.open(pdf_stream) as pdf:
             total_pages = len(pdf.pages)
-            
             if target_page > total_pages or target_page < 1:
                 return [], total_pages, f"Page {target_page} does not exist in PDF (total pages: {total_pages})", ""
             
@@ -47,7 +49,7 @@ def extract_page_tables(pdf_stream, target_page=6):
                     })
             
             return valid_tables, total_pages, None, full_text
-    
+
     except pdfplumber.pdfminer.pdfparser.PDFSyntaxError:
         return [], 0, "Invalid PDF file format", ""
     except pdfplumber.pdfminer.pdfparser.PDFPasswordIncorrect:
@@ -57,24 +59,28 @@ def extract_page_tables(pdf_stream, target_page=6):
         return [], 0, f"Extraction error: {str(e)}", ""
 
 @app.route('/extract-page-tables', methods=['POST'])
-
 def extract_page_tables_route():
+    """
+    Route to handle PDF table extraction.
+    Expects:
+      - 'pdf': uploaded PDF file
+      - 'target_page' (optional, default=6): page number to extract
+    """
     try:
         if 'pdf' not in request.files:
             return jsonify({'error': 'No PDF file provided'}), 400
         
         pdf_file = request.files['pdf']
-        
         if pdf_file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
-            
+        
         if not pdf_file.filename.lower().endswith('.pdf'):
             return jsonify({'error': 'Invalid file type. Only PDF files allowed'}), 400
         
         target_page = request.form.get('target_page', default=6, type=int)
         
         tables, page_count, error, full_text = extract_page_tables(
-            pdf_file.stream, 
+            pdf_file.stream,
             target_page=target_page
         )
         
