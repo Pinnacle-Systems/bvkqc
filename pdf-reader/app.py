@@ -102,5 +102,6 @@ def extract_page_tables_route():
         logger.error(f"Server error: {str(e)}\n{traceback.format_exc()}")
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False)
+
