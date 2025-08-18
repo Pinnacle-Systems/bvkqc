@@ -1,19 +1,18 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const pdfApi = createApi({
-  reducerPath: "pdfApi",
-baseQuery: fetchBaseQuery({ 
-  baseUrl: "https://agf.pinnaclesystems.co.in:5000"  // Add port 5000
-}),
+  reducerPath: 'pdfApi',
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: 'https://pdfapi.agfqc.pinnaclesystems.co.in',
+  }),
   endpoints: (builder) => ({
     extractPageTables: builder.mutation({
-      query: (payload) => ({
-        url: "extract-page-tables",
-        method: "POST",
-        body: payload,
+      query: (formData) => ({
+        url: '/extract-page-tables',
+        method: 'POST',
+        body: formData,
       }),
     }),
   }),
 });
-
 export const { useExtractPageTablesMutation } = pdfApi;

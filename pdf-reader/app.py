@@ -6,9 +6,16 @@ import traceback
 
 # Initialize Flask app
 app = Flask(__name__)
-# Change to your actual frontend origin
-CORS(app, origins=["https://agf.pinnaclesystems.co.in"])
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
+
+# Allow multiple frontend origins
+allowed_origins = [
+    "https://agf.pinnaclesystems.co.in",
+    "https://agfqc.pinnaclesystems.co.in"
+]
+CORS(app, origins=allowed_origins)
+
+# File size limit: 50 MB
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +24,10 @@ logger = logging.getLogger(__name__)
 @app.route('/')
 def home():
     return "PDF Extraction Service Running", 200
+
+@app.route('/test')
+def test():
+    return "Python service is working!", 200
 
 def extract_page_tables(pdf_stream, target_page=6):
     """
@@ -61,8 +72,6 @@ def extract_page_tables(pdf_stream, target_page=6):
 
 @app.route('/extract-page-tables', methods=['POST'])
 def extract_page_tables_route():
-    # code for extracting table
-
     """
     Route to handle PDF table extraction.
     Expects:
@@ -104,4 +113,3 @@ def extract_page_tables_route():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-
