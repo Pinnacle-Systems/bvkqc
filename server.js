@@ -112,11 +112,12 @@ app.post("/extract-page-tables", async (req, res) => {
       chunks.push(chunk);
     }
     const bodyBuffer = Buffer.concat(chunks);
-
+  const headers = {};
+    if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
     const response = await fetch("http://localhost:5000/extract-page-tables", {
       method: "POST",
       body: bodyBuffer,
-      headers: req.headers,
+      headers: headers,
     });
 
     const data = await response.json();
