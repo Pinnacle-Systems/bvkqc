@@ -120,6 +120,7 @@ app.post("/extract-page-tables", async (req, res) => {
     });
 
     const data = await response.json();
+    console.log(data,"data")
     res.status(response.status).json(data);
   } catch (err) {
     console.error("PDF extraction error:", err);
