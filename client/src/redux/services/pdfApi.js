@@ -9,7 +9,7 @@ export const pdfApi = createApi({
     extractPageTables: builder.mutation({
       query: (formData) => ({
         url: '/extract-page-tables',
-        method: 'OPTIONS',
+        method: 'POST',
         body: formData,
       }),
     }),
