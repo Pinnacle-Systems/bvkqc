@@ -113,7 +113,7 @@ app.post("/extract-page-tables", async (req, res) => {
     }
     const bodyBuffer = Buffer.concat(chunks);
 
-    const response = await fetch("https://pythontest.pinnaclesystems.co.in/", {
+    const response = await fetch("http://193.203.160.198:9900", {
       method: "POST",
       body: bodyBuffer,
       headers: req.headers,
