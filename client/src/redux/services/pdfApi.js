@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const pdfApi = createApi({
   reducerPath: 'pdfApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: 'https://pdfapi.agfqc.pinnaclesystems.co.in',
+    baseUrl: process.env.REACT_APP_PYTHON_URL,
   }),
   endpoints: (builder) => ({
     extractPageTables: builder.mutation({
