@@ -61,7 +61,7 @@ export default function PdfTableExtractor() {
     setSaveStatus({ success: false, message: '' });
 
     const formData = new FormData();
-    formData.append('pdf', file);
+    formData.append("pdf", file);
     formData.append('target_page', targetPage);
 
     try {
