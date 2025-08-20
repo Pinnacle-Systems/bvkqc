@@ -9,7 +9,7 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 @app.route('/')
 def home():
     return "PDF Extraction Service Running", 200
-
+@app.route('/pdf-reader')
 def extract_page_tables(pdf_stream, target_page=6):
     try:
         with pdfplumber.open(pdf_stream) as pdf:
