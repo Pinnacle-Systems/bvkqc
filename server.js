@@ -129,12 +129,13 @@ app.use("/InchargeLineList", InchargeLineListMaster)
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // });
-
 app.use("/extract-page-tables", createProxyMiddleware({
-    target: "http://193.203.160.198:9700/extract-page-tables",
+    target: "http://193.203.160.198:9700",
     changeOrigin: true,
-    pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  // keep /auth prefix
+    pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }
 }));
+
+
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);
