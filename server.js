@@ -137,7 +137,7 @@ app.use("/InchargeLineList", InchargeLineListMaster)
 //     pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  
 // }));
 app.use("/extract-page-tables", createProxyMiddleware({
-    target: "https://localhost:9700/extract-page-tables",
+    target: "https://pythontest.pinnaclesystems.co.in/extract-page-tables",
     changeOrigin: true,
     secure: false,
     on: {
