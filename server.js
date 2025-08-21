@@ -115,7 +115,7 @@ app.post("/extract-page-tables", async (req, res) => {
     const bodyBuffer = Buffer.concat(chunks);
   const headers = {};
     if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
-    const response = await fetch("http://193.203.160.198:9900/extract-page-tables", {
+    const response = await fetch("http://localhost:5000/extract-page-tables", {
       method: "POST",
       body: bodyBuffer,
       headers: headers,
