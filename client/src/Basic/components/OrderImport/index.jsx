@@ -65,7 +65,7 @@ export default function PdfTableExtractor() {
     formData.append('target_page', targetPage);
 
     try {
-      const response = await fetch('http://193.203.160.198:9700/extract-page-tables', {
+      const response = await fetch('http://193.203.160.198:9900/extract-page-tables', {
         method: 'POST',
         body: formData,
       });
