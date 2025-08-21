@@ -106,8 +106,34 @@ app.use("/sizeTable",sizeTable)
 app.use("/aql",aql)
 app.use("/InchargeLineList", InchargeLineListMaster)  
 
+// app.post("/extract-page-tables", async (req, res) => {
+//   try {
+//     const chunks = [];
+//     for await (const chunk of req) {
+//       chunks.push(chunk);
+//     }
+//     const bodyBuffer = Buffer.concat(chunks);
+//   const headers = {};
+//     if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
+//     const response = await fetch("http://localhost:5000/extract-page-tables", {
+//       method: "POST",
+//       body: bodyBuffer,
+//       headers: headers,
+//     });
 
-
+//     const data = await response.json();
+//     console.log(data,"data")
+//     res.status(response.status).json(data);
+//   } catch (err) {
+//     console.error("PDF extraction error:", err);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+// app.use("/extract-page-tables", createProxyMiddleware({
+//     target: "http://localhost:5000/extract-page-tables",
+//     changeOrigin: true,
+//     pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  // keep /auth prefix
+// }));
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);
