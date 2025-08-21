@@ -67,9 +67,6 @@ export default function PdfTableExtractor() {
     try {
       const response = await fetch('https://pythontest.pinnaclesystems.co.in/extract-page-tables', {
         method: 'POST',
-        headers: {
-          "Content-Type": "application/pdf",
-        },
         body: formData,
       });
 
