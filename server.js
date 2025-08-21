@@ -129,13 +129,24 @@ app.use("/InchargeLineList", InchargeLineListMaster)
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // });
-
 app.use("/extract-page-tables", createProxyMiddleware({
-    target: "https://pythontest.pinnaclesystems.co.in/extract-page-tables",
+    target:  "https://pythontest.pinnaclesystems.co.in/extract-page-tables", 
     changeOrigin: true,
-    secure: false,
-    pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  
+    secure: false, 
+    on: {
+        proxyReq: (proxyReq, req, res) => {
+            console.log('Proxying request to Python service:', req.method, req.url);
+            if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+                proxyReq.setHeader('Content-Type', req.headers['content-type']);
+            }
+        },
+        error: (err, req, res) => {
+            console.error('Proxy error:', err);
+            res.status(500).json({ error: 'Failed to connect to PDF service' });
+        }
+    }
 }));
+
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);
