@@ -49,7 +49,7 @@ export default function PdfTableExtractor() {
   } = useGetPartyQuery({ params, searchParams: searchValue });
   console.log(partyData?.data, "partdyData")
 
-   const extractTables = async (file) => {
+  const extractTables = async (file) => {
     setIsLoading(true);
     setError('');
     setTables([]);
@@ -61,17 +61,13 @@ export default function PdfTableExtractor() {
     setSaveStatus({ success: false, message: '' });
 
     const formData = new FormData();
-    formData.append('pdf', file);
+    formData.append("pdf", file);
     formData.append('target_page', targetPage);
 
     try {
-      const response = await fetch('http://193.203.160.198:9900/extract-page-tables', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (response.ok) {
+      const response = await extractPageTables(formData).unwrap();
+         const data = await response
+    
         setTables(data.tables || []);
         setPageCount(data.page_count || 0);
         setTableCount(data.table_count || 0);
@@ -82,9 +78,7 @@ export default function PdfTableExtractor() {
           setSizeChartData(sizeChart);
           setVisualData(visualMeasurements);
         }
-      } else {
-        throw new Error(data.error || 'Failed to extract tables from PDF');
-      }
+   
     } catch (error) {
       setError(error.message || 'An unexpected error occurred');
     } finally {

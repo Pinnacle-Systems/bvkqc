@@ -130,29 +130,11 @@ app.use("/InchargeLineList", InchargeLineListMaster)
 //   }
 // });
 
-// app.use("/extract-page-tables", createProxyMiddleware({
-//     target: "https://pythontest.pinnaclesystems.co.in/extract-page-tables",
-//     changeOrigin: true,
-//     secure: false,
-//     pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  
-// }));
 app.use("/extract-page-tables", createProxyMiddleware({
-    target: "http://193.203.160.198:9700/extract-page-tables",
+    target: "https://pythontest.pinnaclesystems.co.in/extract-page-tables",
     changeOrigin: true,
     secure: false,
-    on: {
-        proxyReq: (proxyReq, req, res) => {
-            console.log('Proxying request to Python service:', req.method, req.url);
-            // Handle file uploads properly
-            if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
-                proxyReq.setHeader('Content-Type', req.headers['content-type']);
-            }
-        },
-        error: (err, req, res) => {
-            console.error('Proxy error:', err);
-            res.status(500).json({ error: 'Failed to connect to PDF service' });
-        }
-    }
+    pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  
 }));
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
