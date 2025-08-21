@@ -130,7 +130,7 @@ app.use("/InchargeLineList", InchargeLineListMaster)
 //   }
 // });
 app.use("/extract-page-tables", createProxyMiddleware({
-    target: "http://193.203.160.198:9700",
+    target: "https://pythontest.pinnaclesystems.co.in",
     changeOrigin: true,
     pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }
 }));
