@@ -129,7 +129,7 @@ app.use("/InchargeLineList", InchargeLineListMaster)
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // });
-app.use("/extract-page-tables", createProxyMiddleware({
+app.post("/extract-page-tables", createProxyMiddleware({
     target:  "https://pythontest.pinnaclesystems.co.in/extract-page-tables", 
     changeOrigin: true,
     secure: false, 
