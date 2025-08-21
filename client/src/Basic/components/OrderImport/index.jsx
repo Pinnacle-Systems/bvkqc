@@ -49,7 +49,7 @@ export default function PdfTableExtractor() {
   } = useGetPartyQuery({ params, searchParams: searchValue });
   console.log(partyData?.data, "partdyData")
 
-    const extractTables = async (file) => {
+  const extractTables = async (file) => {
     setIsLoading(true);
     setError('');
     setTables([]);
@@ -67,6 +67,9 @@ export default function PdfTableExtractor() {
     try {
       const response = await fetch('https://193.203.160.198:9900/extract-page-tables', {
         method: 'POST',
+        headers: {
+          "Content-Type": "application/pdf",
+        },
         body: formData,
       });
 
@@ -249,57 +252,57 @@ export default function PdfTableExtractor() {
     });
   };
 
-const handleSaveSizeChart = async () => {
-  // Reset previous status
-  setError('');
-  setSaveStatus({ success: false, message: '' });
+  const handleSaveSizeChart = async () => {
+    // Reset previous status
+    setError('');
+    setSaveStatus({ success: false, message: '' });
 
-  // Validate inputs
-  if (!productReference) {
-    setError('Product reference is required');
-    return;
-  }
-
-  if (sizeChartData.length === 0) {
-    setError('No size chart data to save');
-    return;
-  }
-
-  try {
-    const payload = {
-      productReference,
-      measurements: sizeChartData,
-      visualMeasurements: visualData,
-      selectedPartyId: selectedPartyId,
-      companyId: companyId 
-    };
-
-    const result = await addSizeTableMaster(payload).unwrap();
-
-    if (result) {
-      setSaveStatus({
-        success: true,
-        message: `Size chart for ${productReference} saved successfully!`
-      });
-      
-      setTimeout(() => {
-        handleClear();
-        setSaveStatus({ success: false, message: '' });
-      }, 1000);
+    // Validate inputs
+    if (!productReference) {
+      setError('Product reference is required');
+      return;
     }
-  } catch (err) {
-    console.error('Save failed:', err);
-    const errorMessage = err.data?.message || err.message || 'Failed to save size chart';
-    setError(errorMessage);
-    
-    // More detailed error handling
-    if (err.status === 401) {
-      setError('Session expired. Please refresh the page.');
-    } else if (err.status === 409) {
-      setError('This size chart already exists for the product reference.');
+
+    if (sizeChartData.length === 0) {
+      setError('No size chart data to save');
+      return;
     }
-  }
-};
+
+    try {
+      const payload = {
+        productReference,
+        measurements: sizeChartData,
+        visualMeasurements: visualData,
+        selectedPartyId: selectedPartyId,
+        companyId: companyId
+      };
+
+      const result = await addSizeTableMaster(payload).unwrap();
+
+      if (result) {
+        setSaveStatus({
+          success: true,
+          message: `Size chart for ${productReference} saved successfully!`
+        });
+
+        setTimeout(() => {
+          handleClear();
+          setSaveStatus({ success: false, message: '' });
+        }, 1000);
+      }
+    } catch (err) {
+      console.error('Save failed:', err);
+      const errorMessage = err.data?.message || err.message || 'Failed to save size chart';
+      setError(errorMessage);
+
+      // More detailed error handling
+      if (err.status === 401) {
+        setError('Session expired. Please refresh the page.');
+      } else if (err.status === 409) {
+        setError('This size chart already exists for the product reference.');
+      }
+    }
+  };
 
 
   const getSizeValue = (measurement, size) => {
@@ -459,8 +462,8 @@ const handleSaveSizeChart = async () => {
                       onClick={handleProcessClick}
                       disabled={isLoading || !fileName || !productReference}
                       className={`px-5 py-2 rounded-xl font-medium text-xs flex items-center justify-center transition-all min-w-[120px] ${(isLoading || !fileName || !productReference)
-                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg'
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg'
                         }`}
                     >
                       {isLoading ? (
@@ -574,8 +577,8 @@ const handleSaveSizeChart = async () => {
                     onClick={handleSaveSizeChart}
                     disabled={isSaving || !productReference}
                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-1.5 ${isSaving || !productReference
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
                       } ${isSaving ? 'opacity-80' : ''
                       }`}
                   >
