@@ -129,11 +129,11 @@ app.post("/extract-page-tables", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-app.use("/extract-page-tables", createProxyMiddleware({
-    target: "http://localhost:5000/extract-page-tables",
-    changeOrigin: true,
-    pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  // keep /auth prefix
-}));
+// app.use("/extract-page-tables", createProxyMiddleware({
+//     target: "http://localhost:5000/extract-page-tables",
+//     changeOrigin: true,
+//     pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  // keep /auth prefix
+// }));
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);
