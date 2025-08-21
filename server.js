@@ -129,13 +129,12 @@ app.use("/InchargeLineList", InchargeLineListMaster)
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // });
+
 app.use("/extract-page-tables", createProxyMiddleware({
-    target: "https://pythontest.pinnaclesystems.co.in",
+    target: "https://pythontest.pinnaclesystems.co.in/extract-page-tables",
     changeOrigin: true,
-    pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }
+    pathRewrite: { "^/extract-page-tables": "/extract-page-tables" }  // keep /auth prefix
 }));
-
-
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params
   res.sendFile(__dirname + "/uploads/" + fileName);
