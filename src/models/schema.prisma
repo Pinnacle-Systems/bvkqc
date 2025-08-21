@@ -806,6 +806,7 @@ model LineMaster {
 model Product {
   id           Int           @id @default(autoincrement())
   name         String
+  color         String
   reference    String        @unique
   description  String?
   measurements Measurement[]

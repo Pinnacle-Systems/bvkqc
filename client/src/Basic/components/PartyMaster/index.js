@@ -676,7 +676,7 @@ export default function Form({ partyId, onCloseForm }) {
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">
                   Party Details
                 </h3>
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                   <TextInput
                     name="Party Name"
                     type="text"
@@ -752,7 +752,7 @@ export default function Form({ partyId, onCloseForm }) {
                     className="focus:ring-2 focus:ring-blue-100"
                   />
 
-                  <DropdownInput
+                  {/* <DropdownInput
                     name="Currency"
                     options={dropDownListObject(
                       id
@@ -767,7 +767,7 @@ export default function Form({ partyId, onCloseForm }) {
                     readOnly={readOnly}
                     disabled={childRecord.current > 0}
                     className="focus:ring-2 focus:ring-blue-100"
-                  />
+                  /> */}
 
                   <DropdownInput
                     name="City/State Name"
@@ -786,7 +786,7 @@ export default function Form({ partyId, onCloseForm }) {
                     className="focus:ring-2 focus:ring-blue-100"
                   />
 
-                  <TextInput
+                  {/* <TextInput
                     name="PayTerm Days"
                     type="name"
                     value={payTermDay}
@@ -794,15 +794,15 @@ export default function Form({ partyId, onCloseForm }) {
                     readOnly={readOnly}
                     disabled={childRecord.current > 0}
                     className="focus:ring-2 focus:ring-blue-100"
-                  />
-                     <button
+                  /> */}
+                     {/* <button
               onClick={() => {
                setBranch(true)
               }}
               className="px-3 py-1 w-40 text-[12px] text-green-600 hover:bg-green-600 hover:text-white border border-green-600  rounded"
             >
               + Add Branch
-            </button>
+            </button> */}
                   {branch && <GarmentBranchForm onClose = {()=>setBranch(false)} />}
                 </div>
               </div>
