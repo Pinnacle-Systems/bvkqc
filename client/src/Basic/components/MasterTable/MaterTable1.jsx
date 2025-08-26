@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Loader from "../Loader";
 import "./Master.css";
 import { Power, Table, Check, X, Eye, Edit, Trash } from "lucide-react";
@@ -15,8 +15,6 @@ const ACTIVE = (
 const Mastertable = ({
   data,
   loading,
-  searchValue,
-  setSearchValue,
   header,
   onDataClick,
   setReadOnly,
@@ -27,13 +25,40 @@ const Mastertable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedRow, setExpandedRow] = useState(null);
-const [approveStatus, setApproveStatus] = useState(0);
-  const totalPages = Math.ceil(data?.length / rowsPerPage);
+  const [approveStatusFilter, setApproveStatusFilter] = useState("all");
+  const [approveStatus, setApproveStatus] = useState(0);
+  const [searchValue, setSearchValue] = useState('')
+  console.log(searchValue, "searchNalue")
+  console.log(data, "data ")
 
-  const currentData = data?.slice(
+  const filteredData = data?.filter((item) => {
+    const searchLower = searchValue.toLowerCase();
+    const matchesSearch =
+      !searchValue ||
+      item.reference?.toLowerCase().includes(searchLower) ||
+      item.allocationDetails?.[0]?.partyName?.toLowerCase().includes(searchLower) ||
+      item.lineDetails?.name?.toLowerCase().includes(searchLower) ||
+      item.id?.toString().includes(searchValue);
+
+    const matchesStatus =
+      approveStatusFilter === "all" ||
+      (approveStatusFilter === "approve" && item.approveStatus === 1) ||
+      (approveStatusFilter === "reject" && item.approveStatus === 0) ||
+      (approveStatusFilter === "waiting" && item.approveStatus === null);
+
+    return matchesSearch && matchesStatus;
+  }) || [];
+
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  const currentData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchValue, approveStatusFilter]);
+
   const [updateStatus] = useUpdateAqlStatusInspectionMutation();
   const handleApprove = async (id, status) => {
     try {
@@ -90,6 +115,54 @@ const [approveStatus, setApproveStatus] = useState(0);
             <div className="text-lg font-semibold text-gray-800">{header}</div>
           </div>
           <div className="flex items-center space-x-4">
+            <div className="flex bg-gray-100 p-1 rounded-lg shadow-inner">
+              {/* ApproveStatus Filter Buttons */}
+              <button
+                title="Show Approved"
+                className={`flex items-center gap-1 px-3 py-2 rounded-md transition-all duration-200 ${approveStatusFilter === "approve"
+                  ? "bg-green-500 text-white shadow-md"
+                  : "bg-white text-green-600 hover:bg-green-50"}`}
+                onClick={() => setApproveStatusFilter("approve")}
+              >
+                <Check size={16} />
+                <span className="hidden sm:inline">Approve</span>
+              </button>
+
+              <button
+                title="Show Rejected"
+                className={`flex items-center gap-1 px-3 py-2 rounded-md transition-all duration-200 ${approveStatusFilter === "reject"
+                  ? "bg-red-500 text-white shadow-md"
+                  : "bg-white text-red-600 hover:bg-red-50"}`}
+                onClick={() => setApproveStatusFilter("reject")}
+              >
+                <X size={16} />
+                <span className="hidden sm:inline">Reject</span>
+              </button>
+
+              <button
+                title="Show Waiting"
+                className={`flex items-center gap-1 px-3 py-2 rounded-md transition-all duration-200 ${approveStatusFilter === "waiting"
+                  ? "bg-amber-500 text-white shadow-md"
+                  : "bg-white text-amber-600 hover:bg-amber-50"}`}
+                onClick={() => setApproveStatusFilter("waiting")}
+              >
+                <Power size={16} />
+                <span className="hidden sm:inline">Waiting</span>
+              </button>
+
+              <button
+                title="Show All"
+                className={`flex items-center gap-1 px-3 py-2 rounded-md transition-all duration-200 ${approveStatusFilter === "all"
+                  ? "bg-gray-600 text-white shadow-md"
+                  : "bg-white text-gray-600 hover:bg-gray-100"}`}
+                onClick={() => setApproveStatusFilter("all")}
+              >
+                <FaTableList size={16} />
+                <span className="hidden sm:inline">All</span>
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
             <div className="relative">
               <input
                 type="text"
@@ -139,7 +212,7 @@ const [approveStatus, setApproveStatus] = useState(0);
           </div>
         ) : (
           <>
-            {data?.length === 0 ? (
+            {filteredData?.length === 0 ? (
               <div className="flex-1 flex justify-center bg-white text-gray-500 items-center text-lg py-8">
                 <p>No inspection records found</p>
               </div>
