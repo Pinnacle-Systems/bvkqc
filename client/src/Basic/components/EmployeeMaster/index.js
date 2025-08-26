@@ -51,6 +51,7 @@ import {
 } from "lucide-react";
 import Mastertable from "../MasterTable/Mastertable";
 import imageDefault from "../../../assets/default-dp.png";
+import { useGetBranchQuery } from "../../../redux/services/BranchMasterService";
 const MODEL = "Employee Master";
 export default function Form() {
   const [view, setView] = useState("table");
@@ -87,6 +88,7 @@ export default function Form() {
   const [bloodGroup, setBloodGroup] = useState("");
   const [department, setDepartment] = useState("");
   const [employeeCategory, setEmployeeCategory] = useState("");
+  const [branchId, setBranchId] = useState("");
   const [permanent, setPermanent] = useState("");
   const [active, setActive] = useState(true);
   const [branchPrefixCategory, setBranchPrefixCategory] = useState("");
@@ -127,7 +129,9 @@ export default function Form() {
   const { data: employeeCategoryList } = useGetEmployeeCategoryQuery({
     params: companyId,
   });
-
+  const { data: branchList } = useGetBranchQuery({
+    params: companyId,
+  });
   const { data: departmentList } = useGetDepartmentQuery({ params });
   const {
     data: allData,
@@ -256,9 +260,10 @@ export default function Form() {
   }, [isSingleFetching, isSingleLoading, id, syncFormWithDb, singleData]);
 
   const data = {
-    branchId: secureLocalStorage.getItem(
-      sessionStorage.getItem("sessionId") + "currentBranchId"
-    ),
+    // branchId: secureLocalStorage.getItem(
+    //   sessionStorage.getItem("sessionId") + "currentBranchId"
+    // ),
+    branchId,
     panNo,
     name,
     fatherName,
@@ -671,11 +676,34 @@ export default function Form() {
           <h2 className="text-lg font-semibold text-gray-800">
             {id ? (!readOnly?"Edit Employee": "Employee Master") : "Add New Employee"}
           </h2>
+          
           {regNo && (
             <span className={`px-2 py-0.5 text-xs text-bold rounded-full ${active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
               {regNo}
             </span>
           )}
+            
+        </div>
+        <div className="w-60">
+          <DropdownInput
+                    ref={input3Ref}
+                    name="Branches"
+                    options={dropDownListObject(
+                      id
+                        ? branchList?.data
+                        : branchList?.data?.filter(
+                            (item) => item.active
+                          ),
+                      "branchName",
+                      "id"
+                    )}
+                    value={branchId}
+                    setValue={(value) => setBranchId(value)}
+                    required={true}
+                    readOnly={readOnly}
+                    disabled={childRecord.current > 0}
+                    onKeyDown={(e) => handleKeyNext(e, null)}
+                  />
         </div>
          <div className="flex gap-2">
         <div>
