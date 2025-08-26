@@ -246,6 +246,7 @@ export default function Form() {
       setLeavingReason(data?.leavingReason || "");
       setCanRejoin(data?.canRejoin || false);
       setRejoinReason(data?.rejoinReason || "");
+      setBranchId(data?.branchId ||"");
 
       secureLocalStorage.setItem(
         sessionStorage.getItem("sessionId") + "currentEmployeeSelected",
@@ -698,7 +699,7 @@ export default function Form() {
                       "id"
                     )}
                     value={branchId}
-                    setValue={(value) => setBranchId(value)}
+                    setValue={ setBranchId}
                     required={true}
                     readOnly={readOnly}
                     disabled={childRecord.current > 0}
