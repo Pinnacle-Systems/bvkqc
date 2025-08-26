@@ -8,16 +8,18 @@ async function get(req) {
   const data = await prisma.LineAllocationInchargeMaster.findMany({
           include : {
             InchargeLineListMaster : true,
-            Employee : {
-              select : {
-                name : true,
-              }
-            },
+
             Branch : {
               select : {
                 branchName : true
               }
-            }
+            },
+            employeeByEmpId : {
+              select : {
+                  name : true
+              }
+            },
+            
           }
     
   });
@@ -89,16 +91,18 @@ async function create(body) {
   const {
     employeeCategoryId,
       branchId ,
- 
+      userId,
+      orderId,
     selectedLineList,
     active
   } = body;
 
   const data = await prisma.LineAllocationInchargeMaster.create({
     data: {
-      Employee : employeeCategoryId  ?  { connect: { id: parseInt(employeeCategoryId) } }  : undefined  ,
+      employeeByEmpId  : employeeCategoryId  ?  { connect: { id: parseInt(employeeCategoryId) } }  : undefined  ,
       Branch : branchId   ? { connect: { id: parseInt(branchId) } }  : undefined ,
-      
+      employeeByUserId  :  userId  ,
+      orderId : orderId ,
            InchargeLineListMaster :  {
                       createMany: selectedLineList.length >  0 ? {
                         data: selectedLineList?.map((temp) => {

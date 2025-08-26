@@ -15,6 +15,7 @@ import { useGetBranchQuery } from "../../../redux/services/BranchMasterService";
 import { useGetOrderImportQuery } from "../../../redux/services/OrderImportService";
 import {  useGetSizeTableMasterByReferenceQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import { useGetOrderByIdQuery } from "../../../redux/uniformService/OrderService";
+import { getCommonParams } from "../../../Utils/helper";
 
 
 const MODEL = "Line Allocation Master";
@@ -32,17 +33,18 @@ export default function LineMaster() {
 
   const [employeeCategoryId,setEmployeeCategoryId]  = useState("")
   const [orderId,setOrderId]  = useState('')
-  const [branchId,setBranchId] = useState("")
+  // const [branchId,setBranchId] = useState("")
   const childRecord = useRef(0);
   const [selectedLineList,setSelectedLineList] = useState([]);
   const [selectedSizeList,setSelectedSizeList] = useState([]);
 
-  const companyId = secureLocalStorage.getItem(
-    sessionStorage.getItem("sessionId") + "currentBranchId"
-  );
+
+
+    const { branchId, userId, companyId, finYearId } = getCommonParams()
+
 
   const params = {
-    companyId: companyId,
+    companyId: companyId,branchId , finYearId , userId
   };
 
   // API Calls
@@ -133,7 +135,9 @@ export default function LineMaster() {
     empId,
     employeeCategoryId,
     selectedLineList,
-    branchId
+    branchId ,
+    orderId,
+    userId,
     
   };
 
@@ -144,7 +148,7 @@ export default function LineMaster() {
       resetForm();
     } else {
       setReadOnly(true);
-      setBranchId(data?.branchId ? data?.branchId  : "" )
+      // setBranchId(data?.branchId ? data?.branchId  : "" )
       setEmployeeCategoryId(data?.empId || "");
       setSelectedLineList(data ? data?.InchargeLineListMaster.map((line) => { return { value: line.lineMasterId, label: line?.LineMaster?.lineName } }) : [])
       // setSelectedSizeList()
@@ -153,7 +157,7 @@ export default function LineMaster() {
 
   const resetForm = () => {
     setReadOnly(false);
-    setBranchId("");
+    // setBranchId("");
     setLineName("");
     setActive(true);
     setEmployeeCategoryId("");
@@ -303,7 +307,7 @@ export default function LineMaster() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-             <DropdownWithSearchNew
+             {/* <DropdownWithSearchNew
                 label={"Branch"}
                 options={branchList?.data}
                 value = {branchId}
@@ -311,7 +315,7 @@ export default function LineMaster() {
                 labelField={"branchName"}
                 readOnly={readOnly}
 
-            />
+            /> */}
 
         <DropdownWithSearchNew
                 label={"Reference No  "}
@@ -322,7 +326,7 @@ export default function LineMaster() {
                 readOnly={readOnly}
               
             />
-    <MultiSelectDropdown
+    {/* <MultiSelectDropdown
                 name = {"Size List"}
                 options={ multiSelectOption(sizeList ? sizeList : [], "size", "id") }
                 labelField={"size"}
@@ -330,7 +334,7 @@ export default function LineMaster() {
                 setSelected={setSelectedSizeList}
                 readOnly={readOnly}
 
-                />
+                /> */}
   <MultiSelectDropdown
                 name = {"line List"}
                 options={lineOptions}
