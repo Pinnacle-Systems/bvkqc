@@ -4,7 +4,7 @@ import { AQL_INSPECTION_API } from "../../Api";
 
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
 
- const AqlInspectionApi = createApi({
+const AqlInspectionApi = createApi({
   reducerPath: "aqlInspection",
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
@@ -15,11 +15,10 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
       query: () => ({
         url: AQL_INSPECTION_API,
         method: "GET",
-              }),
+      }),
       providesTags: ["AqlInspection"],
     }),
 
-    // Get single AQL inspection by ID
     getAqlInspectionById: builder.query({
       query: (id) => ({
         url: `${AQL_INSPECTION_API}/${id}`,
@@ -28,7 +27,6 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
       providesTags: (result, error, id) => [{ type: "AqlInspection", id }],
     }),
 
-    // Add new AQL inspection
     addAqlInspection: builder.mutation({
       query: (payload) => ({
         url: AQL_INSPECTION_API,
@@ -38,7 +36,6 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
       invalidatesTags: ["AqlInspection"],
     }),
 
-    // Update AQL inspection
     updateAqlInspection: builder.mutation({
       query: ({ id, payload }) => ({
         url: `${AQL_INSPECTION_API}/${id}`,
@@ -48,13 +45,21 @@ const BASE_URL = process.env.REACT_APP_SERVER_URL;
       invalidatesTags: (result, error, { id }) => [{ type: "AqlInspection", id }],
     }),
 
-    // Delete AQL inspection
     deleteAqlInspection: builder.mutation({
       query: (id) => ({
         url: `${AQL_INSPECTION_API}/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, id) => [{ type: "AqlInspection", id }],
+    }),
+
+    updateAqlStatusInspection: builder.mutation({   
+      query: ({ id, payload }) => ({
+        url: `${AQL_INSPECTION_API}/${id}/status`,
+        method: "PUT",
+        body: payload,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "AqlInspection", id }],
     }),
   }),
 });
@@ -65,5 +70,7 @@ export const {
   useAddAqlInspectionMutation,
   useUpdateAqlInspectionMutation,
   useDeleteAqlInspectionMutation,
-} = AqlInspectionApi
-export default AqlInspectionApi
+  useUpdateAqlStatusInspectionMutation, 
+} = AqlInspectionApi;
+
+export default AqlInspectionApi;

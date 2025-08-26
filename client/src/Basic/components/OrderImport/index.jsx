@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useAddSizeTableMasterMutation, useGetSizeTableMasterQuery } from "../../../redux/uniformService/SizeTableMasterService";
 import { useGetPartyQuery } from '../../../redux/services/PartyMasterService';
+import { useExtractPageTablesMutation } from '../../../redux/services/pdfApi';
 import secureLocalStorage from 'react-secure-storage';
+
 export default function PdfTableExtractor() {
   // State declarations
   const [tables, setTables] = useState([]);
@@ -20,6 +22,7 @@ export default function PdfTableExtractor() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedPartyId, setSelectedPartyId] = useState('');
   const [selectedParty, setSelectedParty] = useState(null);
+
   const handlePartyChange = (e) => {
     console.log(e.target.value, "handle")
     const partyId = e.target.value;
@@ -34,6 +37,7 @@ export default function PdfTableExtractor() {
   const params = {
     companyId,
   };
+  const [extractPageTables] = useExtractPageTablesMutation();
 
   // Redux RTK Query hook
   const [addSizeTableMaster, { isLoading: isSaving }] = useAddSizeTableMasterMutation();
@@ -46,7 +50,7 @@ export default function PdfTableExtractor() {
   } = useGetPartyQuery({ params, searchParams: searchValue });
   console.log(partyData?.data, "partdyData")
 
-  const extractTables = async (file) => {
+   const extractTables = async (file) => {
     setIsLoading(true);
     setError('');
     setTables([]);
@@ -62,7 +66,7 @@ export default function PdfTableExtractor() {
     formData.append('target_page', targetPage);
 
     try {
-      const response = await fetch('http://localhost:5000/extract-page-tables', {
+      const response = await fetch('https://pythontest.pinnaclesystems.co.in/extract-page-tables', {
         method: 'POST',
         body: formData,
       });
@@ -351,143 +355,146 @@ const handleSaveSizeChart = async () => {
           <div className="">
             <div className=" w-full">
               <div className="bg-white rounded-2xl shadow-xl p-6">
-                <div className="flex flex-col md:flex-row gap-4 items-end">
-                  <div className="flex-1 min-w-[180px]">
-                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                      Order No *
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={productReference}
-                        onChange={(e) => setProductReference(e.target.value)}
-                        className="w-full px-4 py-2 text-xs border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                        placeholder="PRD-2023-XXXXX"
-                      />
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
+              <div className="flex flex-col md:flex-row md:flex-wrap gap-3 sm:gap-4 items-stretch md:items-end">
+  {/* Order No */}
+  <div className="flex-1 min-w-[180px]">
+    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+      Order No *
+    </label>
+    <div className="relative">
+      <input
+        type="text"
+        value={productReference}
+        onChange={(e) => setProductReference(e.target.value)}
+        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+        placeholder="PRD-2023-XXXXX"
+      />
+      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+        </svg>
+      </div>
+    </div>
+  </div>
 
-                  <div className="w-24">
-                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                      Page
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min="1"
-                        value={targetPage}
-                        onChange={(e) => setTargetPage(Math.max(1, parseInt(e.target.value) || 1))}
-                        className="w-full px-4 py-2 text-xs border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-center"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="min-w-[200px]">
-                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                      Buyer
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="party"
-                        value={selectedPartyId}
-                        onChange={handlePartyChange}
-                        className="w-full px-4 py-2 text-xs border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none"
-                      >
-                        <option value="">Select Buyer</option>
-                        {partyData?.data?.map((party) => (
-                          <option key={party.id} value={party.id}>
-                            {party.name} ({party.aliasName})
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
+  {/* Page */}
+  <div className="w-full sm:w-24">
+    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+      Page
+    </label>
+    <input
+      type="number"
+      min="1"
+      value={targetPage}
+      onChange={(e) => setTargetPage(Math.max(1, parseInt(e.target.value)))}
+      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-center"
+    />
+  </div>
 
-                  {/* File Upload */}
-                  <div className="flex-1 min-w-[220px]">
-                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                      PDF Document
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={handleFileChange}
-                        className="hidden"
-                        ref={fileInputRef}
-                        id="pdf-upload"
-                      />
-                      <label
-                        htmlFor="pdf-upload"
-                        className={`flex items-center justify-between bg-gray-50 border border-gray-300 rounded-xl px-4 py-2 w-full cursor-pointer hover:bg-gray-100 transition-colors ${fileName ? 'border-blue-300 bg-blue-50' : ''
-                          }`}
-                      >
-                        <span className={`truncate max-w-[70%] text-xs ${fileName ? 'font-medium text-gray-800' : 'text-gray-500'}`}>
-                          {fileName ? (
-                            <span className="flex items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              {fileName}
-                            </span>
-                          ) : "Select file..."}
-                        </span>
-                        <span className="bg-white border border-green-300 text-green-700 text-xs px-3  rounded-lg hover:bg-gray-50 transition-colors">
-                          Browse
-                        </span>
-                      </label>
-                    </div>
-                  </div>
+  {/* Buyer */}
+  <div className="min-w-[200px] flex-1">
+    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+      Buyer
+    </label>
+    <div className="relative">
+      <select
+        id="party"
+        value={selectedPartyId}
+        onChange={handlePartyChange}
+        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none"
+      >
+        <option value="">Select Buyer</option>
+        {partyData?.data?.map((party) => (
+          <option key={party.id} value={party.id}>
+            {party.name} ({party.aliasName})
+          </option>
+        ))}
+      </select>
+      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </div>
+  </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleProcessClick}
-                      disabled={isLoading || !fileName || !productReference}
-                      className={`px-5 py-2 rounded-xl font-medium text-xs flex items-center justify-center transition-all min-w-[120px] ${(isLoading || !fileName || !productReference)
-                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg'
-                        }`}
-                    >
-                      {isLoading ? (
-                        <>
-                          <svg className="animate-spin mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Processing
-                        </>
-                      ) : (
-                        <>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                          </svg>
-                          Extract
-                        </>
-                      )}
-                    </button>
+  {/* File Upload */}
+  <div className="flex-1 min-w-[220px]">
+    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+      PDF Document
+    </label>
+    <div className="relative">
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={handleFileChange}
+        className="hidden"
+        ref={fileInputRef}
+        id="pdf-upload"
+      />
+      <label
+        htmlFor="pdf-upload"
+        className={`flex items-center justify-between bg-gray-50 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 w-full cursor-pointer hover:bg-gray-100 transition-colors ${fileName ? 'border-blue-300 bg-blue-50' : ''}`}
+      >
+        <span className={`truncate max-w-[70%] text-sm ${fileName ? 'font-medium text-gray-800' : 'text-gray-500'}`}>
+          {fileName ? (
+            <span className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {fileName}
+            </span>
+          ) : "Select file..."}
+        </span>
+        <span className="bg-white border border-green-300 text-green-700 text-xs px-2 sm:px-3 rounded-lg hover:bg-gray-50 transition-colors">
+          Browse
+        </span>
+      </label>
+    </div>
+  </div>
 
-                    <button
-                      onClick={handleClear}
-                      disabled={isLoading}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-xs font-medium text-gray-700 transition-colors flex items-center"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+  {/* Action Buttons */}
+  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+    <button
+      onClick={handleProcessClick}
+      disabled={isLoading || !fileName || !productReference}
+      className={`w-full sm:w-auto px-5 py-2 rounded-xl font-medium text-sm flex items-center justify-center transition-all ${(isLoading || !fileName || !productReference)
+        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg'
+        }`}
+    >
+      {isLoading ? (
+        <>
+          <svg className="animate-spin mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Processing
+        </>
+      ) : (
+        <>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+          </svg>
+          Extract
+        </>
+      )}
+    </button>
+
+    <button
+      onClick={handleClear}
+      disabled={isLoading}
+      className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors flex items-center justify-center"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+      Clear
+    </button>
+  </div>
+</div>
+
 
                 <div className="mt-6">
                   {error && (

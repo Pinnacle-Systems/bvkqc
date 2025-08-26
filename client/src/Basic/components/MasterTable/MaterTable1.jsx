@@ -4,6 +4,7 @@ import "./Master.css";
 import { Power, Table, Check, X, Eye, Edit, Trash } from "lucide-react";
 import { FaTableList } from "react-icons/fa6";
 import { RiPlayListAddLine } from "react-icons/ri";
+import { useUpdateAqlStatusInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
 
 const ACTIVE = (
   <div className="bg-gradient-to-r from-green-200 to-green-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-green-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
@@ -12,35 +13,36 @@ const ACTIVE = (
 );
 
 const Mastertable = ({
-  tableHeaders,
-  tableDataNames,
-  setId,
   data,
   loading,
   searchValue,
   setSearchValue,
-  rowActions = true,
   header,
-  setForm,
   onDataClick,
   setReadOnly,
   deleteData,
   setDeleteId,
-  onApprove,
-  onReject ,
-  setIsDetailView
+
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedRow, setExpandedRow] = useState(null);
-
+const [approveStatus, setApproveStatus] = useState(0);
   const totalPages = Math.ceil(data?.length / rowsPerPage);
 
   const currentData = data?.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
+  const [updateStatus] = useUpdateAqlStatusInspectionMutation();
+  const handleApprove = async (id, status) => {
+    try {
+      const response = await updateStatus({ id, payload: { status } }).unwrap();
+      setApproveStatus(response.approveStatus);
+    } catch (err) {
+      console.error("Failed to update status", err);
+    }
+  };
   const toggleRowExpand = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
@@ -53,6 +55,30 @@ const Mastertable = ({
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const renderSizeStatus = (hasBefore, hasAfter, beforeSize, afterSize) => {
+    if (!hasBefore && !hasAfter) {
+      return (
+        <div className="text-xs text-gray-500 italic">No size data</div>
+      );
+    }
+
+    return (
+      <div className="flex items-center space-x-2">
+        {hasBefore && (
+          <div className={`px-2 py-1 rounded text-xs ${hasAfter ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+            Before: {beforeSize}
+          </div>
+        )}
+        {hasAfter && (
+          <div className={`px-2 py-1 rounded text-xs ${hasBefore ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+            After: {afterSize}
+          </div>
+        )}
+
+      </div>
+    );
   };
 
   return (
@@ -144,7 +170,7 @@ const Mastertable = ({
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
                           <div>
                             <p className="text-gray-500 font-medium">Party</p>
@@ -155,12 +181,22 @@ const Mastertable = ({
                           <div>
                             <p className="text-gray-500 font-medium">Line</p>
                             <p>
-                              {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
+                              {dataObj?.lineDetails?.name || 'N/A'}
                             </p>
                           </div>
                         </div>
+
+                        <div className="mt-3">
+                          <p className="text-gray-500 font-medium text-xs">Size Status</p>
+                          {renderSizeStatus(
+                            dataObj.hasBefore,
+                            dataObj.hasAfter,
+                            dataObj.beforeSize,
+                            dataObj.afterSize
+                          )}
+                        </div>
                       </div>
-                      
+
                       {expandedRow === dataObj.id && (
                         <div className="border-t border-gray-200 p-4 bg-gray-50">
                           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -181,11 +217,11 @@ const Mastertable = ({
                               <p>{formatDate(dataObj?.createdAt)}</p>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4 flex flex-wrap justify-end gap-2">
                             <button
                               onClick={() => {
-                                onDataClick(dataObj?.reference);
+                                onDataClick(dataObj?.id);
                                 setReadOnly(true);
                               }}
                               className="flex items-center gap-1 px-3 py-1.5 bg-white text-blue-600 rounded-md text-xs border border-blue-200 hover:bg-blue-50"
@@ -211,13 +247,14 @@ const Mastertable = ({
                               <Trash size={14} /> Delete
                             </button>
                             <button
-                              onClick={() => onApprove(dataObj.id)}
+                              onClick={() => handleApprove(dataObj.id, 1)}
                               className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
                             >
                               <Check size={14} /> Approve
                             </button>
+
                             <button
-                              onClick={() => onReject(dataObj.id)}
+                              onClick={() => handleApprove(dataObj.id, 0)}
                               className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
                             >
                               <X size={14} /> Reject
@@ -234,18 +271,17 @@ const Mastertable = ({
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Reference
+                          Order Id
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Party
                         </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Ironing
-                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Line
                         </th>
-                      
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Size Status
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Inspection Date
                         </th>
@@ -261,9 +297,9 @@ const Mastertable = ({
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {currentData.map((dataObj, index) => (  
+                      {currentData.map((dataObj, index) => (
                         <React.Fragment key={index}>
-                          <tr 
+                          <tr
                             className={`hover:bg-gray-50 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                             onClick={() => toggleRowExpand(dataObj.id)}
                           >
@@ -273,26 +309,16 @@ const Mastertable = ({
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {dataObj?.allocationDetails?.[0]?.partyName || 'N/A'}
                             </td>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {dataObj.ayanCondition || 'N/A'}
-                            </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
-                              {/* {dataObj?.allocationDetails?.[0]?.lineName || 'N/A'}
-                               */}
-                               <button onClick={ (e)  =>  {
-                                 e.stopPropagation();
-                                setIsDetailView(true)
-                               } } >
-                                 <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="20"
-                                      height="20"
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
-                                      <path d="M10 3C5.5 3 2 10 2 10s3.5 7 8 7 8-7 8-7-3.5-7-8-7zm0 12c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z" />
-                                    </svg>
-                               </button>
+                              {dataObj?.lineDetails?.name || 'N/A'}
+                            </td>
+                            <td className="px-6 py-2 whitespace-nowrap">
+                              {renderSizeStatus(
+                                dataObj.hasBefore,
+                                dataObj.hasAfter,
+                                dataObj.beforeSize,
+                                dataObj.afterSize
+                              )}
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {formatDate(dataObj.inspectionDate)}
@@ -305,7 +331,7 @@ const Mastertable = ({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onDataClick(dataObj?.reference);
+                                    onDataClick(dataObj?.id);
                                     setReadOnly(true);
                                   }}
                                   className="text-blue-600 hover:text-blue-800"
@@ -340,29 +366,24 @@ const Mastertable = ({
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onApprove(dataObj.id);
-                                  }}
-                                  className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700 flex items-center"
+                                  onClick={() => handleApprove(dataObj.id, 1)}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
                                 >
-                                  <Check size={14} className="mr-1" /> Approve
+                                  <Check size={14} /> Approve
                                 </button>
+
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onReject(dataObj.id);
-                                  }}
-                                  className="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700 flex items-center"
+                                  onClick={() => handleApprove(dataObj.id, 0)}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
                                 >
-                                  <X size={14} className="mr-1" /> Reject
+                                  <X size={14} /> Reject
                                 </button>
                               </div>
                             </td>
                           </tr>
                           {expandedRow === dataObj.id && (
                             <tr className="bg-gray-50">
-                              <td colSpan="7" className="px-6 py-2">
+                              <td colSpan="8" className="px-6 py-2">
                                 <div className="grid grid-cols-3 gap-4 text-sm">
                                   <div>
                                     <p className="text-gray-500 font-medium">Allocation Date</p>
@@ -391,11 +412,10 @@ const Mastertable = ({
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                        currentPage === 1
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
                     >
                       Previous
                     </button>
@@ -406,11 +426,10 @@ const Mastertable = ({
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                        currentPage === totalPages
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === totalPages
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
                     >
                       Next
                     </button>

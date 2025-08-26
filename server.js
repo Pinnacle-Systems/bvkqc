@@ -32,6 +32,7 @@ import {
 
 
 import { socketMain } from './src/sockets/socket.js';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const app = express()
 app.use(express.json({ limit: "50mb" }))
@@ -103,8 +104,31 @@ app.use("/tagType", TagType);
 app.use("/lineMaster", LineMaster)
 app.use("/sizeTable",sizeTable)
 app.use("/aql",aql)
-app.use("/InchargeLineList", InchargeLineListMaster)
+app.use("/InchargeLineList", InchargeLineListMaster)  
 
+// app.post("/extract-page-tables", async (req, res) => {
+//   try {
+//     const chunks = [];
+//     for await (const chunk of req) {
+//       chunks.push(chunk);
+//     }
+//     const bodyBuffer = Buffer.concat(chunks);
+//   const headers = {};
+//     if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
+//     const response = await fetch("http://localhost:5000/extract-page-tables", {
+//       method: "POST",
+//       body: bodyBuffer,
+//       headers: headers,
+//     });
+
+//     const data = await response.json();
+//     console.log(data,"data")
+//     res.status(response.status).json(data);
+//   } catch (err) {
+//     console.error("PDF extraction error:", err);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 app.get("/retreiveFile/:fileName", (req, res) => {
   const { fileName } = req.params

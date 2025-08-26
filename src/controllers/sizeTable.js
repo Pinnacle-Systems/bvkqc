@@ -29,7 +29,7 @@ export const create = async (req, res) => {
       product = await prisma.product.create({
         data: {
           name: productReference,
-          reference: productReference,
+           reference: productReference,
            partyId: parseInt(selectedPartyId),
           description: 'Created from PDF upload'
         }
@@ -80,7 +80,7 @@ export const create = async (req, res) => {
       success: false,
       message: 'Failed to save size chart',
       error: error.message,
-      requestBody: req.body // Include for debugging
+      requestBody: req.body 
     });
   }
 };
@@ -140,6 +140,7 @@ export const get = async (req, res) => {
         id: product.id,
         name: product.name,
         reference: product.reference,
+        color:product.color,
         description: product.description,
       },
       measurements: product.measurements.map(m => ({

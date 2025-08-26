@@ -40,7 +40,9 @@ import {
   CurrencyMasterApi,
   machineMasterApi,
   lineAllocationMasterApi,
+  
 } from "./services";
+import { pdfApi } from "./services/pdfApi";
 import projectPaymentFormApi from "./services/ProjectPaymentService";
 import {
   AccessoryGroupMasterApi,
@@ -125,6 +127,7 @@ const commonReducers = {
   projectPayment: projectPaymentFormApi.reducer,
   [projectApi.reducerPath]: projectApi.reducer,
   [invoiceApi.reducerPath]: invoiceApi.reducer,
+    [pdfApi.reducerPath]: pdfApi.reducer,
   [AqlInspectionApi.reducerPath] : AqlInspectionApi.reducer,
   sample: SampleApi.reducer,
   sizeMaster: SizeMasterApi.reducer,
@@ -187,6 +190,7 @@ const commonMiddleware = [
   stateMasterApi.middleware,
   cityMasterApi.middleware,
   departmentMasterApi.middleware,
+ pdfApi.middleware,
   employeeCategoryMasterApi.middleware,
   finYearMasterApi.middleware,
   rolesMasterApi.middleware,

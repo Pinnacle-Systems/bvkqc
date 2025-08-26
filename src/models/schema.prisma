@@ -171,58 +171,59 @@ model User {
 }
 
 model Employee {
-  id                 Int               @id @default(autoincrement())
-  name               String?
-  email              String?           @unique
-  regNo              String?           @unique
-  chamberNo          String?
-  department         Department?       @relation(fields: [departmentId], references: [id])
-  departmentId       Int?
-  joiningDate        DateTime?
-  fatherName         String?
-  dob                DateTime?
-  gender             Gender?
-  maritalStatus      MaritalStatus?
-  bloodGroup         BloodGroup?
-  panNo              String?
-  consultFee         String?
-  salaryPerMonth     String?
-  commissionCharges  String?
-  mobile             BigInt?
-  accountNo          String?
-  ifscNo             String?
-  branchName         String?
-  degree             String?
-  specialization     String?
-  localAddress       String?
-  localCity          City?             @relation("localCity", fields: [localCityId], references: [id])
-  localCityId        Int?
-  localPincode       Int?
-  permAddress        String?
-  permCity           City?             @relation("permCity", fields: [permCityId], references: [id])
-  permCityId         Int?
-  permPincode        Int?
-  active             Boolean?          @default(true)
-  image              Bytes?            @db.LongBlob
-  Branch             Branch?           @relation(fields: [branchId], references: [id])
-  branchId           Int?
-  EmployeeCategory   EmployeeCategory? @relation(fields: [employeeCategoryId], references: [id])
-  employeeCategoryId Int?
-  permanent          Boolean?          @default(false)
-  leavingReason      String?
-  leavingDate        DateTime?
-  canRejoin          Boolean?          @default(true)
-  rejoinReason       String?
-  createdAt          DateTime?         @default(now())
-  updatedAt          DateTime?         @updatedAt
-  createdBy          User?             @relation("createdBy", fields: [createdById], references: [id])
-  createdById        Int?
-  updatedBy          User?             @relation("updatedBy", fields: [updatedById], references: [id])
-  updatedById        Int?
-  User               User[]
-  LineMaster         LineMaster[]
+  id                      Int                            @id @default(autoincrement())
+  name                    String?
+  email                   String?                        @unique
+  regNo                   String?                        @unique
+  chamberNo               String?
+  department              Department?                    @relation(fields: [departmentId], references: [id])
+  departmentId            Int?
+  joiningDate             DateTime?
+  fatherName              String?
+  dob                     DateTime?
+  gender                  Gender?
+  maritalStatus           MaritalStatus?
+  bloodGroup              BloodGroup?
+  panNo                   String?
+  consultFee              String?
+  salaryPerMonth          String?
+  commissionCharges       String?
+  mobile                  BigInt?
+  accountNo               String?
+  ifscNo                  String?
+  branchName              String?
+  degree                  String?
+  specialization          String?
+  localAddress            String?
+  localCity               City?                          @relation("localCity", fields: [localCityId], references: [id])
+  localCityId             Int?
+  localPincode            Int?
+  permAddress             String?
+  permCity                City?                          @relation("permCity", fields: [permCityId], references: [id])
+  permCityId              Int?
+  permPincode             Int?
+  active                  Boolean?                       @default(true)
+  image                   Bytes?                         @db.LongBlob
+  Branch                  Branch?                        @relation(fields: [branchId], references: [id])
+  branchId                Int?
+  EmployeeCategory        EmployeeCategory?              @relation(fields: [employeeCategoryId], references: [id])
+  employeeCategoryId      Int?
+  permanent               Boolean?                       @default(false)
+  leavingReason           String?
+  leavingDate             DateTime?
+  canRejoin               Boolean?                       @default(true)
+  rejoinReason            String?
+  createdAt               DateTime?                      @default(now())
+  updatedAt               DateTime?                      @updatedAt
+  createdBy               User?                          @relation("createdBy", fields: [createdById], references: [id])
+  createdById             Int?
+  updatedBy               User?                          @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById             Int?
+  User                    User[]
+  LineMaster              LineMaster[]
   lineAllocationsByEmpId  LineAllocationInchargeMaster[] @relation("empIdRelation")
   lineAllocationsByUserId LineAllocationInchargeMaster[] @relation("userIdRelation")
+  AqlInspection           AqlInspection[]
 }
 
 model FinYear {
@@ -799,6 +800,7 @@ model LineMaster {
   empId                  Int?
   Allocation             Allocation[]
   InchargeLineListMaster InchargeLineListMaster[]
+  AqlInspection          AqlInspection[]
 }
 
 model Product {
@@ -850,29 +852,38 @@ model Allocation {
 }
 
 model AqlInspection {
-  id             Int           @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   companyId      String
   reference      String
   inspectionDate DateTime
-  ayanCondition  AyanCondition @default(BEFORE)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  samples        Sample[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  color          String?
+  approveStatus  Int?
+  beforeSamples Sample[]    @relation("BeforeSamples")
+  afterSamples  Sample[]    @relation("AfterSamples")
+  LineMaster    LineMaster? @relation(fields: [lineMasterId], references: [id])
+  lineMasterId  Int?
+  Employee      Employee?   @relation(fields: [employeeId], references: [id])
+  employeeId    Int?
 
-  @@unique([reference, ayanCondition])
   @@index([companyId])
   @@index([reference])
 }
 
 model Sample {
-  id              Int                 @id @default(autoincrement())
-  aqlInspectionId Int
-  inspection      AqlInspection       @relation(fields: [aqlInspectionId], references: [id], onDelete: Cascade)
-  size            String
-  measurements    SampleMeasurement[]
-  createdAt       DateTime            @default(now())
+  id Int @id @default(autoincrement())
 
-  @@index([aqlInspectionId])
+  beforeAqlInspectionId Int?
+  afterAqlInspectionId  Int?
+
+  beforeInspection AqlInspection? @relation("BeforeSamples", fields: [beforeAqlInspectionId], references: [id], onDelete: Cascade)
+  afterInspection  AqlInspection? @relation("AfterSamples", fields: [afterAqlInspectionId], references: [id], onDelete: Cascade)
+
+  size         String
+  measurements SampleMeasurement[]
+  condition    AyanCondition       @default(BEFORE)
+  createdAt    DateTime            @default(now())
 }
 
 model SampleMeasurement {

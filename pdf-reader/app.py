@@ -1,6 +1,7 @@
 import pdfplumber
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -8,7 +9,7 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 @app.route('/')
 def home():
     return "PDF Extraction Service Running", 200
-
+@app.route('/pdf-reader')
 def extract_page_tables(pdf_stream, target_page=6):
     try:
         with pdfplumber.open(pdf_stream) as pdf:
@@ -81,5 +82,9 @@ def extract_page_tables_route():
     except Exception as e:
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    # Get port from environment variable or default to 5000
+    port = int(os.environ.get("PORT", 9700))
+    app.run(host='0.0.0.0', port=port)
