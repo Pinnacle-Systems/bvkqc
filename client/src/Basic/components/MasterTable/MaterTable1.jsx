@@ -4,6 +4,7 @@ import "./Master.css";
 import { Power, Table, Check, X, Eye, Edit, Trash } from "lucide-react";
 import { FaTableList } from "react-icons/fa6";
 import { RiPlayListAddLine } from "react-icons/ri";
+import { useUpdateAqlStatusInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
 
 const ACTIVE = (
   <div className="bg-gradient-to-r from-green-200 to-green-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-green-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
@@ -21,20 +22,27 @@ const Mastertable = ({
   setReadOnly,
   deleteData,
   setDeleteId,
-  onApprove,
-  onReject,
+
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedRow, setExpandedRow] = useState(null);
-
+const [approveStatus, setApproveStatus] = useState(0);
   const totalPages = Math.ceil(data?.length / rowsPerPage);
 
   const currentData = data?.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
+  const [updateStatus] = useUpdateAqlStatusInspectionMutation();
+  const handleApprove = async (id, status) => {
+    try {
+      const response = await updateStatus({ id, payload: { status } }).unwrap();
+      setApproveStatus(response.approveStatus);
+    } catch (err) {
+      console.error("Failed to update status", err);
+    }
+  };
   const toggleRowExpand = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
@@ -68,7 +76,7 @@ const Mastertable = ({
             After: {afterSize}
           </div>
         )}
-      
+
       </div>
     );
   };
@@ -162,7 +170,7 @@ const Mastertable = ({
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
                           <div>
                             <p className="text-gray-500 font-medium">Party</p>
@@ -177,7 +185,7 @@ const Mastertable = ({
                             </p>
                           </div>
                         </div>
-                        
+
                         <div className="mt-3">
                           <p className="text-gray-500 font-medium text-xs">Size Status</p>
                           {renderSizeStatus(
@@ -188,7 +196,7 @@ const Mastertable = ({
                           )}
                         </div>
                       </div>
-                      
+
                       {expandedRow === dataObj.id && (
                         <div className="border-t border-gray-200 p-4 bg-gray-50">
                           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -209,7 +217,7 @@ const Mastertable = ({
                               <p>{formatDate(dataObj?.createdAt)}</p>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4 flex flex-wrap justify-end gap-2">
                             <button
                               onClick={() => {
@@ -239,13 +247,14 @@ const Mastertable = ({
                               <Trash size={14} /> Delete
                             </button>
                             <button
-                              onClick={() => onApprove(dataObj.id)}
+                              onClick={() => handleApprove(dataObj.id, 1)}
                               className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
                             >
                               <Check size={14} /> Approve
                             </button>
+
                             <button
-                              onClick={() => onReject(dataObj.id)}
+                              onClick={() => handleApprove(dataObj.id, 0)}
                               className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
                             >
                               <X size={14} /> Reject
@@ -288,9 +297,9 @@ const Mastertable = ({
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {currentData.map((dataObj, index) => (  
+                      {currentData.map((dataObj, index) => (
                         <React.Fragment key={index}>
-                          <tr 
+                          <tr
                             className={`hover:bg-gray-50 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                             onClick={() => toggleRowExpand(dataObj.id)}
                           >
@@ -357,22 +366,17 @@ const Mastertable = ({
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onApprove(dataObj.id);
-                                  }}
-                                  className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700 flex items-center"
+                                  onClick={() => handleApprove(dataObj.id, 1)}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
                                 >
-                                  <Check size={14} className="mr-1" /> Approve
+                                  <Check size={14} /> Approve
                                 </button>
+
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onReject(dataObj.id);
-                                  }}
-                                  className="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700 flex items-center"
+                                  onClick={() => handleApprove(dataObj.id, 0)}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
                                 >
-                                  <X size={14} className="mr-1" /> Reject
+                                  <X size={14} /> Reject
                                 </button>
                               </div>
                             </td>
@@ -408,11 +412,10 @@ const Mastertable = ({
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                        currentPage === 1
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
                     >
                       Previous
                     </button>
@@ -423,11 +426,10 @@ const Mastertable = ({
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-                        currentPage === totalPages
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === totalPages
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
                     >
                       Next
                     </button>

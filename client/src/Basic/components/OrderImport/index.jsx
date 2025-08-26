@@ -15,7 +15,6 @@ export default function PdfTableExtractor() {
   const [showText, setShowText] = useState(false);
   const [targetPage, setTargetPage] = useState(7);
   const [productReference, setProductReference] = useState('');
-  const [color,setColor] = useState('')
   const [sizeChartData, setSizeChartData] = useState([]);
   const [visualData, setVisualData] = useState([]);
   const [saveStatus, setSaveStatus] = useState({ success: false, message: '' });
@@ -269,7 +268,6 @@ const handleSaveSizeChart = async () => {
   try {
     const payload = {
       productReference,
-      color,
       measurements: sizeChartData,
       visualMeasurements: visualData,
       selectedPartyId: selectedPartyId,
@@ -336,7 +334,6 @@ const handleSaveSizeChart = async () => {
     setTableCount(0);
     setShowText(false);
     setTargetPage(7);
-    setColor('')
     setProductReference('');
     setSizeChartData([]);
     setVisualData([]);
@@ -380,19 +377,6 @@ const handleSaveSizeChart = async () => {
     </div>
   </div>
 
-  {/* Color */}
-  <div className="flex-1 min-w-[180px]">
-    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-      Color *
-    </label>
-    <input
-      type="text"
-      value={color}
-      onChange={(e) => setColor(e.target.value)}
-      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-      placeholder="Color"
-    />
-  </div>
 
   {/* Page */}
   <div className="w-full sm:w-24">

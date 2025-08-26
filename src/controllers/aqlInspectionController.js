@@ -111,6 +111,7 @@ const transformInspectionData = (inspection) => {
     updatedAt: inspection.updatedAt,
     before: inspection.beforeSamples?.map(transformSample),
     after: inspection.afterSamples?.map(transformSample),
+    color :inspection.color
   };
 };
 
@@ -193,7 +194,7 @@ export const createAqlInspection = async (req, res) => {
         reference: req.body.reference,
         inspectionDate: new Date(req.body.inspectionDate),
         lineMasterId : parseInt(req.body.lineMasterId), 
-        // employeeId : parseInt( req.body.userId)
+        color: req.body.color
       },
     });
 
@@ -309,6 +310,7 @@ export const getAqlInspectionById = async (req, res) => {
         404
       );
     }
+    console.log(inspection,"inspectionsss")
 
     return res.status(200).json({
       success: true,
@@ -410,12 +412,13 @@ export const getAllReferences = async (req, res) => {
     id: true,
     reference: true,
     inspectionDate: true,
+    approveStatus: true,
     createdAt: true,
     updatedAt: true,
     beforeSamples: {
       select: {
         condition: true,
-        size: true, // ✅ size from Sample model
+        size: true,
       },
       take: 1,
     },
@@ -445,6 +448,7 @@ const formattedReferences = references.map(ref => ({
   id: ref.id,
   reference: ref.reference,
   inspectionDate: ref.inspectionDate,
+  approveStatus:ref.approveStatus,
   createdAt: ref.createdAt,
   updatedAt: ref.updatedAt,
   hasBefore: ref.beforeSamples.length > 0,
@@ -714,6 +718,35 @@ export const deleteAqlInspection = async (req, res) => {
     return res.status(statusCode).json(errorResponse);
   }
 };
+
+export const updateAqlStatusInspection = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Inspection ID is required" });
+    }
+    console.log(req.body,"bodyData ")
+
+    const updatedInspection = await prisma.aqlInspection.update({
+      where: { id: parseInt(id) },
+      data: { approveStatus: req.body.status }, 
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: updatedInspection,
+    });
+  } catch (err) {
+    console.error("Update AQL Status Error:", err);
+    if (err.code === "P2025") {
+      return res.status(404).json({ message: "Inspection not found" });
+    }
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+
 
 export const aqlInspectionController = {
   createAqlInspection,

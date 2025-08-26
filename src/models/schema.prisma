@@ -806,7 +806,6 @@ model LineMaster {
 model Product {
   id           Int           @id @default(autoincrement())
   name         String
-  color         String
   reference    String        @unique
   description  String?
   measurements Measurement[]
@@ -859,7 +858,8 @@ model AqlInspection {
   inspectionDate DateTime
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
+  color          String?
+  approveStatus  Int?
   beforeSamples Sample[]    @relation("BeforeSamples")
   afterSamples  Sample[]    @relation("AfterSamples")
   LineMaster    LineMaster? @relation(fields: [lineMasterId], references: [id])

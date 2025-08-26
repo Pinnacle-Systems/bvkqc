@@ -705,6 +705,7 @@ CREATE TABLE `LineMaster` (
 CREATE TABLE `Product` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
+    `color` VARCHAR(191) NOT NULL,
     `reference` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -758,24 +759,25 @@ CREATE TABLE `AqlInspection` (
     `companyId` VARCHAR(191) NOT NULL,
     `reference` VARCHAR(191) NOT NULL,
     `inspectionDate` DATETIME(3) NOT NULL,
-    `ayanCondition` ENUM('BEFORE', 'AFTER') NOT NULL DEFAULT 'BEFORE',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `lineMasterId` INTEGER NULL,
+    `employeeId` INTEGER NULL,
 
     INDEX `AqlInspection_companyId_idx`(`companyId`),
     INDEX `AqlInspection_reference_idx`(`reference`),
-    UNIQUE INDEX `AqlInspection_reference_ayanCondition_key`(`reference`, `ayanCondition`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Sample` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `aqlInspectionId` INTEGER NOT NULL,
+    `beforeAqlInspectionId` INTEGER NULL,
+    `afterAqlInspectionId` INTEGER NULL,
     `size` VARCHAR(191) NOT NULL,
+    `condition` ENUM('BEFORE', 'AFTER') NOT NULL DEFAULT 'BEFORE',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    INDEX `Sample_aqlInspectionId_idx`(`aqlInspectionId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -813,6 +815,8 @@ CREATE TABLE `LineAllocationInchargeMaster` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `empId` INTEGER NULL,
     `branchId` INTEGER NULL,
+    `UserId` INTEGER NULL,
+    `orderId` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -822,6 +826,7 @@ CREATE TABLE `InchargeLineListMaster` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `lineAllocationInchargeMasterId` INTEGER NULL,
     `lineMasterId` INTEGER NULL,
+    `Size` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -1073,7 +1078,16 @@ ALTER TABLE `Allocation` ADD CONSTRAINT `Allocation_lineMasterId_fkey` FOREIGN K
 ALTER TABLE `Allocation` ADD CONSTRAINT `Allocation_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Sample` ADD CONSTRAINT `Sample_aqlInspectionId_fkey` FOREIGN KEY (`aqlInspectionId`) REFERENCES `AqlInspection`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `AqlInspection` ADD CONSTRAINT `AqlInspection_lineMasterId_fkey` FOREIGN KEY (`lineMasterId`) REFERENCES `LineMaster`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `AqlInspection` ADD CONSTRAINT `AqlInspection_employeeId_fkey` FOREIGN KEY (`employeeId`) REFERENCES `Employee`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Sample` ADD CONSTRAINT `Sample_beforeAqlInspectionId_fkey` FOREIGN KEY (`beforeAqlInspectionId`) REFERENCES `AqlInspection`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Sample` ADD CONSTRAINT `Sample_afterAqlInspectionId_fkey` FOREIGN KEY (`afterAqlInspectionId`) REFERENCES `AqlInspection`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `SampleMeasurement` ADD CONSTRAINT `SampleMeasurement_sampleId_fkey` FOREIGN KEY (`sampleId`) REFERENCES `Sample`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1089,6 +1103,9 @@ ALTER TABLE `LineAllocationInchargeMaster` ADD CONSTRAINT `LineAllocationIncharg
 
 -- AddForeignKey
 ALTER TABLE `LineAllocationInchargeMaster` ADD CONSTRAINT `LineAllocationInchargeMaster_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LineAllocationInchargeMaster` ADD CONSTRAINT `LineAllocationInchargeMaster_UserId_fkey` FOREIGN KEY (`UserId`) REFERENCES `Employee`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_lineAllocationInchargeMasterId_fkey` FOREIGN KEY (`lineAllocationInchargeMasterId`) REFERENCES `LineAllocationInchargeMaster`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

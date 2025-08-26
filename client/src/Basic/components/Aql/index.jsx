@@ -16,6 +16,7 @@ const Aql = () => {
   const [newItem, setNewItem] = useState(false);
   const [ayanCondition, setAyanCondition] = useState('before');
   const [showCompare, setShowCompare] = useState(false);
+    const [color,setColor] = useState('')
   const [selectedLine, setSelectedLine] = useState("");
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [measurements, setMeasurements] = useState([]);
@@ -38,7 +39,6 @@ const Aql = () => {
       partialSavedMeasurements: {}
     }
   });
-  const [color, setColor] = useState("#ff0000");
 
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
@@ -91,7 +91,7 @@ const { data: aqlData, refetch: refetchAqlData } = useGetAqlInspectionsQuery();
     if (sizeTableData?.data && aqlData?.data) {
       const merged = aqlData.data.map(aqlItem => {
         const matchingAllocations = sizeTableData.data.filter(
-          allocItem => allocItem.reference === aqlItem.reference
+          allocItem => allocItem.reference === aqlItem.reference 
         );
 
         return {
@@ -158,7 +158,7 @@ const { data: aqlData, refetch: refetchAqlData } = useGetAqlInspectionsQuery();
       const data = singleData.data;
       setSelectedReference(data.reference || '');
       setId(data.id || '');
-
+      setColor(data?.color || '');
       if (data.inspectionDate) {
         setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
       }
@@ -500,7 +500,8 @@ const prepareDatabasePayload = () => {
     after: prepareConditionData('after'),
     companyId:parseInt(companyId) ,
     userId: userId,
-    lineMasterId: selectedLine
+    lineMasterId: selectedLine,
+    color: color
   };
 };
   const handleSubmit = async (e) => {
@@ -528,13 +529,13 @@ const prepareDatabasePayload = () => {
         response = await addAqlInspection(payload).unwrap();
       }
 
-      // if (response.success) {
-      //   toast.success('AQL Form submitted successfully!');
-      //   secureLocalStorage.removeItem(storageKey);
-      //   resetForm();
-      // } else {
-      //   throw new Error(response.message || 'Submission failed');
-      // }
+      if (response.success) {
+        toast.success('AQL Form submitted successfully!');
+        secureLocalStorage.removeItem(storageKey);
+        resetForm();
+      } else {
+        throw new Error(response.message || 'Submission failed');
+      }
     } catch (error) {
       console.error('Submission error:', error);
       toast.error(`Failed to submit AQL form: ${error.message}`);
@@ -549,6 +550,7 @@ const prepareDatabasePayload = () => {
     setSelectedSize('');
     setMeasurements([]);
     setCheckValues({});
+    setColor('')
     setFormData({
       before: {
         savedSizes: [],
@@ -884,7 +886,7 @@ const deleteData = async () => {
   };
 
   const renderFormControls = () => (
-    <div className={`grid ${isMobileView ? 'grid-cols-3' : 'grid-cols-1 md:grid-cols-5'} gap-4 mb-4`}>
+    <div className={`grid ${isMobileView ? 'grid-cols-3' : 'grid-cols-1 md:grid-cols-6'} gap-4 mb-4`}>
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">
           Order Id <span className="text-red-500">*</span>
@@ -906,6 +908,20 @@ const deleteData = async () => {
           ))}
         </select>
       </div>
+      
+  {/* Color */}
+  <div className="flex-1 min-w-[90px]">
+    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+      Color *
+    </label>
+    <input
+      type="text"
+      value={color}
+      onChange={(e) => setColor(e.target.value)}
+      className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+      placeholder="Color"
+    />
+  </div>
 
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">
