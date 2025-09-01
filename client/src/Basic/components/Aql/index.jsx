@@ -21,6 +21,7 @@ const Aql = () => {
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
+  const [approveStatus, setApproveStatus] = useState(0);
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
@@ -108,7 +109,7 @@ const Aql = () => {
       });
       setMergedReportData(merged);
     }
-  }, [sizeTableData, aqlData]);
+  }, [sizeTableData, aqlData,approveStatus,setApproveStatus]);
 
   const loadSavedData = () => {
     const savedData = secureLocalStorage.getItem(storageKey);
@@ -1368,12 +1369,15 @@ const Aql = () => {
             onDataClick={onDataClick}
             tableHeaders={tableHeaders}
             tableDataNames={tableDataNames}
+             refetchAqlData={refetchAqlData}
             data={mergedReportData}
             deleteData={deleteData}
             setReadOnly={setReadOnly}
             setDeleteId={setDeleteId}
             setIsDetailView={setIsDetailView}
             isDetailView={isDetailView}
+            approveStatus={approveStatus}
+            setApproveStatus={setApproveStatus}
           />
         </>
       ) : (

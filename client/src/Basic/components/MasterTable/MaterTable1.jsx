@@ -5,6 +5,7 @@ import { Power, Table, Check, X, Eye, Edit, Trash } from "lucide-react";
 import { FaTableList } from "react-icons/fa6";
 import { RiPlayListAddLine } from "react-icons/ri";
 import { useUpdateAqlStatusInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
+import { toast } from "react-toastify";
 
 const ACTIVE = (
   <div className="bg-gradient-to-r from-green-200 to-green-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-green-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
@@ -20,13 +21,15 @@ const Mastertable = ({
   setReadOnly,
   deleteData,
   setDeleteId,
+  approveStatus,
+  refetchAqlData,
+  setApproveStatus
 
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedRow, setExpandedRow] = useState(null);
-  const [approveStatusFilter, setApproveStatusFilter] = useState("all");
-  const [approveStatus, setApproveStatus] = useState(0);
+  const [approveStatusFilter, setApproveStatusFilter] = useState("waiting");
   const [searchValue, setSearchValue] = useState('')
   console.log(searchValue, "searchNalue")
   console.log(data, "data ")
@@ -61,13 +64,17 @@ const Mastertable = ({
 
   const [updateStatus] = useUpdateAqlStatusInspectionMutation();
   const handleApprove = async (id, status) => {
-    try {
-      const response = await updateStatus({ id, payload: { status } }).unwrap();
-      setApproveStatus(response.approveStatus);
-    } catch (err) {
-      console.error("Failed to update status", err);
-    }
-  };
+  try {
+    const response = await updateStatus({ id, payload: { status } }).unwrap();
+    setApproveStatus(response.approveStatus);
+    refetchAqlData(); 
+    toast.success(status === 1 ? "Approved successfully" : "Rejected successfully");
+  } catch (err) {
+    console.error("Failed to update status", err);
+    toast.error("Failed to update status");
+  }
+};
+
   const toggleRowExpand = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
