@@ -861,7 +861,7 @@ const Aql = () => {
         return;
       }
       try {
-        await removeData(deleteId).unwrap(); // Make sure to unwrap the promise
+        await removeData(deleteId).unwrap(); 
         setId("");
         toast.success("Deleted Successfully");
         setDeleteId(null);
@@ -1215,17 +1215,14 @@ const Aql = () => {
                           onChange={(e) => {
                             if (readOnly) return;
 
-                            // Allow only numbers and decimal point
                             let rawValue = e.target.value;
                             rawValue = rawValue.replace(/[^0-9.]/g, '');
 
-                            // Ensure only one decimal point
                             const parts = rawValue.split('.');
                             if (parts.length > 2) {
                               rawValue = parts[0] + '.' + parts.slice(1).join('');
                             }
 
-                            // Limit to 2 decimal places
                             if (parts[1] && parts[1].length > 2) {
                               rawValue = parts[0] + '.' + parts[1].substring(0, 2);
                             }
@@ -1240,7 +1237,6 @@ const Aql = () => {
                               return;
                             }
 
-                            // Format to 2 decimal places
                             val = parseFloat(val).toFixed(2);
                             handleCheckValueChange(measurement.id, index, val);
                           }}
@@ -1261,6 +1257,12 @@ const Aql = () => {
     }
   };
 
+
+
+
+
+
+  
   const renderActionButtons = () => (
     <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-gray-200">
       {!readOnly && (
