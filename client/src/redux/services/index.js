@@ -1,4 +1,6 @@
 export { default as countryMasterApi } from "./CountryMasterService";
+export {default as defectMasterApi} from "./DefectMasterService";
+export {default as defectCorrectionMasterApi}from "./DefectCorrectionMasterService"
 export { default as pageMasterApi } from "./PageMasterService";
 export { default as stateMasterApi } from "./StateMasterService";
 export { default as cityMasterApi } from "./CityMasterService";

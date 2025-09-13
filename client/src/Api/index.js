@@ -3,6 +3,7 @@ export const CITY_API = "cities";
 export const CURRENCY_API = "currency";
 export const STATE_API = "states";
 export const COUNTRY_API = "countries";
+export const DEFECT_API = "defects"
 export const DEPARTMENT_API = "departments";
 export const LOGIN_API = "users/login";
 export const COMPANY_API = "companies";
@@ -90,4 +91,5 @@ export const  CONTROL_PANEL_API  = "controlPanel"
 export const  TAG_TYPE_API  = "tagType"
 export const AQL_INSPECTION_API = "aql"
 export const LINE_ALLOCATION_API = "InchargeLineList"
+export const DEFECT_CORRECTION_API = "defectCorrection"
 

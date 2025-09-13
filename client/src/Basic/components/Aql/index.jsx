@@ -6,7 +6,8 @@ import Mastertable from '../MasterTable/MaterTable1.jsx';
 import { toast } from 'react-toastify';
 import Modal from '../../../UiComponents/Modal/index.js';
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
-
+import { useGetdefectCorrectionQuery } from '../../../redux/services/DefectCorrectionMasterService.js';
+import { useGetDefectQuery } from '../../../redux/services/DefectMasterService.js';
 
 const Aql = () => {
   const [selectedReference, setSelectedReference] = useState('');
@@ -22,6 +23,12 @@ const Aql = () => {
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
   const [approveStatus, setApproveStatus] = useState(0);
+  const [measurementMeta, setMeasurementMeta] = useState({});
+  const operationOptions = [
+  { value: 'op1', label: 'Operation 1' },
+  { value: 'op2', label: 'Operation 2' },
+  // Add more options as needed
+];
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
@@ -40,7 +47,15 @@ const Aql = () => {
       partialSavedMeasurements: {}
     }
   });
-
+const handleMetaChange = (measurementId, field, value) => {
+  setMeasurementMeta(prev => ({
+    ...prev,
+    [measurementId]: {
+      ...prev[measurementId],
+      [field]: value
+    }
+  }));
+};
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
     lastSaved: null,
@@ -78,6 +93,12 @@ const Aql = () => {
     isLoading: linesLoading,
     error: linesError,
   } = useGetLineMasterQuery({ params: { companyId } });
+  const {data:defect} = useGetDefectQuery({params:{companyId}})
+  console.log(defect,"Defect")
+  const defectOptions = defect?.data
+  const {data:DefectCorrection} = useGetdefectCorrectionQuery({params: {companyId}})
+  const correctiveActionOptions = DefectCorrection?.data
+  console.log(DefectCorrection?.data,"DEfectDirection")
   const PIECES_COUNT = 5;
 
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
@@ -1037,49 +1058,258 @@ const Aql = () => {
     </div>
   );
 
-  const renderMeasurementsTable = () => {
-    if (measurements.length === 0) return null;
+const renderMeasurementsTable = () => {
+  if (measurements.length === 0) return null;
 
-    if (isMobileView) {
-      return (
-        <div className="flex-1 overflow-hidden flex flex-col mb-3">
-          <div className="overflow-auto flex-1 pb-4">
-            {measurements.map(measurement => (
-              <div key={measurement.id} className="mb-4 border rounded-lg p-3 bg-white">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="text-sm font-medium text-gray-900">
-                    {measurement.name} ({measurement.unit})
-                  </h4>
-                  <div className="text-xs text-gray-500">
-                    Std: {measurement.standardValue} (Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax})
-                  </div>
+  if (isMobileView) {
+    return (
+      <div className="flex-1 overflow-hidden flex flex-col mb-3">
+        <div className="overflow-auto flex-1 pb-4">
+          {measurements.map(measurement => (
+            <div key={measurement.id} className="mb-4 border rounded-lg p-3 bg-white">
+              {/* New Fields for Mobile View */}
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-500 mb-1">M/c No</label>
+                  <input
+                    type="text"
+                    value={measurementMeta[measurement.id]?.machineNo || ''}
+                    onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border rounded-sm"
+                    readOnly={readOnly}
+                  />
                 </div>
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-500 mb-1">Operation</label>
+                  <select
+                    value={measurementMeta[measurement.id]?.operation || ''}
+                    onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border rounded-sm"
+                    disabled={readOnly}
+                  >
+                    <option value="">Select Operation</option>
+                    {operationOptions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-500 mb-1">SPI</label>
+                  <input
+                    type="text"
+                    value={measurementMeta[measurement.id]?.spi || ''}
+                    onChange={(e) => handleMetaChange(measurement.id, 'spi', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border rounded-sm"
+                    readOnly={readOnly}
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-500 mb-1">Defect</label>
+                  <select
+                    value={measurementMeta[measurement.id]?.defect || ''}
+                    onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border rounded-sm"
+                    disabled={readOnly}
+                  >
+                    <option value="">Select Defect</option>
+                    {defectOptions.map(option => (
+                      <option key={option.id} value={option.name}>{option.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col col-span-2">
+                  <label className="text-xs text-gray-500 mb-1">Corrective Action</label>
+                  <select
+                    value={measurementMeta[measurement.id]?.correctiveAction || ''}
+                    onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border rounded-sm"
+                    disabled={readOnly}
+                  >
+                    <option value="">Select Corrective Action</option>
+                    {correctiveActionOptions.map(option => (
+                      <option key={option.id} value={option.name}>{option.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-                <div className="grid grid-cols-5 gap-2">
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="text-sm font-medium text-gray-900">
+                  {measurement.name} ({measurement.unit})
+                </h4>
+                <div className="text-xs text-gray-500">
+                  Std: {measurement.standardValue} (Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax})
+                </div>
+              </div>
+
+              <div className="grid grid-cols-5 gap-2">
+                {checkValues[measurement.id]?.map((value, index) => (
+                  <div key={index} className="flex flex-col">
+                    <label className="text-xs text-gray-500 mb-1">Piece #{index + 1}</label>
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) => {
+                        if (readOnly) return;
+                        let raw = e.target.value;
+                        raw = raw.replace(/[^\d.]/g, '');
+                        const parts = raw.split('.');
+                        if (parts.length > 2) return;
+                        if (parts[1]?.length > 2) return;
+
+                        handleCheckValueChange(measurement.id, index, raw);
+                      }}
+                      onBlur={(e) => {
+                        if (readOnly) return;
+                        let val = e.target.value;
+                        if (/^\d{3}$/.test(val)) {
+                          val = (parseFloat(val) / 10).toFixed(2);
+                        } else {
+                          val = parseFloat(val || 0).toFixed(2);
+                        }
+                        handleCheckValueChange(measurement.id, index, val);
+                      }}
+                      className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
+                        ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+                        ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                      readOnly={readOnly}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  } else if (isTabletView) {
+    return (
+      <div className="flex-1 overflow-hidden flex flex-col mb-3">
+        <div className="overflow-auto flex-1 pb-4">
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead className="bg-gray-50 sticky top-0">
+              <tr>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  M/c No
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Operation
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  SPI
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Defect
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Corrective Action
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Measurement
+                </th>
+                {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                  <th key={num} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    #{num}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {measurements.map(measurement => (
+                <tr key={measurement.id}>
+                  <td className="px-2 py-2 whitespace-nowrap">
+                    <input
+                      type="text"
+                      value={measurementMeta[measurement.id]?.machineNo || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      readOnly={readOnly}
+                    />
+                  </td>
+                  <td className="px-2 py-2 whitespace-nowrap">
+                    <select
+                      value={measurementMeta[measurement.id]?.operation || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      disabled={readOnly}
+                    >
+                      <option value="">Select Operation</option>
+                      {operationOptions.map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2 whitespace-nowrap">
+                    <input
+                      type="text"
+                      value={measurementMeta[measurement.id]?.spi || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'spi', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      readOnly={readOnly}
+                    />
+                  </td>
+                  <td className="px-2 py-2 whitespace-nowrap">
+                    <select
+                      value={measurementMeta[measurement.id]?.defect || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      disabled={readOnly}
+                    >
+                      <option value="">Select Defect</option>
+                      {defectOptions.map(option => (
+                        <option key={option.id} value={option.name}>{option.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2 whitespace-nowrap">
+                    <select
+                      value={measurementMeta[measurement.id]?.correctiveAction || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      disabled={readOnly}
+                    >
+                      <option value="">Select Action</option>
+                      {correctiveActionOptions.map(option => (
+                        <option key={option.id} value={option.name}>{option.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">
+                    <div>{measurement.name}</div>
+                    <div className="text-xs text-gray-500">
+                      Std: {measurement.standardValue}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                    </div>
+                  </td>
                   {checkValues[measurement.id]?.map((value, index) => (
-                    <div key={index} className="flex flex-col">
-                      <label className="text-xs text-gray-500 mb-1">Piece #{index + 1}</label>
+                    <td key={index} className="px-2 py-2 whitespace-nowrap">
                       <input
                         type="text"
                         value={value}
                         onChange={(e) => {
                           if (readOnly) return;
-                          let raw = e.target.value;
-                          raw = raw.replace(/[^\d.]/g, '');
-                          const parts = raw.split('.');
-                          if (parts.length > 2) return;
-                          if (parts[1]?.length > 2) return;
+                          let rawValue = e.target.value;
+                          rawValue = rawValue.replace(/[^0-9.]/g, '');
+                          const parts = rawValue.split('.');
+                          if (parts.length > 2) {
+                            rawValue = parts[0] + '.' + parts.slice(1).join('');
+                          }
+                          if (parts[1] && parts[1].length > 2) {
+                            rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+                          }
 
-                          handleCheckValueChange(measurement.id, index, raw);
+                          handleCheckValueChange(measurement.id, index, rawValue);
                         }}
                         onBlur={(e) => {
                           if (readOnly) return;
                           let val = e.target.value;
-                          if (/^\d{3}$/.test(val)) {
-                            val = (parseFloat(val) / 10).toFixed(2);
-                          } else {
-                            val = parseFloat(val || 0).toFixed(2);
+                          if (val === '') {
+                            handleCheckValueChange(measurement.id, index, '');
+                            return;
                           }
+                          val = parseFloat(val).toFixed(2);
                           handleCheckValueChange(measurement.id, index, val);
                         }}
                         className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
@@ -1087,182 +1317,178 @@ const Aql = () => {
                           ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                         readOnly={readOnly}
                       />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    } else if (isTabletView) {
-      return (
-        <div className="flex-1 overflow-hidden flex flex-col mb-3">
-          <div className="overflow-auto flex-1 pb-4">
-            <table className="min-w-full bg-white border border-gray-200">
-              <thead className="bg-gray-50 sticky top-0">
-                <tr>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Measurement
-                  </th>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                    <th key={num} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      #{num}
-                    </th>
+                    </td>
                   ))}
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {measurements.map(measurement => (
-                  <tr key={measurement.id}>
-                    <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">
-                      <div>{measurement.name}</div>
-                      <div className="text-xs text-gray-500">
-                        Std: {measurement.standardValue}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                      </div>
-                    </td>
-                    {checkValues[measurement.id]?.map((value, index) => (
-                      <td key={index} className="px-2 py-2 whitespace-nowrap">
-                        <input
-                          type="text"
-                          value={value}
-                          onChange={(e) => {
-                            if (readOnly) return;
-                            let rawValue = e.target.value;
-                            rawValue = rawValue.replace(/[^0-9.]/g, '');
-                            const parts = rawValue.split('.');
-                            if (parts.length > 2) {
-                              rawValue = parts[0] + '.' + parts.slice(1).join('');
-                            }
-                            if (parts[1] && parts[1].length > 2) {
-                              rawValue = parts[0] + '.' + parts[1].substring(0, 2);
-                            }
-
-                            handleCheckValueChange(measurement.id, index, rawValue);
-                          }}
-                          onBlur={(e) => {
-                            if (readOnly) return;
-                            let val = e.target.value;
-                            if (val === '') {
-                              handleCheckValueChange(measurement.id, index, '');
-                              return;
-                            }
-                            val = parseFloat(val).toFixed(2);
-                            handleCheckValueChange(measurement.id, index, val);
-                          }}
-                          className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-        ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-        ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                          readOnly={readOnly}
-                        />
-                      </td>
-                    ))}
-                  </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="flex-1 overflow-hidden flex flex-col mb-3">
+        <div className="overflow-auto flex-1 pb-4">
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead className="bg-gray-50 sticky top-0">
+              <tr>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  M/c No
+                </th>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Operation
+                </th>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  SPI
+                </th>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Defect
+                </th>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Corrective Action
+                </th>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Measurement
+                </th>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Std Value
+                </th>
+                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tolerance
+                </th>
+                <th colSpan={PIECES_COUNT} className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Pieces (1-{PIECES_COUNT})
+                </th>
+              </tr>
+              <tr>
+                {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                  <th key={num} className="px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    #{num}
+                  </th>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex-1 overflow-hidden flex flex-col mb-3">
-          <div className="overflow-auto flex-1 pb-4">
-            <table className="min-w-full bg-white border border-gray-200">
-              <thead className="bg-gray-50 sticky top-0">
-                <tr>
-                  <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Measurement
-                  </th>
-                  <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Std Value
-                  </th>
-                  <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tolerance
-                  </th>
-                  <th colSpan={PIECES_COUNT} className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Pieces (1-{PIECES_COUNT})
-                  </th>
-                </tr>
-                <tr>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                    <th key={num} className="px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      #{num}
-                    </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {measurements.map(measurement => (
+                <tr key={measurement.id}>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <input
+                      type="text"
+                      value={measurementMeta[measurement.id]?.machineNo || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      readOnly={readOnly}
+                    />
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <select
+                      value={measurementMeta[measurement.id]?.operation || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      disabled={readOnly}
+                    >
+                      <option value="">Select Operation</option>
+                      {operationOptions.map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <input
+                      type="text"
+                      value={measurementMeta[measurement.id]?.spi || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'spi', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      readOnly={readOnly}
+                    />
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <select
+                      value={measurementMeta[measurement.id]?.defect || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      disabled={readOnly}
+                    >
+                      <option value="">Select Defect</option>
+                      {defectOptions.map(option => (
+                        <option key={option.id} value={option.name}>{option.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <select
+                      value={measurementMeta[measurement.id]?.correctiveAction || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      disabled={readOnly}
+                    >
+                      <option value="">Select Action</option>
+                      {correctiveActionOptions.map(option => (
+                        <option key={option.is} value={option.name}>{option.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {measurement.name} ({measurement.unit})
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                    {measurement.standardValue}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                    -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                  </td>
+                  {checkValues[measurement.id]?.map((value, index) => (
+                    <td key={index} className="px-2 py-2 whitespace-nowrap">
+                      <input
+                        type="text"
+                        value={value}
+                        onChange={(e) => {
+                          if (readOnly) return;
+
+                          let rawValue = e.target.value;
+                          rawValue = rawValue.replace(/[^0-9.]/g, '');
+
+                          const parts = rawValue.split('.');
+                          if (parts.length > 2) {
+                            rawValue = parts[0] + '.' + parts.slice(1).join('');
+                          }
+
+                          if (parts[1] && parts[1].length > 2) {
+                            rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+                          }
+
+                          handleCheckValueChange(measurement.id, index, rawValue);
+                        }}
+                        onBlur={(e) => {
+                          if (readOnly) return;
+                          let val = e.target.value;
+                          if (val === '') {
+                            handleCheckValueChange(measurement.id, index, '');
+                            return;
+                          }
+
+                          val = parseFloat(val).toFixed(2);
+                          handleCheckValueChange(measurement.id, index, val);
+                        }}
+                        className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
+                          ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
+                          ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        readOnly={readOnly}
+                      />
+                    </td>
                   ))}
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {measurements.map(measurement => (
-                  <tr key={measurement.id}>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {measurement.name} ({measurement.unit})
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                      {measurement.standardValue}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                      -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                    </td>
-                    {checkValues[measurement.id]?.map((value, index) => (
-                      <td key={index} className="px-2 py-2 whitespace-nowrap">
-                        <input
-                          type="text"
-                          value={value}
-                          onChange={(e) => {
-                            if (readOnly) return;
-
-                            let rawValue = e.target.value;
-                            rawValue = rawValue.replace(/[^0-9.]/g, '');
-
-                            const parts = rawValue.split('.');
-                            if (parts.length > 2) {
-                              rawValue = parts[0] + '.' + parts.slice(1).join('');
-                            }
-
-                            if (parts[1] && parts[1].length > 2) {
-                              rawValue = parts[0] + '.' + parts[1].substring(0, 2);
-                            }
-
-                            handleCheckValueChange(measurement.id, index, rawValue);
-                          }}
-                          onBlur={(e) => {
-                            if (readOnly) return;
-                            let val = e.target.value;
-                            if (val === '') {
-                              handleCheckValueChange(measurement.id, index, '');
-                              return;
-                            }
-
-                            val = parseFloat(val).toFixed(2);
-                            handleCheckValueChange(measurement.id, index, val);
-                          }}
-                          className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-        ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-        ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                          readOnly={readOnly}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
-      );
-    }
-  };
+      </div>
+    );
+  }
+};
 
 
-
-
-
-
-  
   const renderActionButtons = () => (
     <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-gray-200">
       {!readOnly && (

@@ -1,6 +1,9 @@
 export { default as employees } from "./employees.route.js"
 export { default as states } from "./states.route.js"
+export { default as defectCorrection} from "./defectCorrection.route.js"
 export { default as countries } from "./countries.route.js"
+export { default as defect } from "./countries.route.js"
+
 export { default as cities } from "./cities.route.js"
 export { default as departments } from "./departments.route.js"
 export { default as companies } from "./companies.route.js"

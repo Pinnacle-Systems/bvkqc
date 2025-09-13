@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 import {
-  employees, states, countries, cities,
+  employees, states, defectCorrection,countries, cities,
   departments, companies, branches, users, pages, roles, subscriptions, finYear,
   employeeCategories, pageGroup,
   party,
@@ -26,13 +26,13 @@ import {
   email, orderImport,
   controlPanel,
   TagType,LineMaster,sizeTable, allocation,aql,
-  InchargeLineListMaster
+  InchargeLineListMaster,
+  defect
 
 } from './src/routes/index.js';
 
 
 import { socketMain } from './src/sockets/socket.js';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const app = express()
 app.use(express.json({ limit: "50mb" }))
@@ -73,6 +73,7 @@ BigInt.prototype['toJSON'] = function () {
 app.use("/employees", employees);
 app.use("/countries", countries);
 app.use("/states", states);
+app.use("/defectCorrection",defectCorrection)
 app.use("/cities", cities);
 app.use("/departments", departments);
 app.use("/companies", companies);
@@ -105,6 +106,7 @@ app.use("/lineMaster", LineMaster)
 app.use("/sizeTable",sizeTable)
 app.use("/aql",aql)
 app.use("/InchargeLineList", InchargeLineListMaster)  
+app.use('/defects',defect)
 
 // app.post("/extract-page-tables", async (req, res) => {
 //   try {

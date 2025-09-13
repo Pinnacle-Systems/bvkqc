@@ -19,7 +19,7 @@ import {
   Dashboard,
   Role,
   LineMaster,OrderImport,Allocation,Aql,
-  LineAllocation,
+  LineAllocation,DefectMaster,DefectCorrectionmaster,
   InchargeLineListMaster
 
 } from "../../components";
@@ -38,6 +38,8 @@ const ActiveTabList = () => {
 
   const tabs = {
     "PAGE MASTER": <PageMaster />,
+    "DEFECT MASTER" : <DefectMaster />,
+    "DEFECT CORRECTION": <DefectCorrectionmaster />,
     "COMPANY MASTER": <CompanyMaster />,
     "PAGE GROUP MASTER": <PageGroupMaster />,
     "COUNTRY MASTER": <CountryMaster />,

@@ -2,6 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { openTabs } from "./features";
 import {
   countryMasterApi,
+  defectMasterApi,
+  defectCorrectionMasterApi,
   pageMasterApi,
   stateMasterApi,
   cityMasterApi,
@@ -96,6 +98,8 @@ import tagTypeMasterApi from "./uniformService/TagTypeMasterServices";
 const commonReducers = {
   openTabs,
   countryMaster: countryMasterApi.reducer,
+  [defectMasterApi.reducerPath]:defectMasterApi.reducer,
+  [defectCorrectionMasterApi.reducerPath]:defectCorrectionMasterApi.reducer,
   pageMaster: pageMasterApi.reducer,
   stateMaster: stateMasterApi.reducer,
   cityMaster: cityMasterApi.reducer,
@@ -186,6 +190,8 @@ const commonReducers = {
 };
 const commonMiddleware = [
   countryMasterApi.middleware,
+  defectMasterApi.middleware,
+  defectCorrectionMasterApi.middleware,
   pageMasterApi.middleware,
   stateMasterApi.middleware,
   cityMasterApi.middleware,

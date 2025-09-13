@@ -15,6 +15,8 @@ import Line from "./images/line.png";
 import imp from "./images/import.png"
 import all from "./images/resource.png"
 import aql from "./images/quality-control (1).png";
+import bug from "./images/bug.png"
+import corrected from "./images/corrected.png"
 const SidebarComponent = ({
   logo,
   groups,
@@ -38,6 +40,20 @@ const SidebarComponent = ({
       <img
         src={country}
         alt="country"
+        className="w-10 h-10 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm"
+      />
+    ),
+     "DEFECT MASTER": (
+      <img
+        src={bug}
+        alt="Defect"
+        className="w-10 h-10 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm"
+      />
+    ),
+        "DEFECT CORRECTION": (
+      <img
+        src={corrected}
+        alt="Defect"
         className="w-10 h-10 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm"
       />
     ),

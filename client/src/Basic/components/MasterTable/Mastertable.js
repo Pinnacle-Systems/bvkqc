@@ -50,7 +50,8 @@ const Mastertable = ({
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  
+  console.log(tableDataNames,"tableDatanames")
+  console.log(data,"data")
   return (
     <div className="row w-full mx-auto">
       <div className="text-xs col-12 px-0 bg-[f1f1f0] bg-opacity-15 rounded-lg border shadow-md">
@@ -146,7 +147,7 @@ const Mastertable = ({
                                 <td
                                   key={idx}
                                   className={`h-[32px] text-[12px] border-r border-gray-200 px-4 ${
-                                    idx === 0 ? "w-[40px]" : "" // Add fixed width for first column (S.No)
+                                    idx === 0 ? "w-[40px]" : "" 
                                   }`}
                                   onClick={() => {
                                     onDataClick(dataObj?.id);
