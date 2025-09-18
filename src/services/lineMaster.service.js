@@ -72,6 +72,7 @@ async function create(body) {
     lineName,
     sewingMachineQty,
     empId,
+    branchId,
     helperQty,
     operatorQty,
     companyId,
@@ -86,6 +87,7 @@ async function create(body) {
       helperQty,
       OperationQty: operatorQty,
       active,
+      Branch: branchId ? {connect: {id: parseInt(branchId)}}: undefined,
       Company: companyId
         ? { connect: { id: parseInt(companyId) } }
         : undefined,
@@ -104,6 +106,7 @@ async function update(id, body) {
     lineNo,
     lineName,
     sewingMachineQty,
+    branchId,
     helperQty,
     operatorQty,
     companyId,
@@ -126,6 +129,7 @@ async function update(id, body) {
       helperQty,
       OperationQty: operatorQty,
       active,
+      Branch: branchId ? {connect: {id: parseInt(branchId)}}: undefined,
       Company: companyId ? { connect: { id: parseInt(companyId) } } : undefined,
       Employee: empId ? { connect: { id: parseInt(empId) } } : undefined,
     },

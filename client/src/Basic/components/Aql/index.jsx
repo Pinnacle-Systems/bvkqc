@@ -25,10 +25,10 @@ const Aql = () => {
   const [approveStatus, setApproveStatus] = useState(0);
   const [measurementMeta, setMeasurementMeta] = useState({});
   const operationOptions = [
-  { value: 'op1', label: 'Operation 1' },
-  { value: 'op2', label: 'Operation 2' },
-  // Add more options as needed
-];
+    { value: 'op1', label: 'Operation 1' },
+    { value: 'op2', label: 'Operation 2' },
+    // Add more options as needed
+  ];
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
@@ -47,15 +47,15 @@ const Aql = () => {
       partialSavedMeasurements: {}
     }
   });
-const handleMetaChange = (measurementId, field, value) => {
-  setMeasurementMeta(prev => ({
-    ...prev,
-    [measurementId]: {
-      ...prev[measurementId],
-      [field]: value
-    }
-  }));
-};
+  const handleMetaChange = (measurementId, field, value) => {
+    setMeasurementMeta(prev => ({
+      ...prev,
+      [measurementId]: {
+        ...prev[measurementId],
+        [field]: value
+      }
+    }));
+  };
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
     lastSaved: null,
@@ -93,12 +93,12 @@ const handleMetaChange = (measurementId, field, value) => {
     isLoading: linesLoading,
     error: linesError,
   } = useGetLineMasterQuery({ params: { companyId } });
-  const {data:defect} = useGetDefectQuery({params:{companyId}})
-  console.log(defect,"Defect")
+  const { data: defect } = useGetDefectQuery({ params: { companyId } })
+  console.log(defect, "Defect")
   const defectOptions = defect?.data
-  const {data:DefectCorrection} = useGetdefectCorrectionQuery({params: {companyId}})
+  const { data: DefectCorrection } = useGetdefectCorrectionQuery({ params: { companyId } })
   const correctiveActionOptions = DefectCorrection?.data
-  console.log(DefectCorrection?.data,"DEfectDirection")
+  console.log(DefectCorrection?.data, "DEfectDirection")
   const PIECES_COUNT = 5;
 
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
@@ -130,7 +130,7 @@ const handleMetaChange = (measurementId, field, value) => {
       });
       setMergedReportData(merged);
     }
-  }, [sizeTableData, aqlData,approveStatus,setApproveStatus]);
+  }, [sizeTableData, aqlData, approveStatus, setApproveStatus]);
 
   const loadSavedData = () => {
     const savedData = secureLocalStorage.getItem(storageKey);
@@ -631,221 +631,237 @@ const handleMetaChange = (measurementId, field, value) => {
       );
     }
 
-   
+
     return (
-      <div className="mt-6 border-t pt-6">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-          <h3 className="text-xl font-bold text-gray-800">Before vs After Comparison</h3>
-          <div className="w-full md:w-1/3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Size
-            </label>
-            <select
-              value={selectedSize}
-              onChange={(e) => {
-                setSelectedSize(e.target.value);
-                const size = e.target.value;
-                if (size) {
-                  const measurementData = selectedProduct?.measurements
-                    ?.filter(m => m.values?.some(v => v.size === size))
-                    ?.map(m => {
-                      const valueObj = m.values?.find(v => v.size === size);
-                      return {
-                        id: m.id,
-                        name: m.description || 'Unnamed',
-                        standardValue: valueObj?.value ?? '',
-                        toleranceMin: m.toleranceMin ?? '0',
-                        toleranceMax: m.toleranceMax ?? '0',
-                        unit: m.unit ?? ''
-                      };
-                    }) || [];
-                  setMeasurements(measurementData);
-                }
-              }}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-            >
-              <option value="">Select a size</option>
-              {commonSizes.map(size => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {selectedSize && measurements.length > 0 && (
-          <>
-            {/* Mobile-optimized card view */}
-            {isTabletView && (
-              <div className="space-y-4">
-                {measurements.map(measurement => (
-                  <div key={measurement.id} className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                    <div className="bg-blue-50 px-4 py-3 border-b">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-semibold text-gray-800">
-                          {measurement.name}
-                          <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
-                        </h4>
-                      </div>
-                      <div className="flex justify-between items-center mt-2">
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Std:</span> {measurement.standardValue}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3 grid grid-cols-5 gap-3">
-                      {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => {
-                        const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
-                        const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
-
-                        return (
-                          <div key={pieceNum} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                            <div className="text-xs font-semibold text-gray-700 mb-2 text-center bg-gray-200 py-1 rounded-md">
-                              Piece #{pieceNum}
-                            </div>
-
-                            <div className="space-y-2">
-                              <div className={`p-2 rounded-md ${checkTolerance(measurement, beforeValue)}`}>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-xs font-medium text-blue-600">Before</span>
-                                  <span className="text-sm font-semibold">{beforeValue}</span>
-                                </div>
-                              </div>
-
-                              <div className={`p-2 rounded-md ${checkTolerance(measurement, afterValue)}`}>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-xs font-medium text-purple-600">After</span>
-                                  <span className="text-sm font-semibold">{afterValue}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Tablet-optimized view */}
-            {!isTabletView && isMobileView && (
-              <div className="mt-4 space-y-4">
-                {measurements.map(measurement => (
-                  <div key={measurement.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                    <div className="bg-blue-50 px-4 py-3 border-b">
-                      <h4 className="font-semibold text-gray-800">
-                        {measurement.name}
-                        <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
-                      </h4>
-                      <div className="flex justify-between text-sm text-gray-600 mt-2">
-                        <span><span className="font-medium">Std:</span> {measurement.standardValue}</span>
-                        <span><span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}</span>
-                      </div>
-                    </div>
-
-                    <div className="divide-y divide-gray-100">
-                      {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => (
-                        <div key={pieceNum} className="grid grid-cols-3 gap-2 px-4 py-3">
-                          <div className="text-sm font-medium text-gray-700 self-center">
-                            <span className="bg-gray-200 px-2 py-1 rounded-md">Piece #{pieceNum}</span>
-                          </div>
-
-                          <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-blue-600 font-medium">Before</span>
-                              <span className="font-semibold">
-                                {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-purple-600 font-medium">After</span>
-                              <span className="font-semibold">
-                                {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Desktop view */}
-            {!isMobileView && !isTabletView && (
-              <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-                <table className="min-w-full bg-white">
-                  <thead className="bg-gray-800 text-white">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider sticky left-0 bg-gray-800 z-10">
-                        Measurement
-                      </th>
-                      <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wider">
-                        Standard
-                      </th>
-                      <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wider">
-                        Tolerance
-                      </th>
-                      {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                        <th key={num} className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wider bg-gray-700">
-                          Piece #{num}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody className="divide-y divide-gray-200">
-                    {measurements.map(measurement => (
-                      <tr key={measurement.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white z-10 border-r">
-                          <div className="font-semibold">{measurement.name}</div>
-                          <div className="text-xs text-gray-500">{measurement.unit}</div>
-                        </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-center text-sm font-semibold text-gray-700">
-                          {measurement.standardValue}
-                        </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600">
-                          <div className="text-xs bg-gray-100 py-1 px-2 rounded-md inline-block">
-                            -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                          </div>
-                        </td>
-                        {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => {
-                          const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
-                          const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
-
-                          return (
-                            <td key={index} className="px-3 py-3 whitespace-nowrap text-center">
-                              <div className="flex flex-col gap-2">
-                                <div className={`px-3 py-2 rounded-md ${checkTolerance(measurement, beforeValue)}`}>
-                                  <div className="text-xs text-blue-600 font-medium mb-1">Before</div>
-                                  <div className="font-semibold">{beforeValue}</div>
-                                </div>
-                                <div className={`px-3 py-2 rounded-md ${checkTolerance(measurement, afterValue)}`}>
-                                  <div className="text-xs text-purple-600 font-medium mb-1">After</div>
-                                  <div className="font-semibold">{afterValue}</div>
-                                </div>
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
+  <div className="mt-6 border-t pt-6">
+    <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+      <h3 className="text-xl font-bold text-gray-800">Before vs After Comparison</h3>
+      <div className="w-full md:w-1/3">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Select Size
+        </label>
+        <select
+          value={selectedSize}
+          onChange={(e) => {
+            setSelectedSize(e.target.value);
+            const size = e.target.value;
+            if (size) {
+              const measurementData = selectedProduct?.measurements
+                ?.filter(m => m.values?.some(v => v.size === size))
+                ?.map(m => {
+                  const valueObj = m.values?.find(v => v.size === size);
+                  return {
+                    id: m.id,
+                    name: m.description || 'Unnamed',
+                    standardValue: valueObj?.value ?? '',
+                    toleranceMin: m.toleranceMin ?? '0',
+                    toleranceMax: m.toleranceMax ?? '0',
+                    unit: m.unit ?? ''
+                  };
+                }) || [];
+              setMeasurements(measurementData);
+            }
+          }}
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+        >
+          <option value="">Select a size</option>
+          {commonSizes.map(size => (
+            <option key={size} value={size}>{size}</option>
+          ))}
+        </select>
       </div>
-    );
+    </div>
+
+    {selectedSize && measurements.length > 0 && (
+      <>
+        {/* Mobile-optimized card view */}
+        {isTabletView && (
+          <div className="space-y-4">
+            {measurements.map(measurement => (
+              <div key={measurement.id} className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                <div className="bg-blue-50 px-4 py-3 border-b">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-semibold text-gray-800">
+                      {measurement.name}
+                      <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
+                    </h4>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Std:</span> {measurement.standardValue}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 grid grid-cols-5 gap-3">
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => {
+                    const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
+                    const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
+
+                    return (
+                      <div key={pieceNum} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <div className="text-xs font-semibold text-gray-700 mb-2 text-center bg-gray-200 py-1 rounded-md">
+                          Piece #{pieceNum}
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className={`p-2 rounded-md ${checkTolerance(measurement, beforeValue)}`}>
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-medium text-blue-600">Before</span>
+                              <span className="text-sm font-semibold">{beforeValue}</span>
+                            </div>
+                          </div>
+
+                          <div className={`p-2 rounded-md ${checkTolerance(measurement, afterValue)}`}>
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-medium text-purple-600">After</span>
+                              <span className="text-sm font-semibold">{afterValue}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Tablet-optimized view */}
+        {!isTabletView && isMobileView && (
+          <div className="mt-4 space-y-4">
+            {measurements.map(measurement => (
+              <div key={measurement.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                <div className="bg-blue-50 px-4 py-3 border-b">
+                  <h4 className="font-semibold text-gray-800">
+                    {measurement.name}
+                    <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
+                  </h4>
+                  <div className="flex justify-between text-sm text-gray-600 mt-2">
+                    <span><span className="font-medium">Std:</span> {measurement.standardValue}</span>
+                    <span><span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}</span>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-gray-100">
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => (
+                    <div key={pieceNum} className="grid grid-cols-3 gap-2 px-4 py-3">
+                      <div className="text-sm font-medium text-gray-700 self-center">
+                        <span className="bg-gray-200 px-2 py-1 rounded-md">Piece #{pieceNum}</span>
+                      </div>
+
+                      <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-blue-600 font-medium">Before</span>
+                          <span className="font-semibold">
+                            {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-purple-600 font-medium">After</span>
+                          <span className="font-semibold">
+                            {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Improved Desktop view */}
+        {!isMobileView && !isTabletView && (
+          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white">
+            <table className="min-w-full bg-white compact-table">
+              <thead className="bg-gray-800 text-white">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider sticky left-0 bg-gray-800 z-10">
+                    Measurement
+                  </th>
+                  <th className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider">
+                    Std
+                  </th>
+                  <th className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider">
+                    Tolerance
+                  </th>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                    <th key={num} className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider bg-gray-700">
+                      P#{num}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-200">
+                {measurements.map(measurement => (
+                  <tr key={measurement.id} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 whitespace-nowrap sticky left-0 bg-white z-10 border-r">
+                      <div className="text-sm font-medium text-gray-900">{measurement.name}</div>
+                      <div className="text-xs text-gray-500">{measurement.unit}</div>
+                    </td>
+                    <td className="px-2 py-2 whitespace-nowrap text-center text-sm font-semibold text-gray-700">
+                      {measurement.standardValue}
+                    </td>
+                    <td className="px-2 py-2 whitespace-nowrap text-center text-xs text-gray-600">
+                      <div className="bg-gray-100 py-1 px-2 rounded-md inline-block">
+                        -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                      </div>
+                    </td>
+                    {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => {
+                      const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
+                      const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
+                      const beforeToleranceClass = checkTolerance(measurement, beforeValue);
+                      const afterToleranceClass = checkTolerance(measurement, afterValue);
+
+                      return (
+                        <td key={index} className="px-2 py-2 whitespace-nowrap text-center">
+                          <div className="flex flex-col gap-1">
+                            <div className={`px-2 py-1 rounded-md text-xs ${beforeToleranceClass}`}>
+                              <div className="flex justify-between items-center">
+                                <span className="text-blue-600 font-medium">B</span>
+                                <span className="font-semibold">{beforeValue}</span>
+                              </div>
+                            </div>
+                            <div className={`px-2 py-1 rounded-md text-xs ${afterToleranceClass}`}>
+                              <div className="flex justify-between items-center">
+                                <span className="text-purple-600 font-medium">A</span>
+                                <span className="font-semibold">{afterValue}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </>
+    )}
+
+    <style jsx>{`
+      .compact-table {
+        font-size: 0.75rem; /* 12px */
+      }
+      .compact-table th,
+      .compact-table td {
+        padding: 0.5rem 0.5rem;
+      }
+    `}</style>
+  </div>
+);
   };
 
   const tableHeaders = [
@@ -882,7 +898,7 @@ const handleMetaChange = (measurementId, field, value) => {
         return;
       }
       try {
-        await removeData(deleteId).unwrap(); 
+        await removeData(deleteId).unwrap();
         setId("");
         toast.success("Deleted Successfully");
         setDeleteId(null);
@@ -964,7 +980,7 @@ const handleMetaChange = (measurementId, field, value) => {
             ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
             ${ayanCondition === 'before' ? 'border-blue-500 bg-blue-50' : 'border-purple-500 bg-purple-50'}`}
         >
-          <span>{ayanCondition === 'before' ? 'Before Ayaning' : 'After Ayaning'}</span>
+          <span>{ayanCondition === 'before' ? 'Before Ironing' : 'After Ironing'}</span>
           <svg className="h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
@@ -1058,435 +1074,479 @@ const handleMetaChange = (measurementId, field, value) => {
     </div>
   );
 
-const renderMeasurementsTable = () => {
-  if (measurements.length === 0) return null;
+  const renderMeasurementsTable = () => {
+    if (measurements.length === 0) return null;
 
-  if (isMobileView) {
-    return (
-      <div className="flex-1 overflow-hidden flex flex-col mb-3">
-        <div className="overflow-auto flex-1 pb-4">
-          {measurements.map(measurement => (
-            <div key={measurement.id} className="mb-4 border rounded-lg p-3 bg-white">
-              {/* New Fields for Mobile View */}
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500 mb-1">M/c No</label>
-                  <input
-                    type="text"
-                    value={measurementMeta[measurement.id]?.machineNo || ''}
-                    onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-sm"
-                    readOnly={readOnly}
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500 mb-1">Operation</label>
-                  <select
-                    value={measurementMeta[measurement.id]?.operation || ''}
-                    onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-sm"
-                    disabled={readOnly}
-                  >
-                    <option value="">Select Operation</option>
-                    {operationOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500 mb-1">SPI</label>
-                  <input
-                    type="text"
-                    value={measurementMeta[measurement.id]?.spi || ''}
-                    onChange={(e) => handleMetaChange(measurement.id, 'spi', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-sm"
-                    readOnly={readOnly}
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500 mb-1">Defect</label>
-                  <select
-                    value={measurementMeta[measurement.id]?.defect || ''}
-                    onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-sm"
-                    disabled={readOnly}
-                  >
-                    <option value="">Select Defect</option>
-                    {defectOptions.map(option => (
-                      <option key={option.id} value={option.name}>{option.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col col-span-2">
-                  <label className="text-xs text-gray-500 mb-1">Corrective Action</label>
-                  <select
-                    value={measurementMeta[measurement.id]?.correctiveAction || ''}
-                    onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-sm"
-                    disabled={readOnly}
-                  >
-                    <option value="">Select Corrective Action</option>
-                    {correctiveActionOptions.map(option => (
-                      <option key={option.id} value={option.name}>{option.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+    // Common input and select styles for consistency
+    const inputStyle = "w-full px-1.5 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500";
+    const selectStyle = `${inputStyle} appearance-none bg-white bg-arrow bg-no-repeat bg-right`;
 
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="text-sm font-medium text-gray-900">
-                  {measurement.name} ({measurement.unit})
-                </h4>
-                <div className="text-xs text-gray-500">
-                  Std: {measurement.standardValue} (Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax})
-                </div>
-              </div>
-
-              <div className="grid grid-cols-5 gap-2">
-                {checkValues[measurement.id]?.map((value, index) => (
-                  <div key={index} className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-1">Piece #{index + 1}</label>
+    if (isMobileView) {
+      return (
+        <div className="flex-1 overflow-hidden flex flex-col mb-2">
+          <div className="overflow-auto flex-1 pb-2">
+            {measurements.map(measurement => (
+              <div key={measurement.id} className="mb-3 border rounded p-2 bg-white">
+                {/* Meta fields grid */}
+                <div className="grid grid-cols-2 gap-1.5 mb-2">
+                  <div className="flex flex-col">
+                    <label className="text-xs text-gray-500 mb-0.5">M/c No</label>
                     <input
                       type="text"
-                      value={value}
-                      onChange={(e) => {
-                        if (readOnly) return;
-                        let raw = e.target.value;
-                        raw = raw.replace(/[^\d.]/g, '');
-                        const parts = raw.split('.');
-                        if (parts.length > 2) return;
-                        if (parts[1]?.length > 2) return;
-
-                        handleCheckValueChange(measurement.id, index, raw);
-                      }}
-                      onBlur={(e) => {
-                        if (readOnly) return;
-                        let val = e.target.value;
-                        if (/^\d{3}$/.test(val)) {
-                          val = (parseFloat(val) / 10).toFixed(2);
-                        } else {
-                          val = parseFloat(val || 0).toFixed(2);
-                        }
-                        handleCheckValueChange(measurement.id, index, val);
-                      }}
-                      className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-                        ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-                        ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                      value={measurementMeta[measurement.id]?.machineNo || ''}
+                      onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                      className={inputStyle}
                       readOnly={readOnly}
                     />
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  } else if (isTabletView) {
-    return (
-      <div className="flex-1 overflow-hidden flex flex-col mb-3">
-        <div className="overflow-auto flex-1 pb-4">
-          <table className="min-w-full bg-white border border-gray-200">
-            <thead className="bg-gray-50 sticky top-0">
-              <tr>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  M/c No
-                </th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Operation
-                </th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  SPI
-                </th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Defect
-                </th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Corrective Action
-                </th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Measurement
-                </th>
-                {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                  <th key={num} className="px-1 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    #{num}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {measurements.map(measurement => (
-                <tr key={measurement.id}>
-                  <td className="px-2 py-2 whitespace-nowrap">
-                    <input
-                      type="text"
-                      value={measurementMeta[measurement.id]?.machineNo || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
-                      readOnly={readOnly}
-                    />
-                  </td>
-                  <td className="px-2 py-2 whitespace-nowrap">
+                  <div className="flex flex-col">
+                    <label className="text-xs text-gray-500 mb-0.5">Operation</label>
                     <select
                       value={measurementMeta[measurement.id]?.operation || ''}
                       onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      className={selectStyle}
                       disabled={readOnly}
+                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
                     >
-                      <option value="">Select Operation</option>
+                      <option value="">Select</option>
                       {operationOptions.map(option => (
                         <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
                     </select>
-                  </td>
-                  <td className="px-2 py-2 whitespace-nowrap">
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="text-xs text-gray-500 mb-0.5">SPI</label>
                     <input
                       type="text"
                       value={measurementMeta[measurement.id]?.spi || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'spi', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      onChange={(e) => {
+                        // Only allow numbers and limit to 2 digits
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length > 2) {
+                          value = value.slice(0, 2);
+                        }
+                        handleMetaChange(measurement.id, 'spi', value);
+                      }}
+                      className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
                       readOnly={readOnly}
+                      maxLength={2}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                     />
-                  </td>
-                  <td className="px-2 py-2 whitespace-nowrap">
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="text-xs text-gray-500 mb-0.5">Defect</label>
                     <select
                       value={measurementMeta[measurement.id]?.defect || ''}
                       onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      className={selectStyle}
                       disabled={readOnly}
+                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
                     >
-                      <option value="">Select Defect</option>
+                      <option value="">Select</option>
                       {defectOptions.map(option => (
-                        <option key={option.id} value={option.name}>{option.name}</option>
+                        <option key={option.id} value={option.id}>{option.name}</option>
                       ))}
                     </select>
-                  </td>
-                  <td className="px-2 py-2 whitespace-nowrap">
+                  </div>
+                  <div className="flex flex-col col-span-2">
+                    <label className="text-xs text-gray-500 mb-0.5">Corrective Action</label>
                     <select
                       value={measurementMeta[measurement.id]?.correctiveAction || ''}
                       onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
+                      className={selectStyle}
                       disabled={readOnly}
+                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
                     >
-                      <option value="">Select Action</option>
+                      <option value="">Select</option>
                       {correctiveActionOptions.map(option => (
                         <option key={option.id} value={option.name}>{option.name}</option>
                       ))}
                     </select>
-                  </td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">
-                    <div>{measurement.name}</div>
-                    <div className="text-xs text-gray-500">
-                      Std: {measurement.standardValue}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                    </div>
-                  </td>
-                  {checkValues[measurement.id]?.map((value, index) => (
-                    <td key={index} className="px-2 py-2 whitespace-nowrap">
-                      <input
-                        type="text"
-                        value={value}
-                        onChange={(e) => {
-                          if (readOnly) return;
-                          let rawValue = e.target.value;
-                          rawValue = rawValue.replace(/[^0-9.]/g, '');
-                          const parts = rawValue.split('.');
-                          if (parts.length > 2) {
-                            rawValue = parts[0] + '.' + parts.slice(1).join('');
-                          }
-                          if (parts[1] && parts[1].length > 2) {
-                            rawValue = parts[0] + '.' + parts[1].substring(0, 2);
-                          }
+                  </div>
+                </div>
 
-                          handleCheckValueChange(measurement.id, index, rawValue);
-                        }}
-                        onBlur={(e) => {
-                          if (readOnly) return;
-                          let val = e.target.value;
-                          if (val === '') {
-                            handleCheckValueChange(measurement.id, index, '');
-                            return;
-                          }
-                          val = parseFloat(val).toFixed(2);
-                          handleCheckValueChange(measurement.id, index, val);
-                        }}
-                        className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-                          ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-                          ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                        readOnly={readOnly}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="flex-1 overflow-hidden flex flex-col mb-3">
-        <div className="overflow-auto flex-1 pb-4">
-          <table className="min-w-full bg-white border border-gray-200">
-            <thead className="bg-gray-50 sticky top-0">
-              <tr>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  M/c No
-                </th>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Operation
-                </th>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  SPI
-                </th>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Defect
-                </th>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Corrective Action
-                </th>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Measurement
-                </th>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Std Value
-                </th>
-                <th rowSpan="2" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tolerance
-                </th>
-                <th colSpan={PIECES_COUNT} className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Pieces (1-{PIECES_COUNT})
-                </th>
-              </tr>
-              <tr>
-                {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                  <th key={num} className="px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    #{num}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {measurements.map(measurement => (
-                <tr key={measurement.id}>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <input
-                      type="text"
-                      value={measurementMeta[measurement.id]?.machineNo || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
-                      readOnly={readOnly}
-                    />
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <select
-                      value={measurementMeta[measurement.id]?.operation || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
-                      disabled={readOnly}
-                    >
-                      <option value="">Select Operation</option>
-                      {operationOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <input
-                      type="text"
-                      value={measurementMeta[measurement.id]?.spi || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'spi', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
-                      readOnly={readOnly}
-                    />
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <select
-                      value={measurementMeta[measurement.id]?.defect || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
-                      disabled={readOnly}
-                    >
-                      <option value="">Select Defect</option>
-                      {defectOptions.map(option => (
-                        <option key={option.id} value={option.name}>{option.name}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <select
-                      value={measurementMeta[measurement.id]?.correctiveAction || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border rounded-sm"
-                      disabled={readOnly}
-                    >
-                      <option value="">Select Action</option>
-                      {correctiveActionOptions.map(option => (
-                        <option key={option.is} value={option.name}>{option.name}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                <div className="flex justify-between items-center mb-1.5">
+                  <h4 className="text-xs font-medium text-gray-900">
                     {measurement.name} ({measurement.unit})
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                    {measurement.standardValue}
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                    -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                  </td>
+                  </h4>
+                  <div className="text-xs text-gray-500">
+                    Std: {measurement.standardValue} (Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax})
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-5 gap-1">
                   {checkValues[measurement.id]?.map((value, index) => (
-                    <td key={index} className="px-2 py-2 whitespace-nowrap">
+                    <div key={index} className="flex flex-col">
+                      <label className="text-xs text-gray-500 mb-0.5">#{index + 1}</label>
                       <input
                         type="text"
+                          inputMode="decimal" 
                         value={value}
                         onChange={(e) => {
                           if (readOnly) return;
+                          let raw = e.target.value;
+                          raw = raw.replace(/[^\d.]/g, '');
+                          const parts = raw.split('.');
+                          if (parts.length > 2) return;
+                          if (parts[1]?.length > 2) return;
 
-                          let rawValue = e.target.value;
-                          rawValue = rawValue.replace(/[^0-9.]/g, '');
-
-                          const parts = rawValue.split('.');
-                          if (parts.length > 2) {
-                            rawValue = parts[0] + '.' + parts.slice(1).join('');
-                          }
-
-                          if (parts[1] && parts[1].length > 2) {
-                            rawValue = parts[0] + '.' + parts[1].substring(0, 2);
-                          }
-
-                          handleCheckValueChange(measurement.id, index, rawValue);
+                          handleCheckValueChange(measurement.id, index, raw);
                         }}
                         onBlur={(e) => {
                           if (readOnly) return;
                           let val = e.target.value;
-                          if (val === '') {
-                            handleCheckValueChange(measurement.id, index, '');
-                            return;
+                          if (/^\d{3}$/.test(val)) {
+                            val = (parseFloat(val) / 10).toFixed(2);
+                          } else {
+                            val = parseFloat(val || 0).toFixed(2);
                           }
-
-                          val = parseFloat(val).toFixed(2);
                           handleCheckValueChange(measurement.id, index, val);
                         }}
-                        className={`w-full px-2 py-1 text-sm border rounded-sm text-center 
-                          ${value ? checkTolerance(measurement, value) : 'border-gray-300'}
-                          ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
+                          } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        readOnly={readOnly}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    } else if (isTabletView) {
+      return (
+        <div className="flex-1 overflow-hidden flex flex-col mb-2">
+          <div className="overflow-auto flex-1 pb-2">
+            <table className="min-w-full bg-white border border-gray-200 text-xs">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    M/c No
+                  </th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Operation
+                  </th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    SPI
+                  </th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Defect
+                  </th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Measurement
+                  </th>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                    <th key={num} className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider">
+                      #{num}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {measurements.map(measurement => (
+                  <tr key={measurement.id} className="hover:bg-gray-50">
+                    <td className="px-1.5 py-1.5 whitespace-nowrap">
+                      <input
+                        type="text"
+                        value={measurementMeta[measurement.id]?.machineNo || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                        className={inputStyle}
                         readOnly={readOnly}
                       />
                     </td>
+                    <td className="px-1.5 py-1.5 whitespace-nowrap">
+                      <select
+                        value={measurementMeta[measurement.id]?.operation || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                        className={selectStyle}
+                        disabled={readOnly}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
+                      >
+                        <option value="">Select</option>
+                        {operationOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </td>
+                 <div className="flex flex-col">
+  <label className="text-xs text-gray-500 mb-0.5">SPI</label>
+  <input
+    type="text"
+    value={measurementMeta[measurement.id]?.spi || ''}
+    onChange={(e) => {
+      // Only allow numbers and limit to 2 digits
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 2) {
+        value = value.slice(0, 2);
+      }
+      handleMetaChange(measurement.id, 'spi', value);
+    }}
+    className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+    readOnly={readOnly}
+    maxLength={2}
+    inputMode="numeric"
+    pattern="[0-9]*"
+  />
+</div>
+                    <td className="px-1.5 py-1.5 whitespace-nowrap">
+                      <select
+                        value={measurementMeta[measurement.id]?.defect || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
+                        className={selectStyle}
+                        disabled={readOnly}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
+                      >
+                        <option value="">Select</option>
+                        {defectOptions.map(option => (
+                          <option key={option.id} value={option.name}>{option.name}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-1.5 py-1.5 whitespace-nowrap">
+                      <select
+                        value={measurementMeta[measurement.id]?.correctiveAction || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                        className={selectStyle}
+                        disabled={readOnly}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
+                      >
+                        <option value="">Select</option>
+                        {correctiveActionOptions.map(option => (
+                          <option key={option.id} value={option.name}>{option.name}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-1.5 py-1.5 whitespace-nowrap font-medium text-gray-900">
+                      <div>{measurement.name}</div>
+                      <div className="text-gray-500">
+                        Std: {measurement.standardValue}
+                      </div>
+                      <div className="text-gray-500">
+                        Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                      </div>
+                    </td>
+                    {checkValues[measurement.id]?.map((value, index) => (
+                      <td key={index} className="px-1 py-1 whitespace-nowrap">
+                        <input
+                          type="number"
+                          value={value}
+                          onChange={(e) => {
+                            if (readOnly) return;
+                            let rawValue = e.target.value;
+                            rawValue = rawValue.replace(/[^0-9.]/g, '');
+                            const parts = rawValue.split('.');
+                            if (parts.length > 2) {
+                              rawValue = parts[0] + '.' + parts.slice(1).join('');
+                            }
+                            if (parts[1] && parts[1].length > 2) {
+                              rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+                            }
+
+                            handleCheckValueChange(measurement.id, index, rawValue);
+                          }}
+                          onBlur={(e) => {
+                            if (readOnly) return;
+                            let val = e.target.value;
+                            if (val === '') {
+                              handleCheckValueChange(measurement.id, index, '');
+                              return;
+                            }
+                            val = parseFloat(val).toFixed(2);
+                            handleCheckValueChange(measurement.id, index, val);
+                          }}
+                          className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
+                            } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                          readOnly={readOnly}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex-1 overflow-hidden flex flex-col mb-2">
+          <div className="overflow-auto flex-1 pb-2">
+            <table className="min-w-full bg-white border border-gray-200 text-xs">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    M/c No
+                  </th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Operation
+                  </th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    SPI
+                  </th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Defect
+                  </th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Measurement
+                  </th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Std
+                  </th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Tolerance
+                  </th>
+                  <th colSpan={PIECES_COUNT} className="px-2 py-1.5 text-center font-medium text-gray-500 uppercase tracking-wider">
+                    Pieces (1-{PIECES_COUNT})
+                  </th>
+                </tr>
+                <tr>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                    <th key={num} className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider">
+                      #{num}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {measurements.map(measurement => (
+                  <tr key={measurement.id} className="hover:bg-gray-50">
+                    <td className="px-2 py-1.5 whitespace-nowrap">
+                      <input
+                        type="text"
+                        value={measurementMeta[measurement.id]?.machineNo || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                        className={inputStyle}
+                        readOnly={readOnly}
+                      />
+                    </td>
+                    <td className="px-2 py-1.5 whitespace-nowrap">
+                      <select
+                        value={measurementMeta[measurement.id]?.operation || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                        className={selectStyle}
+                        disabled={readOnly}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
+                      >
+                        <option value="">Select</option>
+                        {operationOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5 whitespace-nowrap">
+                      <input
+                        type="text"
+                        value={measurementMeta[measurement.id]?.spi || ''}
+                        onChange={(e) => {
+                          // Only allow numbers and limit to 2 digits
+                          let value = e.target.value.replace(/\D/g, '');
+                          if (value.length > 2) {
+                            value = value.slice(0, 2);
+                          }
+                          handleMetaChange(measurement.id, 'spi', value);
+                        }}
+                        className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                        readOnly={readOnly}
+                        maxLength={2}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                      />
+                    </td>
+                    <td className="px-2 py-1.5 whitespace-nowrap">
+                      <select
+                        value={measurementMeta[measurement.id]?.defect || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
+                        className={selectStyle}
+                        disabled={readOnly}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
+                      >
+                        <option value="">Select</option>
+                        {defectOptions.map(option => (
+                          <option key={option.id} value={option.id}>{option.name}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5 whitespace-nowrap">
+                      <select
+                        value={measurementMeta[measurement.id]?.correctiveAction || ''}
+                        onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                        className={selectStyle}
+                        disabled={readOnly}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
+                      >
+                        <option value="">Select</option>
+                        {correctiveActionOptions
+                          .filter(option => option.defectId === Number(measurementMeta[measurement.id]?.defect))
+                          .map(option => (
+                            <option key={option.id} value={option.id}>{option.name}</option>
+                          ))}
+                      </select>
+                    </td>
+                    <td className="px-2 py-1.5 whitespace-nowrap font-medium text-gray-900">
+                      {measurement.name} ({measurement.unit})
+                    </td>
+                    <td className="px-2 py-1.5 whitespace-nowrap text-gray-500">
+                      {measurement.standardValue}
+                    </td>
+                    <td className="px-2 py-1.5 whitespace-nowrap text-gray-500">
+                      -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                    </td>
+                    {checkValues[measurement.id]?.map((value, index) => (
+                      <td key={index} className="px-1 py-1 whitespace-nowrap">
+                        <input
+                          type="number"
+                          value={value}
+                          onChange={(e) => {
+                            if (readOnly) return;
+
+                            let rawValue = e.target.value;
+                            rawValue = rawValue.replace(/[^0-9.]/g, '');
+
+                            const parts = rawValue.split('.');
+                            if (parts.length > 2) {
+                              rawValue = parts[0] + '.' + parts.slice(1).join('');
+                            }
+
+                            if (parts[1] && parts[1].length > 2) {
+                              rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+                            }
+
+                            handleCheckValueChange(measurement.id, index, rawValue);
+                          }}
+                          onBlur={(e) => {
+                            if (readOnly) return;
+                            let val = e.target.value;
+                            if (val === '') {
+                              handleCheckValueChange(measurement.id, index, '');
+                              return;
+                            }
+
+                            val = parseFloat(val).toFixed(2);
+                            handleCheckValueChange(measurement.id, index, val);
+                          }}
+                          className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
+                            } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                          readOnly={readOnly}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    );
-  }
-};
+      );
+    }
+  };
 
 
   const renderActionButtons = () => (
@@ -1597,7 +1657,7 @@ const renderMeasurementsTable = () => {
             onDataClick={onDataClick}
             tableHeaders={tableHeaders}
             tableDataNames={tableDataNames}
-             refetchAqlData={refetchAqlData}
+            refetchAqlData={refetchAqlData}
             data={mergedReportData}
             deleteData={deleteData}
             setReadOnly={setReadOnly}
@@ -1631,7 +1691,7 @@ const renderMeasurementsTable = () => {
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-4">
                       <div className="flex-1">
-                        <h4 className="text-xs font-medium text-gray-700 mb-1">Before Ayaning</h4>
+                        <h4 className="text-xs font-medium text-gray-700 mb-1">Before Ironing</h4>
                         <div className="flex flex-wrap gap-2">
                           {formData.before.savedSizes.map((size, index) => (
                             <button
@@ -1655,7 +1715,7 @@ const renderMeasurementsTable = () => {
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-xs font-medium text-gray-700 mb-1">After Ayaning</h4>
+                        <h4 className="text-xs font-medium text-gray-700 mb-1">After Ironing</h4>
                         <div className="flex flex-wrap gap-2">
                           {formData.after.savedSizes.map((size, index) => (
                             <button

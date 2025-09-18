@@ -20,7 +20,8 @@ import {
   Role,
   LineMaster,OrderImport,Allocation,Aql,
   LineAllocation,DefectMaster,DefectCorrectionmaster,
-  InchargeLineListMaster
+  InchargeLineListMaster,
+  OperationMaster
 
 } from "../../components";
 import useOutsideClick from "../../../CustomHooks/handleOutsideClick";
@@ -66,7 +67,8 @@ const ActiveTabList = () => {
     "ORDER IMPORT": <OrderImport />,
     "ALLOCATION" : <Allocation />,
     "AQL" : <Aql />,
-    "INCHARGE LINE LIST MASTER" :  <InchargeLineListMaster/>
+    "INCHARGE LINE LIST MASTER" :  <InchargeLineListMaster/>,
+    "OPERATION MASTER" :<OperationMaster />
 
 
 

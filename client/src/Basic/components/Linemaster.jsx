@@ -7,6 +7,7 @@ import {
   useUpdateLineMasterMutation,
   useDeleteLineMasterMutation
 } from "../../redux/services/LineMasterService";
+import { useGetBranchQuery } from "../../redux/services/BranchMasterService";
 import { useGetEmployeeQuery } from "../../redux/services/EmployeeMasterService";
 import { toast } from "react-toastify";
 import Mastertable from "./MasterTable/Mastertable";
@@ -20,6 +21,7 @@ const MODEL = "Line Detail Master";
 export default function LineMaster() {
   const [readOnly, setReadOnly] = useState(false);
   const [id, setId] = useState("");
+  const [branchId,setBranchId ] = useState("")
   const [lineNo, setLineNo] = useState("");
   const [lineName, setLineName] = useState("");
   const [active, setActive] = useState(true);
@@ -50,6 +52,12 @@ export default function LineMaster() {
     error: empError,
     isLoading: empLoading
   } = useGetEmployeeQuery({ params });
+   const {
+      data: branches = [],
+      isLoading: branchesLoading,
+      error: branchesError,
+    } = useGetBranchQuery({ params: { companyId } });
+    console.log(branches,"branches")
 
   // Handle API errors
   useEffect(() => {
@@ -62,6 +70,11 @@ export default function LineMaster() {
     value: emp.id,
     show: `${emp.name}`,
   })) || [];
+  const branchOptions = branches?.data?.map(branch=>({
+    value:branch.id,
+    show: `${branch.branchName}`
+  }))
+
 
   // Single record fetch
   const {
@@ -82,6 +95,7 @@ export default function LineMaster() {
   // Form data
   const data = {
     lineNo,
+    branchId,
     lineName,
     id,
     active,
@@ -99,6 +113,7 @@ export default function LineMaster() {
       setLineName(data?.lineName || "");
       setActive(data?.active ?? false);
       setEmpId(data?.empId || "");
+      setBranchId(data?.branchId || "")
     }
   }, [id]);
 
@@ -106,6 +121,7 @@ export default function LineMaster() {
     setReadOnly(false);
     setLineNo("");
     setLineName("");
+    setBranchId("")
     setActive(true);
     setEmpId("");
   };
@@ -267,6 +283,16 @@ export default function LineMaster() {
                 options={employeeOptions}
                 value={empId}
                 setValue={setEmpId}
+                required
+                readOnly={readOnly}
+                disabled={childRecord.current > 0}
+                loading={empLoading}
+              />
+                 <DropdownInput
+                name="Branch"
+                options={branchOptions}
+                value={branchId}
+                setValue={setBranchId}
                 required
                 readOnly={readOnly}
                 disabled={childRecord.current > 0}

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Select from 'react-select';
 import secureLocalStorage from "react-secure-storage";
 import { useGetPartyQuery } from "../../../redux/services/PartyMasterService";
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
@@ -46,26 +47,28 @@ const AllocationMasterTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-const filteredData = useMemo(() => {
-  if (!data) return [];
-  const term = searchTerm.toLowerCase();
-  
-  return data.filter((item) => {
-    // Format the date first
-    const formattedDate = format(
-      item.deliveryDate ? new Date(item.deliveryDate) : null,
-      "MMM dd, yyyy"
-    ).toLowerCase();
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+    const term = searchTerm.toLowerCase();
 
-    return (
-      item.Party?.name?.toLowerCase().includes(term) ||
-      item.Branch?.branchName?.toLowerCase().includes(term) ||
-      item.LineMaster?.lineName?.toLowerCase().includes(term) ||
-      item.reference?.toLowerCase().includes(term) ||
-      formattedDate.includes(term)
-    );
-  });
-}, [data, searchTerm]);
+    return data.filter((item) => {
+      // Format the date first
+      const formattedDate = format(
+        item.deliveryDate ? new Date(item.deliveryDate) : null,
+        "MMM dd, yyyy"
+      ).toLowerCase();
+
+      return (
+        item.Party?.name?.toLowerCase().includes(term) ||
+        item.Branch?.branchName?.toLowerCase().includes(term) ||
+        (item.LineMasters && item.LineMasters.some(line =>
+          line.lineName?.toLowerCase().includes(term)
+        )) ||
+        item.reference?.toLowerCase().includes(term) ||
+        formattedDate.includes(term)
+      );
+    });
+  }, [data, searchTerm]);
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const currentData = useMemo(() => {
@@ -78,6 +81,7 @@ const filteredData = useMemo(() => {
       setCurrentPage(newPage);
     }
   };
+  console.log(data, "allocation.LineMasters")
 
   return (
     <div className="bg-white w-full rounded-sm border border-gray-200 shadow-xs overflow-hidden">
@@ -115,7 +119,7 @@ const filteredData = useMemo(() => {
         <table className="min-w-full border border-gray-300 text-xs">
           <thead className="bg-gray-50">
             <tr>
-              {["Reference", "Party", "Branch", "Line", "Allocation Date", "Delivery Date", "Actions"].map((header) => (
+              {["Reference", "Party", "Branch", "Lines", "Allocation Date", "Delivery Date", "Actions"].map((header) => (
                 <th
                   key={header}
                   scope="col"
@@ -140,8 +144,12 @@ const filteredData = useMemo(() => {
                     {allocation.Branch?.branchName || <span className="text-gray-400">N/A</span>}
                   </td>
                   <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {allocation.LineMaster?.lineName || <span className="text-gray-400">N/A</span>}
+                    {allocation.LineMaster && allocation.LineMaster.length > 0
+                      ? allocation.LineMaster[0].lineName
+                      : <span className="text-gray-400">N/A</span>
+                    }
                   </td>
+
                   <td className="px-3 py-2 border border-gray-300 text-gray-700">
                     {safeFormatDate(allocation.allocationDate)}
                   </td>
@@ -255,7 +263,7 @@ const AllocationForm = () => {
   const [showForm, setShowForm] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const {
     data: parties = [],
     isLoading: partiesLoading,
@@ -274,8 +282,6 @@ const AllocationForm = () => {
     error: sizeTableError,
   } = useGetSizeTableMasterByReferenceQuery();
 
-  console.log(sizeTableData,"sizeTableData")
-
   const {
     data: branches = [],
     isLoading: branchesLoading,
@@ -287,11 +293,6 @@ const AllocationForm = () => {
     isLoading: allocationsLoading,
     refetch: refetchAllocations,
   } = useGetAllocationMasterQuery();
-
-  
-
-    console.log(allocations,"allocations")
-
 
   const [createAllocation] = useAddAllocationMasterMutation();
   const [updateAllocation] = useUpdateAllocationMasterMutation();
@@ -309,7 +310,7 @@ const AllocationForm = () => {
     defaultValues: {
       partyId: "",
       branchId: "",
-      lineMasterId: "",
+      lineMasterIds: [],
       deliveryDate: null,
       allocationDate: null,
       reference: "",
@@ -318,6 +319,30 @@ const AllocationForm = () => {
 
   const watchReference = watch("reference");
   const watchPartyId = watch("partyId");
+  const watchBranchId = watch("branchId");
+
+  // Filter lines based on selected branch
+  const filteredLines = useMemo(() => {
+    if (!lines?.data) return [];
+    if (!watchBranchId) return lines.data;
+
+    return lines.data.filter(line => line.branchId === Number(watchBranchId));
+  }, [lines, watchBranchId]);
+
+  // Reset line selection when branch changes
+  useEffect(() => {
+    if (watchBranchId) {
+      setValue("lineMasterIds", []);
+    }
+  }, [watchBranchId, setValue]);
+
+  // Format lines for react-select
+  const lineOptions = useMemo(() => {
+    return filteredLines.map(line => ({
+      value: line.id,
+      label: line.lineName
+    }));
+  }, [filteredLines]);
 
   const validateFutureDate = (date) => {
     if (!date) return "Date is required";
@@ -326,15 +351,15 @@ const AllocationForm = () => {
 
   const uniqueReferences = useMemo(() => {
     if (!allocations?.data || !sizeTableData?.data) return [];
-    
+
     const allocatedRefs = new Set(
       allocations.data
-        .filter(item => item.id !== selectedId) // Exclude current allocation if editing
+        .filter(item => item.id !== selectedId)
         .map(item => item.reference)
     );
-    
+
     const allRefs = sizeTableData.data.map(item => item.reference);
-    
+
     return [...new Set(allRefs)] // Get all unique references
       .filter(ref => !allocatedRefs.has(ref) || ref === watchReference); // Include current reference if editing
   }, [allocations, sizeTableData, selectedId, watchReference]);
@@ -362,6 +387,7 @@ const AllocationForm = () => {
     try {
       const payload = {
         ...formData,
+        lineMasterIds: formData.lineMasterIds.map(item => item.value),
         deliveryDate: formData.deliveryDate?.toISOString(),
         allocationDate: formData.allocationDate?.toISOString(),
         companyId: Number(companyId),
@@ -392,7 +418,18 @@ const AllocationForm = () => {
       setSelectedId(id);
       setValue("partyId", allocation.partyId);
       setValue("branchId", allocation.branchId);
-      setValue("lineMasterId", allocation.lineMasterId);
+
+      // Set selected lines for multi-select
+      if (allocation.LineMasters && allocation.LineMasters.length > 0) {
+        const selectedLineOptions = allocation.LineMasters.map(line => ({
+          value: line.id,
+          label: line.lineName
+        }));
+        setValue("lineMasterIds", selectedLineOptions);
+      } else {
+        setValue("lineMasterIds", []);
+      }
+
       setValue("reference", allocation.reference);
       setValue("deliveryDate", allocation.DeliveryDate ? new Date(allocation.DeliveryDate) : null);
       setValue("allocationDate", allocation.allocationDate ? new Date(allocation.allocationDate) : null);
@@ -407,7 +444,18 @@ const AllocationForm = () => {
       setSelectedId(id);
       setValue("partyId", allocation.partyId);
       setValue("branchId", allocation.branchId);
-      setValue("lineMasterId", allocation.lineMasterId);
+
+      // Set selected lines for multi-select
+      if (allocation.LineMasters && allocation.LineMasters.length > 0) {
+        const selectedLineOptions = allocation.LineMasters.map(line => ({
+          value: line.id,
+          label: line.lineName
+        }));
+        setValue("lineMasterIds", selectedLineOptions);
+      } else {
+        setValue("lineMasterIds", []);
+      }
+
       setValue("reference", allocation.reference);
       setValue("deliveryDate", allocation.DeliveryDate ? new Date(allocation.DeliveryDate) : null);
       setValue("allocationDate", allocation.allocationDate ? new Date(allocation.allocationDate) : null);
@@ -610,32 +658,53 @@ const AllocationForm = () => {
                     </p>
                   )}
                 </div>
+
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Line <span className="text-red-500">*</span>
+                    Lines <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    {...register("lineMasterId", {
-                      required: "Line selection is required",
-                      valueAsNumber: true,
-                    })}
-                    disabled={readOnly || linesLoading}
-                    className={`mt-0.5 block w-full pl-2.5 pr-7 py-1.5 text-xs border rounded shadow-sm
-                      ${errors.lineMasterId
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                      }`}
-                  >
-                    <option value="">Select a line</option>
-                    {lines?.data?.map((line) => (
-                      <option key={line.id} value={line.id}>
-                        {line.lineName}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.lineMasterId && (
+                  <Controller
+                    name="lineMasterIds"
+                    control={control}
+                    rules={{
+                      required: "At least one line must be selected",
+                      validate: value => value && value.length > 0 || "At least one line must be selected"
+                    }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        isMulti
+                        options={lineOptions}
+                        isDisabled={readOnly || linesLoading || !watchBranchId}
+                        placeholder="Select lines..."
+                        className={`mt-0.5 text-xs ${errors.lineMasterIds ? 'border-red-300' : ''}`}
+                        classNamePrefix="select"
+                        styles={{
+                          control: (base, state) => ({
+                            ...base,
+                            fontSize: '0.75rem',
+                            minHeight: '32px',
+                            borderColor: errors.lineMasterIds ? '#e53e3e' : '#d1d5db',
+                            boxShadow: state.isFocused && !errors.lineMasterIds ? '0 0 0 1px #3b82f6' : 'none',
+                            '&:hover': {
+                              borderColor: errors.lineMasterIds ? '#e53e3e' : '#d1d5db'
+                            }
+                          }),
+                          option: (base) => ({
+                            ...base,
+                            fontSize: '0.75rem'
+                          }),
+                          multiValue: (base) => ({
+                            ...base,
+                            fontSize: '0.7rem'
+                          })
+                        }}
+                      />
+                    )}
+                  />
+                  {errors.lineMasterIds && (
                     <p className="mt-1 text-xs text-red-600">
-                      {errors.lineMasterId.message}
+                      {errors.lineMasterIds.message}
                     </p>
                   )}
                 </div>

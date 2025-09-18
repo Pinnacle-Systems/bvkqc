@@ -696,6 +696,7 @@ CREATE TABLE `LineMaster` (
     `OperationQty` VARCHAR(191) NULL,
     `active` BOOLEAN NOT NULL DEFAULT false,
     `companyId` INTEGER NULL,
+    `branchId` INTEGER NULL,
     `empId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
@@ -705,7 +706,6 @@ CREATE TABLE `LineMaster` (
 CREATE TABLE `Product` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
-    `color` VARCHAR(191) NOT NULL,
     `reference` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -761,6 +761,8 @@ CREATE TABLE `AqlInspection` (
     `inspectionDate` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `color` VARCHAR(191) NULL,
+    `approveStatus` INTEGER NULL,
     `lineMasterId` INTEGER NULL,
     `employeeId` INTEGER NULL,
 
@@ -827,6 +829,25 @@ CREATE TABLE `InchargeLineListMaster` (
     `lineAllocationInchargeMasterId` INTEGER NULL,
     `lineMasterId` INTEGER NULL,
     `Size` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Defect` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `active` BOOLEAN NOT NULL DEFAULT true,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `DefectCorrection` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `active` BOOLEAN NOT NULL DEFAULT true,
+    `defectId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -1057,6 +1078,9 @@ ALTER TABLE `MailTransAttachments` ADD CONSTRAINT `MailTransAttachments_mailTran
 ALTER TABLE `LineMaster` ADD CONSTRAINT `LineMaster_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `Company`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `LineMaster` ADD CONSTRAINT `LineMaster_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `LineMaster` ADD CONSTRAINT `LineMaster_empId_fkey` FOREIGN KEY (`empId`) REFERENCES `Employee`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1112,3 +1136,6 @@ ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_line
 
 -- AddForeignKey
 ALTER TABLE `InchargeLineListMaster` ADD CONSTRAINT `InchargeLineListMaster_lineMasterId_fkey` FOREIGN KEY (`lineMasterId`) REFERENCES `LineMaster`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `DefectCorrection` ADD CONSTRAINT `DefectCorrection_defectId_fkey` FOREIGN KEY (`defectId`) REFERENCES `Defect`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

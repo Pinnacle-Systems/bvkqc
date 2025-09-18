@@ -93,6 +93,7 @@ model Branch {
   OrderImport                  OrderImport[]
   Allocation                   Allocation[]
   LineAllocationInchargeMaster LineAllocationInchargeMaster[]
+  LineMaster                   LineMaster[]
 }
 
 model UserOnBranch {
@@ -784,18 +785,19 @@ model StyleSheet {
 }
 
 model LineMaster {
-  id               Int      @id @default(autoincrement())
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  lineNo           String?
-  lineName         String?
-  sewingMachineQty String?
-  helperQty        String?
-  OperationQty     String?
-  active           Boolean  @default(false)
-  Company          Company? @relation(fields: [companyId], references: [id])
-  companyId        Int?
-
+  id                     Int                      @id @default(autoincrement())
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  lineNo                 String?
+  lineName               String?
+  sewingMachineQty       String?
+  helperQty              String?
+  OperationQty           String?
+  active                 Boolean                  @default(false)
+  Company                Company?                 @relation(fields: [companyId], references: [id])
+  companyId              Int?
+  Branch                 Branch?                  @relation(fields: [branchId], references: [id])
+  branchId               Int?
   Employee               Employee?                @relation(fields: [empId], references: [id])
   empId                  Int?
   Allocation             Allocation[]

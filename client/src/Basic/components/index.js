@@ -41,3 +41,4 @@ export { default as Role } from "./RoleMaster";
 export {default as Allocation} from "./Allocation";
 export { default as Aql} from "./Aql"
 export { default as InchargeLineListMaster} from "./InchargeLineListMaster"
+export {default as OperationMaster} from "./OperationMaster"
