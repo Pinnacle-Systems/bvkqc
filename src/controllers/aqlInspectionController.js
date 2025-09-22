@@ -171,7 +171,6 @@ export const createAqlInspection = async (req, res) => {
   try {
     validateInspectionPayload(req.body);
 
-    // Validate samples
     if (req.body.before) {
       req.body.before.forEach((sample, index) =>
         validateSample(sample, index, "BEFORE")

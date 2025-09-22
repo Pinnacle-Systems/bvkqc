@@ -97,13 +97,28 @@ async function update(id, body) {
   return { statusCode: 0, data };
 }
 
-async function remove(id) {
-  const data = await prisma.country.delete({
-    where: {
-      id: parseInt(id),
-    },
-  });
-  return { statusCode: 0, data };
+async function remove(operationId) {
+  try {
+    // Step 1: Find the operation to get its reference
+    const operation = await prisma.operation.findUnique({
+      where: { id: parseInt(operationId) },
+    });
+
+    if (!operation) {
+      return { statusCode: 1, message: "Operation not found" };
+    }
+
+    // Step 2: Delete all operations with the same reference
+    const deleted = await prisma.operation.deleteMany({
+      where: { reference: operation.reference },
+    });
+
+    return { statusCode: 0, deleted };
+  } catch (error) {
+    console.error(error);
+    return { statusCode: 2, message: "Error deleting operations", error };
+  }
 }
+
 
 export { get, getOne, getSearch, create, update, remove };
