@@ -27,7 +27,6 @@ const Aql = () => {
   const operationOptions = [
     { value: 'op1', label: 'Operation 1' },
     { value: 'op2', label: 'Operation 2' },
-    // Add more options as needed
   ];
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
@@ -201,7 +200,6 @@ const Aql = () => {
         }
       };
 
-      // Process before data with proper number formatting
       if (data.before && Array.isArray(data.before)) {
         newFormData.before.savedSizes = data.before.map(sample => sample.size);
 
@@ -214,7 +212,6 @@ const Aql = () => {
             measurement.values?.forEach(valueObj => {
               if (valueObj.pieceNumber <= PIECES_COUNT) {
                 const val = valueObj.actualValue?.toString() || '';
-                // Format the value to 2 decimal places if it's a number
                 values[valueObj.pieceNumber - 1] = val && !isNaN(val)
                   ? parseFloat(val).toFixed(2)
                   : val;
@@ -226,7 +223,6 @@ const Aql = () => {
         });
       }
 
-      // Process after data with proper number formatting
       if (data.after && Array.isArray(data.after)) {
         newFormData.after.savedSizes = data.after.map(sample => sample.size);
 
@@ -253,7 +249,6 @@ const Aql = () => {
 
       setFormData(newFormData);
 
-      // Set the first available size for comparison
       const firstSize = data.before?.[0]?.size || data.after?.[0]?.size;
       if (firstSize) {
         setSelectedSize(firstSize);
@@ -889,7 +884,6 @@ const Aql = () => {
     setShowCompare(false);
     setAyanCondition('before');
     setSelectedSize('');
-    // Add this to ensure clean state before loading
     setFormStatus(prev => ({ ...prev, isDirty: false }));
   };
   const deleteData = async () => {
@@ -903,7 +897,6 @@ const Aql = () => {
         toast.success("Deleted Successfully");
         setDeleteId(null);
         setNewItem(false);
-        // Trigger a refetch of the AQL data
         refetchAqlData();
       } catch (error) {
         toast.error("Something went wrong");
@@ -1077,7 +1070,6 @@ const Aql = () => {
   const renderMeasurementsTable = () => {
     if (measurements.length === 0) return null;
 
-    // Common input and select styles for consistency
     const inputStyle = "w-full px-1.5 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500";
     const selectStyle = `${inputStyle} appearance-none bg-white bg-arrow bg-no-repeat bg-right`;
 
@@ -1120,7 +1112,6 @@ const Aql = () => {
                       type="text"
                       value={measurementMeta[measurement.id]?.spi || ''}
                       onChange={(e) => {
-                        // Only allow numbers and limit to 2 digits
                         let value = e.target.value.replace(/\D/g, '');
                         if (value.length > 2) {
                           value = value.slice(0, 2);
@@ -1279,7 +1270,6 @@ const Aql = () => {
     type="text"
     value={measurementMeta[measurement.id]?.spi || ''}
     onChange={(e) => {
-      // Only allow numbers and limit to 2 digits
       let value = e.target.value.replace(/\D/g, '');
       if (value.length > 2) {
         value = value.slice(0, 2);
@@ -1446,7 +1436,6 @@ const Aql = () => {
                         type="text"
                         value={measurementMeta[measurement.id]?.spi || ''}
                         onChange={(e) => {
-                          // Only allow numbers and limit to 2 digits
                           let value = e.target.value.replace(/\D/g, '');
                           if (value.length > 2) {
                             value = value.slice(0, 2);

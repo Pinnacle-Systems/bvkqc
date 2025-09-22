@@ -39,7 +39,6 @@ export default function LineMaster() {
     companyId: companyId,
   };
 
-  // API Calls
   const {
     data: allData,
     isLoading,
@@ -59,13 +58,11 @@ export default function LineMaster() {
     } = useGetBranchQuery({ params: { companyId } });
     console.log(branches,"branches")
 
-  // Handle API errors
   useEffect(() => {
     if (lineError) toast.error("Failed to load line data");
     if (empError) toast.error("Failed to load employee data");
   }, [lineError, empError]);
 
-  // Employee dropdown options
   const employeeOptions = EmpData?.data?.map(emp => ({
     value: emp.id,
     show: `${emp.name}`,
@@ -76,7 +73,6 @@ export default function LineMaster() {
   }))
 
 
-  // Single record fetch
   const {
     data: singleData,
     error: singleError
@@ -87,12 +83,10 @@ export default function LineMaster() {
     if (singleData?.data) syncFormWithDb(singleData.data);
   }, [singleError, singleData]);
 
-  // Mutation hooks
   const [addData] = useAddLineMasterMutation();
   const [updateData] = useUpdateLineMasterMutation();
   const [removeData] = useDeleteLineMasterMutation();
 
-  // Form data
   const data = {
     lineNo,
     branchId,
@@ -103,7 +97,6 @@ export default function LineMaster() {
     empId,
   };
 
-  // Sync form with DB data
   const syncFormWithDb = useCallback((data) => {
     if (!id) {
       resetForm();
@@ -126,7 +119,6 @@ export default function LineMaster() {
     setEmpId("");
   };
 
-  // Validation
   const validateData = () => {
     const newErrors = {};
     if (!lineNo) newErrors.lineNo = "Line No is required";
@@ -135,7 +127,6 @@ export default function LineMaster() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // API call handler
   const handleApiCall = async (callback, data, successMessage) => {
     try {
       const result = await callback(data).unwrap();
@@ -148,7 +139,6 @@ export default function LineMaster() {
     }
   };
 
-  // Save data
   const saveData = async (exitAfterSave = false) => {
     if (!validateData()) return;
     if (!window.confirm("Are you sure you want to save?")) return;
@@ -167,7 +157,6 @@ export default function LineMaster() {
     }
   };
 
-  // Delete data
   const deleteData = async (idToDelete = id) => {
     if (!idToDelete) return;
     if (!window.confirm("Are you sure you want to delete?")) return;
@@ -186,7 +175,6 @@ export default function LineMaster() {
     }
   };
 
-  // Keyboard shortcut
   const handleKeyDown = (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 's') {
       event.preventDefault();
@@ -194,7 +182,6 @@ export default function LineMaster() {
     }
   };
 
-  // Table configuration
   const tableHeaders = ["S.NO", "Line No", "Line Name", "Status"];
   const tableDataNames = [
     "index+1",

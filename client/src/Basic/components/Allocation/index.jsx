@@ -52,7 +52,6 @@ const AllocationMasterTable = ({
     const term = searchTerm.toLowerCase();
 
     return data.filter((item) => {
-      // Format the date first
       const formattedDate = format(
         item.deliveryDate ? new Date(item.deliveryDate) : null,
         "MMM dd, yyyy"
@@ -319,7 +318,6 @@ const AllocationForm = () => {
   const watchPartyId = watch("partyId");
   const watchBranchId = watch("branchId");
 
-  // Filter lines based on selected branch
   const filteredLines = useMemo(() => {
     if (!lines?.data) return [];
     if (!watchBranchId) return lines.data;
@@ -327,14 +325,12 @@ const AllocationForm = () => {
     return lines.data.filter(line => line.branchId === Number(watchBranchId));
   }, [lines, watchBranchId]);
 
-  // Reset line selection when branch changes
   useEffect(() => {
     if (watchBranchId) {
       setValue("lineMasterIds", []);
     }
   }, [watchBranchId, setValue]);
 
-  // Format lines for react-select
   const lineOptions = useMemo(() => {
     return filteredLines.map(line => ({
       value: line.id,
@@ -358,8 +354,8 @@ const AllocationForm = () => {
 
     const allRefs = sizeTableData.data.map(item => item.reference);
 
-    return [...new Set(allRefs)] // Get all unique references
-      .filter(ref => !allocatedRefs.has(ref) || ref === watchReference); // Include current reference if editing
+    return [...new Set(allRefs)]
+      .filter(ref => !allocatedRefs.has(ref) || ref === watchReference); 
   }, [allocations, sizeTableData, selectedId, watchReference]);
 
   const selectedSizeTable = useMemo(() => {
@@ -417,7 +413,6 @@ const AllocationForm = () => {
       setValue("partyId", allocation.partyId);
       setValue("branchId", allocation.branchId);
 
-      // Set selected lines for multi-select
       if (allocation.LineMasters && allocation.LineMasters.length > 0) {
         const selectedLineOptions = allocation.LineMasters.map(line => ({
           value: line.id,
@@ -443,7 +438,6 @@ const AllocationForm = () => {
       setValue("partyId", allocation.partyId);
       setValue("branchId", allocation.branchId);
 
-      // Set selected lines for multi-select
       if (allocation.LineMasters && allocation.LineMasters.length > 0) {
         const selectedLineOptions = allocation.LineMasters.map(line => ({
           value: line.id,
