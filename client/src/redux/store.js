@@ -42,6 +42,7 @@ import {
   CurrencyMasterApi,
   machineMasterApi,
   lineAllocationMasterApi,
+  operationMasterApi
   
 } from "./services";
 import { pdfApi } from "./services/pdfApi";
@@ -94,12 +95,12 @@ import CountsMasterApi from "./uniformService/CountsMasterServices";
 import PercentageApi from "./uniformService/Percentage";
 import EmailApi from "./uniformService/Email.Services";
 import tagTypeMasterApi from "./uniformService/TagTypeMasterServices";
-
 const commonReducers = {
   openTabs,
   countryMaster: countryMasterApi.reducer,
   [defectMasterApi.reducerPath]:defectMasterApi.reducer,
   [defectCorrectionMasterApi.reducerPath]:defectCorrectionMasterApi.reducer,
+  [operationMasterApi.reducerPath] : operationMasterApi.reducer,
   pageMaster: pageMasterApi.reducer,
   stateMaster: stateMasterApi.reducer,
   cityMaster: cityMasterApi.reducer,
@@ -197,6 +198,7 @@ const commonMiddleware = [
   cityMasterApi.middleware,
   departmentMasterApi.middleware,
  pdfApi.middleware,
+ operationMasterApi.middleware,
   employeeCategoryMasterApi.middleware,
   finYearMasterApi.middleware,
   rolesMasterApi.middleware,

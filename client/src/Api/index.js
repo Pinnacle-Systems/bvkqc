@@ -92,4 +92,5 @@ export const  TAG_TYPE_API  = "tagType"
 export const AQL_INSPECTION_API = "aql"
 export const LINE_ALLOCATION_API = "InchargeLineList"
 export const DEFECT_CORRECTION_API = "defectCorrection"
+export const OPERATION_API = "operation"
 

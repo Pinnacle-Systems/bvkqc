@@ -144,11 +144,9 @@ const AllocationMasterTable = ({
                     {allocation.Branch?.branchName || <span className="text-gray-400">N/A</span>}
                   </td>
                   <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {allocation.LineMaster && allocation.LineMaster.length > 0
-                      ? allocation.LineMaster[0].lineName
-                      : <span className="text-gray-400">N/A</span>
-                    }
+                    {allocation.LineMaster?.lineName || <span className="text-gray-400">N/A</span>}
                   </td>
+
 
                   <td className="px-3 py-2 border border-gray-300 text-gray-700">
                     {safeFormatDate(allocation.allocationDate)}

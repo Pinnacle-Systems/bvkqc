@@ -42,6 +42,7 @@ export { default as TaxTemplateApi } from './TaxTemplateServices'
 export { default as TermsAndConditionsMasterApi } from "./TermsAndConditionsService";
 export { default as machineMasterApi } from "./MachineMasterService"
 export { default as lineAllocationMasterApi } from "./InchargeLineListMaster";
+export { default as operationMasterApi} from "./OprtaionMasterService"
 
 
 

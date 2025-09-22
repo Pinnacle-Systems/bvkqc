@@ -1,22 +1,39 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
+import { useGetAllocationMasterQuery } from '../../../redux/uniformService/SizeTableMasterService';
+import {
+  useGetOperationQuery,
+  useAddOperationMutation
+} from '../../../redux/services/OprtaionMasterService';
+import secureLocalStorage from 'react-secure-storage';
+import { toast } from 'react-toastify';
 
 const ExcelUploader = () => {
   const [data, setData] = useState([]);
   const [headers, setHeaders] = useState([]);
   const [fileName, setFileName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedReference, setSelectedReference] = useState('');
   const [error, setError] = useState('');
 
+  const params = {
+    companyId: secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userCompanyId"
+    ),
+  };
+
+  const { data: sizeTableData } = useGetAllocationMasterQuery();
+  const [addOperation] = useAddOperationMutation();
+  const {data:operationData} = useGetOperationQuery({params})
   const onDrop = useCallback((acceptedFiles) => {
     setError('');
     if (acceptedFiles.length === 0) return;
-    
+
     const file = acceptedFiles[0];
     setFileName(file.name);
     setIsLoading(true);
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -25,31 +42,72 @@ const ExcelUploader = () => {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
+
         if (jsonData.length < 2) {
           setError('The Excel file doesn\'t contain enough data');
           setIsLoading(false);
           return;
         }
-        
-        // First row as headers
-        setHeaders(jsonData[0]);
-        // Rest as data
-        setData(jsonData.slice(1));
+
+        setHeaders(jsonData[0]); // first row = headers
+        setData(jsonData.slice(1).filter(row => row.length > 0)); // remove empty rows
       } catch (err) {
         setError('Failed to process the Excel file');
         console.error(err);
       }
       setIsLoading(false);
     };
-    
+
     reader.onerror = () => {
       setError('Failed to read the file');
       setIsLoading(false);
     };
-    
+
     reader.readAsBinaryString(file);
   }, []);
+    const references = [...new Set(sizeTableData?.data?.map(item => item.reference) || [])];
+
+
+  const clearData = () => {
+    setData([]);
+    setHeaders([]);
+    setFileName('');
+    setError('');
+  };
+
+ const handleSaveOperations = async () => {
+  if (!selectedReference) {
+    toast.error("Please select a reference first");
+    return;
+  }
+
+  if (data.length === 0) {
+    toast.error("No data to save");
+    return;
+  }
+
+  try {
+    // Map all rows to an array of objects
+    const operationsToAdd = data.map(row => {
+      // If multiple columns exist, send as array or object
+      return {
+        data: row, // send entire row as array
+        reference: selectedReference,
+        companyId: params.companyId
+      };
+    });
+
+    // Single API call sending the whole array
+    await addOperation({ operations: operationsToAdd }).unwrap();
+
+    toast.success("Operations added successfully!");
+    clearData();
+  } catch (err) {
+    console.error("Error adding operations:", err);
+    toast.error("Failed to add operations");
+  }
+};
+
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -60,40 +118,41 @@ const ExcelUploader = () => {
     maxFiles: 1
   });
 
-  const clearData = () => {
-    setData([]);
-    setHeaders([]);
-    setFileName('');
-    setError('');
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[f1f1f0] px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">Excel File Upload</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Upload your Excel files to automatically populate the data table below. 
-            Supports .xls and .xlsx formats.
-          </p>
+       
+        {/* Reference Selection */}
+        <div className="w-72 mb-2">
+          <label className="block text-gray-700 font-medium mb-2">Select Reference:</label>
+          <select
+            className="border rounded-md px-3 py-2 w-full"
+            value={selectedReference}
+            onChange={(e) => setSelectedReference(e.target.value)}
+          >
+            <option value="">-- Select Reference --</option>
+            {references.map((ref, index) => (
+            <option key={index} value={ref}>{ref}</option>
+          ))}
+          </select>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Upload Section */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <div 
-              {...getRootProps()} 
+            <div
+              {...getRootProps()}
               className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200
                 ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
             >
               <input {...getInputProps()} />
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="p-3 bg-blue-100 rounded-full">
-                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                   </svg>
                 </div>
-                
+
                 {isDragActive ? (
                   <p className="text-blue-600 font-medium">Drop the Excel file here</p>
                 ) : (
@@ -107,27 +166,31 @@ const ExcelUploader = () => {
                 )}
               </div>
             </div>
-            
+
             {/* File Info */}
             {fileName && (
               <div className="mt-6 p-4 bg-blue-50 rounded-lg flex items-center justify-between">
                 <div className="flex items-center">
-                  <svg className="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
                   <span className="text-gray-700 font-medium truncate">{fileName}</span>
                 </div>
-                <button 
-                  onClick={clearData}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
+                <button onClick={clearData} className="text-red-500 hover:text-red-700">
+                  Clear
                 </button>
               </div>
             )}
-            
+
+            {/* Save Button */}
+            {data.length > 0 && selectedReference && (
+              <div className="mt-6">
+                <button
+                  onClick={handleSaveOperations}
+                  className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                  Save Operations
+                </button>
+              </div>
+            )}
+
             {/* Loading State */}
             {isLoading && (
               <div className="mt-6 flex items-center justify-center">
@@ -135,18 +198,15 @@ const ExcelUploader = () => {
                 <span className="ml-3 text-gray-600">Processing file...</span>
               </div>
             )}
-            
+
             {/* Error Message */}
             {error && (
               <div className="mt-6 p-3 bg-red-50 text-red-700 rounded-lg flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
                 {error}
               </div>
             )}
           </div>
-          
+
           {/* Data Preview */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-6">
@@ -157,15 +217,15 @@ const ExcelUploader = () => {
                 </span>
               )}
             </div>
-            
+
             {data.length > 0 ? (
               <div className="overflow-x-auto rounded-lg border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
                       {headers.map((header, index) => (
-                        <th 
-                          key={index} 
+                        <th
+                          key={index}
                           className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
                           {header}
@@ -188,24 +248,10 @@ const ExcelUploader = () => {
               </div>
             ) : (
               <div className="text-center py-12 text-gray-500">
-                <svg className="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <p className="mt-4">Upload an Excel file to preview data</p>
+                <p>Upload an Excel file to preview data</p>
               </div>
             )}
           </div>
-        </div>
-        
-        {/* Instructions */}
-        <div className="mt-12 bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">How to use</h3>
-          <ol className="list-decimal list-inside space-y-2 text-gray-600">
-            <li>Drag and drop an Excel file (.xls or .xlsx) into the upload area, or click to browse</li>
-            <li>The system will automatically process the file and display the data</li>
-            <li>Review the data in the preview table</li>
-            <li>Use the clear button to remove the current file and data</li>
-          </ol>
         </div>
       </div>
     </div>

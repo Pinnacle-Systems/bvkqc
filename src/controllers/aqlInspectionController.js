@@ -12,7 +12,6 @@ class AqlInspectionError extends Error {
   }
 }
 
-// Validation functions
 const validateInspectionPayload = (payload) => {
   if (!payload) {
     throw new AqlInspectionError("Request body is required");
@@ -96,7 +95,6 @@ const validateValue = (value, measurementId, index, condition) => {
   }
 };
 
-// Transformation functions
 const transformInspectionData = (inspection) => {
   if (!inspection) return null;
 
@@ -141,7 +139,6 @@ const transformValue = (value) => ({
   createdAt: value.createdAt,
 });
 
-// Helper function to process samples
 const processSamples = async (tx, samples, condition, inspectionId) => {
   for (const sample of samples) {
     await tx.sample.create({
@@ -170,7 +167,6 @@ const processSamples = async (tx, samples, condition, inspectionId) => {
   }
 };
 
-// Controller functions
 export const createAqlInspection = async (req, res) => {
   try {
     validateInspectionPayload(req.body);
@@ -187,7 +183,6 @@ export const createAqlInspection = async (req, res) => {
       );
     }
 
-    // Create new inspection (allowing duplicate references)
     const inspection = await prisma.aqlInspection.create({
       data: {
         companyId: String(req.body.companyId),
@@ -198,7 +193,6 @@ export const createAqlInspection = async (req, res) => {
       },
     });
 
-    // Process samples in transaction
     const result = await prisma.$transaction(async (tx) => {
       if (req.body.before) {
         await processSamples(tx, req.body.before, "BEFORE", inspection.id);
@@ -425,7 +419,7 @@ export const getAllReferences = async (req, res) => {
     afterSamples: {
       select: {
         condition: true,
-        size: true, // ✅ size from Sample model
+        size: true,
       },
       take: 1,
     },
@@ -506,7 +500,6 @@ export const updateAqlInspection = async (req, res) => {
     });
 
     const result = await prisma.$transaction(async (tx) => {
-      // First delete all related data for the condition we're updating
       const condition = req.body.ayanCondition.toUpperCase();
       const relationField = condition === "BEFORE" ? "beforeSamples" : "afterSamples";
 
@@ -534,7 +527,6 @@ export const updateAqlInspection = async (req, res) => {
         },
       });
 
-      // Update the inspection details
       const updatedInspection = await tx.aqlInspection.update({
         where: { id: parseInt(id) },
         data: {
@@ -544,7 +536,6 @@ export const updateAqlInspection = async (req, res) => {
         },
       });
 
-      // Create new samples for the condition
       const sampleData = {
         size: req.body.samples[0].size,
         condition,
@@ -656,7 +647,6 @@ export const deleteAqlInspection = async (req, res) => {
     }
 
     await prisma.$transaction(async (tx) => {
-      // Delete all related data
       await tx.sampleValue.deleteMany({
         where: {
           measurement: {

@@ -962,3 +962,10 @@ model DefectCorrection {
   Defect   Defect? @relation(fields: [defectId], references: [id])
   defectId Int?
 }
+
+model Operation{
+  id          Int      @id @default(autoincrement())
+  name        String
+  reference String?
+  active      Boolean  @default(true)
+}

@@ -16,7 +16,7 @@
     "@etsoo/reactprint": "^1.0.3",
     "@mui/icons-material": "^5.15.18",
     "@prisma/client": "^4.16.2",
-    "axios": "^1.7.9",
+    "axios": "^1.12.2",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
