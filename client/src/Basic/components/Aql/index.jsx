@@ -8,6 +8,7 @@ import Modal from '../../../UiComponents/Modal/index.js';
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
 import { useGetdefectCorrectionQuery } from '../../../redux/services/DefectCorrectionMasterService.js';
 import { useGetDefectQuery } from '../../../redux/services/DefectMasterService.js';
+import { useGetOperationQuery } from '../../../redux/services/OprtaionMasterService.js';
 
 const Aql = () => {
   const [selectedReference, setSelectedReference] = useState('');
@@ -24,10 +25,7 @@ const Aql = () => {
   const [checkValues, setCheckValues] = useState({});
   const [approveStatus, setApproveStatus] = useState(0);
   const [measurementMeta, setMeasurementMeta] = useState({});
-  const operationOptions = [
-    { value: 'op1', label: 'Operation 1' },
-    { value: 'op2', label: 'Operation 2' },
-  ];
+ 
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
@@ -46,6 +44,12 @@ const Aql = () => {
       partialSavedMeasurements: {}
     }
   });
+  const { data: operationData, refetch: refetchOperations } = useGetOperationQuery({ params: {companyId}});
+     console.log(operationData?.data,"operation")
+
+  const operationOptions = operationData?.data?.filter(op=>op.reference === selectedReference)
+  console.log(operationOptions,"operationOptions")
+
   const handleMetaChange = (measurementId, field, value) => {
     setMeasurementMeta(prev => ({
       ...prev,
@@ -1102,7 +1106,7 @@ const Aql = () => {
                     >
                       <option value="">Select</option>
                       {operationOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
+                        <option key={option.id} value={option.id}>{option.name}</option>
                       ))}
                     </select>
                   </div>
@@ -1260,7 +1264,7 @@ const Aql = () => {
                       >
                         <option value="">Select</option>
                         {operationOptions.map(option => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
+                          <option key={option.id} value={option.id}>{option.name}</option>
                         ))}
                       </select>
                     </td>
@@ -1427,7 +1431,7 @@ const Aql = () => {
                       >
                         <option value="">Select</option>
                         {operationOptions.map(option => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
+                          <option key={option.id} value={option.id}>{option.name}</option>
                         ))}
                       </select>
                     </td>

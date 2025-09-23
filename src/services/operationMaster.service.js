@@ -76,26 +76,39 @@ async function create(body) {
   }
 }
 
-async function update(id, body) {
-  const { name, code, active } = await body;
-  const dataFound = await prisma.country.findUnique({
-    where: {
-      id: parseInt(id),
-    },
-  });
-  if (!dataFound) return NoRecordFound("Country");
-  const data = await prisma.country.update({
-    where: {
-      id: parseInt(id),
-    },
-    data: {
-      name,
-      code,
-      active,
-    },
-  });
-  return { statusCode: 0, data };
+async function update(req) {
+  console.log(req, "body");
+  try {
+    const dataFound = await prisma.operation.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    if (!dataFound) {
+      return { statusCode: 1, message: "Operation not found" };
+    }
+
+    // Prepare data to update from body
+    const updateData = {};
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.reference !== undefined) updateData.reference = body.reference;
+    if (body.active !== undefined) updateData.active = body.active;
+
+    const data = await prisma.operation.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: updateData,
+    });
+
+    return { statusCode: 0, data };
+  } catch (error) {
+    console.error(error);
+    return { statusCode: 1, message: "Error updating operation" };
+  }
 }
+
 
 async function remove(operationId) {
   try {

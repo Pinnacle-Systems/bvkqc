@@ -62,14 +62,14 @@ const operationmaterApi = createApi({
         return {
           url: `${OPERATION_API}/${id}`,
           method: "PUT",
-          body,
+           body: payload,
         };
       },
       invalidatesTags: ["Operation"],
     }),
     deleteOperation: builder.mutation({
-      query: (reference) => ({
-        url: `${OPERATION_API}/${reference}`,
+      query: () => ({
+        url: `${OPERATION_API}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Operation"],

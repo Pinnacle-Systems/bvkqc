@@ -81,6 +81,20 @@ const AllocationMasterTable = ({
     }
   };
   console.log(data, "allocation.LineMasters")
+  // Group by reference
+const groupedAllocations = Object.values(
+  currentData.reduce((acc, item) => {
+    if (!acc[item.reference]) {
+      acc[item.reference] = {
+        ...item,
+        lines: [],
+      };
+    }
+    acc[item.reference].lines.push(item.LineMaster?.lineName || "N/A");
+    return acc;
+  }, {})
+);
+
 
   return (
     <div className="bg-white w-full rounded-sm border border-gray-200 shadow-xs overflow-hidden">
@@ -129,68 +143,68 @@ const AllocationMasterTable = ({
               ))}
             </tr>
           </thead>
-          <tbody>
-            {currentData.length > 0 ? (
-              currentData.map((allocation, index) => (
-                <tr key={allocation.id} className="odd:bg-gray-100 hover:bg-gray-200 transition">
-                  <td className="px-3 py-2 border border-gray-300 text-gray-900">
-                    {allocation.reference || <span className="text-gray-400">N/A</span>}
-                  </td>
-                  <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {allocation.Party?.name || <span className="text-gray-400">N/A</span>}
-                  </td>
-                  <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {allocation.Branch?.branchName || <span className="text-gray-400">N/A</span>}
-                  </td>
-                  <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {allocation.LineMaster?.lineName || <span className="text-gray-400">N/A</span>}
-                  </td>
+      <tbody>
+  {groupedAllocations.length > 0 ? (
+    groupedAllocations.map((allocation) => (
+      <tr key={allocation.reference} className="odd:bg-gray-100 hover:bg-gray-200 transition">
+        <td className="px-3 py-2 border border-gray-300 text-gray-900">
+          {allocation.reference || <span className="text-gray-400">N/A</span>}
+        </td>
+        <td className="px-3 py-2 border border-gray-300 text-gray-700">
+          {allocation.Party?.name || <span className="text-gray-400">N/A</span>}
+        </td>
+        <td className="px-3 py-2 border border-gray-300 text-gray-700">
+          {allocation.Branch?.branchName || <span className="text-gray-400">N/A</span>}
+        </td>
+        <td className="px-3 py-2 border border-gray-300 text-gray-700">
+          {allocation.lines.join(", ")}
+        </td>
+        <td className="px-3 py-2 border border-gray-300 text-gray-700">
+          {safeFormatDate(allocation.allocationDate)}
+        </td>
+        <td className="px-3 py-2 border border-gray-300 text-gray-700">
+          {safeFormatDate(allocation.DeliveryDate)}
+        </td>
+        <td className="px-3 py-2 border border-gray-300 text-right">
+          <div className="flex justify-end space-x-1">
+            <button
+              onClick={() => onView(allocation.id)}
+              className="text-blue-600 hover:text-blue-900 p-1 rounded-sm hover:bg-blue-100"
+              title="View"
+            >
+              <RiEyeLine className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => onEdit(allocation.id)}
+              className="text-green-600 hover:text-green-900 p-1 rounded-sm hover:bg-green-100"
+              title="Edit"
+            >
+              <RiPencilLine className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => onDelete(allocation.id)}
+              className="text-red-600 hover:text-red-900 p-1 rounded-sm hover:bg-red-100"
+              title="Delete"
+            >
+              <RiDeleteBinLine className="w-3 h-3" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="7" className="px-3 py-4 border border-gray-300 text-center text-gray-500">
+        <div className="flex flex-col items-center justify-center">
+          <RiFileSearchLine className="w-4 h-4 text-gray-400 mb-1" />
+          <p className="text-xs">No allocations found</p>
+        </div>
+      </td>
+    </tr>
+  )}
+</tbody>
 
 
-                  <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {safeFormatDate(allocation.allocationDate)}
-                  </td>
-                  <td className="px-3 py-2 border border-gray-300 text-gray-700">
-                    {safeFormatDate(allocation.DeliveryDate)}
-                  </td>
-                  <td className="px-3 py-2 border border-gray-300 text-right">
-                    <div className="flex justify-end space-x-1">
-                      <button
-                        onClick={() => onView(allocation.id)}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded-sm hover:bg-blue-100"
-                        title="View"
-                      >
-                        <RiEyeLine className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={() => onEdit(allocation.id)}
-                        className="text-green-600 hover:text-green-900 p-1 rounded-sm hover:bg-green-100"
-                        title="Edit"
-                      >
-                        <RiPencilLine className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={() => onDelete(allocation.id)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded-sm hover:bg-red-100"
-                        title="Delete"
-                      >
-                        <RiDeleteBinLine className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="px-3 py-4 border border-gray-300 text-center text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <RiFileSearchLine className="w-4 h-4 text-gray-400 mb-1" />
-                    <p className="text-xs">No allocations found</p>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
         </table>
       </div>
 
@@ -355,7 +369,7 @@ const AllocationForm = () => {
     const allRefs = sizeTableData.data.map(item => item.reference);
 
     return [...new Set(allRefs)]
-      .filter(ref => !allocatedRefs.has(ref) || ref === watchReference); 
+      .filter(ref => !allocatedRefs.has(ref) || ref === watchReference);
   }, [allocations, sizeTableData, selectedId, watchReference]);
 
   const selectedSizeTable = useMemo(() => {

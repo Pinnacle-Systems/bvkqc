@@ -22,6 +22,8 @@ const ExcelUploader = () => {
   const [showReport, setShowReport] = useState(false);
   const [editingOperation, setEditingOperation] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [editingReference, setEditingReference] = useState('');
 
   const params = {
     companyId: secureLocalStorage.getItem(
@@ -33,14 +35,12 @@ const ExcelUploader = () => {
   const [addOperation] = useAddOperationMutation();
   const [updateOperation] = useUpdateOperationMutation();
   const [deleteOperation] = useDeleteOperationMutation();
-  const { data: operationByIdData } = useGetOperationByIdQuery(selectedReference, { skip: !selectedReference });
+  // const { data: operationByIdData } = useGetOperationByIdQuery(selectedReference, { skip: !selectedReference });
   const { data: operationData, refetch: refetchOperations } = useGetOperationQuery({ params });
 
-  // Filter out references that already have operations
   const availableReferences = useMemo(() => {
     if (!sizeTableData?.data) return [];
     
-    // Get all references that already have operations
     const usedReferences = new Set();
     if (operationData?.data) {
       operationData.data.forEach(item => {
@@ -48,7 +48,6 @@ const ExcelUploader = () => {
       });
     }
     
-    // Return only references that don't have operations yet
     return [...new Set(sizeTableData.data.map(item => item.reference))]
       .filter(ref => ref && !usedReferences.has(ref));
   }, [sizeTableData, operationData]);
@@ -99,6 +98,8 @@ const ExcelUploader = () => {
     setFileName('');
     setError('');
     setSelectedReference('');
+    setIsEditingMode(false);
+    setEditingReference('');
   };
 
   const handleSaveOperations = async () => {
@@ -111,27 +112,57 @@ const ExcelUploader = () => {
       toast.error("No data to save");
       return;
     }
+    console.log(data,"data to be saved")
 
     try {
-      const operationsToAdd = data.map(row => ({
-        data: row,
-        reference: selectedReference,
-        companyId: params.companyId
-      }));
+      if (isEditingMode) {
+        const updatePromises = data.map((row, index) => {
+          const operationId  = selectedReference;
+          console.log(operationId,"operationId")
+          const updatedData = {
+            name: row[0] || row.name, 
+            reference: selectedReference,
+            companyId: params.companyId
+          };
+          return updateOperation({ params:updatedData }).unwrap();
+        });
 
-      await addOperation({ operations: operationsToAdd }).unwrap();
-      toast.success("Operations added successfully!");
+        await Promise.all(updatePromises);
+        toast.success("Operations updated successfully!");
+      } else {
+        const operationsToAdd = data.map(row => ({
+          data: row,
+          reference: selectedReference,
+          companyId: params.companyId
+        }));
+
+        await addOperation({ operations: operationsToAdd }).unwrap();
+        toast.success("Operations added successfully!");
+      }
+      
       clearData();
       refetchOperations();
+      setShowReport(true);
     } catch (err) {
-      console.error("Error adding operations:", err);
-      toast.error("Failed to add operations");
+      console.error("Error saving operations:", err);
+      toast.error(`Failed to ${isEditingMode ? 'update' : 'add'} operations`);
     }
   };
 
-  const handleEditOperation = (operation) => {
-    setEditingOperation(operation);
-    setIsEditModalOpen(true);
+  const handleEditOperation = (group) => {
+    const operations = group.operations;
+    if (operations.length === 0) return;
+
+    setHeaders(['Operation Name']);
+    
+    const tableData = operations.map(op => [op.name, op.id]);
+    
+    setData(tableData);
+    setSelectedReference(group.reference);
+    setEditingReference(group.reference);
+    setIsEditingMode(true);
+    setShowReport(false);
+    setFileName(`Editing ${group.reference}`);
   };
 
   const handleUpdateOperation = async (updatedData) => {
@@ -161,6 +192,12 @@ const ExcelUploader = () => {
         toast.error("Failed to delete operation");
       }
     }
+  };
+
+  const handleDataChange = (rowIndex, columnIndex, value) => {
+    const newData = [...data];
+    newData[rowIndex][columnIndex] = value;
+    setData(newData);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -193,14 +230,23 @@ const ExcelUploader = () => {
     <div className="min-h-screen bg-gray-50 px-3 sm:px-4 lg:px-6 py-6">
       <div className="mx-auto max-w-7xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Operations Manager</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isEditingMode ? `Editing: ${editingReference}` : 'Operations Manager'}
+          </h1>
           <button
-            onClick={() => setShowReport(!showReport)}
+            onClick={() => {
+              if (isEditingMode) {
+                clearData();
+                setShowReport(true);
+              } else {
+                setShowReport(!showReport);
+              }
+            }}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
           >
-            {showReport ? 'Add New Operation' : 'View Operations Report'}
+            {isEditingMode ? 'Cancel Edit' : showReport ? 'Add New Operation' : 'View Operations Report'}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showReport ? "M6 18L18 6M6 6l12 12" : "M9 5l7 7-7 7"} />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showReport || isEditingMode ? "M6 18L18 6M6 6l12 12" : "M9 5l7 7-7 7"} />
             </svg>
           </button>
         </div>
@@ -226,8 +272,14 @@ const ExcelUploader = () => {
               isLoading={isLoading}
               error={error}
               handleSaveOperations={handleSaveOperations}
+              isEditingMode={isEditingMode}
             />
-            <PreviewSection headers={headers} data={data} />
+            <PreviewSection 
+              headers={headers} 
+              data={data} 
+              onDataChange={handleDataChange}
+              isEditingMode={isEditingMode}
+            />
           </div>
         )}
 
@@ -246,7 +298,6 @@ const ExcelUploader = () => {
   );
 };
 
-// Edit Operation Modal Component
 const EditOperationModal = ({ operation, onClose, onSave }) => {
   const [formData, setFormData] = useState(operation || {});
 
@@ -322,16 +373,8 @@ const EditOperationModal = ({ operation, onClose, onSave }) => {
   );
 };
 
-// Enhanced Report View Component with Edit/Delete Actions
 const ReportView = ({ groupedOperations, onEdit, onDelete }) => (
   <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
-    {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-      <h2 className="text-lg font-semibold text-gray-800">Operations Report</h2>
-      <span className="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">
-        {groupedOperations.length} references
-      </span>
-    </div> */}
-    
     {groupedOperations.length > 0 ? (
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -344,7 +387,7 @@ const ReportView = ({ groupedOperations, onEdit, onDelete }) => (
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {groupedOperations.map((group, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>{console.log(group, "group") }
+              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{group.reference}</td>
                 <td className="px-6 py-4 text-sm text-gray-700">
                   <div className="flex flex-wrap gap-2">
@@ -358,7 +401,7 @@ const ReportView = ({ groupedOperations, onEdit, onDelete }) => (
                 <td className="px-6 py-4 text-sm text-gray-700">
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => onEdit(group.operations)}
+                      onClick={() => onEdit(group)}
                       className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-100"
                       title="Edit"
                     >
@@ -403,64 +446,71 @@ const UploadSection = ({
   data,
   isLoading,
   error,
-  handleSaveOperations
+  handleSaveOperations,
+  isEditingMode
 }) => (
   <div className="bg-white rounded-lg shadow p-6">
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-lg font-semibold text-gray-800">Upload Operations</h2>
+      <h2 className="text-lg font-semibold text-gray-800">
+        {isEditingMode ? 'Edit Operations' : 'Upload Operations'}
+      </h2>
       <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-        Step 1 of 2
+        {isEditingMode ? 'Editing Mode' : 'Step 1 of 2'}
       </span>
     </div>
 
-    <div className="mb-4">
-      <label className="block text-gray-700 text-sm font-medium mb-2">Select Reference:</label>
-      <select
-        className="border rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm shadow-sm"
-        value={selectedReference}
-        onChange={(e) => setSelectedReference(e.target.value)}
-      >
-        <option value="">-- Select Reference --</option>
-        {availableReferences.map((ref, index) => (
-          <option key={index} value={ref}>{ref}</option>
-        ))}
-      </select>
-      {availableReferences.length === 0 && (
-        <p className="text-xs text-amber-600 mt-2">
-          All references already have operations. No available references to assign.
-        </p>
-      )}
-    </div>
-
-    <div
-      {...getRootProps()}
-      className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 mb-4
-        ${isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-indigo-400'}`}
-    >
-      <input {...getInputProps()} />
-      <div className="flex flex-col items-center justify-center space-y-3">
-        <div className="p-3 bg-indigo-100 rounded-full">
-          <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-          </svg>
-        </div>
-
-        {isDragActive ? (
-          <p className="text-indigo-600 text-sm font-medium">Drop the Excel file here</p>
-        ) : (
-          <div>
-            <p className="text-gray-700 text-sm mb-2">Drag & drop your Excel file here</p>
-            <p className="text-gray-500 text-xs mb-2">Supported formats: .xls, .xlsx</p>
-            <button className="mt-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm font-medium shadow-sm">
-              Browse Files
-            </button>
-          </div>
+    {!isEditingMode && (
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-medium mb-2">Select Reference:</label>
+        <select
+          className="border rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm shadow-sm"
+          value={selectedReference}
+          onChange={(e) => setSelectedReference(e.target.value)}
+        >
+          <option value="">-- Select Reference --</option>
+          {availableReferences.map((ref, index) => (
+            <option key={index} value={ref}>{ref}</option>
+          ))}
+        </select>
+        {availableReferences.length === 0 && (
+          <p className="text-xs text-amber-600 mt-2">
+            All references already have operations. No available references to assign.
+          </p>
         )}
       </div>
-    </div>
+    )}
+
+    {!isEditingMode && (
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 mb-4
+          ${isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-indigo-400'}`}
+      >
+        <input {...getInputProps()} />
+        <div className="flex flex-col items-center justify-center space-y-3">
+          <div className="p-3 bg-indigo-100 rounded-full">
+            <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+          </div>
+
+          {isDragActive ? (
+            <p className="text-indigo-600 text-sm font-medium">Drop the Excel file here</p>
+          ) : (
+            <div>
+              <p className="text-gray-700 text-sm mb-2">Drag & drop your Excel file here</p>
+              <p className="text-gray-500 text-xs mb-2">Supported formats: .xls, .xlsx</p>
+              <button className="mt-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm font-medium shadow-sm">
+                Browse Files
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
 
     {fileName && (
-      <FileInfo fileName={fileName} clearData={clearData} />
+      <FileInfo fileName={fileName} clearData={clearData} isEditingMode={isEditingMode} />
     )}
 
     {data.length > 0 && selectedReference && (
@@ -470,7 +520,7 @@ const UploadSection = ({
           disabled={isLoading}
           className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Saving...' : 'Save Operations'}
+          {isLoading ? 'Saving...' : isEditingMode ? 'Update Operations' : 'Save Operations'}
         </button>
       </div>
     )}
@@ -480,30 +530,75 @@ const UploadSection = ({
   </div>
 );
 
-const PreviewSection = ({ headers, data }) => (
+const PreviewSection = ({ headers, data, onDataChange, isEditingMode }) => (
   <div className="bg-white rounded-lg shadow p-6">
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-lg font-semibold text-gray-800">Data Preview</h2>
+      <h2 className="text-lg font-semibold text-gray-800">
+        {isEditingMode ? 'Edit Operations' : 'Data Preview'}
+      </h2>
       {data.length > 0 && (
         <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-          {data.length} rows
+          {data.length} operations
         </span>
       )}
     </div>
 
     {data.length > 0 ? (
-      <DataTable headers={headers} data={data} />
+      <EditableDataTable 
+        headers={headers} 
+        data={data} 
+        onDataChange={onDataChange}
+        isEditingMode={isEditingMode}
+      />
     ) : (
       <EmptyState 
         icon={<PreviewEmptyIcon />}
-        message="Upload an Excel file to preview data"
+        message={isEditingMode ? "No operations to edit" : "Upload an Excel file to preview data"}
       />
     )}
   </div>
 );
 
-// Helper Components
-const FileInfo = ({ fileName, clearData }) => (
+const EditableDataTable = ({ headers, data, onDataChange, isEditingMode }) => (
+  <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-50">
+        <tr>
+          {headers.map((header, index) => (
+            <th
+              key={index}
+              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-3 text-sm text-gray-700">
+                {isEditingMode && cellIndex === 0 ? (
+                  <input
+                    type="text"
+                    value={cell || ''}
+                    onChange={(e) => onDataChange(rowIndex, cellIndex, e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                ) : (
+                  cell || '-'
+                )}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const FileInfo = ({ fileName, clearData, isEditingMode }) => (
   <div className="mt-4 p-3 bg-blue-50 rounded-md flex items-center justify-between text-sm border border-blue-100">
     <div className="flex items-center">
       <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -515,7 +610,7 @@ const FileInfo = ({ fileName, clearData }) => (
       onClick={clearData} 
       className="text-red-500 hover:text-red-700 text-sm font-medium flex items-center"
     >
-      Clear
+      {isEditingMode ? 'Cancel Edit' : 'Clear'}
       <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
