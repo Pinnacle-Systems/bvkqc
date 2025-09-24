@@ -18,7 +18,7 @@ import {
   CompanyMaster,
   Dashboard,
   Role,
-  LineMaster,OrderImport,Allocation,Aql,
+  LineMaster,OrderImport,Allocation,Aql,SevenPointReport,
   LineAllocation,DefectMaster,DefectCorrectionmaster,
   InchargeLineListMaster,
   OperationMaster
@@ -67,6 +67,7 @@ const ActiveTabList = () => {
     "ORDER IMPORT": <OrderImport />,
     "ALLOCATION" : <Allocation />,
     "AQL" : <Aql />,
+    "7POINTREPORT" : <SevenPointReport/>,
     "INCHARGE LINE LIST MASTER" :  <InchargeLineListMaster/>,
     "OPERATION MASTER" :<OperationMaster />
 
