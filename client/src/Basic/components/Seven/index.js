@@ -114,7 +114,7 @@ const Aql = () => {
   const { data: DefectCorrection } = useGetdefectCorrectionQuery({ params: { companyId } })
   const correctiveActionOptions = DefectCorrection?.data
   console.log(DefectCorrection?.data, "DEfectDirection")
-  const PIECES_COUNT = 5;
+  const PIECES_COUNT = 7;
 
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
 
@@ -938,9 +938,16 @@ console.log(CorrectLine, "CorrectLine");
     setNewItem(false);
     resetForm();
   };
+  const [selectedShift, setSelectedShift] = useState("");
+  const shifts = [
+  { id: 1, label: "1", time: "8:30 - 10:15" },
+  { id: 2, label: "2", time: "10:30 - 12:30" },
+  { id: 3, label: "3", time: "1:30 - 3:30" },
+  { id: 4, label: "4", time: "3:30 - 5:50" },
+];
 
   const renderFormControls = () => (
-    <div className={`grid ${isMobileView ? 'grid-cols-3' : 'grid-cols-1 md:grid-cols-6'} gap-4 mb-4`}>
+    <div className={`grid ${isMobileView ? 'grid-cols-3' : 'grid-cols-1 md:grid-cols-7'} gap-4 mb-4`}>
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">
           Order Id <span className="text-red-500">*</span>
@@ -1088,6 +1095,27 @@ console.log(CorrectLine, "CorrectLine");
           </button>
         </div>
       </div>
+      <div>
+  <label className="block text-xs font-medium text-gray-700 mb-1">
+    Shift <span className="text-red-500">*</span>
+  </label>
+  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+    {shifts.map((shift) => (
+      <button
+        key={shift.id}
+        type="button"
+        onClick={() => setSelectedShift(shift.id)}
+        className={`flex flex-col items-center justify-center border rounded-lg px-2 py-2 text-xs transition-all
+          ${selectedShift === shift.id
+            ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-sm"
+            : "border-gray-300 bg-white hover:border-blue-400"}`}
+      >
+        <span className="text-sm">{shift.label}</span>
+        {/* <span className="text-[10px] text-gray-500">{shift.time}</span> */}
+      </button>
+    ))}
+  </div>
+</div>
 
 
     </div>
@@ -1689,7 +1717,8 @@ console.log(CorrectLine, "CorrectLine");
             <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col" style={{ minHeight: 'calc(100vh - 2rem)' }}>
               <div className="bg-white px-4 py-2 flex items-center justify-between">
                 <h1 className="text-lg font-bold text-gray-800">
-                  {id ? 'AQL Inspection Details' : 'AQL Inspection Form'}
+                  {id ? 'Seven Sample Inspection Details' : 'Seven Sample Inspection Form'}
+                  
                 </h1>
                 <div
                   className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-2 py-1 text-xs flex items-center cursor-pointer"
@@ -1698,7 +1727,6 @@ console.log(CorrectLine, "CorrectLine");
                   <span>Back to Report</span>
                 </div>
               </div>
-
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
                   {renderFormControls()}

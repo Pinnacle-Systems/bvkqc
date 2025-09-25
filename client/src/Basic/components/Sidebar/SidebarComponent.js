@@ -17,6 +17,8 @@ import all from "./images/resource.png"
 import aql from "./images/quality-control (1).png";
 import bug from "./images/bug.png"
 import corrected from "./images/corrected.png"
+import operation from "./images/op.png"
+import seven from "./images/seven.png"
 const SidebarComponent = ({
   logo,
   groups,
@@ -127,7 +129,20 @@ const SidebarComponent = ({
         alt="Aql"
         className="w-10 h-10 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm"
       />
+    ),  "OPERATION MASTER" : (
+       <img
+        src={operation}
+        alt="Aql"
+        className="w-10 h-10 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm"
+      />
     ),
+    "7POINT REPORT" : (
+       <img
+        src={seven}
+        alt="Aql"
+        className="w-10 h-10 object-contain p-0.5 bg-white rounded border border-gray-200 shadow-sm"
+      />
+    )
   };
 
   return (

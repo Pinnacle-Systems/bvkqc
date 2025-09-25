@@ -589,7 +589,7 @@ const Aql = () => {
     setShowCompare(true);
   };
 
-  const renderCompareTable = () => {
+ const renderCompareTable = () => {
     if (!showCompare) return null;
 
     const commonSizes = [...new Set([
@@ -610,221 +610,237 @@ const Aql = () => {
       );
     }
 
-   
+
     return (
-      <div className="mt-6 border-t pt-6">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-          <h3 className="text-xl font-bold text-gray-800">Before vs After Comparison</h3>
-          <div className="w-full md:w-1/3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Size
-            </label>
-            <select
-              value={selectedSize}
-              onChange={(e) => {
-                setSelectedSize(e.target.value);
-                const size = e.target.value;
-                if (size) {
-                  const measurementData = selectedProduct?.measurements
-                    ?.filter(m => m.values?.some(v => v.size === size))
-                    ?.map(m => {
-                      const valueObj = m.values?.find(v => v.size === size);
-                      return {
-                        id: m.id,
-                        name: m.description || 'Unnamed',
-                        standardValue: valueObj?.value ?? '',
-                        toleranceMin: m.toleranceMin ?? '0',
-                        toleranceMax: m.toleranceMax ?? '0',
-                        unit: m.unit ?? ''
-                      };
-                    }) || [];
-                  setMeasurements(measurementData);
-                }
-              }}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-            >
-              <option value="">Select a size</option>
-              {commonSizes.map(size => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {selectedSize && measurements.length > 0 && (
-          <>
-            {/* Mobile-optimized card view */}
-            {isTabletView && (
-              <div className="space-y-4">
-                {measurements.map(measurement => (
-                  <div key={measurement.id} className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                    <div className="bg-blue-50 px-4 py-3 border-b">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-semibold text-gray-800">
-                          {measurement.name}
-                          <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
-                        </h4>
-                      </div>
-                      <div className="flex justify-between items-center mt-2">
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Std:</span> {measurement.standardValue}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3 grid grid-cols-5 gap-3">
-                      {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => {
-                        const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
-                        const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
-
-                        return (
-                          <div key={pieceNum} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                            <div className="text-xs font-semibold text-gray-700 mb-2 text-center bg-gray-200 py-1 rounded-md">
-                              Piece #{pieceNum}
-                            </div>
-
-                            <div className="space-y-2">
-                              <div className={`p-2 rounded-md ${checkTolerance(measurement, beforeValue)}`}>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-xs font-medium text-blue-600">Before</span>
-                                  <span className="text-sm font-semibold">{beforeValue}</span>
-                                </div>
-                              </div>
-
-                              <div className={`p-2 rounded-md ${checkTolerance(measurement, afterValue)}`}>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-xs font-medium text-purple-600">After</span>
-                                  <span className="text-sm font-semibold">{afterValue}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Tablet-optimized view */}
-            {!isTabletView && isMobileView && (
-              <div className="mt-4 space-y-4">
-                {measurements.map(measurement => (
-                  <div key={measurement.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                    <div className="bg-blue-50 px-4 py-3 border-b">
-                      <h4 className="font-semibold text-gray-800">
-                        {measurement.name}
-                        <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
-                      </h4>
-                      <div className="flex justify-between text-sm text-gray-600 mt-2">
-                        <span><span className="font-medium">Std:</span> {measurement.standardValue}</span>
-                        <span><span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}</span>
-                      </div>
-                    </div>
-
-                    <div className="divide-y divide-gray-100">
-                      {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => (
-                        <div key={pieceNum} className="grid grid-cols-3 gap-2 px-4 py-3">
-                          <div className="text-sm font-medium text-gray-700 self-center">
-                            <span className="bg-gray-200 px-2 py-1 rounded-md">Piece #{pieceNum}</span>
-                          </div>
-
-                          <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-blue-600 font-medium">Before</span>
-                              <span className="font-semibold">
-                                {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-purple-600 font-medium">After</span>
-                              <span className="font-semibold">
-                                {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Desktop view */}
-            {!isMobileView && !isTabletView && (
-              <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-                <table className="min-w-full bg-white">
-                  <thead className="bg-gray-800 text-white">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider sticky left-0 bg-gray-800 z-10">
-                        Measurement
-                      </th>
-                      <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wider">
-                        Standard
-                      </th>
-                      <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wider">
-                        Tolerance
-                      </th>
-                      {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                        <th key={num} className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wider bg-gray-700">
-                          Piece #{num}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody className="divide-y divide-gray-200">
-                    {measurements.map(measurement => (
-                      <tr key={measurement.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white z-10 border-r">
-                          <div className="font-semibold">{measurement.name}</div>
-                          <div className="text-xs text-gray-500">{measurement.unit}</div>
-                        </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-center text-sm font-semibold text-gray-700">
-                          {measurement.standardValue}
-                        </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600">
-                          <div className="text-xs bg-gray-100 py-1 px-2 rounded-md inline-block">
-                            -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                          </div>
-                        </td>
-                        {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => {
-                          const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
-                          const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
-
-                          return (
-                            <td key={index} className="px-3 py-3 whitespace-nowrap text-center">
-                              <div className="flex flex-col gap-2">
-                                <div className={`px-3 py-2 rounded-md ${checkTolerance(measurement, beforeValue)}`}>
-                                  <div className="text-xs text-blue-600 font-medium mb-1">Before</div>
-                                  <div className="font-semibold">{beforeValue}</div>
-                                </div>
-                                <div className={`px-3 py-2 rounded-md ${checkTolerance(measurement, afterValue)}`}>
-                                  <div className="text-xs text-purple-600 font-medium mb-1">After</div>
-                                  <div className="font-semibold">{afterValue}</div>
-                                </div>
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
+  <div className="mt-6 border-t pt-6">
+    <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+      <h3 className="text-xl font-bold text-gray-800">Before vs After Comparison</h3>
+      <div className="w-full md:w-1/3">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Select Size
+        </label>
+        <select
+          value={selectedSize}
+          onChange={(e) => {
+            setSelectedSize(e.target.value);
+            const size = e.target.value;
+            if (size) {
+              const measurementData = selectedProduct?.measurements
+                ?.filter(m => m.values?.some(v => v.size === size))
+                ?.map(m => {
+                  const valueObj = m.values?.find(v => v.size === size);
+                  return {
+                    id: m.id,
+                    name: m.description || 'Unnamed',
+                    standardValue: valueObj?.value ?? '',
+                    toleranceMin: m.toleranceMin ?? '0',
+                    toleranceMax: m.toleranceMax ?? '0',
+                    unit: m.unit ?? ''
+                  };
+                }) || [];
+              setMeasurements(measurementData);
+            }
+          }}
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+        >
+          <option value="">Select a size</option>
+          {commonSizes.map(size => (
+            <option key={size} value={size}>{size}</option>
+          ))}
+        </select>
       </div>
-    );
+    </div>
+
+    {selectedSize && measurements.length > 0 && (
+      <>
+        {/* Mobile-optimized card view */}
+        {isTabletView && (
+          <div className="space-y-4">
+            {measurements.map(measurement => (
+              <div key={measurement.id} className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                <div className="bg-blue-50 px-4 py-3 border-b">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-semibold text-gray-800">
+                      {measurement.name}
+                      <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
+                    </h4>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Std:</span> {measurement.standardValue}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 grid grid-cols-5 gap-3">
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => {
+                    const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
+                    const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
+
+                    return (
+                      <div key={pieceNum} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <div className="text-xs font-semibold text-gray-700 mb-2 text-center bg-gray-200 py-1 rounded-md">
+                          Piece #{pieceNum}
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className={`p-2 rounded-md ${checkTolerance(measurement, beforeValue)}`}>
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-medium text-blue-600">Before</span>
+                              <span className="text-sm font-semibold">{beforeValue}</span>
+                            </div>
+                          </div>
+
+                          <div className={`p-2 rounded-md ${checkTolerance(measurement, afterValue)}`}>
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-medium text-purple-600">After</span>
+                              <span className="text-sm font-semibold">{afterValue}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Tablet-optimized view */}
+        {!isTabletView && isMobileView && (
+          <div className="mt-4 space-y-4">
+            {measurements.map(measurement => (
+              <div key={measurement.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                <div className="bg-blue-50 px-4 py-3 border-b">
+                  <h4 className="font-semibold text-gray-800">
+                    {measurement.name}
+                    <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
+                  </h4>
+                  <div className="flex justify-between text-sm text-gray-600 mt-2">
+                    <span><span className="font-medium">Std:</span> {measurement.standardValue}</span>
+                    <span><span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}</span>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-gray-100">
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => (
+                    <div key={pieceNum} className="grid grid-cols-3 gap-2 px-4 py-3">
+                      <div className="text-sm font-medium text-gray-700 self-center">
+                        <span className="bg-gray-200 px-2 py-1 rounded-md">Piece #{pieceNum}</span>
+                      </div>
+
+                      <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-blue-600 font-medium">Before</span>
+                          <span className="font-semibold">
+                            {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-purple-600 font-medium">After</span>
+                          <span className="font-semibold">
+                            {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Improved Desktop view */}
+        {!isMobileView && !isTabletView && (
+          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white">
+            <table className="min-w-full bg-white compact-table">
+              <thead className="bg-gray-800 text-white">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider sticky left-0 bg-gray-800 z-10">
+                    Measurement
+                  </th>
+                  <th className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider">
+                    Std
+                  </th>
+                  <th className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider">
+                    Tolerance
+                  </th>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
+                    <th key={num} className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider bg-gray-700">
+                      P#{num}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-200">
+                {measurements.map(measurement => (
+                  <tr key={measurement.id} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 whitespace-nowrap sticky left-0 bg-white z-10 border-r">
+                      <div className="text-sm font-medium text-gray-900">{measurement.name}</div>
+                      <div className="text-xs text-gray-500">{measurement.unit}</div>
+                    </td>
+                    <td className="px-2 py-2 whitespace-nowrap text-center text-sm font-semibold text-gray-700">
+                      {measurement.standardValue}
+                    </td>
+                    <td className="px-2 py-2 whitespace-nowrap text-center text-xs text-gray-600">
+                      <div className="bg-gray-100 py-1 px-2 rounded-md inline-block">
+                        -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                      </div>
+                    </td>
+                    {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => {
+                      const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
+                      const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
+                      const beforeToleranceClass = checkTolerance(measurement, beforeValue);
+                      const afterToleranceClass = checkTolerance(measurement, afterValue);
+
+                      return (
+                        <td key={index} className="px-2 py-2 whitespace-nowrap text-center">
+                          <div className="flex flex-col gap-1">
+                            <div className={`px-2 py-1 rounded-md text-xs ${beforeToleranceClass}`}>
+                              <div className="flex justify-between items-center">
+                                <span className="text-blue-600 font-medium">B</span>
+                                <span className="font-semibold">{beforeValue}</span>
+                              </div>
+                            </div>
+                            <div className={`px-2 py-1 rounded-md text-xs ${afterToleranceClass}`}>
+                              <div className="flex justify-between items-center">
+                                <span className="text-purple-600 font-medium">A</span>
+                                <span className="font-semibold">{afterValue}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </>
+    )}
+
+    <style jsx>{`
+      .compact-table {
+        font-size: 0.75rem; /* 12px */
+      }
+      .compact-table th,
+      .compact-table td {
+        padding: 0.5rem 0.5rem;
+      }
+    `}</style>
+  </div>
+);
   };
 
   const tableHeaders = [

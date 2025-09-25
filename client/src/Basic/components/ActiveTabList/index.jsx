@@ -67,7 +67,7 @@ const ActiveTabList = () => {
     "ORDER IMPORT": <OrderImport />,
     "ALLOCATION" : <Allocation />,
     "AQL" : <Aql />,
-    "7POINTREPORT" : <SevenPointReport/>,
+    "7POINT REPORT" : <SevenPointReport/>,
     "INCHARGE LINE LIST MASTER" :  <InchargeLineListMaster/>,
     "OPERATION MASTER" :<OperationMaster />
 
