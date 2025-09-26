@@ -5,7 +5,7 @@ import {
 } from "../../../redux/uniformService/SizeTableMasterService";
 import secureLocalStorage from "react-secure-storage";
 import {
-     useGetSAqlInspectionQuery,
+     useGetSAqlInspectionsQuery,
   useGetSAqlInspectionByIdQuery,
   useAddSAqlInspectionMutation,
   useUpdateSAqlInspectionMutation,
@@ -109,7 +109,7 @@ const Aql = () => {
   }, []);
 
   const { data: aqlData, refetch: refetchAqlData } =
-    useGetSAqlInspectionQuery();
+    useGetSAqlInspectionsQuery();
   const { data: sizeData } = useGetSizeTableMasterQuery(
     { productReference: selectedReference },
     { skip: !selectedReference }
@@ -746,81 +746,81 @@ const Aql = () => {
   const CorrectLine =
     lines?.data?.filter((line) => filterLines.includes(line.lineName)) || [];
 
-  const prepareDatabasePayload = () => {
-    const getMeasurementsForSize = (size) => {
-      return (
-        selectedProduct?.measurements
-          ?.filter((m) => m.values?.some((v) => v.size === size))
-          ?.map((m) => {
-            const valueObj = m.values?.find((v) => v.size === size);
-            return {
-              id: m.id,
-              name: m.description || "Unnamed",
-              standardValue: valueObj?.value ?? "",
-              toleranceMin: m.toleranceMin ?? "0",
-              toleranceMax: m.toleranceMax ?? "0",
-              unit: m.unit ?? "",
-            };
-          }) || []
-      );
-    };
-
-    const prepareConditionData = (condition) => {
-      return formData[condition].savedSizes
-        .filter((size) => isSizeComplete(size, condition))
-        .map((size) => {
-          const sizeMeasurements = getMeasurementsForSize(size);
-          const sizeMeta = formData[condition].measurementMeta?.[size] || {};
-
+ const prepareDatabasePayload = () => {
+  const getMeasurementsForSize = (size) => {
+    return (
+      selectedProduct?.measurements
+        ?.filter((m) => m.values?.some((v) => v.size === size))
+        ?.map((m) => {
+          const valueObj = m.values?.find((v) => v.size === size);
           return {
-            size: size,
-            measurements: sizeMeasurements.map((measurement) => {
-              const meta = sizeMeta[measurement.id] || {};
-              return {
-                measurementId: measurement.id,
-                measurementName: measurement.name,
-                standardValue: measurement.standardValue.toString(),
-                toleranceMin: measurement.toleranceMin.toString(),
-                toleranceMax: measurement.toleranceMax.toString(),
-                unit: measurement.unit,
-                machineNo: meta.machineNo || "",
-                operation: meta.operation || "",
-                spi: meta.spi || "",
-                defect: meta.defect || "",
-                correctiveAction: meta.correctiveAction || "",
-                values: (
-                  formData[condition].savedMeasurements[size]?.[
-                    measurement.id
-                  ] || []
-                )
-                  .slice(0, PIECES_COUNT)
-                  .map((value, index) => ({
-                    pieceNumber: index + 1,
-                    actualValue: value.toString(),
-                    status: value
-                      ? checkTolerance(measurement, value).includes("red")
-                        ? "out_of_tolerance"
-                        : "within_tolerance"
-                      : "not_measured",
-                  })),
-              };
-            }),
+            id: m.id,
+            name: m.description || "Unnamed",
+            standardValue: valueObj?.value ?? "",
+            toleranceMin: m.toleranceMin ?? "0",
+            toleranceMax: m.toleranceMax ?? "0",
+            unit: m.unit ?? "",
           };
-        });
-    };
-
-    return {
-      reference: selectedReference,
-      inspectionDate: inspectionDate,
-      before: prepareConditionData("before"),
-      after: prepareConditionData("after"),
-      companyId: parseInt(companyId),
-      userId: userId,
-      lineMasterId: selectedLine,
-      color: color,
-      shift: selectedShift,
-    };
+        }) || []
+    );
   };
+
+  const prepareConditionData = (condition) => {
+    return formData[condition].savedSizes
+      .filter((size) => isSizeComplete(size, condition))
+      .map((size) => {
+        const sizeMeasurements = getMeasurementsForSize(size);
+        const sizeMeta = formData[condition].measurementMeta?.[size] || {};
+
+        return {
+          size: size,
+          measurements: sizeMeasurements.map((measurement) => {
+            const meta = sizeMeta[measurement.id] || {};
+            return {
+              measurementId: measurement.id,
+              measurementName: measurement.name,
+              standardValue: measurement.standardValue.toString(),
+              toleranceMin: measurement.toleranceMin.toString(),
+              toleranceMax: measurement.toleranceMax.toString(),
+              unit: measurement.unit,
+              machineNo: meta.machineNo || "",
+              operationId: meta.operation || "", // Changed to operationId
+              spi: meta.spi || "",
+              defectId: meta.defect || "", // Changed to defectId
+              correctiveActionId: meta.correctiveAction || "", // Changed to correctiveActionId
+              values: (
+                formData[condition].savedMeasurements[size]?.[
+                  measurement.id
+                ] || []
+              )
+                .slice(0, PIECES_COUNT)
+                .map((value, index) => ({
+                  pieceNumber: index + 1,
+                  actualValue: value.toString(),
+                  status: value
+                    ? checkTolerance(measurement, value).includes("red")
+                      ? "out_of_tolerance"
+                      : "within_tolerance"
+                    : "not_measured",
+                })),
+            };
+          }),
+        };
+      });
+  };
+
+  return {
+    reference: selectedReference,
+    inspectionDate: inspectionDate,
+    before: prepareConditionData("before"),
+    after: prepareConditionData("after"),
+    companyId: parseInt(companyId),
+    userId: userId,
+    lineMasterId: selectedLine,
+    color: color,
+    shift: selectedShift,
+  };
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();

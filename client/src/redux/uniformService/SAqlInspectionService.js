@@ -7,10 +7,14 @@ const SAqlInspectionApi = createApi({
   reducerPath: "saqlInspection",
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
+    prepareHeaders: (headers) => {
+      headers.set('Content-Type', 'application/json');
+      return headers;
+    },
   }),
   tagTypes: ["SAqlInspection"],
   endpoints: (builder) => ({
-    getSAqlInspection: builder.query({
+    getSAqlInspections: builder.query({
       query: () => ({
         url: SAQL_INSPECTION_API,
         method: "GET",
@@ -36,7 +40,7 @@ const SAqlInspectionApi = createApi({
     }),
 
     updateSAqlInspection: builder.mutation({
-      query: ({ id, payload }) => ({
+      query: ({ id, ...payload }) => ({
         url: `${SAQL_INSPECTION_API}/${id}`,
         method: "PUT",
         body: payload,
@@ -53,10 +57,10 @@ const SAqlInspectionApi = createApi({
     }),
 
     updateAqlStatusInspection: builder.mutation({   
-      query: ({ id, payload }) => ({
+      query: ({ id, status }) => ({
         url: `${SAQL_INSPECTION_API}/${id}/status`,
         method: "PUT",
-        body: payload,
+        body: { status },
       }),
       invalidatesTags: (result, error, { id }) => [{ type: "SAqlInspection", id }],
     }),
@@ -64,7 +68,7 @@ const SAqlInspectionApi = createApi({
 });
 
 export const {
-  useGetSAqlInspectionQuery,
+  useGetSAqlInspectionsQuery,
   useGetSAqlInspectionByIdQuery,
   useAddSAqlInspectionMutation,
   useUpdateSAqlInspectionMutation,
