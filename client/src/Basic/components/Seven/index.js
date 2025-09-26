@@ -1,81 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import { useGetSizeTableMasterQuery, useGetAllocationMasterQuery } from "../../../redux/uniformService/SizeTableMasterService";
-import secureLocalStorage from 'react-secure-storage';
-import { useAddAqlInspectionMutation, useGetAqlInspectionsQuery, useGetAqlInspectionByIdQuery, useDeleteAqlInspectionMutation, useUpdateAqlInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
-import Mastertable from '../MasterTable/MaterTable1.jsx';
-import { toast } from 'react-toastify';
-import Modal from '../../../UiComponents/Modal/index.js';
+import React, { useState, useEffect } from "react";
+import {
+  useGetSizeTableMasterQuery,
+  useGetAllocationMasterQuery,
+} from "../../../redux/uniformService/SizeTableMasterService";
+import secureLocalStorage from "react-secure-storage";
+import {
+     useGetSAqlInspectionQuery,
+  useGetSAqlInspectionByIdQuery,
+  useAddSAqlInspectionMutation,
+  useUpdateSAqlInspectionMutation,
+  useDeleteSAqlInspectionMutation,
+} from "../../../redux/uniformService/SAqlInspectionService";
+import Mastertable from "../MasterTable/MaterTable1.jsx";
+import { toast } from "react-toastify";
+import Modal from "../../../UiComponents/Modal/index.js";
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
-import { useGetdefectCorrectionQuery } from '../../../redux/services/DefectCorrectionMasterService.js';
-import { useGetDefectQuery } from '../../../redux/services/DefectMasterService.js';
-import { useGetOperationQuery } from '../../../redux/services/OprtaionMasterService.js';
-
+import { useGetdefectCorrectionQuery } from "../../../redux/services/DefectCorrectionMasterService.js";
+import { useGetDefectQuery } from "../../../redux/services/DefectMasterService.js";
+import { useGetOperationQuery } from "../../../redux/services/OprtaionMasterService.js";
+import Filter from "./filter.png"
 const Aql = () => {
-  const [selectedReference, setSelectedReference] = useState('');
-  const [inspectionDate, setInspectionDate] = useState(new Date().toISOString().split('T')[0]);
-  const [id, setId] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedReference, setSelectedReference] = useState("");
+  const [inspectionDate, setInspectionDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [id, setId] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const [newItem, setNewItem] = useState(false);
-  const [ayanCondition, setAyanCondition] = useState('before');
+  const [ayanCondition, setAyanCondition] = useState("before");
   const [showCompare, setShowCompare] = useState(false);
-  const [color, setColor] = useState('')
+  const [color, setColor] = useState("");
   const [selectedLine, setSelectedLine] = useState("");
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [measurements, setMeasurements] = useState([]);
   const [checkValues, setCheckValues] = useState({});
   const [approveStatus, setApproveStatus] = useState(0);
   const [measurementMeta, setMeasurementMeta] = useState({});
- 
+
+  // New state for measurement selection popup
+  const [showMeasurementPopup, setShowMeasurementPopup] = useState(false);
+  const [availableMeasurements, setAvailableMeasurements] = useState([]);
+  const [selectedMeasurements, setSelectedMeasurements] = useState([]);
+  const [selectedShift, setSelectedShift] = useState("");
+
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
   const userId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userId"
-  )
-   const branchId = secureLocalStorage.getItem(
-          sessionStorage.getItem("sessionId") + "currentBranchId"
-        )
-        console.log(branchId,"branchId")
-  
+  );
+  const branchId = secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "currentBranchId"
+  );
+
   const [formData, setFormData] = useState({
     before: {
       savedSizes: [],
       savedMeasurements: {},
-      partialSavedMeasurements: {}
+      partialSavedMeasurements: {},
+      measurementMeta: {},
     },
     after: {
       savedSizes: [],
       savedMeasurements: {},
-      partialSavedMeasurements: {}
-    }
+      partialSavedMeasurements: {},
+      measurementMeta: {},
+    },
   });
-  const { data: operationData, refetch: refetchOperations } = useGetOperationQuery({ params: {companyId}});
-     console.log(operationData?.data,"operation")
 
-  const operationOptions = operationData?.data?.filter(op=>op.reference === selectedReference)
-  console.log(setMeasurementMeta,"setMeasurementMeta")
+  const { data: operationData, refetch: refetchOperations } =
+    useGetOperationQuery({ params: { companyId } });
+  const operationOptions = operationData?.data?.filter(
+    (op) => op.reference === selectedReference
+  );
 
   const handleMetaChange = (measurementId, field, value) => {
-    setMeasurementMeta(prev => ({
+    setMeasurementMeta((prev) => ({
       ...prev,
       [measurementId]: {
         ...prev[measurementId],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
+
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
     lastSaved: null,
-    isSubmitting: false
+    isSubmitting: false,
   });
 
   const [readOnly, setReadOnly] = useState(false);
   const [isDetailView, setIsDetailView] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
-  const [isTabletView, setIsTabletView] = useState(window.innerWidth >= 768 && window.innerWidth < 1024);
-  console.log(readOnly, "readOnly")
+  const [isTabletView, setIsTabletView] = useState(
+    window.innerWidth >= 768 && window.innerWidth < 1024
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -83,84 +104,348 @@ const Aql = () => {
       setIsTabletView(window.innerWidth >= 768 && window.innerWidth < 1024);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-  const { data: aqlData, refetch: refetchAqlData } = useGetAqlInspectionsQuery();
+
+  const { data: aqlData, refetch: refetchAqlData } =
+    useGetSAqlInspectionQuery();
   const { data: sizeData } = useGetSizeTableMasterQuery(
     { productReference: selectedReference },
     { skip: !selectedReference }
   );
-  const { data: singleData } = useGetAqlInspectionByIdQuery(id, { skip: !id });
+  const { data: singleData } = useGetSAqlInspectionByIdQuery(id, { skip: !id });
   const { data: sizeTableData } = useGetAllocationMasterQuery();
-  console.log(sizeTableData,"sizeTableData")
- const filterLines = sizeTableData?.data
-  ?.filter(item => item.reference === selectedReference)
-  .map(item => item.LineMaster.lineName) || [];
-  console.log(filterLines,"filterLines")
 
-  const [addAqlInspection] = useAddAqlInspectionMutation();
-  const [updateAqlInspection] = useUpdateAqlInspectionMutation();
-  const [removeData] = useDeleteAqlInspectionMutation();
+  const filterLines =
+    sizeTableData?.data
+      ?.filter((item) => item.reference === selectedReference)
+      .map((item) => item.LineMaster.lineName) || [];
+
+  const [addAqlInspection] = useAddSAqlInspectionMutation();
+  const [updateAqlInspection] = useUpdateSAqlInspectionMutation();
+  const [removeData] = useDeleteSAqlInspectionMutation();
+
   const {
     data: lines = [],
     isLoading: linesLoading,
     error: linesError,
   } = useGetLineMasterQuery({ params: { companyId } });
-  console.log(lines?.data,"lines")
-  const { data: defect } = useGetDefectQuery({ params: { companyId } })
-  console.log(defect, "Defect")
-  const defectOptions = defect?.data
-  const { data: DefectCorrection } = useGetdefectCorrectionQuery({ params: { companyId } })
-  const correctiveActionOptions = DefectCorrection?.data
-  console.log(DefectCorrection?.data, "DEfectDirection")
-  const PIECES_COUNT = 7;
 
+  const { data: defect } = useGetDefectQuery({ params: { companyId } });
+  const defectOptions = defect?.data;
+
+  const { data: DefectCorrection } = useGetdefectCorrectionQuery({
+    params: { companyId },
+  });
+  const correctiveActionOptions = DefectCorrection?.data;
+
+  const PIECES_COUNT = 7;
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
 
+  // Updated storage key for measurement selections by reference AND size
+  const measurementSelectionKey = `aqlMeasurementSelections_${companyId}`;
+
   const references = [
-  ...new Set(
-    (sizeTableData?.data || [])
-      .filter(item => item?.Branch?.id == branchId)
-      .map(item => item.reference)
-  ),
-];
+    ...new Set(
+      (sizeTableData?.data || [])
+        .filter((item) => item?.Branch?.id == branchId)
+        .map((item) => item.reference)
+    ),
+  ];
 
   const selectedProduct = sizeData?.data;
   const availableSizes = selectedProduct?.availableSizes || [];
 
   const [mergedReportData, setMergedReportData] = useState([]);
 
+  const shifts = [
+    { id: 1, label: "1", time: "8:30 - 10:15" },
+    { id: 2, label: "2", time: "10:30 - 12:30" },
+    { id: 3, label: "3", time: "1:30 - 3:30" },
+    { id: 4, label: "4", time: "3:30 - 5:50" },
+  ];
+
+  // Load measurement selections from localStorage - PER SIZE
+  const loadMeasurementSelections = () => {
+    try {
+      const savedSelections = secureLocalStorage.getItem(
+        measurementSelectionKey
+      );
+      if (savedSelections && selectedReference && selectedSize) {
+        // Structure: { [reference]: { [size]: [measurementIds] } }
+        const referenceSelections = savedSelections[selectedReference] || {};
+        return referenceSelections[selectedSize] || [];
+      }
+    } catch (error) {
+      console.error("Error loading measurement selections:", error);
+    }
+    return [];
+  };
+
+  // Save measurement selections to localStorage - PER SIZE
+  const saveMeasurementSelections = (reference, size, measurements) => {
+    try {
+      const existingSelections =
+        secureLocalStorage.getItem(measurementSelectionKey) || {};
+      const referenceSelections = existingSelections[reference] || {};
+
+      const updatedSelections = {
+        ...existingSelections,
+        [reference]: {
+          ...referenceSelections,
+          [size]: measurements,
+        },
+      };
+      secureLocalStorage.setItem(measurementSelectionKey, updatedSelections);
+    } catch (error) {
+      console.error("Error saving measurement selections:", error);
+    }
+  };
+
+  // Clear measurement selections for a specific size
+  const clearMeasurementSelectionsForSize = () => {
+    if (selectedReference && selectedSize) {
+      const existingSelections =
+        secureLocalStorage.getItem(measurementSelectionKey) || {};
+      const referenceSelections = existingSelections[selectedReference] || {};
+
+      const updatedSelections = {
+        ...existingSelections,
+        [selectedReference]: {
+          ...referenceSelections,
+          [selectedSize]: [],
+        },
+      };
+      secureLocalStorage.setItem(measurementSelectionKey, updatedSelections);
+      setSelectedMeasurements([]);
+      
+      // Also reset the measurements display
+      setMeasurements([]);
+      setCheckValues({});
+      
+      toast.info(
+        `Measurement selections cleared for ${selectedReference} - ${selectedSize}`
+      );
+    }
+  };
+
+  // Clear ALL measurement selections for a reference
+  const clearAllMeasurementSelections = () => {
+    if (selectedReference) {
+      const existingSelections =
+        secureLocalStorage.getItem(measurementSelectionKey) || {};
+      const updatedSelections = {
+        ...existingSelections,
+        [selectedReference]: {},
+      };
+      secureLocalStorage.setItem(measurementSelectionKey, updatedSelections);
+      setSelectedMeasurements([]);
+      setMeasurements([]);
+      setCheckValues({});
+      toast.info(`All measurement selections cleared for ${selectedReference}`);
+    }
+  };
+
+  // New function to open measurement selection popup
+  const openMeasurementPopup = () => {
+    if (!selectedReference || !selectedSize || !selectedProduct) {
+      toast.error("Please select a reference and size first");
+      return;
+    }
+
+    const allMeasurements =
+      selectedProduct.measurements
+        ?.filter((m) => m.values?.some((v) => v.size === selectedSize))
+        ?.map((m) => {
+          const valueObj = m.values?.find((v) => v.size === selectedSize);
+          return {
+            id: m.id,
+            name: m.description || "Unnamed",
+            standardValue: valueObj?.value ?? "",
+            toleranceMin: m.toleranceMin ?? "0",
+            toleranceMax: m.toleranceMax ?? "0",
+            unit: m.unit ?? "",
+            isActive: true,
+          };
+        }) || [];
+
+    setAvailableMeasurements(allMeasurements);
+
+    // Load saved selections for this reference AND size
+    const savedSelections = loadMeasurementSelections();
+
+    // If we have saved selections, use them, otherwise select all active measurements
+    const initialSelections =
+      savedSelections.length > 0
+        ? savedSelections
+        : allMeasurements.map((m) => m.id);
+
+    setSelectedMeasurements(initialSelections);
+    setShowMeasurementPopup(true);
+  };
+
+  // New function to handle measurement selection
+  const handleMeasurementSelection = (measurementId, isSelected) => {
+    setSelectedMeasurements((prev) => {
+      if (isSelected) {
+        return [...prev, measurementId];
+      } else {
+        return prev.filter((id) => id !== measurementId);
+      }
+    });
+  };
+
+  // New function to select/deselect all measurements
+  const handleSelectAllMeasurements = (selectAll) => {
+    if (selectAll) {
+      setSelectedMeasurements(availableMeasurements.map((m) => m.id));
+    } else {
+      setSelectedMeasurements([]);
+    }
+  };
+
+  // New function to apply measurement selection
+  const applyMeasurementSelection = () => {
+    if (selectedMeasurements.length === 0) {
+      toast.error("Please select at least one measurement");
+      return;
+    }
+
+    const filteredMeasurements = availableMeasurements.filter((m) =>
+      selectedMeasurements.includes(m.id)
+    );
+
+    setMeasurements(filteredMeasurements);
+
+    // Initialize checkValues for selected measurements
+    const newCheckValues = {};
+    filteredMeasurements.forEach((m) => {
+      // Try to load existing values first, otherwise initialize with empty array
+      const existingValues = 
+        formData[ayanCondition].savedMeasurements?.[selectedSize]?.[m.id] ||
+        formData[ayanCondition].partialSavedMeasurements?.[selectedSize]?.[m.id] ||
+        Array(PIECES_COUNT).fill("");
+      
+      newCheckValues[m.id] = existingValues;
+    });
+
+    setCheckValues(newCheckValues);
+
+    // Save the selection to localStorage - WITH SIZE
+    if (selectedReference && selectedSize) {
+      saveMeasurementSelections(
+        selectedReference,
+        selectedSize,
+        selectedMeasurements
+      );
+    }
+
+    setShowMeasurementPopup(false);
+    toast.success(
+      `Selected ${filteredMeasurements.length} measurements for ${selectedSize}`
+    );
+    
+    // Mark form as dirty since we changed the measurements
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
+  };
+
+  // Load measurements when reference, product, size, or condition changes
+  useEffect(() => {
+    if (selectedReference && selectedProduct && selectedSize) {
+      const savedSelections = loadMeasurementSelections();
+      setSelectedMeasurements(savedSelections);
+
+      const allMeasurementData =
+        selectedProduct.measurements
+          ?.filter((m) => m.values?.some((v) => v.size === selectedSize))
+          ?.map((m) => {
+            const valueObj = m.values?.find((v) => v.size === selectedSize);
+            return {
+              id: m.id,
+              name: m.description || "Unnamed",
+              standardValue: valueObj?.value ?? "",
+              toleranceMin: m.toleranceMin ?? "0",
+              toleranceMax: m.toleranceMax ?? "0",
+              unit: m.unit ?? "",
+            };
+          }) || [];
+
+      // Use saved selections if available, otherwise show all
+      const measurementData =
+        savedSelections.length > 0
+          ? allMeasurementData.filter((m) => savedSelections.includes(m.id))
+          : allMeasurementData;
+
+      setMeasurements(measurementData);
+
+      // Load existing values for this size and condition
+      const sizeData =
+        formData[ayanCondition].savedMeasurements?.[selectedSize] ||
+        formData[ayanCondition].partialSavedMeasurements?.[selectedSize] ||
+        {};
+
+      const initialCheckValues = {};
+      measurementData.forEach((m) => {
+        initialCheckValues[m.id] =
+          sizeData[m.id] || Array(PIECES_COUNT).fill("");
+      });
+
+      setCheckValues(initialCheckValues);
+
+      // Load meta data for the selected size
+      const savedMeta =
+        formData[ayanCondition].measurementMeta?.[selectedSize] || {};
+      setMeasurementMeta(savedMeta);
+    } else {
+      // Reset if no valid selection
+      setMeasurements([]);
+      setCheckValues({});
+      setSelectedMeasurements([]);
+    }
+  }, [selectedReference, selectedProduct, selectedSize, ayanCondition, formData]);
+
+  // Reset measurements when reference changes
+  useEffect(() => {
+    if (selectedReference) {
+      setSelectedSize("");
+      setMeasurements([]);
+      setCheckValues({});
+      setSelectedMeasurements([]);
+      setMeasurementMeta({});
+    }
+  }, [selectedReference]);
+
   useEffect(() => {
     if (sizeTableData?.data && aqlData?.data) {
-      const merged = aqlData.data.map(aqlItem => {
+      const merged = aqlData.data.map((aqlItem) => {
         const matchingAllocations = sizeTableData.data.filter(
-          allocItem => allocItem.reference === aqlItem.reference
+          (allocItem) => allocItem.reference === aqlItem.reference
         );
 
         return {
           ...aqlItem,
           allocations: matchingAllocations,
-          allocationDetails: matchingAllocations.map(alloc => ({
+          allocationDetails: matchingAllocations.map((alloc) => ({
             id: alloc.id,
             partyName: alloc.Party?.name,
             lineName: alloc.LineMaster?.lineName,
             deliveryDate: alloc.DeliveryDate,
-            allocationDate: alloc.allocationDate
-          }))
+            allocationDate: alloc.allocationDate,
+          })),
         };
       });
       setMergedReportData(merged);
     }
-  }, [sizeTableData, aqlData, approveStatus, setApproveStatus]);
+  }, [sizeTableData, aqlData, approveStatus]);
 
   const loadSavedData = () => {
     const savedData = secureLocalStorage.getItem(storageKey);
     if (savedData) {
       setFormData(savedData);
-      setFormStatus(prev => ({
+      setFormStatus((prev) => ({
         ...prev,
-        lastSaved: new Date(savedData.lastUpdated).toLocaleString()
+        lastSaved: new Date(savedData.lastUpdated).toLocaleString(),
       }));
     }
   };
@@ -170,14 +455,14 @@ const Aql = () => {
 
     const dataToSave = {
       ...formData,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
 
     secureLocalStorage.setItem(storageKey, dataToSave);
-    setFormStatus(prev => ({
+    setFormStatus((prev) => ({
       ...prev,
       isDirty: false,
-      lastSaved: new Date().toLocaleString()
+      lastSaved: new Date().toLocaleString(),
     }));
   };
 
@@ -200,72 +485,79 @@ const Aql = () => {
   useEffect(() => {
     if (singleData?.data && !formStatus.isDirty) {
       const data = singleData.data;
-      setSelectedReference(data.reference || '');
-      setId(data.id || '');
-      setColor(data?.color || '');
+      setSelectedReference(data.reference || "");
+      setId(data.id || "");
+      setColor(data?.color || "");
       if (data.inspectionDate) {
-        setInspectionDate(new Date(data.inspectionDate).toISOString().split('T')[0]);
+        setInspectionDate(
+          new Date(data.inspectionDate).toISOString().split("T")[0]
+        );
       }
       if (data?.lineMasterId) {
-        setSelectedLine(data?.lineMasterId)
+        setSelectedLine(data?.lineMasterId);
       }
-      console.log(selectedLine, "selectedLine")
+
       const newFormData = {
         before: {
           savedSizes: [],
           savedMeasurements: {},
-          partialSavedMeasurements: {}
+          partialSavedMeasurements: {},
+          measurementMeta: {},
         },
         after: {
           savedSizes: [],
           savedMeasurements: {},
-          partialSavedMeasurements: {}
-        }
+          partialSavedMeasurements: {},
+          measurementMeta: {},
+        },
       };
 
       if (data.before && Array.isArray(data.before)) {
-        newFormData.before.savedSizes = data.before.map(sample => sample.size);
+        newFormData.before.savedSizes = data.before.map(
+          (sample) => sample.size
+        );
 
-        data.before.forEach(sample => {
+        data.before.forEach((sample) => {
           const size = sample.size;
           newFormData.before.savedMeasurements[size] = {};
 
-          sample.measurements?.forEach(measurement => {
-            const values = Array(PIECES_COUNT).fill('');
-            measurement.values?.forEach(valueObj => {
+          sample.measurements?.forEach((measurement) => {
+            const values = Array(PIECES_COUNT).fill("");
+            measurement.values?.forEach((valueObj) => {
               if (valueObj.pieceNumber <= PIECES_COUNT) {
-                const val = valueObj.actualValue?.toString() || '';
-                values[valueObj.pieceNumber - 1] = val && !isNaN(val)
-                  ? parseFloat(val).toFixed(2)
-                  : val;
+                const val = valueObj.actualValue?.toString() || "";
+                values[valueObj.pieceNumber - 1] =
+                  val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
               }
             });
 
-            newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
+            newFormData.before.savedMeasurements[size][
+              measurement.measurementId
+            ] = values;
           });
         });
       }
 
       if (data.after && Array.isArray(data.after)) {
-        newFormData.after.savedSizes = data.after.map(sample => sample.size);
+        newFormData.after.savedSizes = data.after.map((sample) => sample.size);
 
-        data.after.forEach(sample => {
+        data.after.forEach((sample) => {
           const size = sample.size;
           newFormData.after.savedMeasurements[size] = {};
 
-          sample.measurements?.forEach(measurement => {
-            const values = Array(PIECES_COUNT).fill('');
-            measurement.values?.forEach(valueObj => {
+          sample.measurements?.forEach((measurement) => {
+            const values = Array(PIECES_COUNT).fill("");
+            measurement.values?.forEach((valueObj) => {
               if (valueObj.pieceNumber <= PIECES_COUNT) {
-                const val = valueObj.actualValue?.toString() || '';
-                // Format the value to 2 decimal places if it's a number
-                values[valueObj.pieceNumber - 1] = val && !isNaN(val)
-                  ? parseFloat(val).toFixed(2)
-                  : val;
+                const val = valueObj.actualValue?.toString() || "";
+                values[valueObj.pieceNumber - 1] =
+                  val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
               }
             });
 
-            newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
+            newFormData.after.savedMeasurements[size][
+              measurement.measurementId
+            ] = values;
           });
         });
       }
@@ -279,193 +571,163 @@ const Aql = () => {
     }
   }, [singleData, formStatus.isDirty]);
 
-  useEffect(() => {
-    if (selectedProduct && selectedSize) {
-      const measurementData = selectedProduct.measurements
-        ?.filter(m => m.values?.some(v => v.size === selectedSize))
-        ?.map(m => {
-          const valueObj = m.values?.find(v => v.size === selectedSize);
-          return {
-            id: m.id,
-            name: m.description || 'Unnamed',
-            standardValue: valueObj?.value ?? '',
-            toleranceMin: m.toleranceMin ?? '0',
-            toleranceMax: m.toleranceMax ?? '0',
-            unit: m.unit ?? ''
-          };
-        }) || [];
-
-      setMeasurements(measurementData);
-
-      const sizeData = formData[ayanCondition].savedMeasurements?.[selectedSize] ||
-        formData[ayanCondition].partialSavedMeasurements?.[selectedSize] || {};
-
-      const initialCheckValues = {};
-      measurementData.forEach(m => {
-        initialCheckValues[m.id] = sizeData[m.id] ?? Array(PIECES_COUNT).fill('');
-      });
-
-      setCheckValues(initialCheckValues);
-    } else {
-      setMeasurements([]);
-      setCheckValues({});
-    }
-  }, [selectedProduct, selectedSize, formData, ayanCondition]);
-
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     if (readOnly) return;
 
-    setCheckValues(prev => ({
+    setCheckValues((prev) => ({
       ...prev,
       [measurementId]: prev[measurementId].map((val, idx) =>
-        idx === pieceIndex ? value : val)
+        idx === pieceIndex ? value : val
+      ),
     }));
-    setFormStatus(prev => ({ ...prev, isDirty: true }));
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
   };
 
   const isSizeComplete = (size, condition) => {
     const sizeData = formData[condition].savedMeasurements?.[size];
     if (!sizeData) return false;
 
-    return measurements.every(measurement => {
+    const currentMeasurements = measurements.filter(m => 
+      selectedMeasurements.includes(m.id)
+    );
+
+    return currentMeasurements.every((measurement) => {
       const values = sizeData[measurement.id];
-      return values && values.length === PIECES_COUNT && values.every(val => val !== '');
+      return (
+        values &&
+        values.length === PIECES_COUNT &&
+        values.every((val) => val !== "" && val !== null && val !== undefined)
+      );
     });
   };
 
   const isSizePartiallySaved = (size, condition) => {
-    return formData[condition].partialSavedMeasurements.hasOwnProperty(size) &&
-      !isSizeComplete(size, condition);
+    return (
+      formData[condition].partialSavedMeasurements.hasOwnProperty(size) &&
+      !isSizeComplete(size, condition)
+    );
   };
 
   const getSizeStatus = (size, condition) => {
-    if (isSizeComplete(size, condition)) return 'complete';
-    if (isSizePartiallySaved(size, condition)) return 'partial';
-    return 'none';
+    if (isSizeComplete(size, condition)) return "complete";
+    if (isSizePartiallySaved(size, condition)) return "partial";
+    return "none";
   };
 
   const handlePartialSave = () => {
     if (!selectedSize || readOnly) return;
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [ayanCondition]: {
         ...prev[ayanCondition],
         partialSavedMeasurements: {
           ...prev[ayanCondition].partialSavedMeasurements,
-          [selectedSize]: checkValues
+          [selectedSize]: checkValues,
         },
-        savedSizes: [...new Set([...prev[ayanCondition].savedSizes, selectedSize])]
-      }
+        measurementMeta: {
+          ...prev[ayanCondition].measurementMeta,
+          [selectedSize]: measurementMeta,
+        },
+        savedSizes: [
+          ...new Set([...prev[ayanCondition].savedSizes, selectedSize]),
+        ],
+      },
     }));
 
-    setFormStatus(prev => ({ ...prev, isDirty: true }));
-    toast.info('Partially saved measurements for this size.');
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
+    toast.info("Partially saved measurements for this size.");
   };
 
   const handleLoadSize = (size) => {
     setSelectedSize(size);
     setShowSizeDropdown(false);
-
-    const measurementData = selectedProduct?.measurements
-      ?.filter(m => m.values?.some(v => v.size === size))
-      ?.map(m => {
-        const valueObj = m.values?.find(v => v.size === size);
-        return {
-          id: m.id,
-          name: m.description || 'Unnamed',
-          standardValue: valueObj?.value ?? '',
-          toleranceMin: m.toleranceMin ?? '0',
-          toleranceMax: m.toleranceMax ?? '0',
-          unit: m.unit ?? ''
-        };
-      }) || [];
-
-    setMeasurements(measurementData);
-
-    const sizeData = formData[ayanCondition].savedMeasurements?.[size] ||
-      formData[ayanCondition].partialSavedMeasurements?.[size] || {};
-
-    const initialCheckValues = {};
-    measurementData.forEach(m => {
-      initialCheckValues[m.id] = sizeData[m.id] ?? Array(PIECES_COUNT).fill('');
-    });
-
-    setCheckValues(initialCheckValues);
+    
+    // The useEffect will handle loading the measurements and data
+    // for the newly selected size
   };
 
   const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
+    if (
+      window.confirm(
+        "Are you sure you want to reset the form? All unsaved data will be lost."
+      )
+    ) {
       secureLocalStorage.removeItem(storageKey);
       setFormData({
         before: {
           savedSizes: [],
           savedMeasurements: {},
-          partialSavedMeasurements: {}
+          partialSavedMeasurements: {},
+          measurementMeta: {},
         },
         after: {
           savedSizes: [],
           savedMeasurements: {},
-          partialSavedMeasurements: {}
-        }
+          partialSavedMeasurements: {},
+          measurementMeta: {},
+        },
       });
-      setSelectedSize('');
+      setSelectedSize("");
       setCheckValues({});
+      setSelectedMeasurements([]);
+      setMeasurementMeta({});
       setFormStatus({
         isDirty: false,
         lastSaved: null,
-        isSubmitting: false
+        isSubmitting: false,
       });
+      toast.success("Form reset successfully");
     }
-  };
-
-  const canCompare = () => {
-    const beforeComplete = formData.before.savedSizes.filter(size =>
-      isSizeComplete(size, 'before')).length;
-    const afterComplete = formData.after.savedSizes.filter(size =>
-      isSizeComplete(size, 'after')).length;
-
-    return beforeComplete >= 2 && afterComplete >= 2;
   };
 
   const handleSaveSize = () => {
     if (!selectedSize || readOnly) return;
 
-    const isComplete = measurements.every(measurement => {
-      return checkValues[measurement.id] &&
+    // Check if all selected measurements have values for all pieces
+    const isComplete = measurements.every((measurement) => {
+      return (
+        checkValues[measurement.id] &&
         checkValues[measurement.id].length === PIECES_COUNT &&
-        checkValues[measurement.id].every(val => val !== '');
+        checkValues[measurement.id].every((val) => val !== "" && val !== null && val !== undefined)
+      );
     });
 
     if (!isComplete) {
-      toast.error(`Please fill all measurements for all ${PIECES_COUNT} pieces before fully saving this size.`);
+      toast.error(
+        `Please fill all measurements for all ${PIECES_COUNT} pieces before fully saving this size.`
+      );
       return;
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [ayanCondition]: {
         ...prev[ayanCondition],
         savedMeasurements: {
           ...prev[ayanCondition].savedMeasurements,
-          [selectedSize]: checkValues
+          [selectedSize]: checkValues,
+        },
+        measurementMeta: {
+          ...prev[ayanCondition].measurementMeta,
+          [selectedSize]: measurementMeta,
         },
         partialSavedMeasurements: {
           ...prev[ayanCondition].partialSavedMeasurements,
-          [selectedSize]: undefined
+          [selectedSize]: undefined,
         },
-        savedSizes: [...new Set([...prev[ayanCondition].savedSizes, selectedSize])]
-      }
+        savedSizes: [
+          ...new Set([...prev[ayanCondition].savedSizes, selectedSize]),
+        ],
+      },
     }));
 
-    setSelectedSize('');
-    setShowSizeDropdown(false);
-    setFormStatus(prev => ({ ...prev, isDirty: true }));
-    toast.success('Size measurements saved successfully!');
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
+    toast.success(`Size ${selectedSize} measurements saved successfully!`);
   };
 
   const checkTolerance = (measurement, value) => {
-    if (!value || isNaN(value) || value === '') return '';
+    if (!value || isNaN(value) || value === "") return "";
     const numericValue = parseFloat(value);
     const standardValue = parseFloat(measurement.standardValue);
     const toleranceMin = parseFloat(measurement.toleranceMin);
@@ -474,62 +736,75 @@ const Aql = () => {
     const deviation = numericValue - standardValue;
 
     if (deviation < 0 && Math.abs(deviation) > Math.abs(toleranceMin)) {
-      return 'bg-red-100 text-red-800';
+      return "bg-red-100 text-red-800";
+    } else if (deviation > 0 && deviation > toleranceMax) {
+      return "bg-red-100 text-red-800";
     }
-    else if (deviation > 0 && deviation > toleranceMax) {
-      return 'bg-red-100 text-red-800';
-    }
-    return 'bg-green-100 text-green-800';
+    return "bg-green-100 text-green-800";
   };
-  console.log(selectedLine, "selectedLine")
-const CorrectLine = lines?.data?.filter(line => filterLines.includes(line.lineName)) || [];
 
-console.log(CorrectLine, "CorrectLine");
+  const CorrectLine =
+    lines?.data?.filter((line) => filterLines.includes(line.lineName)) || [];
 
   const prepareDatabasePayload = () => {
     const getMeasurementsForSize = (size) => {
-      return selectedProduct?.measurements
-        ?.filter(m => m.values?.some(v => v.size === size))
-        ?.map(m => {
-          const valueObj = m.values?.find(v => v.size === size);
-          return {
-            id: m.id,
-            name: m.description || 'Unnamed',
-            standardValue: valueObj?.value ?? '',
-            toleranceMin: m.toleranceMin ?? '0',
-            toleranceMax: m.toleranceMax ?? '0',
-            unit: m.unit ?? ''
-          };
-        }) || [];
+      return (
+        selectedProduct?.measurements
+          ?.filter((m) => m.values?.some((v) => v.size === size))
+          ?.map((m) => {
+            const valueObj = m.values?.find((v) => v.size === size);
+            return {
+              id: m.id,
+              name: m.description || "Unnamed",
+              standardValue: valueObj?.value ?? "",
+              toleranceMin: m.toleranceMin ?? "0",
+              toleranceMax: m.toleranceMax ?? "0",
+              unit: m.unit ?? "",
+            };
+          }) || []
+      );
     };
 
     const prepareConditionData = (condition) => {
       return formData[condition].savedSizes
-        .filter(size => isSizeComplete(size, condition))
-        .map(size => {
+        .filter((size) => isSizeComplete(size, condition))
+        .map((size) => {
           const sizeMeasurements = getMeasurementsForSize(size);
+          const sizeMeta = formData[condition].measurementMeta?.[size] || {};
 
           return {
             size: size,
-            measurements: sizeMeasurements.map(measurement => ({
-              measurementId: measurement.id,
-              measurementName: measurement.name,
-              standardValue: measurement.standardValue.toString(),
-              toleranceMin: measurement.toleranceMin.toString(),
-              toleranceMax: measurement.toleranceMax.toString(),
-              unit: measurement.unit,
-              values: (formData[condition].savedMeasurements[size]?.[measurement.id] || [])
-                .slice(0, PIECES_COUNT)
-                .map((value, index) => ({
-                  pieceNumber: index + 1,
-                  actualValue: value.toString(),
-                  status: value
-                    ? checkTolerance(measurement, value).includes('red')
-                      ? 'out_of_tolerance'
-                      : 'within_tolerance'
-                    : 'not_measured'
-                }))
-            }))
+            measurements: sizeMeasurements.map((measurement) => {
+              const meta = sizeMeta[measurement.id] || {};
+              return {
+                measurementId: measurement.id,
+                measurementName: measurement.name,
+                standardValue: measurement.standardValue.toString(),
+                toleranceMin: measurement.toleranceMin.toString(),
+                toleranceMax: measurement.toleranceMax.toString(),
+                unit: measurement.unit,
+                machineNo: meta.machineNo || "",
+                operation: meta.operation || "",
+                spi: meta.spi || "",
+                defect: meta.defect || "",
+                correctiveAction: meta.correctiveAction || "",
+                values: (
+                  formData[condition].savedMeasurements[size]?.[
+                    measurement.id
+                  ] || []
+                )
+                  .slice(0, PIECES_COUNT)
+                  .map((value, index) => ({
+                    pieceNumber: index + 1,
+                    actualValue: value.toString(),
+                    status: value
+                      ? checkTolerance(measurement, value).includes("red")
+                        ? "out_of_tolerance"
+                        : "within_tolerance"
+                      : "not_measured",
+                  })),
+              };
+            }),
           };
         });
     };
@@ -537,28 +812,34 @@ console.log(CorrectLine, "CorrectLine");
     return {
       reference: selectedReference,
       inspectionDate: inspectionDate,
-      before: prepareConditionData('before'),
-      after: prepareConditionData('after'),
+      before: prepareConditionData("before"),
+      after: prepareConditionData("after"),
       companyId: parseInt(companyId),
       userId: userId,
       lineMasterId: selectedLine,
-      color: color
+      color: color,
+      shift: selectedShift,
     };
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const beforeComplete = formData.before.savedSizes.filter(size =>
-      isSizeComplete(size, 'before')).length;
-    const afterComplete = formData.after.savedSizes.filter(size =>
-      isSizeComplete(size, 'after')).length;
+    const beforeComplete = formData.before.savedSizes.filter((size) =>
+      isSizeComplete(size, "before")
+    ).length;
+    const afterComplete = formData.after.savedSizes.filter((size) =>
+      isSizeComplete(size, "after")
+    ).length;
 
     if (beforeComplete === 0 && afterComplete === 0) {
-      toast.error('Please save at least one complete size in either before or after condition before submitting.');
+      toast.error(
+        "Please save at least one complete size in either before or after condition before submitting."
+      );
       return;
     }
 
-    setFormStatus(prev => ({ ...prev, isSubmitting: true }));
+    setFormStatus((prev) => ({ ...prev, isSubmitting: true }));
 
     try {
       const payload = prepareDatabasePayload();
@@ -571,318 +852,71 @@ console.log(CorrectLine, "CorrectLine");
       }
 
       if (response.success) {
-        toast.success('AQL Form submitted successfully!');
+        toast.success("AQL Form submitted successfully!");
         secureLocalStorage.removeItem(storageKey);
         resetForm();
       } else {
-        throw new Error(response.message || 'Submission failed');
+        throw new Error(response.message || "Submission failed");
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error("Submission error:", error);
       toast.error(`Failed to submit AQL form: ${error.message}`);
     } finally {
-      setFormStatus(prev => ({ ...prev, isSubmitting: false }));
+      setFormStatus((prev) => ({ ...prev, isSubmitting: false }));
     }
   };
 
   const resetForm = () => {
     secureLocalStorage.removeItem(storageKey);
-    setSelectedReference('');
-    setSelectedSize('');
+    setSelectedReference("");
+    setSelectedSize("");
     setMeasurements([]);
     setCheckValues({});
-    setColor('')
+    setColor("");
+    setSelectedMeasurements([]);
+    setMeasurementMeta({});
     setFormData({
       before: {
         savedSizes: [],
         savedMeasurements: {},
-        partialSavedMeasurements: {}
+        partialSavedMeasurements: {},
+        measurementMeta: {},
       },
       after: {
         savedSizes: [],
         savedMeasurements: {},
-        partialSavedMeasurements: {}
-      }
+        partialSavedMeasurements: {},
+        measurementMeta: {},
+      },
     });
     setFormStatus({
       isDirty: false,
       lastSaved: null,
-      isSubmitting: false
+      isSubmitting: false,
     });
     setReadOnly(false);
-    setId('');
-    setAyanCondition('before');
+    setId("");
+    setAyanCondition("before");
     setShowCompare(false);
-
   };
 
   const toggleAyanCondition = () => {
     if (formStatus.isDirty) {
-      if (!window.confirm('You have unsaved changes. Switching ayan condition will lose your changes. Continue?')) {
+      if (
+        !window.confirm(
+          "You have unsaved changes. Switching ayan condition will lose your changes. Continue?"
+        )
+      ) {
         return;
       }
     }
-    setAyanCondition(prev => prev === 'before' ? 'after' : 'before');
-    setSelectedSize('');
-    setFormStatus(prev => ({ ...prev, isDirty: false }));
+    setAyanCondition((prev) => (prev === "before" ? "after" : "before"));
+    // Keep the selected size when switching conditions
+    setFormStatus((prev) => ({ ...prev, isDirty: false }));
   };
 
   const handleCompare = () => {
     setShowCompare(true);
-  };
-
-  const renderCompareTable = () => {
-    if (!showCompare) return null;
-
-    const commonSizes = [...new Set([
-      ...formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')),
-      ...formData.after.savedSizes.filter(size => isSizeComplete(size, 'after'))
-    ])];
-
-    if (commonSizes.length === 0) {
-      return (
-        <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded-lg text-sm border border-yellow-200">
-          <div className="flex items-start">
-            <svg className="w-5 h-5 text-yellow-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <span>No common sizes with complete data to compare</span>
-          </div>
-        </div>
-      );
-    }
-
-
-    return (
-  <div className="mt-6 border-t pt-6">
-    <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-      <h3 className="text-xl font-bold text-gray-800">Before vs After Comparison</h3>
-      <div className="w-full md:w-1/3">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Select Size
-        </label>
-        <select
-          value={selectedSize}
-          onChange={(e) => {
-            setSelectedSize(e.target.value);
-            const size = e.target.value;
-            if (size) {
-              const measurementData = selectedProduct?.measurements
-                ?.filter(m => m.values?.some(v => v.size === size))
-                ?.map(m => {
-                  const valueObj = m.values?.find(v => v.size === size);
-                  return {
-                    id: m.id,
-                    name: m.description || 'Unnamed',
-                    standardValue: valueObj?.value ?? '',
-                    toleranceMin: m.toleranceMin ?? '0',
-                    toleranceMax: m.toleranceMax ?? '0',
-                    unit: m.unit ?? ''
-                  };
-                }) || [];
-              setMeasurements(measurementData);
-            }
-          }}
-          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-        >
-          <option value="">Select a size</option>
-          {commonSizes.map(size => (
-            <option key={size} value={size}>{size}</option>
-          ))}
-        </select>
-      </div>
-    </div>
-
-    {selectedSize && measurements.length > 0 && (
-      <>
-        {/* Mobile-optimized card view */}
-        {isTabletView && (
-          <div className="space-y-4">
-            {measurements.map(measurement => (
-              <div key={measurement.id} className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                <div className="bg-blue-50 px-4 py-3 border-b">
-                  <div className="flex justify-between items-start">
-                    <h4 className="font-semibold text-gray-800">
-                      {measurement.name}
-                      <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
-                    </h4>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Std:</span> {measurement.standardValue}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-3 grid grid-cols-5 gap-3">
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => {
-                    const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
-                    const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-';
-
-                    return (
-                      <div key={pieceNum} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                        <div className="text-xs font-semibold text-gray-700 mb-2 text-center bg-gray-200 py-1 rounded-md">
-                          Piece #{pieceNum}
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className={`p-2 rounded-md ${checkTolerance(measurement, beforeValue)}`}>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs font-medium text-blue-600">Before</span>
-                              <span className="text-sm font-semibold">{beforeValue}</span>
-                            </div>
-                          </div>
-
-                          <div className={`p-2 rounded-md ${checkTolerance(measurement, afterValue)}`}>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs font-medium text-purple-600">After</span>
-                              <span className="text-sm font-semibold">{afterValue}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Tablet-optimized view */}
-        {!isTabletView && isMobileView && (
-          <div className="mt-4 space-y-4">
-            {measurements.map(measurement => (
-              <div key={measurement.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                <div className="bg-blue-50 px-4 py-3 border-b">
-                  <h4 className="font-semibold text-gray-800">
-                    {measurement.name}
-                    <span className="text-sm font-normal text-gray-600 ml-2">({measurement.unit})</span>
-                  </h4>
-                  <div className="flex justify-between text-sm text-gray-600 mt-2">
-                    <span><span className="font-medium">Std:</span> {measurement.standardValue}</span>
-                    <span><span className="font-medium">Tol:</span> -{measurement.toleranceMin}/+{measurement.toleranceMax}</span>
-                  </div>
-                </div>
-
-                <div className="divide-y divide-gray-100">
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(pieceNum => (
-                    <div key={pieceNum} className="grid grid-cols-3 gap-2 px-4 py-3">
-                      <div className="text-sm font-medium text-gray-700 self-center">
-                        <span className="bg-gray-200 px-2 py-1 rounded-md">Piece #{pieceNum}</span>
-                      </div>
-
-                      <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-blue-600 font-medium">Before</span>
-                          <span className="font-semibold">
-                            {formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className={`p-2 rounded-md ${checkTolerance(measurement, formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1])}`}>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-purple-600 font-medium">After</span>
-                          <span className="font-semibold">
-                            {formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[pieceNum - 1] || '-'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Improved Desktop view */}
-        {!isMobileView && !isTabletView && (
-          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white">
-            <table className="min-w-full bg-white compact-table">
-              <thead className="bg-gray-800 text-white">
-                <tr>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider sticky left-0 bg-gray-800 z-10">
-                    Measurement
-                  </th>
-                  <th className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider">
-                    Std
-                  </th>
-                  <th className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider">
-                    Tolerance
-                  </th>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                    <th key={num} className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider bg-gray-700">
-                      P#{num}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-200">
-                {measurements.map(measurement => (
-                  <tr key={measurement.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 whitespace-nowrap sticky left-0 bg-white z-10 border-r">
-                      <div className="text-sm font-medium text-gray-900">{measurement.name}</div>
-                      <div className="text-xs text-gray-500">{measurement.unit}</div>
-                    </td>
-                    <td className="px-2 py-2 whitespace-nowrap text-center text-sm font-semibold text-gray-700">
-                      {measurement.standardValue}
-                    </td>
-                    <td className="px-2 py-2 whitespace-nowrap text-center text-xs text-gray-600">
-                      <div className="bg-gray-100 py-1 px-2 rounded-md inline-block">
-                        -{measurement.toleranceMin}/+{measurement.toleranceMax}
-                      </div>
-                    </td>
-                    {Array.from({ length: PIECES_COUNT }, (_, i) => i).map(index => {
-                      const beforeValue = formData.before.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
-                      const afterValue = formData.after.savedMeasurements[selectedSize]?.[measurement.id]?.[index] || '-';
-                      const beforeToleranceClass = checkTolerance(measurement, beforeValue);
-                      const afterToleranceClass = checkTolerance(measurement, afterValue);
-
-                      return (
-                        <td key={index} className="px-2 py-2 whitespace-nowrap text-center">
-                          <div className="flex flex-col gap-1">
-                            <div className={`px-2 py-1 rounded-md text-xs ${beforeToleranceClass}`}>
-                              <div className="flex justify-between items-center">
-                                <span className="text-blue-600 font-medium">B</span>
-                                <span className="font-semibold">{beforeValue}</span>
-                              </div>
-                            </div>
-                            <div className={`px-2 py-1 rounded-md text-xs ${afterToleranceClass}`}>
-                              <div className="flex justify-between items-center">
-                                <span className="text-purple-600 font-medium">A</span>
-                                <span className="font-semibold">{afterValue}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </>
-    )}
-
-    <style jsx>{`
-      .compact-table {
-        font-size: 0.75rem; /* 12px */
-      }
-      .compact-table th,
-      .compact-table td {
-        padding: 0.5rem 0.5rem;
-      }
-    `}</style>
-  </div>
-);
   };
 
   const tableHeaders = [
@@ -900,7 +934,7 @@ console.log(CorrectLine, "CorrectLine");
     "new Date(dataObj?.inspectionDate).toLocaleDateString()",
     "dataObj?.allocationDetails?.[0]?.partyName || 'N/A'",
     "dataObj?.allocationDetails?.[0]?.lineName || 'N/A'",
-    "dataObj?.allocationDetails?.[0]?.deliveryDate ? new Date(dataObj.allocationDetails[0.deliveryDate).toLocaleDateString() : 'N/A'",
+    "dataObj?.allocationDetails?.[0]?.deliveryDate ? new Date(dataObj.allocationDetails[0].deliveryDate).toLocaleDateString() : 'N/A'",
   ];
 
   const onDataClick = (id) => {
@@ -908,10 +942,11 @@ console.log(CorrectLine, "CorrectLine");
     setReadOnly(true);
     setNewItem(true);
     setShowCompare(false);
-    setAyanCondition('before');
-    setSelectedSize('');
-    setFormStatus(prev => ({ ...prev, isDirty: false }));
+    setAyanCondition("before");
+    // Don't reset selectedSize here - let the useEffect handle it based on the loaded data
+    setFormStatus((prev) => ({ ...prev, isDirty: false }));
   };
+
   const deleteData = async () => {
     if (deleteId) {
       if (!window.confirm("Are you sure to delete this inspection?")) {
@@ -929,25 +964,166 @@ console.log(CorrectLine, "CorrectLine");
       }
     }
   };
+
   const handleCancel = () => {
     if (formStatus.isDirty) {
-      if (!window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+      if (
+        !window.confirm(
+          "You have unsaved changes. Are you sure you want to cancel?"
+        )
+      ) {
         return;
       }
     }
     setNewItem(false);
     resetForm();
   };
-  const [selectedShift, setSelectedShift] = useState("");
-  const shifts = [
-  { id: 1, label: "1", time: "8:30 - 10:15" },
-  { id: 2, label: "2", time: "10:30 - 12:30" },
-  { id: 3, label: "3", time: "1:30 - 3:30" },
-  { id: 4, label: "4", time: "3:30 - 5:50" },
-];
+
+  // Add time button functionality
+  const addTimeButton = () => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+    // Add time to all empty measurement fields
+    const updatedCheckValues = { ...checkValues };
+
+    measurements.forEach((measurement) => {
+      if (updatedCheckValues[measurement.id]) {
+        updatedCheckValues[measurement.id] = updatedCheckValues[
+          measurement.id
+        ].map((value) => (value === "" ? timeString : value));
+      }
+    });
+
+    setCheckValues(updatedCheckValues);
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
+    toast.success(`Added current time (${timeString}) to all empty fields`);
+  };
+
+  // Measurement Selection Popup Component
+  const MeasurementSelectionPopup = () => (
+    <Modal
+      isOpen={showMeasurementPopup}
+      widthClass="w-[90%] max-w-4xl"
+      onClose={() => setShowMeasurementPopup(false)}
+    >
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-bold">
+            Select Measurements for {selectedReference} - {selectedSize}
+          </h3>
+          <div className="flex space-x-2">
+            <button
+              type="button"
+              onClick={clearMeasurementSelectionsForSize}
+              className="px-3 py-1 text-xs bg-red-500 text-white rounded"
+            >
+              Clear This Size
+            </button>
+            <button
+              type="button"
+              onClick={clearAllMeasurementSelections}
+              className="px-3 py-1 text-xs bg-orange-500 text-white rounded"
+            >
+              Clear All Sizes
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-2 p-2 bg-blue-50 rounded">
+          <p className="text-sm text-blue-700">
+            <strong>Note:</strong> Your measurement selections will be saved
+            specifically for <strong>{selectedSize}</strong> size. Each size can
+            have different measurement preferences.
+          </p>
+        </div>
+
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-sm text-gray-600">
+            {selectedMeasurements.length} of {availableMeasurements.length}{" "}
+            measurements selected for {selectedSize}
+          </span>
+          <div className="space-x-2">
+            <button
+              type="button"
+              onClick={() => handleSelectAllMeasurements(true)}
+              className="px-3 py-1 text-xs bg-blue-500 text-white rounded"
+            >
+              Select All
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectAllMeasurements(false)}
+              className="px-3 py-1 text-xs bg-gray-500 text-white rounded"
+            >
+              Deselect All
+            </button>
+          </div>
+        </div>
+
+        <div className="max-h-96 overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {availableMeasurements.map((measurement) => (
+              <div
+                key={measurement.id}
+                className="flex items-center p-2 border rounded"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedMeasurements.includes(measurement.id)}
+                  onChange={(e) =>
+                    handleMeasurementSelection(measurement.id, e.target.checked)
+                  }
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="ml-2 text-sm">
+                  <span className="font-medium">{measurement.name}</span>
+                  {/* <div className="text-gray-500 text-xs">
+                    Std: {measurement.standardValue} ({measurement.unit})
+                  </div> */}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mt-4 pt-4 border-t">
+          <div className="text-sm text-gray-600">
+            Selections will be saved specifically for{" "}
+            <strong>{selectedSize}</strong> size
+          </div>
+          <div className="flex space-x-2">
+            <button
+              type="button"
+              onClick={() => setShowMeasurementPopup(false)}
+              className="px-4 py-2 text-sm bg-gray-300 text-gray-700 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={applyMeasurementSelection}
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded"
+            >
+              Apply to Size- {selectedSize}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
 
   const renderFormControls = () => (
-    <div className={`grid ${isMobileView ? 'grid-cols-3' : 'grid-cols-1 md:grid-cols-7'} gap-4 mb-4`}>
+    <div
+      className={`grid ${
+        isMobileView ? "grid-cols-3" : "grid-cols-1 md:grid-cols-7"
+      } gap-4 mb-4`}
+    >
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">
           Order Id <span className="text-red-500">*</span>
@@ -955,9 +1131,14 @@ console.log(CorrectLine, "CorrectLine");
         <select
           value={selectedReference}
           onChange={(e) => {
-            setSelectedReference(e.target.value);
-            setSelectedSize('');
-            setFormStatus(prev => ({ ...prev, isDirty: false }));
+            const newReference = e.target.value;
+            setSelectedReference(newReference);
+            // Reset related states when reference changes
+            setSelectedSize("");
+            setMeasurements([]);
+            setCheckValues({});
+            setSelectedMeasurements([]);
+            setFormStatus((prev) => ({ ...prev, isDirty: false }));
           }}
           className="w-full px-3 py-2 text-xs border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white"
           required
@@ -965,12 +1146,13 @@ console.log(CorrectLine, "CorrectLine");
         >
           <option value="">Select a reference</option>
           {references.map((ref, index) => (
-            <option key={index} value={ref}>{ref}</option>
+            <option key={index} value={ref}>
+              {ref}
+            </option>
           ))}
         </select>
       </div>
 
-      {/* Color */}
       <div className="flex-1 min-w-[90px]">
         <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
           Color *
@@ -993,25 +1175,12 @@ console.log(CorrectLine, "CorrectLine");
           value={inspectionDate}
           onChange={(e) => !readOnly && setInspectionDate(e.target.value)}
           readOnly={readOnly}
-          className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+          className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm ${
+            readOnly ? "bg-gray-100 cursor-not-allowed" : ""
+          }`}
         />
       </div>
 
-      <div className="flex items-end">
-        <button
-          type="button"
-          onClick={toggleAyanCondition}
-          disabled={readOnly}
-          className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm flex items-center justify-center
-            ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
-            ${ayanCondition === 'before' ? 'border-blue-500 bg-blue-50' : 'border-purple-500 bg-purple-50'}`}
-        >
-          <span>{ayanCondition === 'before' ? 'Before Ironing' : 'After Ironing'}</span>
-          <svg className="h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </div>
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1">
           Line <span className="text-red-500">*</span>
@@ -1031,25 +1200,44 @@ console.log(CorrectLine, "CorrectLine");
         </select>
       </div>
 
-      <div className='flex gap-2'>
-        <div className='w-1/3'>
-          <label className="block text-xs font-medium  text-gray-700 mb-1">
+      <div className="flex gap-2">
+        <div className="w-1/3">
+          <label className="block text-xs font-medium text-gray-700 mb-1">
             Size <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <button
               type="button"
-              onClick={() => !readOnly && setShowSizeDropdown(!showSizeDropdown)}
+              onClick={() =>
+                !readOnly && setShowSizeDropdown(!showSizeDropdown)
+              }
               disabled={!selectedReference || readOnly}
               className={`w-full px-3 py-2 text-left text-xs border rounded-md shadow-sm flex justify-between items-center 
-              ${!selectedReference || readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-blue-500'}
-              ${selectedSize ? 'border-blue-500' : 'border-gray-300'}`}
+              ${
+                !selectedReference || readOnly
+                  ? "bg-gray-100 cursor-not-allowed"
+                  : "bg-white hover:border-blue-500"
+              }
+              ${selectedSize ? "border-blue-500" : "border-gray-300"}`}
             >
-              <span className={selectedSize ? 'text-gray-900' : 'text-gray-500'}>
-                {selectedSize || ' size'}
+              <span
+                className={selectedSize ? "text-gray-900" : "text-gray-500"}
+              >
+                {selectedSize || "size"}
               </span>
-              <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              <svg
+                className={`h-4 w-4 text-gray-400 transition-transform ${
+                  showSizeDropdown ? "rotate-180" : ""
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
               </svg>
             </button>
             {showSizeDropdown && (
@@ -1061,16 +1249,22 @@ console.log(CorrectLine, "CorrectLine");
                       <div
                         key={index}
                         className={`px-3 py-1 hover:bg-blue-50 cursor-pointer flex justify-between items-center 
-                        ${status === 'complete' ? 'bg-green-50' : status === 'partial' ? 'bg-yellow-50' : ''}
-                        ${selectedSize === size ? 'bg-blue-50' : ''}`}
+                        ${
+                          status === "complete"
+                            ? "bg-green-50"
+                            : status === "partial"
+                            ? "bg-yellow-50"
+                            : ""
+                        }
+                        ${selectedSize === size ? "bg-blue-50" : ""}`}
                         onClick={() => handleLoadSize(size)}
                       >
                         <span>{size}</span>
                         <div className="flex items-center">
-                          {status === 'complete' && (
+                          {status === "complete" && (
                             <span className="text-green-500 ml-2">✓</span>
                           )}
-                          {status === 'partial' && (
+                          {status === "partial" && (
                             <span className="text-yellow-500 ml-2">~</span>
                           )}
                         </div>
@@ -1078,85 +1272,156 @@ console.log(CorrectLine, "CorrectLine");
                     );
                   })
                 ) : (
-                  <div className="px-3 py-1 text-gray-500">No sizes available</div>
+                  <div className="px-3 py-1 text-gray-500">
+                    No sizes available
+                  </div>
                 )}
               </div>
             )}
           </div>
         </div>
+
         <div className="flex items-end">
           <button
             type="button"
-            onClick={handleCompare}
-            className={`px-3 py-2 rounded-md shadow-sm h-9 text-xs font-medium text-white
-              ${!canCompare() ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+            onClick={openMeasurementPopup}
+            disabled={!selectedSize}
+            className={`px-3 py-1 rounded-md shadow-sm h-9 text-xs font-medium 
+              ${
+                !selectedSize
+                  ? "border border-sky-700 cursor-not-allowed text-gray-200"
+                  : " border border-sky-700 "
+              }`}
           >
-            Compare
+<img src={Filter} alt = "filter" className="w-4 h-4" />
           </button>
         </div>
       </div>
+
       <div>
-  <label className="block text-xs font-medium text-gray-700 mb-1">
-    Shift <span className="text-red-500">*</span>
-  </label>
-  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-    {shifts.map((shift) => (
-      <button
-        key={shift.id}
-        type="button"
-        onClick={() => setSelectedShift(shift.id)}
-        className={`flex flex-col items-center justify-center border rounded-lg px-2 py-2 text-xs transition-all
-          ${selectedShift === shift.id
-            ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-sm"
-            : "border-gray-300 bg-white hover:border-blue-400"}`}
-      >
-        <span className="text-sm">{shift.label}</span>
-        {/* <span className="text-[10px] text-gray-500">{shift.time}</span> */}
-      </button>
-    ))}
-  </div>
-</div>
-
-
+        <label className="block text-xs font-medium text-gray-700 mb-1">
+          Shift <span className="text-red-500">*</span>
+        </label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {shifts.map((shift) => (
+            <button
+              key={shift.id}
+              type="button"
+              onClick={() => setSelectedShift(shift.id)}
+              className={`flex flex-col items-center justify-center border rounded-lg px-2 py-2 text-xs transition-all
+                ${
+                  selectedShift === shift.id
+                    ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-sm"
+                    : "border-gray-300 bg-white hover:border-blue-400"
+                }`}
+            >
+              <span className="text-sm">{shift.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 
   const renderMeasurementsTable = () => {
+    if (measurements.length === 0 && selectedSize) {
+      return (
+        <div className="flex-1 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-8">
+          <div className="text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              {selectedMeasurements.length === 0
+                ? "No measurements selected"
+                : "Loading measurements..."}
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {selectedMeasurements.length === 0
+                ? 'Click "Select Measurements" to choose which measurements to display.'
+                : "Applying your saved measurement preferences..."}
+            </p>
+            <button
+              type="button"
+              onClick={openMeasurementPopup}
+              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+            >
+<img src={Filter} alt = "filter" className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     if (measurements.length === 0) return null;
 
-    const inputStyle = "w-full px-1.5 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500";
+    const inputStyle =
+      "w-full px-1.5 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500";
     const selectStyle = `${inputStyle} appearance-none bg-white bg-arrow bg-no-repeat bg-right`;
 
     if (isMobileView) {
       return (
         <div className="flex-1 overflow-hidden flex flex-col mb-2">
           <div className="overflow-auto flex-1 pb-2">
-            {measurements.map(measurement => (
-              <div key={measurement.id} className="mb-3 border rounded p-2 bg-white">
-                {/* Meta fields grid */}
+            {measurements.map((measurement) => (
+              <div
+                key={measurement.id}
+                className="mb-3 border rounded p-2 bg-white"
+              >
                 <div className="grid grid-cols-2 gap-1.5 mb-2">
                   <div className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-0.5">M/c No</label>
+                    <label className="text-xs text-gray-500 mb-0.5">
+                      M/c No
+                    </label>
                     <input
                       type="text"
-                      value={measurementMeta[measurement.id]?.machineNo || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                      value={measurementMeta[measurement.id]?.machineNo || ""}
+                      onChange={(e) =>
+                        handleMetaChange(
+                          measurement.id,
+                          "machineNo",
+                          e.target.value
+                        )
+                      }
                       className={inputStyle}
                       readOnly={readOnly}
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-0.5">Operation</label>
+                    <label className="text-xs text-gray-500 mb-0.5">
+                      Operation
+                    </label>
                     <select
-                      value={measurementMeta[measurement.id]?.operation || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                      value={measurementMeta[measurement.id]?.operation || ""}
+                      onChange={(e) =>
+                        handleMetaChange(
+                          measurement.id,
+                          "operation",
+                          e.target.value
+                        )
+                      }
                       className={selectStyle}
                       disabled={readOnly}
-                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
+                      style={{
+                        backgroundSize: "12px 12px",
+                        backgroundPosition: "right 4px center",
+                      }}
                     >
                       <option value="">Select</option>
-                      {operationOptions.map(option => (
-                        <option key={option.id} value={option.id}>{option.name}</option>
+                      {operationOptions?.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.name}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -1164,13 +1429,13 @@ console.log(CorrectLine, "CorrectLine");
                     <label className="text-xs text-gray-500 mb-0.5">SPI</label>
                     <input
                       type="text"
-                      value={measurementMeta[measurement.id]?.spi || ''}
+                      value={measurementMeta[measurement.id]?.spi || ""}
                       onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, '');
+                        let value = e.target.value.replace(/\D/g, "");
                         if (value.length > 2) {
                           value = value.slice(0, 2);
                         }
-                        handleMetaChange(measurement.id, 'spi', value);
+                        handleMetaChange(measurement.id, "spi", value);
                       }}
                       className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
                       readOnly={readOnly}
@@ -1180,32 +1445,60 @@ console.log(CorrectLine, "CorrectLine");
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-0.5">Defect</label>
+                    <label className="text-xs text-gray-500 mb-0.5">
+                      Defect
+                    </label>
                     <select
-                      value={measurementMeta[measurement.id]?.defect || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
+                      value={measurementMeta[measurement.id]?.defect || ""}
+                      onChange={(e) =>
+                        handleMetaChange(
+                          measurement.id,
+                          "defect",
+                          e.target.value
+                        )
+                      }
                       className={selectStyle}
                       disabled={readOnly}
-                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
+                      style={{
+                        backgroundSize: "12px 12px",
+                        backgroundPosition: "right 4px center",
+                      }}
                     >
                       <option value="">Select</option>
-                      {defectOptions.map(option => (
-                        <option key={option.id} value={option.id}>{option.name}</option>
+                      {defectOptions?.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.name}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div className="flex flex-col col-span-2">
-                    <label className="text-xs text-gray-500 mb-0.5">Corrective Action</label>
+                    <label className="text-xs text-gray-500 mb-0.5">
+                      Corrective Action
+                    </label>
                     <select
-                      value={measurementMeta[measurement.id]?.correctiveAction || ''}
-                      onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                      value={
+                        measurementMeta[measurement.id]?.correctiveAction || ""
+                      }
+                      onChange={(e) =>
+                        handleMetaChange(
+                          measurement.id,
+                          "correctiveAction",
+                          e.target.value
+                        )
+                      }
                       className={selectStyle}
                       disabled={readOnly}
-                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
+                      style={{
+                        backgroundSize: "12px 12px",
+                        backgroundPosition: "right 4px center",
+                      }}
                     >
                       <option value="">Select</option>
-                      {correctiveActionOptions.map(option => (
-                        <option key={option.id} value={option.name}>{option.name}</option>
+                      {correctiveActionOptions?.map((option) => (
+                        <option key={option.id} value={option.name}>
+                          {option.name}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -1216,23 +1509,26 @@ console.log(CorrectLine, "CorrectLine");
                     {measurement.name} ({measurement.unit})
                   </h4>
                   <div className="text-xs text-gray-500">
-                    Std: {measurement.standardValue} (Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax})
+                    Std: {measurement.standardValue} (Tol: -
+                    {measurement.toleranceMin}/+{measurement.toleranceMax})
                   </div>
                 </div>
 
                 <div className="grid grid-cols-5 gap-1">
                   {checkValues[measurement.id]?.map((value, index) => (
                     <div key={index} className="flex flex-col">
-                      <label className="text-xs text-gray-500 mb-0.5">#{index + 1}</label>
+                      <label className="text-xs text-gray-500 mb-0.5">
+                        #{index + 1}
+                      </label>
                       <input
                         type="text"
-                          inputMode="decimal" 
+                        inputMode="decimal"
                         value={value}
                         onChange={(e) => {
                           if (readOnly) return;
                           let raw = e.target.value;
-                          raw = raw.replace(/[^\d.]/g, '');
-                          const parts = raw.split('.');
+                          raw = raw.replace(/[^\d.]/g, "");
+                          const parts = raw.split(".");
                           if (parts.length > 2) return;
                           if (parts[1]?.length > 2) return;
 
@@ -1248,8 +1544,11 @@ console.log(CorrectLine, "CorrectLine");
                           }
                           handleCheckValueChange(measurement.id, index, val);
                         }}
-                        className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
-                          } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        className={`${inputStyle} text-center ${
+                          value
+                            ? checkTolerance(measurement, value)
+                            : "border-gray-300"
+                        } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         readOnly={readOnly}
                       />
                     </div>
@@ -1285,85 +1584,131 @@ console.log(CorrectLine, "CorrectLine");
                   <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
                     Measurement
                   </th>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                    <th key={num} className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider">
-                      #{num}
-                    </th>
-                  ))}
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(
+                    (num) => (
+                      <th
+                        key={num}
+                        className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        #{num}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {measurements.map(measurement => (
+                {measurements.map((measurement) => (
                   <tr key={measurement.id} className="hover:bg-gray-50">
                     <td className="px-1.5 py-1.5 whitespace-nowrap">
                       <input
                         type="text"
-                        value={measurementMeta[measurement.id]?.machineNo || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                        value={measurementMeta[measurement.id]?.machineNo || ""}
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "machineNo",
+                            e.target.value
+                          )
+                        }
                         className={inputStyle}
                         readOnly={readOnly}
                       />
                     </td>
                     <td className="px-1.5 py-1.5 whitespace-nowrap">
                       <select
-                        value={measurementMeta[measurement.id]?.operation || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                        value={measurementMeta[measurement.id]?.operation || ""}
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "operation",
+                            e.target.value
+                          )
+                        }
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
+                        style={{
+                          backgroundSize: "10px 10px",
+                          backgroundPosition: "right 2px center",
+                        }}
                       >
                         <option value="">Select</option>
-                        {operationOptions.map(option => (
-                          <option key={option.id} value={option.id}>{option.name}</option>
-                        ))}
-                      </select>
-                    </td>
-                 <div className="flex flex-col">
-  <label className="text-xs text-gray-500 mb-0.5">SPI</label>
-  <input
-    type="text"
-    value={measurementMeta[measurement.id]?.spi || ''}
-    onChange={(e) => {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 2) {
-        value = value.slice(0, 2);
-      }
-      handleMetaChange(measurement.id, 'spi', value);
-    }}
-    className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
-    readOnly={readOnly}
-    maxLength={2}
-    inputMode="numeric"
-    pattern="[0-9]*"
-  />
-</div>
-                    <td className="px-1.5 py-1.5 whitespace-nowrap">
-                      <select
-                        value={measurementMeta[measurement.id]?.defect || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
-                        className={selectStyle}
-                        disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
-                      >
-                        <option value="">Select</option>
-                        {defectOptions.map(option => (
-                          <option key={option.id} value={option.name}>{option.name}</option>
+                        {operationOptions?.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.name}
+                          </option>
                         ))}
                       </select>
                     </td>
                     <td className="px-1.5 py-1.5 whitespace-nowrap">
+                      <input
+                        type="text"
+                        value={measurementMeta[measurement.id]?.spi || ""}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, "");
+                          if (value.length > 2) {
+                            value = value.slice(0, 2);
+                          }
+                          handleMetaChange(measurement.id, "spi", value);
+                        }}
+                        className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                        readOnly={readOnly}
+                        maxLength={2}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                      />
+                    </td>
+                    <td className="px-1.5 py-1.5 whitespace-nowrap">
                       <select
-                        value={measurementMeta[measurement.id]?.correctiveAction || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                        value={measurementMeta[measurement.id]?.defect || ""}
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "defect",
+                            e.target.value
+                          )
+                        }
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
+                        style={{
+                          backgroundSize: "10px 10px",
+                          backgroundPosition: "right 2px center",
+                        }}
                       >
                         <option value="">Select</option>
-                        {correctiveActionOptions.map(option => (
-                          <option key={option.id} value={option.name}>{option.name}</option>
+                        {defectOptions?.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.name}
+                          </option>
                         ))}
                       </select>
+                    </td>
+                    <td className="px-1.5 py-1.5 whitespace-nowrap">
+                      <select
+                        value={
+                          measurementMeta[measurement.id]?.correctiveAction ||
+                          ""
+                        }
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "correctiveAction",
+                            e.target.value
+                          )
+                        }
+                        className={selectStyle}
+                        disabled={readOnly}
+                        style={{
+                          backgroundSize: "10px 10px",
+                          backgroundPosition: "right 2px center",
+                        }}
+                      >
+                        <option value="">Select</option>
+                        {correctiveActionOptions?.map((option) => (
+                          <option key={option.id} value={option.name}>
+                            {option.name}
+                        </option>
+                      ))}
+                    </select>
                     </td>
                     <td className="px-1.5 py-1.5 whitespace-nowrap font-medium text-gray-900">
                       <div>{measurement.name}</div>
@@ -1371,7 +1716,8 @@ console.log(CorrectLine, "CorrectLine");
                         Std: {measurement.standardValue}
                       </div>
                       <div className="text-gray-500">
-                        Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}
+                        Tol: -{measurement.toleranceMin}/+
+                        {measurement.toleranceMax}
                       </div>
                     </td>
                     {checkValues[measurement.id]?.map((value, index) => (
@@ -1382,29 +1728,40 @@ console.log(CorrectLine, "CorrectLine");
                           onChange={(e) => {
                             if (readOnly) return;
                             let rawValue = e.target.value;
-                            rawValue = rawValue.replace(/[^0-9.]/g, '');
-                            const parts = rawValue.split('.');
+                            rawValue = rawValue.replace(/[^0-9.]/g, "");
+                            const parts = rawValue.split(".");
                             if (parts.length > 2) {
-                              rawValue = parts[0] + '.' + parts.slice(1).join('');
+                              rawValue =
+                                parts[0] + "." + parts.slice(1).join("");
                             }
                             if (parts[1] && parts[1].length > 2) {
-                              rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+                              rawValue =
+                                parts[0] + "." + parts[1].substring(0, 2);
                             }
 
-                            handleCheckValueChange(measurement.id, index, rawValue);
+                            handleCheckValueChange(
+                              measurement.id,
+                              index,
+                              rawValue
+                            );
                           }}
                           onBlur={(e) => {
                             if (readOnly) return;
                             let val = e.target.value;
-                            if (val === '') {
-                              handleCheckValueChange(measurement.id, index, '');
+                            if (val === "") {
+                              handleCheckValueChange(measurement.id, index, "");
                               return;
                             }
                             val = parseFloat(val).toFixed(2);
                             handleCheckValueChange(measurement.id, index, val);
                           }}
-                          className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
-                            } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                          className={`${inputStyle} text-center ${
+                            value
+                              ? checkTolerance(measurement, value)
+                              : "border-gray-300"
+                          } ${
+                            readOnly ? "bg-gray-100 cursor-not-allowed" : ""
+                          }`}
                           readOnly={readOnly}
                         />
                       </td>
@@ -1423,78 +1780,127 @@ console.log(CorrectLine, "CorrectLine");
             <table className="min-w-full bg-white border border-gray-200 text-xs">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     M/c No
                   </th>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Operation
                   </th>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     SPI
                   </th>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Defect
                   </th>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Action
                   </th>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Measurement
                   </th>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Std
                   </th>
-                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    rowSpan="2"
+                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Tolerance
                   </th>
-                  <th colSpan={PIECES_COUNT} className="px-2 py-1.5 text-center font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    colSpan={PIECES_COUNT}
+                    className="px-2 py-1.5 text-center font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Pieces (1-{PIECES_COUNT})
                   </th>
                 </tr>
                 <tr>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(num => (
-                    <th key={num} className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider">
-                      #{num}
-                    </th>
-                  ))}
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(
+                    (num) => (
+                      <th
+                        key={num}
+                        className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        #{num}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {measurements.map(measurement => (
+                {measurements.map((measurement) => (
                   <tr key={measurement.id} className="hover:bg-gray-50">
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <input
                         type="text"
-                        value={measurementMeta[measurement.id]?.machineNo || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'machineNo', e.target.value)}
+                        value={measurementMeta[measurement.id]?.machineNo || ""}
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "machineNo",
+                            e.target.value
+                          )
+                        }
                         className={inputStyle}
                         readOnly={readOnly}
                       />
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <select
-                        value={measurementMeta[measurement.id]?.operation || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'operation', e.target.value)}
+                        value={measurementMeta[measurement.id]?.operation || ""}
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "operation",
+                            e.target.value
+                          )
+                        }
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
+                        style={{
+                          backgroundSize: "10px 10px",
+                          backgroundPosition: "right 4px center",
+                        }}
                       >
                         <option value="">Select</option>
-                        {operationOptions.map(option => (
-                          <option key={option.id} value={option.id}>{option.name}</option>
+                        {operationOptions?.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.name}
+                          </option>
                         ))}
                       </select>
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <input
                         type="text"
-                        value={measurementMeta[measurement.id]?.spi || ''}
+                        value={measurementMeta[measurement.id]?.spi || ""}
                         onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, '');
+                          let value = e.target.value.replace(/\D/g, "");
                           if (value.length > 2) {
                             value = value.slice(0, 2);
                           }
-                          handleMetaChange(measurement.id, 'spi', value);
+                          handleMetaChange(measurement.id, "spi", value);
                         }}
                         className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
                         readOnly={readOnly}
@@ -1505,31 +1911,60 @@ console.log(CorrectLine, "CorrectLine");
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <select
-                        value={measurementMeta[measurement.id]?.defect || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'defect', e.target.value)}
+                        value={measurementMeta[measurement.id]?.defect || ""}
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "defect",
+                            e.target.value
+                          )
+                        }
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
+                        style={{
+                          backgroundSize: "10px 10px",
+                          backgroundPosition: "right 4px center",
+                        }}
                       >
                         <option value="">Select</option>
-                        {defectOptions.map(option => (
-                          <option key={option.id} value={option.id}>{option.name}</option>
+                        {defectOptions?.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.name}
+                          </option>
                         ))}
                       </select>
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <select
-                        value={measurementMeta[measurement.id]?.correctiveAction || ''}
-                        onChange={(e) => handleMetaChange(measurement.id, 'correctiveAction', e.target.value)}
+                        value={
+                          measurementMeta[measurement.id]?.correctiveAction ||
+                          ""
+                        }
+                        onChange={(e) =>
+                          handleMetaChange(
+                            measurement.id,
+                            "correctiveAction",
+                            e.target.value
+                          )
+                        }
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
+                        style={{
+                          backgroundSize: "10px 10px",
+                          backgroundPosition: "right 4px center",
+                        }}
                       >
                         <option value="">Select</option>
                         {correctiveActionOptions
-                          .filter(option => option.defectId === Number(measurementMeta[measurement.id]?.defect))
-                          .map(option => (
-                            <option key={option.id} value={option.id}>{option.name}</option>
+                          ?.filter(
+                            (option) =>
+                              option.defectId ===
+                              Number(measurementMeta[measurement.id]?.defect)
+                          )
+                          ?.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.name}
+                            </option>
                           ))}
                       </select>
                     </td>
@@ -1551,32 +1986,43 @@ console.log(CorrectLine, "CorrectLine");
                             if (readOnly) return;
 
                             let rawValue = e.target.value;
-                            rawValue = rawValue.replace(/[^0-9.]/g, '');
+                            rawValue = rawValue.replace(/[^0-9.]/g, "");
 
-                            const parts = rawValue.split('.');
+                            const parts = rawValue.split(".");
                             if (parts.length > 2) {
-                              rawValue = parts[0] + '.' + parts.slice(1).join('');
+                              rawValue =
+                                parts[0] + "." + parts.slice(1).join("");
                             }
 
                             if (parts[1] && parts[1].length > 2) {
-                              rawValue = parts[0] + '.' + parts[1].substring(0, 2);
+                              rawValue =
+                                parts[0] + "." + parts[1].substring(0, 2);
                             }
 
-                            handleCheckValueChange(measurement.id, index, rawValue);
+                            handleCheckValueChange(
+                              measurement.id,
+                              index,
+                              rawValue
+                            );
                           }}
                           onBlur={(e) => {
                             if (readOnly) return;
                             let val = e.target.value;
-                            if (val === '') {
-                              handleCheckValueChange(measurement.id, index, '');
+                            if (val === "") {
+                              handleCheckValueChange(measurement.id, index, "");
                               return;
                             }
 
                             val = parseFloat(val).toFixed(2);
                             handleCheckValueChange(measurement.id, index, val);
                           }}
-                          className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : 'border-gray-300'
-                            } ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                          className={`${inputStyle} text-center ${
+                            value
+                              ? checkTolerance(measurement, value)
+                              : "border-gray-300"
+                          } ${
+                            readOnly ? "bg-gray-100 cursor-not-allowed" : ""
+                          }`}
                           readOnly={readOnly}
                         />
                       </td>
@@ -1590,7 +2036,6 @@ console.log(CorrectLine, "CorrectLine");
       );
     }
   };
-
 
   const renderActionButtons = () => (
     <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-gray-200">
@@ -1608,10 +2053,22 @@ console.log(CorrectLine, "CorrectLine");
             <>
               <button
                 type="button"
+                onClick={addTimeButton}
+                className="px-3 py-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Add Time
+              </button>
+
+              <button
+                type="button"
                 onClick={handlePartialSave}
                 disabled={!selectedSize}
                 className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                  ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'}`}
+                  ${
+                    !selectedSize
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-yellow-500 hover:bg-yellow-600"
+                  }`}
               >
                 Partial Save
               </button>
@@ -1621,22 +2078,15 @@ console.log(CorrectLine, "CorrectLine");
                 onClick={handleSaveSize}
                 disabled={!selectedSize}
                 className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                  ${!selectedSize ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  ${
+                    !selectedSize
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
               >
                 Save Size
               </button>
             </>
-          )}
-
-          {isMobileView && (
-            <button
-              type="button"
-              onClick={handleCompare}
-              className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                ${!canCompare() ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
-            >
-              Compare
-            </button>
           )}
         </>
       )}
@@ -1646,26 +2096,31 @@ console.log(CorrectLine, "CorrectLine");
           type="submit"
           disabled={
             formStatus.isSubmitting ||
-            (
-              formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')).length === 0 &&
-              formData.after.savedSizes.filter(size => isSizeComplete(size, 'after')).length === 0
-            )
+            (formData.before.savedSizes.filter((size) =>
+              isSizeComplete(size, "before")
+            ).length === 0 &&
+              formData.after.savedSizes.filter((size) =>
+                isSizeComplete(size, "after")
+              ).length === 0)
           }
           className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-      ${formStatus.isSubmitting ||
-              (
-                formData.before.savedSizes.filter(size => isSizeComplete(size, 'before')).length === 0 &&
-                formData.after.savedSizes.filter(size => isSizeComplete(size, 'after')).length === 0
-              )
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700'
-            }`}
+      ${
+        formStatus.isSubmitting ||
+        (formData.before.savedSizes.filter((size) =>
+          isSizeComplete(size, "before")
+        ).length === 0 &&
+          formData.after.savedSizes.filter((size) =>
+            isSizeComplete(size, "after")
+          ).length === 0)
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-green-600 hover:bg-green-700"
+      }`}
         >
           {formStatus.isSubmitting
-            ? 'Submitting...'
+            ? "Submitting..."
             : id
-              ? 'Update'
-              : 'Submit All'}
+            ? "Update"
+            : "Submit All"}
         </button>
       )}
     </div>
@@ -1673,21 +2128,25 @@ console.log(CorrectLine, "CorrectLine");
 
   return (
     <>
+      <MeasurementSelectionPopup />
+
       <Modal
         isOpen={isDetailView}
         widthClass={`${"w-[50%] h-[70%]"}`}
         onClose={() => setIsDetailView(false)}
-      >
-      </Modal>
+      ></Modal>
 
       {newItem === false ? (
         <>
           <div className="bg-white px-4 py-2 flex items-center justify-between">
-            <h1 className="text-lg font-bold text-gray-800">AQL Inspection Report</h1>
+            <h1 className="text-lg font-bold text-gray-800">
+              AQL Inspection Report
+            </h1>
             <button
               onClick={() => {
-                setId('');
+                setId("");
                 setNewItem(true);
+                setSelectedMeasurements([]);
               }}
               className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-3 py-1 text-xs"
             >
@@ -1714,11 +2173,15 @@ console.log(CorrectLine, "CorrectLine");
       ) : (
         <div className="min-h-screen bg-gray-50">
           <div className="w-full">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col" style={{ minHeight: 'calc(100vh - 2rem)' }}>
+            <div
+              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
+              style={{ minHeight: "calc(100vh - 2rem)" }}
+            >
               <div className="bg-white px-4 py-2 flex items-center justify-between">
                 <h1 className="text-lg font-bold text-gray-800">
-                  {id ? 'Seven Sample Inspection Details' : 'Seven Sample Inspection Form'}
-                  
+                  {id
+                    ? "Seven Sample Inspection Details"
+                    : "Seven Sample Inspection Form"}
                 </h1>
                 <div
                   className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-2 py-1 text-xs flex items-center cursor-pointer"
@@ -1730,64 +2193,7 @@ console.log(CorrectLine, "CorrectLine");
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
                   {renderFormControls()}
-
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-4">
-                      <div className="flex-1">
-                        <h4 className="text-xs font-medium text-gray-700 mb-1">Before Ironing</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {formData.before.savedSizes.map((size, index) => (
-                            <button
-                              key={`before-${index}`}
-                              type="button"
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                ${selectedSize === size ? 'ring-2 ring-blue-500' : ''}
-                                ${getSizeStatus(size, 'before') === 'complete' ? 'bg-green-100 text-green-800' :
-                                  getSizeStatus(size, 'before') === 'partial' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-gray-100 text-gray-800'}`}
-                              onClick={() => {
-                                setAyanCondition('before');
-                                handleLoadSize(size);
-                              }}
-                            >
-                              {size}
-                              {getSizeStatus(size, 'before') === 'complete' && ' ✓'}
-                              {getSizeStatus(size, 'before') === 'partial' && ' ~'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-xs font-medium text-gray-700 mb-1">After Ironing</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {formData.after.savedSizes.map((size, index) => (
-                            <button
-                              key={`after-${index}`}
-                              type="button"
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                ${selectedSize === size ? 'ring-2 ring-blue-500' : ''}
-                                ${getSizeStatus(size, 'after') === 'complete' ? 'bg-green-100 text-green-800' :
-                                  getSizeStatus(size, 'after') === 'partial' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-gray-100 text-gray-800'}`}
-                              onClick={() => {
-                                setAyanCondition('after');
-                                handleLoadSize(size);
-                              }}
-                            >
-                              {size}
-                              {getSizeStatus(size, 'after') === 'complete' && ' ✓'}
-                              {getSizeStatus(size, 'after') === 'partial' && ' ~'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   {renderMeasurementsTable()}
-
-                  {renderCompareTable()}
-
                   {renderActionButtons()}
                 </form>
               </div>

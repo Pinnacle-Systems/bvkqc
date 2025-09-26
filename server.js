@@ -27,7 +27,7 @@ import {
   controlPanel,
   TagType,LineMaster,sizeTable, allocation,aql,
   InchargeLineListMaster,
-  defect,operationMaster
+  defect,operationMaster,saql
 
 } from './src/routes/index.js';
 
@@ -105,6 +105,8 @@ app.use("/tagType", TagType);
 app.use("/lineMaster", LineMaster)
 app.use("/sizeTable",sizeTable)
 app.use("/aql",aql)
+app.use("/saql",saql)
+
 app.use("/InchargeLineList", InchargeLineListMaster)  
 app.use('/defects',defect)
 app.use('/operation',operationMaster)
@@ -116,6 +118,8 @@ app.get("/retreiveFile/:fileName", (req, res) => {
 app.use('/uploads', express.static('uploads'));
 
 app.use("/sendMail", sendMail)
+
+
 
 
 const httpServer = createServer(app);

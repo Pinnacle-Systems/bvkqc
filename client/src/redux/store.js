@@ -95,6 +95,7 @@ import CountsMasterApi from "./uniformService/CountsMasterServices";
 import PercentageApi from "./uniformService/Percentage";
 import EmailApi from "./uniformService/Email.Services";
 import tagTypeMasterApi from "./uniformService/TagTypeMasterServices";
+import SAqlInspectionApi from "./uniformService/SAqlInspectionService";
 const commonReducers = {
   openTabs,
   countryMaster: countryMasterApi.reducer,
@@ -134,6 +135,7 @@ const commonReducers = {
   [invoiceApi.reducerPath]: invoiceApi.reducer,
     [pdfApi.reducerPath]: pdfApi.reducer,
   [AqlInspectionApi.reducerPath] : AqlInspectionApi.reducer,
+  [SAqlInspectionApi.reducerPath]: SAqlInspectionApi.reducer,
   sample: SampleApi.reducer,
   sizeMaster: SizeMasterApi.reducer,
   sizeTableMaster: SizeTableMasterApi.reducer,
@@ -230,6 +232,7 @@ const commonMiddleware = [
   SizeMasterApi.middleware,
   SizeTableMasterApi.middleware,
   AqlInspectionApi.middleware,
+  SAqlInspectionApi.middleware,
   LineMasterApi.middleware,
   ColorMasterApi.middleware,
   StyleMasterApi.middleware,
