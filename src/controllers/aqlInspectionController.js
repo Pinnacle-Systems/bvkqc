@@ -400,7 +400,7 @@ export const getAqlInspectionsByReference = async (req, res) => {
 
 export const getAllReferences = async (req, res) => {
   try {
- const references = await prisma.aqlInspection.findMany({
+ const references = await prisma.SaqlInspection.findMany({
   select: {
     id: true,
     reference: true,

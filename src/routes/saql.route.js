@@ -1,12 +1,12 @@
 import { Router } from 'express';
 const router = Router();
-import { createAqlInspection,getAqlInspections ,getAqlInspectionById,deleteAqlInspection,updateAqlStatusInspection} from '../controllers/saqlInspectionController.js';
+import { createAqlInspection,getAqlInspectionById,getSAqlInspections} from '../controllers/saqlInspectionController.js';
 
-router.get('/',getAqlInspections)
+router.get('/',getSAqlInspections)
 router.get('/:id', getAqlInspectionById);
-router.delete('/:id', deleteAqlInspection);
+// router.delete('/:id', deleteAqlInspection);
 router.post('/', createAqlInspection);
-router.put('/:id/status', updateAqlStatusInspection)
+// router.put('/:id/status', updateAqlStatusInspection)
 
 
 export default router;

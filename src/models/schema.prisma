@@ -169,6 +169,7 @@ model User {
   MailTransaction             MailTransaction[]    @relation(name: "createdBy")
   MailTransactionUpdatedBy    MailTransaction[]    @relation(name: "updatedBy")
   user                        MailTransaction[]    @relation(name: "user")
+  SAqlInspection              SAqlInspection[]
 }
 
 model Employee {
@@ -994,6 +995,9 @@ model SAqlInspection {
 
   Employee   Employee? @relation(fields: [employeeId], references: [id])
   employeeId Int?
+  shift      String
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     Int?
 
   @@index([companyId])
   @@index([reference])

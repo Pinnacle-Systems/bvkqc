@@ -73,34 +73,6 @@ const validateMeasurement = (measurement, size, index, condition) => {
       `Measurement ${measurement.measurementId} in sample ${size} (${condition}) is missing standardValue`
     );
   }
-
-  if (!Array.isArray(measurement.values)) {
-    throw new AqlInspectionError(
-      `Measurement ${measurement.measurementId} in sample ${size} (${condition}) values must be an array`
-    );
-  }
-
-  // Validate operationId (required field)
-  if (!measurement.operationId) {
-    throw new AqlInspectionError(
-      `Measurement ${measurement.measurementId} in sample ${size} (${condition}) is missing operationId`
-    );
-  }
-
-  // Validate spi (required field)
-  if (!measurement.spi) {
-    throw new AqlInspectionError(
-      `Measurement ${measurement.measurementId} in sample ${size} (${condition}) is missing spi`
-    );
-  }
-};
-
-const validateValue = (value, measurementId, index, condition) => {
-  if (value.actualValue === undefined || value.actualValue === null) {
-    throw new AqlInspectionError(
-      `Value at index ${index} for measurement ${measurementId} (${condition}) is missing actualValue`
-    );
-  }
 };
 
 const transformInspectionData = (inspection) => {
@@ -114,7 +86,7 @@ const transformInspectionData = (inspection) => {
     lineMasterId: inspection.lineMasterId,
     color: inspection.color,
     shift: inspection.shift,
-    userId: inspection.userId,
+    userId: inspection.employeeId,
     createdAt: inspection.createdAt,
     updatedAt: inspection.updatedAt,
     before: inspection.beforeSamples?.map(transformSample),
@@ -141,9 +113,9 @@ const transformMeasurement = (measurement) => ({
   operation: measurement.operation?.name,
   operationId: measurement.operationId,
   spi: measurement.spi,
-  defect: measurement.defect?.name,
+  defect: measurement.Defect?.name, 
   defectId: measurement.defectId,
-  correctiveAction: measurement.defectCorrection?.name,
+  correctiveAction: measurement.DefectCorrection?.name, 
   defectCorrectionId: measurement.defectCorrectionId,
   values: measurement.values?.map(transformValue),
 });
@@ -156,9 +128,36 @@ const transformValue = (value) => ({
   createdAt: value.createdAt,
 });
 
+const validateEmployeeExists = async (tx, employeeId) => {
+  if (!employeeId) {
+    console.log("No employeeId provided, skipping employee validation");
+    return null;
+  }
+  
+  const parsedEmployeeId = parseInt(employeeId);
+  if (isNaN(parsedEmployeeId)) {
+    console.log(`Invalid employeeId format: ${employeeId}, skipping validation`);
+    return null;
+  }
+  
+  console.log(`Checking if employee with ID ${parsedEmployeeId} exists`);
+  const employee = await tx.employee.findUnique({
+    where: { id: parsedEmployeeId }
+  });
+  
+  if (!employee) {
+    console.warn(`Employee with ID ${parsedEmployeeId} not found`);
+    return null;
+  }
+  
+  console.log(`Employee found: ${employee.name}`);
+  return parsedEmployeeId;
+};
+
 const processSamples = async (tx, samples, condition, inspectionId) => {
   for (const sample of samples) {
-    // Create sample
+    validateSample(sample, samples.indexOf(sample), condition);
+
     const createdSample = await tx.sSample.create({
       data: {
         size: sample.size,
@@ -167,169 +166,182 @@ const processSamples = async (tx, samples, condition, inspectionId) => {
       },
     });
 
-    // Create measurements for this sample
     for (const measurement of sample.measurements) {
+      validateMeasurement(measurement, sample.size, sample.measurements.indexOf(measurement), condition);
+
+      let operationIdValue = null;
+      if (measurement.operationId) {
+        const parsedOperationId = parseInt(measurement.operationId);
+        operationIdValue = isNaN(parsedOperationId) ? null : parsedOperationId;
+      }
+
+      let defectIdValue = null;
+      if (measurement.defectId) {
+        const parsedDefectId = parseInt(measurement.defectId);
+        defectIdValue = isNaN(parsedDefectId) ? null : parsedDefectId;
+      }
+
+      let correctiveActionIdValue = null;
+      if (measurement.correctiveActionId) {
+        const parsedCorrectiveActionId = parseInt(measurement.correctiveActionId);
+        correctiveActionIdValue = isNaN(parsedCorrectiveActionId) ? null : parsedCorrectiveActionId;
+      }
+
       const createdMeasurement = await tx.sSampleMeasurement.create({
         data: {
           sampleId: createdSample.id,
-          measurementId: measurement.measurementId,
-          operationId: measurement.operationId,
+          measurementId: parseInt(measurement.measurementId),
+          operationId: operationIdValue,
           standardValue: parseFloat(measurement.standardValue),
-          toleranceMin: parseFloat(measurement.toleranceMin || "0"),
-          toleranceMax: parseFloat(measurement.toleranceMax || "0"),
+          toleranceMin: measurement.toleranceMin ? parseFloat(measurement.toleranceMin) : 0,
+          toleranceMax: measurement.toleranceMax ? parseFloat(measurement.toleranceMax) : 0,
           unit: measurement.unit || "",
           mcNo: measurement.machineNo || "",
           spi: measurement.spi || "",
-          defectId: measurement.defectId ? parseInt(measurement.defectId) : null,
-          defectCorrectionId: measurement.correctiveActionId ? parseInt(measurement.correctiveActionId) : null,
+          defectId: defectIdValue,
+          defectCorrectionId: correctiveActionIdValue,
         },
       });
 
-      // Create values for this measurement
-      await tx.sSampleValue.createMany({
-        data: measurement.values.map((value, index) => ({
-          sampleMeasurementId: createdMeasurement.id,
-          pieceNumber: value.pieceNumber || index + 1,
-          actualValue: parseFloat(value.actualValue),
-          status: value.status || "within_tolerance",
-        })),
-      });
+      if (measurement.values && measurement.values.length > 0) {
+        await tx.sSampleValue.createMany({
+          data: measurement.values.map((value, index) => ({
+            sampleMeasurementId: createdMeasurement.id,
+            pieceNumber: value.pieceNumber || index + 1,
+            actualValue: value.actualValue ? parseFloat(value.actualValue) : 0,
+            status: value.status || "within_tolerance",
+          })),
+        });
+      }
     }
   }
 };
 
+const getInspectionInclude = () => ({
+  beforeSamples: {
+    include: {
+      measurements: {
+        include: {
+          values: true,
+          measurement: {
+            select: {
+              id: true,
+              description: true,
+            },
+          },
+          operation: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          Defect: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          DefectCorrection: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  afterSamples: {
+    include: {
+      measurements: {
+        include: {
+          values: true,
+          measurement: {
+            select: {
+              id: true,
+              description: true,
+            },
+          },
+          operation: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          Defect: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          DefectCorrection: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  LineMaster: {
+    select: {
+      id: true,
+      lineName: true,
+    },
+  },
+  Employee: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+});
+
 export const createAqlInspection = async (req, res) => {
   try {
     validateInspectionPayload(req.body);
-
-    // Validate samples and measurements
-    if (req.body.before) {
-      req.body.before.forEach((sample, index) => {
-        validateSample(sample, index, "BEFORE");
-        sample.measurements.forEach((measurement, mIndex) => {
-          validateMeasurement(measurement, sample.size, mIndex, "BEFORE");
-          measurement.values.forEach((value, vIndex) => {
-            validateValue(value, measurement.measurementId, vIndex, "BEFORE");
-          });
-        });
-      });
-    }
-
-    if (req.body.after) {
-      req.body.after.forEach((sample, index) => {
-        validateSample(sample, index, "AFTER");
-        sample.measurements.forEach((measurement, mIndex) => {
-          validateMeasurement(measurement, sample.size, mIndex, "AFTER");
-          measurement.values.forEach((value, vIndex) => {
-            validateValue(value, measurement.measurementId, vIndex, "AFTER");
-          });
-        });
-      });
-    }
+    console.log("Received payload:", JSON.stringify(req.body, null, 2));
 
     const result = await prisma.$transaction(async (tx) => {
-      // Create main inspection record
+      const validEmployeeId = await validateEmployeeExists(tx, req.body.userId);
+
+      const inspectionData = {
+        companyId: String(req.body.companyId),
+        reference: req.body.reference,
+        inspectionDate: new Date(req.body.inspectionDate),
+        lineMasterId: parseInt(req.body.lineMasterId),
+        color: req.body.color || "",
+        shift: String(req.body.shift) || "",
+        userId: req.body.userId || "",
+        employeeId: validEmployeeId, 
+      };
+
+      console.log("Creating inspection with data:", inspectionData);
+
       const inspection = await tx.sAqlInspection.create({
-        data: {
-          companyId: String(req.body.companyId),
-          reference: req.body.reference,
-          inspectionDate: new Date(req.body.inspectionDate),
-          lineMasterId: parseInt(req.body.lineMasterId),
-          color: req.body.color || "",
-          shift: req.body.shift || "",
-          userId: req.body.userId || null,
-          employeeId: req.body.employeeId || null,
-        },
+        data: inspectionData,
       });
 
-      // Process before samples
+      console.log(`Created inspection with ID: ${inspection.id}`);
+
       if (req.body.before && req.body.before.length > 0) {
+        console.log(`Processing ${req.body.before.length} before samples`);
         await processSamples(tx, req.body.before, "BEFORE", inspection.id);
       }
 
-      // Process after samples
       if (req.body.after && req.body.after.length > 0) {
+        console.log(`Processing ${req.body.after.length} after samples`);
         await processSamples(tx, req.body.after, "AFTER", inspection.id);
       }
 
-      // Return the complete inspection with all relations
-      return tx.sAqlInspection.findUnique({
+      const completeInspection = await tx.sAqlInspection.findUnique({
         where: { id: inspection.id },
-        include: {
-          beforeSamples: {
-            include: {
-              measurements: {
-                include: {
-                  values: true,
-                  measurement: {
-                    select: {
-                      id: true,
-                      description: true,
-                    },
-                  },
-                  operation: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defect: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defectCorrection: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          afterSamples: {
-            include: {
-              measurements: {
-                include: {
-                  values: true,
-                  measurement: {
-                    select: {
-                      id: true,
-                      description: true,
-                    },
-                  },
-                  operation: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defect: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defectCorrection: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          LineMaster: {
-            select: {
-              id: true,
-              lineName: true,
-            },
-          },
-        },
+        include: getInspectionInclude(),
       });
+
+      console.log("Inspection created successfully");
+      return completeInspection;
     });
 
     return res.status(201).json({
@@ -356,80 +368,7 @@ export const getAqlInspectionById = async (req, res) => {
 
     const inspection = await prisma.sAqlInspection.findUnique({
       where: { id: parseInt(id) },
-      include: {
-        beforeSamples: {
-          include: {
-            measurements: {
-              include: {
-                values: true,
-                measurement: {
-                  select: {
-                    id: true,
-                    description: true,
-                  },
-                },
-                operation: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-                defect: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-                defectCorrection: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-        afterSamples: {
-          include: {
-            measurements: {
-              include: {
-                values: true,
-                measurement: {
-                  select: {
-                    id: true,
-                    description: true,
-                  },
-                },
-                operation: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-                defect: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-                defectCorrection: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-        LineMaster: {
-          select: {
-            id: true,
-            lineName: true,
-          },
-        },
-      },
+      include: getInspectionInclude(),
     });
 
     if (!inspection) {
@@ -444,8 +383,7 @@ export const getAqlInspectionById = async (req, res) => {
       data: transformInspectionData(inspection),
     });
   } catch (error) {
-    const statusCode =
-      error instanceof AqlInspectionError ? error.statusCode : 500;
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
@@ -461,145 +399,24 @@ export const getAqlInspectionById = async (req, res) => {
 
 export const getAqlInspections = async (req, res) => {
   try {
-    const inspections = await prisma.sAqlInspection.findMany({
-      include: {
-        beforeSamples: {
-          select: {
-            condition: true,
-            size: true,
-          },
-          take: 1,
-        },
-        afterSamples: {
-          select: {
-            condition: true,
-            size: true,
-          },
-          take: 1,
-        },
-        LineMaster: {
-          select: {
-            id: true,
-            lineName: true,
-            lineNo: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const { page = 1, limit = 10, search } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
 
-    const formattedInspections = inspections.map(inspection => ({
-      id: inspection.id,
-      reference: inspection.reference,
-      inspectionDate: inspection.inspectionDate,
-      color: inspection.color,
-      shift: inspection.shift,
-      approveStatus: inspection.approveStatus,
-      createdAt: inspection.createdAt,
-      updatedAt: inspection.updatedAt,
-      hasBefore: inspection.beforeSamples.length > 0,
-      hasAfter: inspection.afterSamples.length > 0,
-      beforeSize: inspection.beforeSamples[0]?.size || null,
-      afterSize: inspection.afterSamples[0]?.size || null,
-      lineDetails: inspection.LineMaster ? {
-        id: inspection.LineMaster.id,
-        name: inspection.LineMaster.lineName,
-        lineNo: inspection.LineMaster.lineNo,
-      } : null
-    }));
+    let whereClause = {};
 
-    return res.status(200).json({
-      success: true,
-      data: formattedInspections,
-    });
-  } catch (error) {
-    const statusCode =
-      error instanceof AqlInspectionError ? error.statusCode : 500;
-    const errorResponse = {
-      success: false,
-      error: error.message,
-    };
-
-    if (process.env.NODE_ENV === "development") {
-      errorResponse.stack = error.stack;
+    if (search) {
+      whereClause = {
+        OR: [
+          { reference: { contains: search, mode: 'insensitive' } },
+          { color: { contains: search, mode: 'insensitive' } },
+        ],
+      };
     }
 
-    return res.status(statusCode).json(errorResponse);
-  }
-};
-
-export const updateAqlInspection = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!id) {
-      throw new AqlInspectionError("Inspection ID is required", 400);
-    }
-
-    validateInspectionPayload(req.body);
-
-    const result = await prisma.$transaction(async (tx) => {
-      // Update main inspection record
-      const updatedInspection = await tx.sAqlInspection.update({
-        where: { id: parseInt(id) },
-        data: {
-          reference: req.body.reference,
-          inspectionDate: new Date(req.body.inspectionDate),
-          lineMasterId: parseInt(req.body.lineMasterId),
-          color: req.body.color,
-          shift: req.body.shift,
-          updatedAt: new Date(),
-        },
-      });
-
-      // Delete existing samples and measurements
-      await tx.sSampleValue.deleteMany({
-        where: {
-          measurement: {
-            sample: {
-              OR: [
-                { beforeAqlInspectionId: parseInt(id) },
-                { afterAqlInspectionId: parseInt(id) },
-              ],
-            },
-          },
-        },
-      });
-
-      await tx.sSampleMeasurement.deleteMany({
-        where: {
-          sample: {
-            OR: [
-              { beforeAqlInspectionId: parseInt(id) },
-              { afterAqlInspectionId: parseInt(id) },
-            ],
-          },
-        },
-      });
-
-      await tx.sSample.deleteMany({
-        where: {
-          OR: [
-            { beforeAqlInspectionId: parseInt(id) },
-            { afterAqlInspectionId: parseInt(id) },
-          ],
-        },
-      });
-
-      // Process new samples
-      if (req.body.before && req.body.before.length > 0) {
-        await processSamples(tx, req.body.before, "BEFORE", parseInt(id));
-      }
-
-      if (req.body.after && req.body.after.length > 0) {
-        await processSamples(tx, req.body.after, "AFTER", parseInt(id));
-      }
-
-      // Return updated inspection
-      return tx.sAqlInspection.findUnique({
-        where: { id: parseInt(id) },
+    const [inspections, totalCount] = await Promise.all([
+      prisma.sAqlInspection.findMany({
+        where: whereClause,
         include: {
           beforeSamples: {
             include: {
@@ -610,24 +427,6 @@ export const updateAqlInspection = async (req, res) => {
                     select: {
                       id: true,
                       description: true,
-                    },
-                  },
-                  operation: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defect: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defectCorrection: {
-                    select: {
-                      id: true,
-                      name: true,
                     },
                   },
                 },
@@ -645,24 +444,6 @@ export const updateAqlInspection = async (req, res) => {
                       description: true,
                     },
                   },
-                  operation: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defect: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                  defectCorrection: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
                 },
               },
             },
@@ -673,7 +454,97 @@ export const updateAqlInspection = async (req, res) => {
               lineName: true,
             },
           },
+          
+          Employee: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      prisma.sAqlInspection.count({ where: whereClause })
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: inspections.map(transformInspectionData),
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: parseInt(limit)
+      }
+    });
+  } catch (error) {
+    console.error("Get AQL Inspections Error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to fetch inspections",
+    });
+  }
+};
+
+export const updateAqlInspection = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      throw new AqlInspectionError("Inspection ID is required", 400);
+    }
+
+    validateInspectionPayload(req.body);
+
+    const result = await prisma.$transaction(async (tx) => {
+      const existingInspection = await tx.sAqlInspection.findUnique({
+        where: { id: parseInt(id) },
+      });
+
+      if (!existingInspection) {
+        throw new AqlInspectionError(`Inspection with ID ${id} not found`, 404);
+      }
+
+      const validEmployeeId = await validateEmployeeExists(tx, req.body.userId);
+
+      const inspectionData = {
+        companyId: String(req.body.companyId),
+        reference: req.body.reference,
+        inspectionDate: new Date(req.body.inspectionDate),
+        lineMasterId: parseInt(req.body.lineMasterId),
+        color: req.body.color || "",
+        shift: String(req.body.shift) || "",
+        employeeId: validEmployeeId,
+      };
+
+      await tx.sAqlInspection.update({
+        where: { id: parseInt(id) },
+        data: inspectionData,
+      });
+
+      await tx.sSample.deleteMany({
+        where: {
+          OR: [
+            { beforeAqlInspectionId: parseInt(id) },
+            { afterAqlInspectionId: parseInt(id) },
+          ],
+        },
+      });
+
+      if (req.body.before && req.body.before.length > 0) {
+        await processSamples(tx, req.body.before, "BEFORE", parseInt(id));
+      }
+
+      if (req.body.after && req.body.after.length > 0) {
+        await processSamples(tx, req.body.after, "AFTER", parseInt(id));
+      }
+
+      return tx.sAqlInspection.findUnique({
+        where: { id: parseInt(id) },
+        include: getInspectionInclude(),
       });
     });
 
@@ -682,88 +553,164 @@ export const updateAqlInspection = async (req, res) => {
       data: transformInspectionData(result),
     });
   } catch (error) {
-    const statusCode =
-      error instanceof AqlInspectionError ? error.statusCode : 500;
-    const errorResponse = {
+    console.error("Update AQL Inspection Error:", error);
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
       success: false,
       error: error.message,
-    };
-
-    if (process.env.NODE_ENV === "development") {
-      errorResponse.stack = error.stack;
-    }
-
-    return res.status(statusCode).json(errorResponse);
+    });
   }
 };
 
 export const deleteAqlInspection = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id) {
       throw new AqlInspectionError("Inspection ID is required", 400);
     }
 
-    const inspectionId = parseInt(id, 10);
-    if (isNaN(inspectionId)) {
-      throw new AqlInspectionError("Invalid inspection ID format", 400);
-    }
-
-    const inspection = await prisma.sAqlInspection.findUnique({
-      where: { id: inspectionId },
-    });
-
-    if (!inspection) {
-      throw new AqlInspectionError(`Inspection with ID ${id} not found`, 404);
-    }
-
     await prisma.$transaction(async (tx) => {
-      await tx.sSampleValue.deleteMany({
-        where: {
-          measurement: {
-            sample: {
-              OR: [
-                { beforeAqlInspectionId: inspectionId },
-                { afterAqlInspectionId: inspectionId },
-              ],
-            },
-          },
-        },
-      });
-
-      await tx.sSampleMeasurement.deleteMany({
-        where: {
-          sample: {
-            OR: [
-              { beforeAqlInspectionId: inspectionId },
-              { afterAqlInspectionId: inspectionId },
-            ],
-          },
-        },
-      });
-
       await tx.sSample.deleteMany({
         where: {
           OR: [
-            { beforeAqlInspectionId: inspectionId },
-            { afterAqlInspectionId: inspectionId },
+            { beforeAqlInspectionId: parseInt(id) },
+            { afterAqlInspectionId: parseInt(id) },
           ],
         },
       });
 
       await tx.sAqlInspection.delete({
-        where: { id: inspectionId },
+        where: { id: parseInt(id) },
       });
     });
 
     return res.status(200).json({
       success: true,
-      message: `AQL Inspection with ID ${id} deleted successfully`,
+      message: "Inspection deleted successfully",
     });
   } catch (error) {
-    const statusCode =
-      error instanceof AqlInspectionError ? error.statusCode : 500;
+    console.error("Delete AQL Inspection Error:", error);
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: "Inspection not found",
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      error: "Failed to delete inspection",
+    });
+  }
+};
+
+export const getAqlInspectionSummary = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    let whereClause = {};
+    
+    if (startDate && endDate) {
+      whereClause.inspectionDate = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      };
+    }
+
+    const summary = await prisma.sAqlInspection.groupBy({
+      by: ['inspectionDate'],
+      where: whereClause,
+      _count: {
+        id: true,
+      },
+      orderBy: {
+        inspectionDate: 'desc',
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: summary,
+    });
+  } catch (error) {
+    console.error("Get AQL Inspection Summary Error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to fetch inspection summary",
+    });
+  }
+};
+
+export const getSAqlInspections = async (req, res) => {
+  try {
+    const references = await prisma.sAqlInspection.findMany({
+      select: {
+        id: true,
+        reference: true,
+        inspectionDate: true,
+        approveStatus: true,
+        createdAt: true,
+        updatedAt: true,
+        beforeSamples: {
+          select: {
+            condition: true,
+            size: true,
+          },
+          take: 1,
+        },
+        afterSamples: {
+          select: {
+            condition: true,
+            size: true,
+          },
+          take: 1,
+        },
+        LineMaster: {
+          select: {
+            id: true,
+            lineName: true,
+          
+          }
+        },
+        User:{
+            select:{
+              id: true,
+              username:true
+            }
+          }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const formattedReferences = references.map(ref => ({
+      id: ref.id,
+      reference: ref.reference,
+      inspectionDate: ref.inspectionDate,
+      approveStatus: ref.approveStatus,
+      createdAt: ref.createdAt,
+      updatedAt: ref.updatedAt,
+      hasBefore: ref.beforeSamples.length > 0,
+      hasAfter: ref.afterSamples.length > 0,
+      beforeSize: ref.beforeSamples[0]?.size || null, 
+      afterSize: ref.afterSamples[0]?.size || null,  
+      lineDetails: ref.LineMaster ? {
+        id: ref.LineMaster.id,
+        name: ref.LineMaster.lineName,
+      } : null,
+       userDetails: ref.User ? {
+        id: ref.User.id,
+        name: ref.User.username,
+      } : null
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: formattedReferences,
+    });
+  } catch (error) {
+    console.error("Get All References Error:", error);
+    const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
       error: error.message,
@@ -771,42 +718,14 @@ export const deleteAqlInspection = async (req, res) => {
 
     if (process.env.NODE_ENV === "development") {
       errorResponse.stack = error.stack;
+      if (error.code) {
+        errorResponse.prismaError = {
+          code: error.code,
+          meta: error.meta
+        };
+      }
     }
 
     return res.status(statusCode).json(errorResponse);
   }
-};
-
-export const updateAqlStatusInspection = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!id) {
-      return res.status(400).json({ message: "Inspection ID is required" });
-    }
-
-    const updatedInspection = await prisma.sAqlInspection.update({
-      where: { id: parseInt(id) },
-      data: { approveStatus: req.body.status },
-    });
-
-    return res.status(200).json({
-      success: true,
-      data: updatedInspection,
-    });
-  } catch (err) {
-    if (err.code === "P2025") {
-      return res.status(404).json({ message: "Inspection not found" });
-    }
-    return res.status(500).json({ message: err.message });
-  }
-};
-
-export const aqlInspectionController = {
-  createAqlInspection,
-  getAqlInspectionById,
-  getAqlInspections,
-  updateAqlInspection,
-  deleteAqlInspection,
-  updateAqlStatusInspection,
 };

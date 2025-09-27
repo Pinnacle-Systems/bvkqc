@@ -5,7 +5,7 @@ import {
 } from "../../../redux/uniformService/SizeTableMasterService";
 import secureLocalStorage from "react-secure-storage";
 import {
-     useGetSAqlInspectionsQuery,
+  useGetSAqlInspectionsQuery,
   useGetSAqlInspectionByIdQuery,
   useAddSAqlInspectionMutation,
   useUpdateSAqlInspectionMutation,
@@ -18,8 +18,10 @@ import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService
 import { useGetdefectCorrectionQuery } from "../../../redux/services/DefectCorrectionMasterService.js";
 import { useGetDefectQuery } from "../../../redux/services/DefectMasterService.js";
 import { useGetOperationQuery } from "../../../redux/services/OprtaionMasterService.js";
-import Filter from "./filter.png"
+import Filter from "./filter.png";
+
 const Aql = () => {
+  // State declarations
   const [selectedReference, setSelectedReference] = useState("");
   const [inspectionDate, setInspectionDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -36,13 +38,12 @@ const Aql = () => {
   const [checkValues, setCheckValues] = useState({});
   const [approveStatus, setApproveStatus] = useState(0);
   const [measurementMeta, setMeasurementMeta] = useState({});
-
-  // New state for measurement selection popup
   const [showMeasurementPopup, setShowMeasurementPopup] = useState(false);
   const [availableMeasurements, setAvailableMeasurements] = useState([]);
   const [selectedMeasurements, setSelectedMeasurements] = useState([]);
   const [selectedShift, setSelectedShift] = useState("");
 
+  // User data from storage
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
@@ -53,6 +54,7 @@ const Aql = () => {
     sessionStorage.getItem("sessionId") + "currentBranchId"
   );
 
+  // Form data structure for storing all sizes and measurements
   const [formData, setFormData] = useState({
     before: {
       savedSizes: [],
@@ -68,22 +70,60 @@ const Aql = () => {
     },
   });
 
-  const { data: operationData, refetch: refetchOperations } =
-    useGetOperationQuery({ params: { companyId } });
+  // API queries
+  const { data: operationData } = useGetOperationQuery({ params: { companyId } });
+  const { data: aqlData, refetch: refetchAqlData } = useGetSAqlInspectionsQuery();
+  const { data: sizeData } = useGetSizeTableMasterQuery(
+    { productReference: selectedReference },
+    { skip: !selectedReference }
+  );
+  const { data: singleData } = useGetSAqlInspectionByIdQuery(id, { skip: !id });
+  const { data: sizeTableData } = useGetAllocationMasterQuery();
+  const [addAqlInspection] = useAddSAqlInspectionMutation();
+  const [updateAqlInspection] = useUpdateSAqlInspectionMutation();
+  const [removeData] = useDeleteSAqlInspectionMutation();
+
+  const { data: lines = [] } = useGetLineMasterQuery({ params: { companyId } });
+  const { data: defect } = useGetDefectQuery({ params: { companyId } });
+  const { data: DefectCorrection } = useGetdefectCorrectionQuery({ params: { companyId } });
+
+  // Constants
+  const PIECES_COUNT = 7;
+  const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
+  const measurementSelectionKey = `aqlMeasurementSelections_${companyId}`;
+
+  // Derived data
+  const references = [
+    ...new Set(
+      (sizeTableData?.data || [])
+        .filter((item) => item?.Branch?.id == branchId)
+        .map((item) => item.reference)
+    ),
+  ];
+
+  const selectedProduct = sizeData?.data;
+  const availableSizes = selectedProduct?.availableSizes || [];
   const operationOptions = operationData?.data?.filter(
     (op) => op.reference === selectedReference
   );
+  const defectOptions = defect?.data;
+  const correctiveActionOptions = DefectCorrection?.data;
 
-  const handleMetaChange = (measurementId, field, value) => {
-    setMeasurementMeta((prev) => ({
-      ...prev,
-      [measurementId]: {
-        ...prev[measurementId],
-        [field]: value,
-      },
-    }));
-  };
+  const filterLines =
+    sizeTableData?.data
+      ?.filter((item) => item.reference === selectedReference)
+      ?.map((item) => item.LineMaster?.lineName) || [];
 
+  const CorrectLine = lines?.data?.filter((line) => filterLines.includes(line.lineName)) || [];
+
+  const shifts = [
+    { id: 1, label: "1", time: "8:30 - 10:15" },
+    { id: 2, label: "2", time: "10:30 - 12:30" },
+    { id: 3, label: "3", time: "1:30 - 3:30" },
+    { id: 4, label: "4", time: "3:30 - 5:50" },
+  ];
+
+  // State for UI and form status
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
     lastSaved: null,
@@ -98,6 +138,9 @@ const Aql = () => {
     window.innerWidth >= 768 && window.innerWidth < 1024
   );
 
+  const [mergedReportData, setMergedReportData] = useState([]);
+
+  // Responsive handling
   useEffect(() => {
     const handleResize = () => {
       setIsMobileView(window.innerWidth < 768);
@@ -108,72 +151,11 @@ const Aql = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { data: aqlData, refetch: refetchAqlData } =
-    useGetSAqlInspectionsQuery();
-  const { data: sizeData } = useGetSizeTableMasterQuery(
-    { productReference: selectedReference },
-    { skip: !selectedReference }
-  );
-  const { data: singleData } = useGetSAqlInspectionByIdQuery(id, { skip: !id });
-  const { data: sizeTableData } = useGetAllocationMasterQuery();
-
-  const filterLines =
-    sizeTableData?.data
-      ?.filter((item) => item.reference === selectedReference)
-      .map((item) => item.LineMaster.lineName) || [];
-
-  const [addAqlInspection] = useAddSAqlInspectionMutation();
-  const [updateAqlInspection] = useUpdateSAqlInspectionMutation();
-  const [removeData] = useDeleteSAqlInspectionMutation();
-
-  const {
-    data: lines = [],
-    isLoading: linesLoading,
-    error: linesError,
-  } = useGetLineMasterQuery({ params: { companyId } });
-
-  const { data: defect } = useGetDefectQuery({ params: { companyId } });
-  const defectOptions = defect?.data;
-
-  const { data: DefectCorrection } = useGetdefectCorrectionQuery({
-    params: { companyId },
-  });
-  const correctiveActionOptions = DefectCorrection?.data;
-
-  const PIECES_COUNT = 7;
-  const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
-
-  // Updated storage key for measurement selections by reference AND size
-  const measurementSelectionKey = `aqlMeasurementSelections_${companyId}`;
-
-  const references = [
-    ...new Set(
-      (sizeTableData?.data || [])
-        .filter((item) => item?.Branch?.id == branchId)
-        .map((item) => item.reference)
-    ),
-  ];
-
-  const selectedProduct = sizeData?.data;
-  const availableSizes = selectedProduct?.availableSizes || [];
-
-  const [mergedReportData, setMergedReportData] = useState([]);
-
-  const shifts = [
-    { id: 1, label: "1", time: "8:30 - 10:15" },
-    { id: 2, label: "2", time: "10:30 - 12:30" },
-    { id: 3, label: "3", time: "1:30 - 3:30" },
-    { id: 4, label: "4", time: "3:30 - 5:50" },
-  ];
-
-  // Load measurement selections from localStorage - PER SIZE
+  // Measurement selection functions
   const loadMeasurementSelections = () => {
     try {
-      const savedSelections = secureLocalStorage.getItem(
-        measurementSelectionKey
-      );
+      const savedSelections = secureLocalStorage.getItem(measurementSelectionKey);
       if (savedSelections && selectedReference && selectedSize) {
-        // Structure: { [reference]: { [size]: [measurementIds] } }
         const referenceSelections = savedSelections[selectedReference] || {};
         return referenceSelections[selectedSize] || [];
       }
@@ -183,11 +165,9 @@ const Aql = () => {
     return [];
   };
 
-  // Save measurement selections to localStorage - PER SIZE
   const saveMeasurementSelections = (reference, size, measurements) => {
     try {
-      const existingSelections =
-        secureLocalStorage.getItem(measurementSelectionKey) || {};
+      const existingSelections = secureLocalStorage.getItem(measurementSelectionKey) || {};
       const referenceSelections = existingSelections[reference] || {};
 
       const updatedSelections = {
@@ -203,11 +183,9 @@ const Aql = () => {
     }
   };
 
-  // Clear measurement selections for a specific size
   const clearMeasurementSelectionsForSize = () => {
     if (selectedReference && selectedSize) {
-      const existingSelections =
-        secureLocalStorage.getItem(measurementSelectionKey) || {};
+      const existingSelections = secureLocalStorage.getItem(measurementSelectionKey) || {};
       const referenceSelections = existingSelections[selectedReference] || {};
 
       const updatedSelections = {
@@ -219,22 +197,15 @@ const Aql = () => {
       };
       secureLocalStorage.setItem(measurementSelectionKey, updatedSelections);
       setSelectedMeasurements([]);
-      
-      // Also reset the measurements display
       setMeasurements([]);
       setCheckValues({});
-      
-      toast.info(
-        `Measurement selections cleared for ${selectedReference} - ${selectedSize}`
-      );
+      toast.info(`Measurement selections cleared for ${selectedReference} - ${selectedSize}`);
     }
   };
 
-  // Clear ALL measurement selections for a reference
   const clearAllMeasurementSelections = () => {
     if (selectedReference) {
-      const existingSelections =
-        secureLocalStorage.getItem(measurementSelectionKey) || {};
+      const existingSelections = secureLocalStorage.getItem(measurementSelectionKey) || {};
       const updatedSelections = {
         ...existingSelections,
         [selectedReference]: {},
@@ -247,65 +218,45 @@ const Aql = () => {
     }
   };
 
-  // New function to open measurement selection popup
   const openMeasurementPopup = () => {
     if (!selectedReference || !selectedSize || !selectedProduct) {
       toast.error("Please select a reference and size first");
       return;
     }
 
-    const allMeasurements =
-      selectedProduct.measurements
-        ?.filter((m) => m.values?.some((v) => v.size === selectedSize))
-        ?.map((m) => {
-          const valueObj = m.values?.find((v) => v.size === selectedSize);
-          return {
-            id: m.id,
-            name: m.description || "Unnamed",
-            standardValue: valueObj?.value ?? "",
-            toleranceMin: m.toleranceMin ?? "0",
-            toleranceMax: m.toleranceMax ?? "0",
-            unit: m.unit ?? "",
-            isActive: true,
-          };
-        }) || [];
+    const allMeasurements = selectedProduct.measurements
+      ?.filter((m) => m.values?.some((v) => v.size === selectedSize))
+      ?.map((m) => {
+        const valueObj = m.values?.find((v) => v.size === selectedSize);
+        return {
+          id: m.id,
+          name: m.description || "Unnamed",
+          standardValue: valueObj?.value ?? "",
+          toleranceMin: m.toleranceMin ?? "0",
+          toleranceMax: m.toleranceMax ?? "0",
+          unit: m.unit ?? "",
+          isActive: true,
+        };
+      }) || [];
 
     setAvailableMeasurements(allMeasurements);
-
-    // Load saved selections for this reference AND size
     const savedSelections = loadMeasurementSelections();
-
-    // If we have saved selections, use them, otherwise select all active measurements
-    const initialSelections =
-      savedSelections.length > 0
-        ? savedSelections
-        : allMeasurements.map((m) => m.id);
-
+    const initialSelections = savedSelections.length > 0 ? savedSelections : allMeasurements.map((m) => m.id);
+    
     setSelectedMeasurements(initialSelections);
     setShowMeasurementPopup(true);
   };
 
-  // New function to handle measurement selection
   const handleMeasurementSelection = (measurementId, isSelected) => {
-    setSelectedMeasurements((prev) => {
-      if (isSelected) {
-        return [...prev, measurementId];
-      } else {
-        return prev.filter((id) => id !== measurementId);
-      }
-    });
+    setSelectedMeasurements((prev) => 
+      isSelected ? [...prev, measurementId] : prev.filter((id) => id !== measurementId)
+    );
   };
 
-  // New function to select/deselect all measurements
   const handleSelectAllMeasurements = (selectAll) => {
-    if (selectAll) {
-      setSelectedMeasurements(availableMeasurements.map((m) => m.id));
-    } else {
-      setSelectedMeasurements([]);
-    }
+    setSelectedMeasurements(selectAll ? availableMeasurements.map((m) => m.id) : []);
   };
 
-  // New function to apply measurement selection
   const applyMeasurementSelection = () => {
     if (selectedMeasurements.length === 0) {
       toast.error("Please select at least one measurement");
@@ -318,10 +269,8 @@ const Aql = () => {
 
     setMeasurements(filteredMeasurements);
 
-    // Initialize checkValues for selected measurements
     const newCheckValues = {};
     filteredMeasurements.forEach((m) => {
-      // Try to load existing values first, otherwise initialize with empty array
       const existingValues = 
         formData[ayanCondition].savedMeasurements?.[selectedSize]?.[m.id] ||
         formData[ayanCondition].partialSavedMeasurements?.[selectedSize]?.[m.id] ||
@@ -331,81 +280,59 @@ const Aql = () => {
     });
 
     setCheckValues(newCheckValues);
-
-    // Save the selection to localStorage - WITH SIZE
-    if (selectedReference && selectedSize) {
-      saveMeasurementSelections(
-        selectedReference,
-        selectedSize,
-        selectedMeasurements
-      );
-    }
-
+    saveMeasurementSelections(selectedReference, selectedSize, selectedMeasurements);
     setShowMeasurementPopup(false);
-    toast.success(
-      `Selected ${filteredMeasurements.length} measurements for ${selectedSize}`
-    );
     
-    // Mark form as dirty since we changed the measurements
+    toast.success(`Selected ${filteredMeasurements.length} measurements for ${selectedSize}`);
     setFormStatus((prev) => ({ ...prev, isDirty: true }));
   };
 
-  // Load measurements when reference, product, size, or condition changes
+  // Load measurements when dependencies change
   useEffect(() => {
     if (selectedReference && selectedProduct && selectedSize) {
       const savedSelections = loadMeasurementSelections();
       setSelectedMeasurements(savedSelections);
 
-      const allMeasurementData =
-        selectedProduct.measurements
-          ?.filter((m) => m.values?.some((v) => v.size === selectedSize))
-          ?.map((m) => {
-            const valueObj = m.values?.find((v) => v.size === selectedSize);
-            return {
-              id: m.id,
-              name: m.description || "Unnamed",
-              standardValue: valueObj?.value ?? "",
-              toleranceMin: m.toleranceMin ?? "0",
-              toleranceMax: m.toleranceMax ?? "0",
-              unit: m.unit ?? "",
-            };
-          }) || [];
+      const allMeasurementData = selectedProduct.measurements
+        ?.filter((m) => m.values?.some((v) => v.size === selectedSize))
+        ?.map((m) => {
+          const valueObj = m.values?.find((v) => v.size === selectedSize);
+          return {
+            id: m.id,
+            name: m.description || "Unnamed",
+            standardValue: valueObj?.value ?? "",
+            toleranceMin: m.toleranceMin ?? "0",
+            toleranceMax: m.toleranceMax ?? "0",
+            unit: m.unit ?? "",
+          };
+        }) || [];
 
-      // Use saved selections if available, otherwise show all
-      const measurementData =
-        savedSelections.length > 0
-          ? allMeasurementData.filter((m) => savedSelections.includes(m.id))
-          : allMeasurementData;
+      const measurementData = savedSelections.length > 0
+        ? allMeasurementData.filter((m) => savedSelections.includes(m.id))
+        : allMeasurementData;
 
       setMeasurements(measurementData);
 
-      // Load existing values for this size and condition
-      const sizeData =
-        formData[ayanCondition].savedMeasurements?.[selectedSize] ||
-        formData[ayanCondition].partialSavedMeasurements?.[selectedSize] ||
-        {};
+      const sizeData = formData[ayanCondition].savedMeasurements?.[selectedSize] ||
+        formData[ayanCondition].partialSavedMeasurements?.[selectedSize] || {};
 
       const initialCheckValues = {};
       measurementData.forEach((m) => {
-        initialCheckValues[m.id] =
-          sizeData[m.id] || Array(PIECES_COUNT).fill("");
+        initialCheckValues[m.id] = sizeData[m.id] || Array(PIECES_COUNT).fill("");
       });
 
       setCheckValues(initialCheckValues);
 
-      // Load meta data for the selected size
-      const savedMeta =
-        formData[ayanCondition].measurementMeta?.[selectedSize] || {};
+      const savedMeta = formData[ayanCondition].measurementMeta?.[selectedSize] || {};
       setMeasurementMeta(savedMeta);
     } else {
-      // Reset if no valid selection
       setMeasurements([]);
       setCheckValues({});
       setSelectedMeasurements([]);
     }
   }, [selectedReference, selectedProduct, selectedSize, ayanCondition, formData]);
 
-  // Reset measurements when reference changes
+  // Reset when reference changes
   useEffect(() => {
     if (selectedReference) {
       setSelectedSize("");
@@ -416,6 +343,7 @@ const Aql = () => {
     }
   }, [selectedReference]);
 
+  // Merge report data
   useEffect(() => {
     if (sizeTableData?.data && aqlData?.data) {
       const merged = aqlData.data.map((aqlItem) => {
@@ -439,6 +367,7 @@ const Aql = () => {
     }
   }, [sizeTableData, aqlData, approveStatus]);
 
+  // Storage management
   const loadSavedData = () => {
     const savedData = secureLocalStorage.getItem(storageKey);
     if (savedData) {
@@ -482,40 +411,30 @@ const Aql = () => {
     }
   }, [formData, selectedReference, formStatus.isDirty]);
 
+  // Load single inspection data
   useEffect(() => {
     if (singleData?.data && !formStatus.isDirty) {
       const data = singleData.data;
       setSelectedReference(data.reference || "");
       setId(data.id || "");
       setColor(data?.color || "");
+      
       if (data.inspectionDate) {
-        setInspectionDate(
-          new Date(data.inspectionDate).toISOString().split("T")[0]
-        );
+        setInspectionDate(new Date(data.inspectionDate).toISOString().split("T")[0]);
       }
+      
       if (data?.lineMasterId) {
         setSelectedLine(data?.lineMasterId);
       }
 
       const newFormData = {
-        before: {
-          savedSizes: [],
-          savedMeasurements: {},
-          partialSavedMeasurements: {},
-          measurementMeta: {},
-        },
-        after: {
-          savedSizes: [],
-          savedMeasurements: {},
-          partialSavedMeasurements: {},
-          measurementMeta: {},
-        },
+        before: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+        after: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
       };
 
+      // Process before condition data
       if (data.before && Array.isArray(data.before)) {
-        newFormData.before.savedSizes = data.before.map(
-          (sample) => sample.size
-        );
+        newFormData.before.savedSizes = data.before.map((sample) => sample.size);
 
         data.before.forEach((sample) => {
           const size = sample.size;
@@ -526,18 +445,16 @@ const Aql = () => {
             measurement.values?.forEach((valueObj) => {
               if (valueObj.pieceNumber <= PIECES_COUNT) {
                 const val = valueObj.actualValue?.toString() || "";
-                values[valueObj.pieceNumber - 1] =
-                  val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
+                values[valueObj.pieceNumber - 1] = val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
               }
             });
 
-            newFormData.before.savedMeasurements[size][
-              measurement.measurementId
-            ] = values;
+            newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
           });
         });
       }
 
+      // Process after condition data
       if (data.after && Array.isArray(data.after)) {
         newFormData.after.savedSizes = data.after.map((sample) => sample.size);
 
@@ -550,27 +467,22 @@ const Aql = () => {
             measurement.values?.forEach((valueObj) => {
               if (valueObj.pieceNumber <= PIECES_COUNT) {
                 const val = valueObj.actualValue?.toString() || "";
-                values[valueObj.pieceNumber - 1] =
-                  val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
+                values[valueObj.pieceNumber - 1] = val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
               }
             });
 
-            newFormData.after.savedMeasurements[size][
-              measurement.measurementId
-            ] = values;
+            newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
           });
         });
       }
 
       setFormData(newFormData);
-
       const firstSize = data.before?.[0]?.size || data.after?.[0]?.size;
-      if (firstSize) {
-        setSelectedSize(firstSize);
-      }
+      if (firstSize) setSelectedSize(firstSize);
     }
   }, [singleData, formStatus.isDirty]);
 
+  // Measurement value handlers
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     if (readOnly) return;
 
@@ -583,29 +495,31 @@ const Aql = () => {
     setFormStatus((prev) => ({ ...prev, isDirty: true }));
   };
 
+  const handleMetaChange = (measurementId, field, value) => {
+    setMeasurementMeta((prev) => ({
+      ...prev,
+      [measurementId]: {
+        ...prev[measurementId],
+        [field]: value,
+      },
+    }));
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
+  };
+
+  // Size status helpers
   const isSizeComplete = (size, condition) => {
     const sizeData = formData[condition].savedMeasurements?.[size];
     if (!sizeData) return false;
 
-    const currentMeasurements = measurements.filter(m => 
-      selectedMeasurements.includes(m.id)
-    );
-
+    const currentMeasurements = measurements.filter(m => selectedMeasurements.includes(m.id));
     return currentMeasurements.every((measurement) => {
       const values = sizeData[measurement.id];
-      return (
-        values &&
-        values.length === PIECES_COUNT &&
-        values.every((val) => val !== "" && val !== null && val !== undefined)
-      );
+      return values && values.length === PIECES_COUNT && values.every(val => val !== "" && val !== null && val !== undefined);
     });
   };
 
   const isSizePartiallySaved = (size, condition) => {
-    return (
-      formData[condition].partialSavedMeasurements.hasOwnProperty(size) &&
-      !isSizeComplete(size, condition)
-    );
+    return formData[condition].partialSavedMeasurements.hasOwnProperty(size) && !isSizeComplete(size, condition);
   };
 
   const getSizeStatus = (size, condition) => {
@@ -614,71 +528,10 @@ const Aql = () => {
     return "none";
   };
 
-  const handlePartialSave = () => {
-    if (!selectedSize || readOnly) return;
-
-    setFormData((prev) => ({
-      ...prev,
-      [ayanCondition]: {
-        ...prev[ayanCondition],
-        partialSavedMeasurements: {
-          ...prev[ayanCondition].partialSavedMeasurements,
-          [selectedSize]: checkValues,
-        },
-        measurementMeta: {
-          ...prev[ayanCondition].measurementMeta,
-          [selectedSize]: measurementMeta,
-        },
-        savedSizes: [
-          ...new Set([...prev[ayanCondition].savedSizes, selectedSize]),
-        ],
-      },
-    }));
-
-    setFormStatus((prev) => ({ ...prev, isDirty: true }));
-    toast.info("Partially saved measurements for this size.");
-  };
-
+  // Size management functions
   const handleLoadSize = (size) => {
     setSelectedSize(size);
     setShowSizeDropdown(false);
-    
-    // The useEffect will handle loading the measurements and data
-    // for the newly selected size
-  };
-
-  const handleReset = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to reset the form? All unsaved data will be lost."
-      )
-    ) {
-      secureLocalStorage.removeItem(storageKey);
-      setFormData({
-        before: {
-          savedSizes: [],
-          savedMeasurements: {},
-          partialSavedMeasurements: {},
-          measurementMeta: {},
-        },
-        after: {
-          savedSizes: [],
-          savedMeasurements: {},
-          partialSavedMeasurements: {},
-          measurementMeta: {},
-        },
-      });
-      setSelectedSize("");
-      setCheckValues({});
-      setSelectedMeasurements([]);
-      setMeasurementMeta({});
-      setFormStatus({
-        isDirty: false,
-        lastSaved: null,
-        isSubmitting: false,
-      });
-      toast.success("Form reset successfully");
-    }
   };
 
   const handleSaveSize = () => {
@@ -686,17 +539,13 @@ const Aql = () => {
 
     // Check if all selected measurements have values for all pieces
     const isComplete = measurements.every((measurement) => {
-      return (
-        checkValues[measurement.id] &&
+      return checkValues[measurement.id] &&
         checkValues[measurement.id].length === PIECES_COUNT &&
-        checkValues[measurement.id].every((val) => val !== "" && val !== null && val !== undefined)
-      );
+        checkValues[measurement.id].every(val => val !== "" && val !== null && val !== undefined);
     });
 
     if (!isComplete) {
-      toast.error(
-        `Please fill all measurements for all ${PIECES_COUNT} pieces before fully saving this size.`
-      );
+      toast.error(`Please fill all measurements for all ${PIECES_COUNT} pieces before saving this size.`);
       return;
     }
 
@@ -716,9 +565,7 @@ const Aql = () => {
           ...prev[ayanCondition].partialSavedMeasurements,
           [selectedSize]: undefined,
         },
-        savedSizes: [
-          ...new Set([...prev[ayanCondition].savedSizes, selectedSize]),
-        ],
+        savedSizes: [...new Set([...prev[ayanCondition].savedSizes, selectedSize])],
       },
     }));
 
@@ -726,6 +573,30 @@ const Aql = () => {
     toast.success(`Size ${selectedSize} measurements saved successfully!`);
   };
 
+  const handlePartialSave = () => {
+    if (!selectedSize || readOnly) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      [ayanCondition]: {
+        ...prev[ayanCondition],
+        partialSavedMeasurements: {
+          ...prev[ayanCondition].partialSavedMeasurements,
+          [selectedSize]: checkValues,
+        },
+        measurementMeta: {
+          ...prev[ayanCondition].measurementMeta,
+          [selectedSize]: measurementMeta,
+        },
+        savedSizes: [...new Set([...prev[ayanCondition].savedSizes, selectedSize])],
+      },
+    }));
+
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
+    toast.info("Partially saved measurements for this size.");
+  };
+
+  // Tolerance checking
   const checkTolerance = (measurement, value) => {
     if (!value || isNaN(value) || value === "") return "";
     const numericValue = parseFloat(value);
@@ -743,13 +614,10 @@ const Aql = () => {
     return "bg-green-100 text-green-800";
   };
 
-  const CorrectLine =
-    lines?.data?.filter((line) => filterLines.includes(line.lineName)) || [];
-
- const prepareDatabasePayload = () => {
-  const getMeasurementsForSize = (size) => {
-    return (
-      selectedProduct?.measurements
+  // CORRECTED: Prepare data for database submission - SUBMIT ALL SAVED SIZES
+  const prepareDatabasePayload = () => {
+    const getMeasurementsForSize = (size) => {
+      return selectedProduct?.measurements
         ?.filter((m) => m.values?.some((v) => v.size === size))
         ?.map((m) => {
           const valueObj = m.values?.find((v) => v.size === size);
@@ -761,81 +629,84 @@ const Aql = () => {
             toleranceMax: m.toleranceMax ?? "0",
             unit: m.unit ?? "",
           };
-        }) || []
-    );
-  };
+        }) || [];
+    };
 
-  const prepareConditionData = (condition) => {
-    return formData[condition].savedSizes
-      .filter((size) => isSizeComplete(size, condition))
-      .map((size) => {
+    const prepareConditionData = (condition) => {
+      // Get ALL saved sizes (both complete and partial)
+      const allSavedSizes = formData[condition].savedSizes;
+      
+      return allSavedSizes.map((size) => {
         const sizeMeasurements = getMeasurementsForSize(size);
         const sizeMeta = formData[condition].measurementMeta?.[size] || {};
 
+        // Get measurements from both complete and partial saves
+        const completeMeasurements = formData[condition].savedMeasurements?.[size] || {};
+        const partialMeasurements = formData[condition].partialSavedMeasurements?.[size] || {};
+        
+        // Combine both complete and partial measurements
+        const allMeasurementsData = { ...partialMeasurements, ...completeMeasurements };
+
         return {
           size: size,
-          measurements: sizeMeasurements.map((measurement) => {
-            const meta = sizeMeta[measurement.id] || {};
-            return {
-              measurementId: measurement.id,
-              measurementName: measurement.name,
-              standardValue: measurement.standardValue.toString(),
-              toleranceMin: measurement.toleranceMin.toString(),
-              toleranceMax: measurement.toleranceMax.toString(),
-              unit: measurement.unit,
-              machineNo: meta.machineNo || "",
-              operationId: meta.operation || "", // Changed to operationId
-              spi: meta.spi || "",
-              defectId: meta.defect || "", // Changed to defectId
-              correctiveActionId: meta.correctiveAction || "", // Changed to correctiveActionId
-              values: (
-                formData[condition].savedMeasurements[size]?.[
-                  measurement.id
-                ] || []
-              )
-                .slice(0, PIECES_COUNT)
-                .map((value, index) => ({
-                  pieceNumber: index + 1,
-                  actualValue: value.toString(),
-                  status: value
-                    ? checkTolerance(measurement, value).includes("red")
-                      ? "out_of_tolerance"
-                      : "within_tolerance"
-                    : "not_measured",
-                })),
-            };
-          }),
+          measurements: sizeMeasurements
+            .filter(measurement => Object.keys(allMeasurementsData).includes(measurement.id.toString()))
+            .map((measurement) => {
+              const meta = sizeMeta[measurement.id] || {};
+              const measurementValues = allMeasurementsData[measurement.id] || [];
+              
+              return {
+                measurementId: measurement.id,
+                measurementName: measurement.name,
+                standardValue: measurement.standardValue.toString(),
+                toleranceMin: measurement.toleranceMin.toString(),
+                toleranceMax: measurement.toleranceMax.toString(),
+                unit: measurement.unit,
+                machineNo: meta.machineNo || "",
+                operationId: meta.operation || "",
+                spi: meta.spi || "",
+                defectId: meta.defect || "",
+                correctiveActionId: meta.correctiveAction || "",
+                values: measurementValues
+                  .slice(0, PIECES_COUNT)
+                  .map((value, index) => ({
+                    pieceNumber: index + 1,
+                    actualValue: value ? value.toString() : "",
+                    status: value && value !== ""
+                      ? checkTolerance(measurement, value).includes("red")
+                        ? "out_of_tolerance"
+                        : "within_tolerance"
+                      : "not_measured",
+                  })),
+              };
+            }),
         };
-      });
+      }).filter(sizeData => sizeData.measurements.length > 0); // Only include sizes with measurements
+    };
+
+    return {
+      reference: selectedReference,
+      inspectionDate: inspectionDate,
+      before: prepareConditionData("before"),
+      after: prepareConditionData("after"),
+      companyId: parseInt(companyId),
+      userId: userId,
+      lineMasterId: selectedLine,
+      color: color,
+      shift: selectedShift,
+    };
   };
 
-  return {
-    reference: selectedReference,
-    inspectionDate: inspectionDate,
-    before: prepareConditionData("before"),
-    after: prepareConditionData("after"),
-    companyId: parseInt(companyId),
-    userId: userId,
-    lineMasterId: selectedLine,
-    color: color,
-    shift: selectedShift,
-  };
-};
-
+  // CORRECTED: Form submission - Submit ALL saved sizes
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const beforeComplete = formData.before.savedSizes.filter((size) =>
-      isSizeComplete(size, "before")
-    ).length;
-    const afterComplete = formData.after.savedSizes.filter((size) =>
-      isSizeComplete(size, "after")
-    ).length;
+    // Check if there are any saved sizes (complete or partial)
+    const beforeSizes = formData.before.savedSizes.length;
+    const afterSizes = formData.after.savedSizes.length;
 
-    if (beforeComplete === 0 && afterComplete === 0) {
-      toast.error(
-        "Please save at least one complete size in either before or after condition before submitting."
-      );
+    if (beforeSizes === 0 && afterSizes === 0) {
+      toast.error("Please save at least one size (complete or partial) in either before or after condition before submitting.");
       return;
     }
 
@@ -843,6 +714,10 @@ const Aql = () => {
 
     try {
       const payload = prepareDatabasePayload();
+      
+      // Log the payload for debugging
+      console.log("Submitting ALL sizes:", payload);
+      
       let response;
 
       if (id) {
@@ -852,7 +727,9 @@ const Aql = () => {
       }
 
       if (response.success) {
-        toast.success("AQL Form submitted successfully!");
+        const beforeCount = payload.before.length;
+        const afterCount = payload.after.length;
+        toast.success(`AQL Form submitted successfully! Submitted ${beforeCount} before sizes and ${afterCount} after sizes.`);
         secureLocalStorage.removeItem(storageKey);
         resetForm();
       } else {
@@ -866,6 +743,23 @@ const Aql = () => {
     }
   };
 
+  // Utility functions
+  const handleReset = () => {
+    if (window.confirm("Are you sure you want to reset the form? All unsaved data will be lost.")) {
+      secureLocalStorage.removeItem(storageKey);
+      setFormData({
+        before: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+        after: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+      });
+      setSelectedSize("");
+      setCheckValues({});
+      setSelectedMeasurements([]);
+      setMeasurementMeta({});
+      setFormStatus({ isDirty: false, lastSaved: null, isSubmitting: false });
+      toast.success("Form reset successfully");
+    }
+  };
+
   const resetForm = () => {
     secureLocalStorage.removeItem(storageKey);
     setSelectedReference("");
@@ -876,82 +770,62 @@ const Aql = () => {
     setSelectedMeasurements([]);
     setMeasurementMeta({});
     setFormData({
-      before: {
-        savedSizes: [],
-        savedMeasurements: {},
-        partialSavedMeasurements: {},
-        measurementMeta: {},
-      },
-      after: {
-        savedSizes: [],
-        savedMeasurements: {},
-        partialSavedMeasurements: {},
-        measurementMeta: {},
-      },
+      before: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+      after: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
     });
-    setFormStatus({
-      isDirty: false,
-      lastSaved: null,
-      isSubmitting: false,
-    });
+    setFormStatus({ isDirty: false, lastSaved: null, isSubmitting: false });
     setReadOnly(false);
     setId("");
     setAyanCondition("before");
     setShowCompare(false);
   };
 
+  const addTimeButton = () => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+    const updatedCheckValues = { ...checkValues };
+    measurements.forEach((measurement) => {
+      if (updatedCheckValues[measurement.id]) {
+        updatedCheckValues[measurement.id] = updatedCheckValues[measurement.id].map((value) => 
+          value === "" ? timeString : value
+        );
+      }
+    });
+
+    setCheckValues(updatedCheckValues);
+    setFormStatus((prev) => ({ ...prev, isDirty: true }));
+    toast.success(`Added current time (${timeString}) to all empty fields`);
+  };
+
   const toggleAyanCondition = () => {
     if (formStatus.isDirty) {
-      if (
-        !window.confirm(
-          "You have unsaved changes. Switching ayan condition will lose your changes. Continue?"
-        )
-      ) {
+      if (!window.confirm("You have unsaved changes. Switching ayan condition will lose your changes. Continue?")) {
         return;
       }
     }
     setAyanCondition((prev) => (prev === "before" ? "after" : "before"));
-    // Keep the selected size when switching conditions
     setFormStatus((prev) => ({ ...prev, isDirty: false }));
   };
 
-  const handleCompare = () => {
-    setShowCompare(true);
-  };
-
-  const tableHeaders = [
-    "ID",
-    "Reference",
-    "Inspection Date",
-    "Party",
-    "Line",
-    "Delivery Date",
-  ];
-
-  const tableDataNames = [
-    "dataObj?.id",
-    "dataObj?.reference",
-    "new Date(dataObj?.inspectionDate).toLocaleDateString()",
-    "dataObj?.allocationDetails?.[0]?.partyName || 'N/A'",
-    "dataObj?.allocationDetails?.[0]?.lineName || 'N/A'",
-    "dataObj?.allocationDetails?.[0]?.deliveryDate ? new Date(dataObj.allocationDetails[0].deliveryDate).toLocaleDateString() : 'N/A'",
-  ];
-
+  // Data table handlers
   const onDataClick = (id) => {
     setId(id);
     setReadOnly(true);
     setNewItem(true);
     setShowCompare(false);
     setAyanCondition("before");
-    // Don't reset selectedSize here - let the useEffect handle it based on the loaded data
     setFormStatus((prev) => ({ ...prev, isDirty: false }));
   };
 
   const deleteData = async () => {
     if (deleteId) {
-      if (!window.confirm("Are you sure to delete this inspection?")) {
-        return;
-      }
+      if (!window.confirm("Are you sure to delete this inspection?")) return;
       try {
         await removeData(deleteId).unwrap();
         setId("");
@@ -966,57 +840,19 @@ const Aql = () => {
   };
 
   const handleCancel = () => {
-    if (formStatus.isDirty) {
-      if (
-        !window.confirm(
-          "You have unsaved changes. Are you sure you want to cancel?"
-        )
-      ) {
-        return;
-      }
+    if (formStatus.isDirty && !window.confirm("You have unsaved changes. Are you sure you want to cancel?")) {
+      return;
     }
     setNewItem(false);
     resetForm();
   };
 
-  // Add time button functionality
-  const addTimeButton = () => {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString("en-US", {
-      hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-
-    // Add time to all empty measurement fields
-    const updatedCheckValues = { ...checkValues };
-
-    measurements.forEach((measurement) => {
-      if (updatedCheckValues[measurement.id]) {
-        updatedCheckValues[measurement.id] = updatedCheckValues[
-          measurement.id
-        ].map((value) => (value === "" ? timeString : value));
-      }
-    });
-
-    setCheckValues(updatedCheckValues);
-    setFormStatus((prev) => ({ ...prev, isDirty: true }));
-    toast.success(`Added current time (${timeString}) to all empty fields`);
-  };
-
   // Measurement Selection Popup Component
   const MeasurementSelectionPopup = () => (
-    <Modal
-      isOpen={showMeasurementPopup}
-      widthClass="w-[90%] max-w-4xl"
-      onClose={() => setShowMeasurementPopup(false)}
-    >
+    <Modal isOpen={showMeasurementPopup} widthClass="w-[90%] max-w-4xl" onClose={() => setShowMeasurementPopup(false)}>
       <div className="p-4">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-bold">
-            Select Measurements for {selectedReference} - {selectedSize}
-          </h3>
+          <h3 className="text-lg font-bold">Select Measurements for {selectedReference} - {selectedSize}</h3>
           <div className="flex space-x-2">
             <button
               type="button"
@@ -1037,16 +873,13 @@ const Aql = () => {
 
         <div className="mb-2 p-2 bg-blue-50 rounded">
           <p className="text-sm text-blue-700">
-            <strong>Note:</strong> Your measurement selections will be saved
-            specifically for <strong>{selectedSize}</strong> size. Each size can
-            have different measurement preferences.
+            <strong>Note:</strong> Your measurement selections will be saved specifically for <strong>{selectedSize}</strong> size. Each size can have different measurement preferences.
           </p>
         </div>
 
         <div className="flex justify-between items-center mb-4">
           <span className="text-sm text-gray-600">
-            {selectedMeasurements.length} of {availableMeasurements.length}{" "}
-            measurements selected for {selectedSize}
+            {selectedMeasurements.length} of {availableMeasurements.length} measurements selected for {selectedSize}
           </span>
           <div className="space-x-2">
             <button
@@ -1069,23 +902,18 @@ const Aql = () => {
         <div className="max-h-96 overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {availableMeasurements.map((measurement) => (
-              <div
-                key={measurement.id}
-                className="flex items-center p-2 border rounded"
-              >
+              <div key={measurement.id} className="flex items-center p-2 border rounded">
                 <input
                   type="checkbox"
                   checked={selectedMeasurements.includes(measurement.id)}
-                  onChange={(e) =>
-                    handleMeasurementSelection(measurement.id, e.target.checked)
-                  }
+                  onChange={(e) => handleMeasurementSelection(measurement.id, e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label className="ml-2 text-sm">
                   <span className="font-medium">{measurement.name}</span>
-                  {/* <div className="text-gray-500 text-xs">
+                  <div className="text-gray-500 text-xs">
                     Std: {measurement.standardValue} ({measurement.unit})
-                  </div> */}
+                  </div>
                 </label>
               </div>
             ))}
@@ -1094,8 +922,7 @@ const Aql = () => {
 
         <div className="flex justify-between items-center mt-4 pt-4 border-t">
           <div className="text-sm text-gray-600">
-            Selections will be saved specifically for{" "}
-            <strong>{selectedSize}</strong> size
+            Selections will be saved specifically for <strong>{selectedSize}</strong> size
           </div>
           <div className="flex space-x-2">
             <button
@@ -1118,22 +945,15 @@ const Aql = () => {
     </Modal>
   );
 
+  // UI rendering functions
   const renderFormControls = () => (
-    <div
-      className={`grid ${
-        isMobileView ? "grid-cols-3" : "grid-cols-1 md:grid-cols-7"
-      } gap-4 mb-4`}
-    >
+    <div className={`grid ${isMobileView ? "grid-cols-3" : "grid-cols-1 md:grid-cols-7"} gap-4 mb-4`}>
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Order Id <span className="text-red-500">*</span>
-        </label>
+        <label className="block text-xs font-medium text-gray-700 mb-1">Order Id <span className="text-red-500">*</span></label>
         <select
           value={selectedReference}
           onChange={(e) => {
-            const newReference = e.target.value;
-            setSelectedReference(newReference);
-            // Reset related states when reference changes
+            setSelectedReference(e.target.value);
             setSelectedSize("");
             setMeasurements([]);
             setCheckValues({});
@@ -1146,17 +966,13 @@ const Aql = () => {
         >
           <option value="">Select a reference</option>
           {references.map((ref, index) => (
-            <option key={index} value={ref}>
-              {ref}
-            </option>
+            <option key={index} value={ref}>{ref}</option>
           ))}
         </select>
       </div>
 
       <div className="flex-1 min-w-[90px]">
-        <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-          Color *
-        </label>
+        <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Color *</label>
         <input
           type="text"
           value={color}
@@ -1167,77 +983,46 @@ const Aql = () => {
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Inspection Date
-        </label>
+        <label className="block text-xs font-medium text-gray-700 mb-1">Inspection Date</label>
         <input
           type="date"
           value={inspectionDate}
           onChange={(e) => !readOnly && setInspectionDate(e.target.value)}
           readOnly={readOnly}
-          className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm ${
-            readOnly ? "bg-gray-100 cursor-not-allowed" : ""
-          }`}
+          className={`w-full px-3 py-2 text-xs border rounded-md shadow-sm ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">
-          Line <span className="text-red-500">*</span>
-        </label>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Line <span className="text-red-500">*</span></label>
         <select
           value={selectedLine}
           onChange={(e) => setSelectedLine(e.target.value)}
-          disabled={readOnly || linesLoading}
+          disabled={readOnly}
           className="mt-0.5 block w-full pl-2.5 pr-7 py-2 text-xs border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="">Select a line</option>
           {CorrectLine?.map((line) => (
-            <option key={line.id} value={line.id}>
-              {line.lineName}
-            </option>
+            <option key={line.id} value={line.id}>{line.lineName}</option>
           ))}
         </select>
       </div>
 
       <div className="flex gap-2">
         <div className="w-1/3">
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Size <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Size <span className="text-red-500">*</span></label>
           <div className="relative">
             <button
               type="button"
-              onClick={() =>
-                !readOnly && setShowSizeDropdown(!showSizeDropdown)
-              }
+              onClick={() => !readOnly && setShowSizeDropdown(!showSizeDropdown)}
               disabled={!selectedReference || readOnly}
               className={`w-full px-3 py-2 text-left text-xs border rounded-md shadow-sm flex justify-between items-center 
-              ${
-                !selectedReference || readOnly
-                  ? "bg-gray-100 cursor-not-allowed"
-                  : "bg-white hover:border-blue-500"
-              }
-              ${selectedSize ? "border-blue-500" : "border-gray-300"}`}
+                ${!selectedReference || readOnly ? "bg-gray-100 cursor-not-allowed" : "bg-white hover:border-blue-500"}
+                ${selectedSize ? "border-blue-500" : "border-gray-300"}`}
             >
-              <span
-                className={selectedSize ? "text-gray-900" : "text-gray-500"}
-              >
-                {selectedSize || "size"}
-              </span>
-              <svg
-                className={`h-4 w-4 text-gray-400 transition-transform ${
-                  showSizeDropdown ? "rotate-180" : ""
-                }`}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
+              <span className={selectedSize ? "text-gray-900" : "text-gray-500"}>{selectedSize || "size"}</span>
+              <svg className={`h-4 w-4 text-gray-400 transition-transform ${showSizeDropdown ? "rotate-180" : ""}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
             </button>
             {showSizeDropdown && (
@@ -1249,32 +1034,20 @@ const Aql = () => {
                       <div
                         key={index}
                         className={`px-3 py-1 hover:bg-blue-50 cursor-pointer flex justify-between items-center 
-                        ${
-                          status === "complete"
-                            ? "bg-green-50"
-                            : status === "partial"
-                            ? "bg-yellow-50"
-                            : ""
-                        }
-                        ${selectedSize === size ? "bg-blue-50" : ""}`}
+                          ${status === "complete" ? "bg-green-50" : status === "partial" ? "bg-yellow-50" : ""}
+                          ${selectedSize === size ? "bg-blue-50" : ""}`}
                         onClick={() => handleLoadSize(size)}
                       >
                         <span>{size}</span>
                         <div className="flex items-center">
-                          {status === "complete" && (
-                            <span className="text-green-500 ml-2">✓</span>
-                          )}
-                          {status === "partial" && (
-                            <span className="text-yellow-500 ml-2">~</span>
-                          )}
+                          {status === "complete" && <span className="text-green-500 ml-2">✓</span>}
+                          {status === "partial" && <span className="text-yellow-500 ml-2">~</span>}
                         </div>
                       </div>
                     );
                   })
                 ) : (
-                  <div className="px-3 py-1 text-gray-500">
-                    No sizes available
-                  </div>
+                  <div className="px-3 py-1 text-gray-500">No sizes available</div>
                 )}
               </div>
             )}
@@ -1286,22 +1059,15 @@ const Aql = () => {
             type="button"
             onClick={openMeasurementPopup}
             disabled={!selectedSize}
-            className={`px-3 py-1 rounded-md shadow-sm h-9 text-xs font-medium 
-              ${
-                !selectedSize
-                  ? "border border-sky-700 cursor-not-allowed text-gray-200"
-                  : " border border-sky-700 "
-              }`}
+            className={`px-3 py-1 rounded-md shadow-sm h-9 text-xs font-medium ${!selectedSize ? "border border-sky-700 cursor-not-allowed text-gray-200" : " border border-sky-700 "}`}
           >
-<img src={Filter} alt = "filter" className="w-4 h-4" />
+            <img src={Filter} alt="filter" className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Shift <span className="text-red-500">*</span>
-        </label>
+        <label className="block text-xs font-medium text-gray-700 mb-1">Shift <span className="text-red-500">*</span></label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {shifts.map((shift) => (
             <button
@@ -1309,11 +1075,7 @@ const Aql = () => {
               type="button"
               onClick={() => setSelectedShift(shift.id)}
               className={`flex flex-col items-center justify-center border rounded-lg px-2 py-2 text-xs transition-all
-                ${
-                  selectedShift === shift.id
-                    ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-sm"
-                    : "border-gray-300 bg-white hover:border-blue-400"
-                }`}
+                ${selectedShift === shift.id ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-sm" : "border-gray-300 bg-white hover:border-blue-400"}`}
             >
               <span className="text-sm">{shift.label}</span>
             </button>
@@ -1356,7 +1118,8 @@ const Aql = () => {
               onClick={openMeasurementPopup}
               className="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
             >
-<img src={Filter} alt = "filter" className="w-5 h-5" />
+              <img src={Filter} alt="filter" className="w-5 h-5 mr-2" />
+              Select Measurements
             </button>
           </div>
         </div>
@@ -1365,8 +1128,7 @@ const Aql = () => {
 
     if (measurements.length === 0) return null;
 
-    const inputStyle =
-      "w-full px-1.5 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500";
+    const inputStyle = "w-full px-1.5 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500";
     const selectStyle = `${inputStyle} appearance-none bg-white bg-arrow bg-no-repeat bg-right`;
 
     if (isMobileView) {
@@ -1374,54 +1136,30 @@ const Aql = () => {
         <div className="flex-1 overflow-hidden flex flex-col mb-2">
           <div className="overflow-auto flex-1 pb-2">
             {measurements.map((measurement) => (
-              <div
-                key={measurement.id}
-                className="mb-3 border rounded p-2 bg-white"
-              >
+              <div key={measurement.id} className="mb-3 border rounded p-2 bg-white">
                 <div className="grid grid-cols-2 gap-1.5 mb-2">
                   <div className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-0.5">
-                      M/c No
-                    </label>
+                    <label className="text-xs text-gray-500 mb-0.5">M/c No</label>
                     <input
                       type="text"
                       value={measurementMeta[measurement.id]?.machineNo || ""}
-                      onChange={(e) =>
-                        handleMetaChange(
-                          measurement.id,
-                          "machineNo",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => handleMetaChange(measurement.id, "machineNo", e.target.value)}
                       className={inputStyle}
                       readOnly={readOnly}
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-0.5">
-                      Operation
-                    </label>
+                    <label className="text-xs text-gray-500 mb-0.5">Operation</label>
                     <select
                       value={measurementMeta[measurement.id]?.operation || ""}
-                      onChange={(e) =>
-                        handleMetaChange(
-                          measurement.id,
-                          "operation",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => handleMetaChange(measurement.id, "operation", e.target.value)}
                       className={selectStyle}
                       disabled={readOnly}
-                      style={{
-                        backgroundSize: "12px 12px",
-                        backgroundPosition: "right 4px center",
-                      }}
+                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
                     >
                       <option value="">Select</option>
                       {operationOptions?.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.name}
-                        </option>
+                        <option key={option.id} value={option.id}>{option.name}</option>
                       ))}
                     </select>
                   </div>
@@ -1432,9 +1170,7 @@ const Aql = () => {
                       value={measurementMeta[measurement.id]?.spi || ""}
                       onChange={(e) => {
                         let value = e.target.value.replace(/\D/g, "");
-                        if (value.length > 2) {
-                          value = value.slice(0, 2);
-                        }
+                        if (value.length > 2) value = value.slice(0, 2);
                         handleMetaChange(measurement.id, "spi", value);
                       }}
                       className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
@@ -1445,60 +1181,32 @@ const Aql = () => {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-0.5">
-                      Defect
-                    </label>
+                    <label className="text-xs text-gray-500 mb-0.5">Defect</label>
                     <select
                       value={measurementMeta[measurement.id]?.defect || ""}
-                      onChange={(e) =>
-                        handleMetaChange(
-                          measurement.id,
-                          "defect",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => handleMetaChange(measurement.id, "defect", e.target.value)}
                       className={selectStyle}
                       disabled={readOnly}
-                      style={{
-                        backgroundSize: "12px 12px",
-                        backgroundPosition: "right 4px center",
-                      }}
+                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
                     >
                       <option value="">Select</option>
                       {defectOptions?.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.name}
-                        </option>
+                        <option key={option.id} value={option.id}>{option.name}</option>
                       ))}
                     </select>
                   </div>
                   <div className="flex flex-col col-span-2">
-                    <label className="text-xs text-gray-500 mb-0.5">
-                      Corrective Action
-                    </label>
+                    <label className="text-xs text-gray-500 mb-0.5">Corrective Action</label>
                     <select
-                      value={
-                        measurementMeta[measurement.id]?.correctiveAction || ""
-                      }
-                      onChange={(e) =>
-                        handleMetaChange(
-                          measurement.id,
-                          "correctiveAction",
-                          e.target.value
-                        )
-                      }
+                      value={measurementMeta[measurement.id]?.correctiveAction || ""}
+                      onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
                       className={selectStyle}
                       disabled={readOnly}
-                      style={{
-                        backgroundSize: "12px 12px",
-                        backgroundPosition: "right 4px center",
-                      }}
+                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
                     >
                       <option value="">Select</option>
                       {correctiveActionOptions?.map((option) => (
-                        <option key={option.id} value={option.name}>
-                          {option.name}
-                        </option>
+                        <option key={option.id} value={option.name}>{option.name}</option>
                       ))}
                     </select>
                   </div>
@@ -1509,17 +1217,14 @@ const Aql = () => {
                     {measurement.name} ({measurement.unit})
                   </h4>
                   <div className="text-xs text-gray-500">
-                    Std: {measurement.standardValue} (Tol: -
-                    {measurement.toleranceMin}/+{measurement.toleranceMax})
+                    Std: {measurement.standardValue} (Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax})
                   </div>
                 </div>
 
                 <div className="grid grid-cols-5 gap-1">
                   {checkValues[measurement.id]?.map((value, index) => (
                     <div key={index} className="flex flex-col">
-                      <label className="text-xs text-gray-500 mb-0.5">
-                        #{index + 1}
-                      </label>
+                      <label className="text-xs text-gray-500 mb-0.5">#{index + 1}</label>
                       <input
                         type="text"
                         inputMode="decimal"
@@ -1531,7 +1236,6 @@ const Aql = () => {
                           const parts = raw.split(".");
                           if (parts.length > 2) return;
                           if (parts[1]?.length > 2) return;
-
                           handleCheckValueChange(measurement.id, index, raw);
                         }}
                         onBlur={(e) => {
@@ -1545,9 +1249,7 @@ const Aql = () => {
                           handleCheckValueChange(measurement.id, index, val);
                         }}
                         className={`${inputStyle} text-center ${
-                          value
-                            ? checkTolerance(measurement, value)
-                            : "border-gray-300"
+                          value ? checkTolerance(measurement, value) : "border-gray-300"
                         } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         readOnly={readOnly}
                       />
@@ -1566,34 +1268,15 @@ const Aql = () => {
             <table className="min-w-full bg-white border border-gray-200 text-xs">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
-                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
-                    M/c No
-                  </th>
-                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
-                    Operation
-                  </th>
-                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
-                    SPI
-                  </th>
-                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
-                    Defect
-                  </th>
-                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
-                    Action
-                  </th>
-                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">
-                    Measurement
-                  </th>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(
-                    (num) => (
-                      <th
-                        key={num}
-                        className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        #{num}
-                      </th>
-                    )
-                  )}
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">M/c No</th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Operation</th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">SPI</th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Defect</th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  <th className="px-1.5 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Measurement</th>
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map((num) => (
+                    <th key={num} className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider">#{num}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -1603,13 +1286,7 @@ const Aql = () => {
                       <input
                         type="text"
                         value={measurementMeta[measurement.id]?.machineNo || ""}
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "machineNo",
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handleMetaChange(measurement.id, "machineNo", e.target.value)}
                         className={inputStyle}
                         readOnly={readOnly}
                       />
@@ -1617,25 +1294,14 @@ const Aql = () => {
                     <td className="px-1.5 py-1.5 whitespace-nowrap">
                       <select
                         value={measurementMeta[measurement.id]?.operation || ""}
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "operation",
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handleMetaChange(measurement.id, "operation", e.target.value)}
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{
-                          backgroundSize: "10px 10px",
-                          backgroundPosition: "right 2px center",
-                        }}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
                       >
                         <option value="">Select</option>
                         {operationOptions?.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
+                          <option key={option.id} value={option.id}>{option.name}</option>
                         ))}
                       </select>
                     </td>
@@ -1645,9 +1311,7 @@ const Aql = () => {
                         value={measurementMeta[measurement.id]?.spi || ""}
                         onChange={(e) => {
                           let value = e.target.value.replace(/\D/g, "");
-                          if (value.length > 2) {
-                            value = value.slice(0, 2);
-                          }
+                          if (value.length > 2) value = value.slice(0, 2);
                           handleMetaChange(measurement.id, "spi", value);
                         }}
                         className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
@@ -1660,65 +1324,35 @@ const Aql = () => {
                     <td className="px-1.5 py-1.5 whitespace-nowrap">
                       <select
                         value={measurementMeta[measurement.id]?.defect || ""}
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "defect",
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handleMetaChange(measurement.id, "defect", e.target.value)}
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{
-                          backgroundSize: "10px 10px",
-                          backgroundPosition: "right 2px center",
-                        }}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
                       >
                         <option value="">Select</option>
                         {defectOptions?.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
+                          <option key={option.id} value={option.id}>{option.name}</option>
                         ))}
                       </select>
                     </td>
                     <td className="px-1.5 py-1.5 whitespace-nowrap">
                       <select
-                        value={
-                          measurementMeta[measurement.id]?.correctiveAction ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "correctiveAction",
-                            e.target.value
-                          )
-                        }
+                        value={measurementMeta[measurement.id]?.correctiveAction || ""}
+                        onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{
-                          backgroundSize: "10px 10px",
-                          backgroundPosition: "right 2px center",
-                        }}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
                       >
                         <option value="">Select</option>
                         {correctiveActionOptions?.map((option) => (
-                          <option key={option.id} value={option.name}>
-                            {option.name}
-                        </option>
-                      ))}
-                    </select>
+                          <option key={option.id} value={option.name}>{option.name}</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-1.5 py-1.5 whitespace-nowrap font-medium text-gray-900">
                       <div>{measurement.name}</div>
-                      <div className="text-gray-500">
-                        Std: {measurement.standardValue}
-                      </div>
-                      <div className="text-gray-500">
-                        Tol: -{measurement.toleranceMin}/+
-                        {measurement.toleranceMax}
-                      </div>
+                      <div className="text-gray-500">Std: {measurement.standardValue}</div>
+                      <div className="text-gray-500">Tol: -{measurement.toleranceMin}/+{measurement.toleranceMax}</div>
                     </td>
                     {checkValues[measurement.id]?.map((value, index) => (
                       <td key={index} className="px-1 py-1 whitespace-nowrap">
@@ -1731,19 +1365,12 @@ const Aql = () => {
                             rawValue = rawValue.replace(/[^0-9.]/g, "");
                             const parts = rawValue.split(".");
                             if (parts.length > 2) {
-                              rawValue =
-                                parts[0] + "." + parts.slice(1).join("");
+                              rawValue = parts[0] + "." + parts.slice(1).join("");
                             }
                             if (parts[1] && parts[1].length > 2) {
-                              rawValue =
-                                parts[0] + "." + parts[1].substring(0, 2);
+                              rawValue = parts[0] + "." + parts[1].substring(0, 2);
                             }
-
-                            handleCheckValueChange(
-                              measurement.id,
-                              index,
-                              rawValue
-                            );
+                            handleCheckValueChange(measurement.id, index, rawValue);
                           }}
                           onBlur={(e) => {
                             if (readOnly) return;
@@ -1756,12 +1383,8 @@ const Aql = () => {
                             handleCheckValueChange(measurement.id, index, val);
                           }}
                           className={`${inputStyle} text-center ${
-                            value
-                              ? checkTolerance(measurement, value)
-                              : "border-gray-300"
-                          } ${
-                            readOnly ? "bg-gray-100 cursor-not-allowed" : ""
-                          }`}
+                            value ? checkTolerance(measurement, value) : "border-gray-300"
+                          } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                           readOnly={readOnly}
                         />
                       </td>
@@ -1780,72 +1403,22 @@ const Aql = () => {
             <table className="min-w-full bg-white border border-gray-200 text-xs">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    M/c No
-                  </th>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Operation
-                  </th>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    SPI
-                  </th>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Defect
-                  </th>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Action
-                  </th>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Measurement
-                  </th>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Std
-                  </th>
-                  <th
-                    rowSpan="2"
-                    className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Tolerance
-                  </th>
-                  <th
-                    colSpan={PIECES_COUNT}
-                    className="px-2 py-1.5 text-center font-medium text-gray-500 uppercase tracking-wider"
-                  >
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">M/c No</th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Operation</th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">SPI</th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Defect</th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Measurement</th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Std</th>
+                  <th rowSpan="2" className="px-2 py-1.5 text-left font-medium text-gray-500 uppercase tracking-wider">Tolerance</th>
+                  <th colSpan={PIECES_COUNT} className="px-2 py-1.5 text-center font-medium text-gray-500 uppercase tracking-wider">
                     Pieces (1-{PIECES_COUNT})
                   </th>
                 </tr>
                 <tr>
-                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map(
-                    (num) => (
-                      <th
-                        key={num}
-                        className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        #{num}
-                      </th>
-                    )
-                  )}
+                  {Array.from({ length: PIECES_COUNT }, (_, i) => i + 1).map((num) => (
+                    <th key={num} className="px-1 py-1 text-center font-medium text-gray-500 uppercase tracking-wider">#{num}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -1855,13 +1428,7 @@ const Aql = () => {
                       <input
                         type="text"
                         value={measurementMeta[measurement.id]?.machineNo || ""}
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "machineNo",
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handleMetaChange(measurement.id, "machineNo", e.target.value)}
                         className={inputStyle}
                         readOnly={readOnly}
                       />
@@ -1869,25 +1436,14 @@ const Aql = () => {
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <select
                         value={measurementMeta[measurement.id]?.operation || ""}
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "operation",
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handleMetaChange(measurement.id, "operation", e.target.value)}
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{
-                          backgroundSize: "10px 10px",
-                          backgroundPosition: "right 4px center",
-                        }}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
                       >
                         <option value="">Select</option>
                         {operationOptions?.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
+                          <option key={option.id} value={option.id}>{option.name}</option>
                         ))}
                       </select>
                     </td>
@@ -1897,9 +1453,7 @@ const Aql = () => {
                         value={measurementMeta[measurement.id]?.spi || ""}
                         onChange={(e) => {
                           let value = e.target.value.replace(/\D/g, "");
-                          if (value.length > 2) {
-                            value = value.slice(0, 2);
-                          }
+                          if (value.length > 2) value = value.slice(0, 2);
                           handleMetaChange(measurement.id, "spi", value);
                         }}
                         className="w-12 px-1 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
@@ -1912,60 +1466,29 @@ const Aql = () => {
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <select
                         value={measurementMeta[measurement.id]?.defect || ""}
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "defect",
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => handleMetaChange(measurement.id, "defect", e.target.value)}
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{
-                          backgroundSize: "10px 10px",
-                          backgroundPosition: "right 4px center",
-                        }}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
                       >
                         <option value="">Select</option>
                         {defectOptions?.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
+                          <option key={option.id} value={option.id}>{option.name}</option>
                         ))}
                       </select>
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap">
                       <select
-                        value={
-                          measurementMeta[measurement.id]?.correctiveAction ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleMetaChange(
-                            measurement.id,
-                            "correctiveAction",
-                            e.target.value
-                          )
-                        }
+                        value={measurementMeta[measurement.id]?.correctiveAction || ""}
+                        onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
                         className={selectStyle}
                         disabled={readOnly}
-                        style={{
-                          backgroundSize: "10px 10px",
-                          backgroundPosition: "right 4px center",
-                        }}
+                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
                       >
                         <option value="">Select</option>
-                        {correctiveActionOptions
-                          ?.filter(
-                            (option) =>
-                              option.defectId ===
-                              Number(measurementMeta[measurement.id]?.defect)
-                          )
-                          ?.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.name}
-                            </option>
-                          ))}
+                        {correctiveActionOptions?.filter((option) => option.defectId === Number(measurementMeta[measurement.id]?.defect))?.map((option) => (
+                          <option key={option.id} value={option.id}>{option.name}</option>
+                        ))}
                       </select>
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap font-medium text-gray-900">
@@ -1984,26 +1507,16 @@ const Aql = () => {
                           value={value}
                           onChange={(e) => {
                             if (readOnly) return;
-
                             let rawValue = e.target.value;
                             rawValue = rawValue.replace(/[^0-9.]/g, "");
-
                             const parts = rawValue.split(".");
                             if (parts.length > 2) {
-                              rawValue =
-                                parts[0] + "." + parts.slice(1).join("");
+                              rawValue = parts[0] + "." + parts.slice(1).join("");
                             }
-
                             if (parts[1] && parts[1].length > 2) {
-                              rawValue =
-                                parts[0] + "." + parts[1].substring(0, 2);
+                              rawValue = parts[0] + "." + parts[1].substring(0, 2);
                             }
-
-                            handleCheckValueChange(
-                              measurement.id,
-                              index,
-                              rawValue
-                            );
+                            handleCheckValueChange(measurement.id, index, rawValue);
                           }}
                           onBlur={(e) => {
                             if (readOnly) return;
@@ -2012,17 +1525,12 @@ const Aql = () => {
                               handleCheckValueChange(measurement.id, index, "");
                               return;
                             }
-
                             val = parseFloat(val).toFixed(2);
                             handleCheckValueChange(measurement.id, index, val);
                           }}
                           className={`${inputStyle} text-center ${
-                            value
-                              ? checkTolerance(measurement, value)
-                              : "border-gray-300"
-                          } ${
-                            readOnly ? "bg-gray-100 cursor-not-allowed" : ""
-                          }`}
+                            value ? checkTolerance(measurement, value) : "border-gray-300"
+                          } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                           readOnly={readOnly}
                         />
                       </td>
@@ -2064,11 +1572,7 @@ const Aql = () => {
                 onClick={handlePartialSave}
                 disabled={!selectedSize}
                 className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                  ${
-                    !selectedSize
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-yellow-500 hover:bg-yellow-600"
-                  }`}
+                  ${!selectedSize ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500 hover:bg-yellow-600"}`}
               >
                 Partial Save
               </button>
@@ -2078,11 +1582,7 @@ const Aql = () => {
                 onClick={handleSaveSize}
                 disabled={!selectedSize}
                 className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-                  ${
-                    !selectedSize
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                  ${!selectedSize ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
               >
                 Save Size
               </button>
@@ -2094,54 +1594,39 @@ const Aql = () => {
       {!readOnly && (
         <button
           type="submit"
-          disabled={
-            formStatus.isSubmitting ||
-            (formData.before.savedSizes.filter((size) =>
-              isSizeComplete(size, "before")
-            ).length === 0 &&
-              formData.after.savedSizes.filter((size) =>
-                isSizeComplete(size, "after")
-              ).length === 0)
-          }
+          disabled={formStatus.isSubmitting || (formData.before.savedSizes.length === 0 && formData.after.savedSizes.length === 0)}
           className={`px-3 py-2 rounded-md shadow-sm text-xs font-medium text-white
-      ${
-        formStatus.isSubmitting ||
-        (formData.before.savedSizes.filter((size) =>
-          isSizeComplete(size, "before")
-        ).length === 0 &&
-          formData.after.savedSizes.filter((size) =>
-            isSizeComplete(size, "after")
-          ).length === 0)
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-green-600 hover:bg-green-700"
-      }`}
+            ${formStatus.isSubmitting || (formData.before.savedSizes.length === 0 && formData.after.savedSizes.length === 0)
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"}`}
         >
-          {formStatus.isSubmitting
-            ? "Submitting..."
-            : id
-            ? "Update"
-            : "Submit All"}
+          {formStatus.isSubmitting ? "Submitting..." : id ? "Update" : "Submit All"}
         </button>
       )}
     </div>
   );
 
+  // Table configuration
+  const tableHeaders = ["ID", "Reference", "Inspection Date", "Party", "Line", "Delivery Date"];
+  const tableDataNames = [
+    "dataObj?.id",
+    "dataObj?.reference",
+    "new Date(dataObj?.inspectionDate).toLocaleDateString()",
+    "dataObj?.allocationDetails?.[0]?.partyName || 'N/A'",
+    "dataObj?.allocationDetails?.[0]?.lineName || 'N/A'",
+    "dataObj?.allocationDetails?.[0]?.deliveryDate ? new Date(dataObj.allocationDetails[0].deliveryDate).toLocaleDateString() : 'N/A'",
+  ];
+
   return (
     <>
       <MeasurementSelectionPopup />
 
-      <Modal
-        isOpen={isDetailView}
-        widthClass={`${"w-[50%] h-[70%]"}`}
-        onClose={() => setIsDetailView(false)}
-      ></Modal>
+      <Modal isOpen={isDetailView} widthClass={"w-[50%] h-[70%]"} onClose={() => setIsDetailView(false)}></Modal>
 
       {newItem === false ? (
         <>
           <div className="bg-white px-4 py-2 flex items-center justify-between">
-            <h1 className="text-lg font-bold text-gray-800">
-              AQL Inspection Report
-            </h1>
+            <h1 className="text-lg font-bold text-gray-800">AQL Inspection Report</h1>
             <button
               onClick={() => {
                 setId("");
@@ -2173,15 +1658,10 @@ const Aql = () => {
       ) : (
         <div className="min-h-screen bg-gray-50">
           <div className="w-full">
-            <div
-              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
-              style={{ minHeight: "calc(100vh - 2rem)" }}
-            >
+            <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col" style={{ minHeight: "calc(100vh - 2rem)" }}>
               <div className="bg-white px-4 py-2 flex items-center justify-between">
                 <h1 className="text-lg font-bold text-gray-800">
-                  {id
-                    ? "Seven Sample Inspection Details"
-                    : "Seven Sample Inspection Form"}
+                  {id ? "Seven Sample Inspection Details" : "Seven Sample Inspection Form"}
                 </h1>
                 <div
                   className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-2 py-1 text-xs flex items-center cursor-pointer"
