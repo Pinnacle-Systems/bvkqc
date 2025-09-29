@@ -64,6 +64,14 @@ const SAqlInspectionApi = createApi({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: "SAqlInspection", id }],
     }),
+      updateSAqlStatusInspection: builder.mutation({   
+          query: ({ id, payload }) => ({
+            url: `${SAQL_INSPECTION_API}/${id}/status`,
+            method: "PUT",
+            body: payload,
+          }),
+          invalidatesTags: (result, error, { id }) => [{ type: "AqlInspection", id }],
+        }),
   }),
 });
 
@@ -73,7 +81,8 @@ export const {
   useAddSAqlInspectionMutation,
   useUpdateSAqlInspectionMutation,
   useDeleteSAqlInspectionMutation,
-  useUpdateAqlStatusInspectionMutation
+  useUpdateAqlStatusInspectionMutation,
+  useUpdateSAqlStatusInspectionMutation
 } = SAqlInspectionApi;
 
 export default SAqlInspectionApi;

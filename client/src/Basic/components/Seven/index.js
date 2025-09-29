@@ -11,7 +11,7 @@ import {
   useUpdateSAqlInspectionMutation,
   useDeleteSAqlInspectionMutation,
 } from "../../../redux/uniformService/SAqlInspectionService";
-import Mastertable from "../MasterTable/MaterTable1.jsx";
+import Mastertable from "../MasterTable/MaterTable7.jsx";
 import { toast } from "react-toastify";
 import Modal from "../../../UiComponents/Modal/index.js";
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
@@ -21,7 +21,6 @@ import { useGetOperationQuery } from "../../../redux/services/OprtaionMasterServ
 import Filter from "./filter.png";
 
 const Aql = () => {
-  // State declarations
   const [selectedReference, setSelectedReference] = useState("");
   const [inspectionDate, setInspectionDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -43,7 +42,6 @@ const Aql = () => {
   const [selectedMeasurements, setSelectedMeasurements] = useState([]);
   const [selectedShift, setSelectedShift] = useState("");
 
-  // User data from storage
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
   );
@@ -54,7 +52,6 @@ const Aql = () => {
     sessionStorage.getItem("sessionId") + "currentBranchId"
   );
 
-  // Form data structure for storing all sizes and measurements
   const [formData, setFormData] = useState({
     before: {
       savedSizes: [],
@@ -70,7 +67,6 @@ const Aql = () => {
     },
   });
 
-  // API queries
   const { data: operationData } = useGetOperationQuery({ params: { companyId } });
   const { data: aqlData, refetch: refetchAqlData } = useGetSAqlInspectionsQuery();
   const { data: sizeData } = useGetSizeTableMasterQuery(
@@ -87,12 +83,10 @@ const Aql = () => {
   const { data: defect } = useGetDefectQuery({ params: { companyId } });
   const { data: DefectCorrection } = useGetdefectCorrectionQuery({ params: { companyId } });
 
-  // Constants
   const PIECES_COUNT = 7;
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
   const measurementSelectionKey = `aqlMeasurementSelections_${companyId}`;
 
-  // Derived data
   const references = [
     ...new Set(
       (sizeTableData?.data || [])
@@ -123,7 +117,6 @@ const Aql = () => {
     { id: 4, label: "4", time: "3:30 - 5:50" },
   ];
 
-  // State for UI and form status
   const [formStatus, setFormStatus] = useState({
     isDirty: false,
     lastSaved: null,
@@ -140,7 +133,6 @@ const Aql = () => {
 
   const [mergedReportData, setMergedReportData] = useState([]);
 
-  // Responsive handling
   useEffect(() => {
     const handleResize = () => {
       setIsMobileView(window.innerWidth < 768);
@@ -151,7 +143,6 @@ const Aql = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Measurement selection functions
   const loadMeasurementSelections = () => {
     try {
       const savedSelections = secureLocalStorage.getItem(measurementSelectionKey);
@@ -287,9 +278,53 @@ const Aql = () => {
     setFormStatus((prev) => ({ ...prev, isDirty: true }));
   };
 
-  // Load measurements when dependencies change
   useEffect(() => {
-    if (selectedReference && selectedProduct && selectedSize) {
+    if (singleData?.data && readOnly) {
+      const data = singleData.data;
+      const currentConditionData = data[ayanCondition] || [];
+      
+      if (selectedSize && currentConditionData.length > 0) {
+        const sizeData = currentConditionData.find(item => item.size === selectedSize );
+        
+        if (sizeData) {
+          const measurementList = sizeData.measurements.map(measurement => ({
+            id: measurement.measurementId,
+            name: measurement.measurementName,
+            standardValue: measurement.standardValue,
+            toleranceMin: measurement.toleranceMin,
+            toleranceMax: measurement.toleranceMax,
+            unit: measurement.unit,
+          }));
+
+          setMeasurements(measurementList);
+          setSelectedMeasurements(measurementList.map(m => m.id));
+
+          const newCheckValues = {};
+          sizeData.measurements.forEach(measurement => {
+            const values = Array(PIECES_COUNT).fill("");
+            measurement.values?.forEach((valueObj, index) => {
+              if (index < PIECES_COUNT) {
+                values[index] = valueObj.actualValue?.toString() || "";
+              }
+            });
+            newCheckValues[measurement.measurementId] = values;
+          });
+          setCheckValues(newCheckValues);
+
+          const newMeasurementMeta = {};
+          sizeData.measurements.forEach(measurement => {
+            newMeasurementMeta[measurement.measurementId] = {
+              machineNo: measurement.machineNo || "",
+              operation: measurement.operationId || "",
+              spi: measurement.spi || "",
+              defect: measurement.defectId || "",
+              correctiveAction: measurement.defectCorrectionId || "",
+            };
+          });
+          setMeasurementMeta(newMeasurementMeta);
+        }
+      }
+    } else if (selectedReference && selectedProduct && selectedSize) {
       const savedSelections = loadMeasurementSelections();
       setSelectedMeasurements(savedSelections);
 
@@ -330,9 +365,8 @@ const Aql = () => {
       setCheckValues({});
       setSelectedMeasurements([]);
     }
-  }, [selectedReference, selectedProduct, selectedSize, ayanCondition, formData]);
+  }, [selectedReference, selectedProduct, selectedSize, ayanCondition, formData, singleData, readOnly]);
 
-  // Reset when reference changes
   useEffect(() => {
     if (selectedReference) {
       setSelectedSize("");
@@ -343,7 +377,87 @@ const Aql = () => {
     }
   }, [selectedReference]);
 
-  // Merge report data
+  useEffect(() => {
+    if (singleData?.data && !formStatus.isDirty && readOnly) {
+      const data = singleData.data;
+      console.log("Loading single inspection data:", data);
+      
+      setSelectedReference(data.reference || "");
+      setId(data.id || "");
+      setColor(data?.color || "");
+      
+      if (data.inspectionDate) {
+        setInspectionDate(new Date(data.inspectionDate).toISOString().split("T")[0]);
+      }
+      
+      if (data?.lineMasterId) {
+        setSelectedLine(data?.lineMasterId.toString());
+      }
+
+      if (data?.shift) {
+        setSelectedShift(data.shift.toString());
+      }
+
+      const newFormData = {
+        before: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+        after: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+      };
+
+      if (data.before && Array.isArray(data.before)) {
+        newFormData.before.savedSizes = data.before.map((sample) => sample.size);
+
+        data.before.forEach((sample) => {
+          const size = sample.size;
+          newFormData.before.savedMeasurements[size] = {};
+
+          sample.measurements?.forEach((measurement) => {
+            const values = Array(PIECES_COUNT).fill("");
+            measurement.values?.forEach((valueObj, index) => {
+              if (index < PIECES_COUNT) {
+                const val = valueObj.actualValue?.toString() || "";
+                values[index] = val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
+              }
+            });
+
+            newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
+          });
+        });
+      }
+
+      if (data.after && Array.isArray(data.after)) {
+        newFormData.after.savedSizes = data.after.map((sample) => sample.size);
+
+        data.after.forEach((sample) => {
+          const size = sample.size;
+          newFormData.after.savedMeasurements[size] = {};
+
+          sample.measurements?.forEach((measurement) => {
+            const values = Array(PIECES_COUNT).fill("");
+            measurement.values?.forEach((valueObj, index) => {
+              if (index < PIECES_COUNT) {
+                const val = valueObj.actualValue?.toString() || "";
+                values[index] = val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
+              }
+            });
+
+            newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
+          });
+        });
+      }
+
+      setFormData(newFormData);
+      
+      const firstSize = data.before?.[0]?.size || data.after?.[0]?.size;
+      if (firstSize) {
+        setSelectedSize(firstSize);
+      }
+      
+      setTimeout(() => {
+        setFormStatus(prev => ({ ...prev, isDirty: false }));
+      }, 100);
+    }
+  }, [singleData, formStatus.isDirty, readOnly]);
+
   useEffect(() => {
     if (sizeTableData?.data && aqlData?.data) {
       const merged = aqlData.data.map((aqlItem) => {
@@ -367,7 +481,6 @@ const Aql = () => {
     }
   }, [sizeTableData, aqlData, approveStatus]);
 
-  // Storage management
   const loadSavedData = () => {
     const savedData = secureLocalStorage.getItem(storageKey);
     if (savedData) {
@@ -402,87 +515,15 @@ const Aql = () => {
   }, [selectedReference]);
 
   useEffect(() => {
-    if (selectedReference && formStatus.isDirty) {
+    if (selectedReference && formStatus.isDirty && !readOnly) {
       const saveTimer = setTimeout(() => {
         saveDataToStorage();
       }, 1000);
 
       return () => clearTimeout(saveTimer);
     }
-  }, [formData, selectedReference, formStatus.isDirty]);
+  }, [formData, selectedReference, formStatus.isDirty, readOnly]);
 
-  // Load single inspection data
-  useEffect(() => {
-    if (singleData?.data && !formStatus.isDirty) {
-      const data = singleData.data;
-      setSelectedReference(data.reference || "");
-      setId(data.id || "");
-      setColor(data?.color || "");
-      
-      if (data.inspectionDate) {
-        setInspectionDate(new Date(data.inspectionDate).toISOString().split("T")[0]);
-      }
-      
-      if (data?.lineMasterId) {
-        setSelectedLine(data?.lineMasterId);
-      }
-
-      const newFormData = {
-        before: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
-        after: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
-      };
-
-      // Process before condition data
-      if (data.before && Array.isArray(data.before)) {
-        newFormData.before.savedSizes = data.before.map((sample) => sample.size);
-
-        data.before.forEach((sample) => {
-          const size = sample.size;
-          newFormData.before.savedMeasurements[size] = {};
-
-          sample.measurements?.forEach((measurement) => {
-            const values = Array(PIECES_COUNT).fill("");
-            measurement.values?.forEach((valueObj) => {
-              if (valueObj.pieceNumber <= PIECES_COUNT) {
-                const val = valueObj.actualValue?.toString() || "";
-                values[valueObj.pieceNumber - 1] = val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
-              }
-            });
-
-            newFormData.before.savedMeasurements[size][measurement.measurementId] = values;
-          });
-        });
-      }
-
-      // Process after condition data
-      if (data.after && Array.isArray(data.after)) {
-        newFormData.after.savedSizes = data.after.map((sample) => sample.size);
-
-        data.after.forEach((sample) => {
-          const size = sample.size;
-          newFormData.after.savedMeasurements[size] = {};
-
-          sample.measurements?.forEach((measurement) => {
-            const values = Array(PIECES_COUNT).fill("");
-            measurement.values?.forEach((valueObj) => {
-              if (valueObj.pieceNumber <= PIECES_COUNT) {
-                const val = valueObj.actualValue?.toString() || "";
-                values[valueObj.pieceNumber - 1] = val && !isNaN(val) ? parseFloat(val).toFixed(2) : val;
-              }
-            });
-
-            newFormData.after.savedMeasurements[size][measurement.measurementId] = values;
-          });
-        });
-      }
-
-      setFormData(newFormData);
-      const firstSize = data.before?.[0]?.size || data.after?.[0]?.size;
-      if (firstSize) setSelectedSize(firstSize);
-    }
-  }, [singleData, formStatus.isDirty]);
-
-  // Measurement value handlers
   const handleCheckValueChange = (measurementId, pieceIndex, value) => {
     if (readOnly) return;
 
@@ -506,12 +547,13 @@ const Aql = () => {
     setFormStatus((prev) => ({ ...prev, isDirty: true }));
   };
 
-  // Size status helpers
   const isSizeComplete = (size, condition) => {
     const sizeData = formData[condition].savedMeasurements?.[size];
     if (!sizeData) return false;
 
-    const currentMeasurements = measurements.filter(m => selectedMeasurements.includes(m.id));
+const currentMeasurements = measurements.filter(m => 
+  Array.isArray(selectedMeasurements) && selectedMeasurements.includes(m.id)
+);
     return currentMeasurements.every((measurement) => {
       const values = sizeData[measurement.id];
       return values && values.length === PIECES_COUNT && values.every(val => val !== "" && val !== null && val !== undefined);
@@ -528,7 +570,6 @@ const Aql = () => {
     return "none";
   };
 
-  // Size management functions
   const handleLoadSize = (size) => {
     setSelectedSize(size);
     setShowSizeDropdown(false);
@@ -537,7 +578,6 @@ const Aql = () => {
   const handleSaveSize = () => {
     if (!selectedSize || readOnly) return;
 
-    // Check if all selected measurements have values for all pieces
     const isComplete = measurements.every((measurement) => {
       return checkValues[measurement.id] &&
         checkValues[measurement.id].length === PIECES_COUNT &&
@@ -596,7 +636,6 @@ const Aql = () => {
     toast.info("Partially saved measurements for this size.");
   };
 
-  // Tolerance checking
   const checkTolerance = (measurement, value) => {
     if (!value || isNaN(value) || value === "") return "";
     const numericValue = parseFloat(value);
@@ -614,7 +653,6 @@ const Aql = () => {
     return "bg-green-100 text-green-800";
   };
 
-  // CORRECTED: Prepare data for database submission - SUBMIT ALL SAVED SIZES
   const prepareDatabasePayload = () => {
     const getMeasurementsForSize = (size) => {
       return selectedProduct?.measurements
@@ -633,18 +671,15 @@ const Aql = () => {
     };
 
     const prepareConditionData = (condition) => {
-      // Get ALL saved sizes (both complete and partial)
       const allSavedSizes = formData[condition].savedSizes;
       
       return allSavedSizes.map((size) => {
         const sizeMeasurements = getMeasurementsForSize(size);
         const sizeMeta = formData[condition].measurementMeta?.[size] || {};
 
-        // Get measurements from both complete and partial saves
         const completeMeasurements = formData[condition].savedMeasurements?.[size] || {};
         const partialMeasurements = formData[condition].partialSavedMeasurements?.[size] || {};
         
-        // Combine both complete and partial measurements
         const allMeasurementsData = { ...partialMeasurements, ...completeMeasurements };
 
         return {
@@ -681,7 +716,7 @@ const Aql = () => {
               };
             }),
         };
-      }).filter(sizeData => sizeData.measurements.length > 0); // Only include sizes with measurements
+      }).filter(sizeData => sizeData.measurements.length > 0);
     };
 
     return {
@@ -697,11 +732,9 @@ const Aql = () => {
     };
   };
 
-  // CORRECTED: Form submission - Submit ALL saved sizes
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if there are any saved sizes (complete or partial)
     const beforeSizes = formData.before.savedSizes.length;
     const afterSizes = formData.after.savedSizes.length;
 
@@ -715,7 +748,6 @@ const Aql = () => {
     try {
       const payload = prepareDatabasePayload();
       
-      // Log the payload for debugging
       console.log("Submitting ALL sizes:", payload);
       
       let response;
@@ -743,7 +775,6 @@ const Aql = () => {
     }
   };
 
-  // Utility functions
   const handleReset = () => {
     if (window.confirm("Are you sure you want to reset the form? All unsaved data will be lost.")) {
       secureLocalStorage.removeItem(storageKey);
@@ -778,6 +809,8 @@ const Aql = () => {
     setId("");
     setAyanCondition("before");
     setShowCompare(false);
+    setSelectedLine("");
+    setSelectedShift("");
   };
 
   const addTimeButton = () => {
@@ -813,7 +846,6 @@ const Aql = () => {
     setFormStatus((prev) => ({ ...prev, isDirty: false }));
   };
 
-  // Data table handlers
   const onDataClick = (id) => {
     setId(id);
     setReadOnly(true);
@@ -821,6 +853,10 @@ const Aql = () => {
     setShowCompare(false);
     setAyanCondition("before");
     setFormStatus((prev) => ({ ...prev, isDirty: false }));
+    setFormData({
+      before: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+      after: { savedSizes: [], savedMeasurements: {}, partialSavedMeasurements: {}, measurementMeta: {} },
+    });
   };
 
   const deleteData = async () => {
@@ -847,7 +883,6 @@ const Aql = () => {
     resetForm();
   };
 
-  // Measurement Selection Popup Component
   const MeasurementSelectionPopup = () => (
     <Modal isOpen={showMeasurementPopup} widthClass="w-[90%] max-w-4xl" onClose={() => setShowMeasurementPopup(false)}>
       <div className="p-4">
@@ -908,6 +943,7 @@ const Aql = () => {
                   checked={selectedMeasurements.includes(measurement.id)}
                   onChange={(e) => handleMeasurementSelection(measurement.id, e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  disabled={readOnly}
                 />
                 <label className="ml-2 text-sm">
                   <span className="font-medium">{measurement.name}</span>
@@ -936,6 +972,7 @@ const Aql = () => {
               type="button"
               onClick={applyMeasurementSelection}
               className="px-4 py-2 text-sm bg-blue-600 text-white rounded"
+              disabled={readOnly}
             >
               Apply to Size- {selectedSize}
             </button>
@@ -945,7 +982,6 @@ const Aql = () => {
     </Modal>
   );
 
-  // UI rendering functions
   const renderFormControls = () => (
     <div className={`grid ${isMobileView ? "grid-cols-3" : "grid-cols-1 md:grid-cols-7"} gap-4 mb-4`}>
       <div>
@@ -979,6 +1015,7 @@ const Aql = () => {
           onChange={(e) => setColor(e.target.value)}
           className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
           placeholder="Color"
+          readOnly={readOnly}
         />
       </div>
 
@@ -1058,8 +1095,8 @@ const Aql = () => {
           <button
             type="button"
             onClick={openMeasurementPopup}
-            disabled={!selectedSize}
-            className={`px-3 py-1 rounded-md shadow-sm h-9 text-xs font-medium ${!selectedSize ? "border border-sky-700 cursor-not-allowed text-gray-200" : " border border-sky-700 "}`}
+            disabled={!selectedSize || readOnly}
+            className={`px-3 py-1 rounded-md shadow-sm h-9 text-xs font-medium ${!selectedSize || readOnly ? "border border-gray-300 cursor-not-allowed text-gray-400" : " border border-sky-700 "}`}
           >
             <img src={Filter} alt="filter" className="w-4 h-4" />
           </button>
@@ -1073,9 +1110,11 @@ const Aql = () => {
             <button
               key={shift.id}
               type="button"
-              onClick={() => setSelectedShift(shift.id)}
+              onClick={() => !readOnly && setSelectedShift(shift.id)}
               className={`flex flex-col items-center justify-center border rounded-lg px-2 py-2 text-xs transition-all
-                ${selectedShift === shift.id ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-sm" : "border-gray-300 bg-white hover:border-blue-400"}`}
+                ${selectedShift === shift.id ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-sm" : "border-gray-300 bg-white hover:border-blue-400"}
+                ${readOnly ? "cursor-not-allowed" : ""}`}
+              disabled={readOnly}
             >
               <span className="text-sm">{shift.label}</span>
             </button>
@@ -1113,14 +1152,16 @@ const Aql = () => {
                 ? 'Click "Select Measurements" to choose which measurements to display.'
                 : "Applying your saved measurement preferences..."}
             </p>
-            <button
-              type="button"
-              onClick={openMeasurementPopup}
-              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-            >
-              <img src={Filter} alt="filter" className="w-5 h-5 mr-2" />
-              Select Measurements
-            </button>
+            {!readOnly && (
+              <button
+                type="button"
+                onClick={openMeasurementPopup}
+                className="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              >
+                <img src={Filter} alt="filter" className="w-5 h-5 mr-2" />
+                Select Measurements
+              </button>
+            )}
           </div>
         </div>
       );
@@ -1606,7 +1647,6 @@ const Aql = () => {
     </div>
   );
 
-  // Table configuration
   const tableHeaders = ["ID", "Reference", "Inspection Date", "Party", "Line", "Delivery Date"];
   const tableDataNames = [
     "dataObj?.id",
@@ -1626,12 +1666,13 @@ const Aql = () => {
       {newItem === false ? (
         <>
           <div className="bg-white px-4 py-2 flex items-center justify-between">
-            <h1 className="text-lg font-bold text-gray-800">AQL Inspection Report</h1>
+            <h1 className="text-lg font-bold text-gray-800">7 PIECE REPORT</h1>
             <button
               onClick={() => {
                 setId("");
                 setNewItem(true);
                 setSelectedMeasurements([]);
+                setReadOnly(false);
               }}
               className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-3 py-1 text-xs"
             >
@@ -1640,7 +1681,7 @@ const Aql = () => {
           </div>
 
           <Mastertable
-            header={`AQL Inspection Report`}
+            header={`7 PIECE REPORT`}
             onDataClick={onDataClick}
             tableHeaders={tableHeaders}
             tableDataNames={tableDataNames}
@@ -1662,6 +1703,7 @@ const Aql = () => {
               <div className="bg-white px-4 py-2 flex items-center justify-between">
                 <h1 className="text-lg font-bold text-gray-800">
                   {id ? "Seven Sample Inspection Details" : "Seven Sample Inspection Form"}
+                  {readOnly && " (Read Only)"}
                 </h1>
                 <div
                   className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-2 py-1 text-xs flex items-center cursor-pointer"
@@ -1673,6 +1715,34 @@ const Aql = () => {
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
                   {renderFormControls()}
+                   <div className="mb-4">
+                    <div className="flex flex-wrap gap-4">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {formData.before.savedSizes.map((size, index) => (
+                            <button
+                              key={`before-${index}`}
+                              type="button"
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                ${selectedSize === size ? 'ring-2 ring-blue-500' : ''}
+                                ${getSizeStatus(size, 'before') === 'complete' ? 'bg-green-100 text-green-800' :
+                                  getSizeStatus(size, 'before') === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-gray-100 text-gray-800'}`}
+                              onClick={() => {
+                                setAyanCondition('before');
+                                handleLoadSize(size);
+                              }}
+                            >
+                              {size}
+                              {getSizeStatus(size, 'before') === 'complete' && ' ✓'}
+                              {getSizeStatus(size, 'before') === 'partial' && ' ~'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                     
+                    </div>
+                  </div>
                   {renderMeasurementsTable()}
                   {renderActionButtons()}
                 </form>

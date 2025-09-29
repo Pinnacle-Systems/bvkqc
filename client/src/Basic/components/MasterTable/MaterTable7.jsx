@@ -4,7 +4,7 @@ import "./Master.css";
 import { Power, Table, Check, X, Eye, Edit, Trash } from "lucide-react";
 import { FaTableList } from "react-icons/fa6";
 import { RiPlayListAddLine } from "react-icons/ri";
-import { useUpdateAqlStatusInspectionMutation } from "../../../redux/uniformService/AqlInspectionService";
+import { useUpdateSAqlStatusInspectionMutation } from "../../../redux/uniformService/SAqlInspectionService.js";
 import { toast } from "react-toastify";
 
 const ACTIVE = (
@@ -24,12 +24,15 @@ const Mastertable = ({
   approveStatus,
   refetchAqlData,
   setApproveStatus
+
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedRow, setExpandedRow] = useState(null);
   const [approveStatusFilter, setApproveStatusFilter] = useState("waiting");
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState('')
+  console.log(searchValue, "searchNalue")
+  console.log(data, "data ")
 
   const filteredData = data?.filter((item) => {
     const searchLower = searchValue.toLowerCase();
@@ -54,24 +57,23 @@ const Mastertable = ({
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  console.log(currentData,"currentData")
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchValue, approveStatusFilter]);
 
-  const [updateStatus] = useUpdateAqlStatusInspectionMutation();
+  const [updateStatus] = useUpdateSAqlStatusInspectionMutation();
   const handleApprove = async (id, status) => {
-    try {
-      const response = await updateStatus({ id, payload: { status } }).unwrap();
-      setApproveStatus(response.approveStatus);
-      refetchAqlData(); 
-      toast.success(status === 1 ? "Approved successfully" : "Rejected successfully");
-    } catch (err) {
-      console.error("Failed to update status", err);
-      toast.error("Failed to update status");
-    }
-  };
+  try {
+    const response = await updateStatus({ id, payload: { status } }).unwrap();
+    setApproveStatus(response.approveStatus);
+    refetchAqlData(); 
+    toast.success(status === 1 ? "Approved successfully" : "Rejected successfully");
+  } catch (err) {
+    console.error("Failed to update status", err);
+    toast.error("Failed to update status");
+  }
+};
 
   const toggleRowExpand = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -88,7 +90,6 @@ const Mastertable = ({
   };
 
   const renderSizeStatus = (hasBefore, hasAfter, beforeSize, afterSize) => {
-    console.log(beforeSize,"beforeSize")
     if (!hasBefore && !hasAfter) {
       return (
         <div className="text-xs text-gray-500 italic">No size data</div>
@@ -107,32 +108,9 @@ const Mastertable = ({
             After: {afterSize}
           </div>
         )}
+
       </div>
     );
-  };
-
-  // Helper function to render approval status badge
-  const renderApprovalStatus = (approveStatus) => {
-    switch (approveStatus) {
-      case 1:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            Approved
-          </span>
-        );
-      case 0:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            Rejected
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-            Pending
-          </span>
-        );
-    }
   };
 
   return (
@@ -288,19 +266,7 @@ const Mastertable = ({
                           </div>
                         </div>
 
-                        <div className="mt-3">
-                          <p className="text-gray-500 font-medium text-xs">Size Status</p>
-                          {renderSizeStatus(
-                            dataObj.hasBefore,
-                            dataObj.hasAfter,
-                            dataObj.beforeSize,
-                            dataObj.afterSize
-                          )}
-                        </div>
-
-                        <div className="mt-2">
-                          {renderApprovalStatus(dataObj.approveStatus)}
-                        </div>
+                   
                       </div>
 
                       {expandedRow === dataObj.id && (
@@ -352,24 +318,19 @@ const Mastertable = ({
                             >
                               <Trash size={14} /> Delete
                             </button>
-                            
-                            {/* Only show Approve/Reject buttons for pending records */}
-                            {dataObj.approveStatus === null && (
-                              <>
-                                <button
-                                  onClick={() => handleApprove(dataObj.id, 1)}
-                                  className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
-                                >
-                                  <Check size={14} /> Approve
-                                </button>
-                                <button
-                                  onClick={() => handleApprove(dataObj.id, 0)}
-                                  className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
-                                >
-                                  <X size={14} /> Reject
-                                </button>
-                              </>
-                            )}
+                            <button
+                              onClick={() => handleApprove(dataObj.id, 1)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
+                            >
+                              <Check size={14} /> Approve
+                            </button>
+
+                            <button
+                              onClick={() => handleApprove(dataObj.id, 0)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
+                            >
+                              <X size={14} /> Reject
+                            </button>
                           </div>
                         </div>
                       )}
@@ -398,9 +359,6 @@ const Mastertable = ({
                           Delivery Date
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -424,15 +382,12 @@ const Mastertable = ({
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {dataObj?.lineDetails?.name || 'N/A'}
                             </td>
-                          
+                           
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {formatDate(dataObj.inspectionDate)}
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {formatDate(dataObj?.allocationDetails?.[0]?.deliveryDate)}
-                            </td>
-                            <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
-                              {renderApprovalStatus(dataObj.approveStatus)}
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               <div className="flex space-x-2">
@@ -472,38 +427,26 @@ const Mastertable = ({
                               </div>
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
-                              {/* Only show Approve/Reject buttons for pending records */}
-                              {dataObj.approveStatus === null ? (
-                                <div className="flex space-x-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleApprove(dataObj.id, 1);
-                                    }}
-                                    className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
-                                  >
-                                    <Check size={14} /> Approve
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleApprove(dataObj.id, 0);
-                                    }}
-                                    className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
-                                  >
-                                    <X size={14} /> Reject
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-xs text-gray-400">
-                                  {dataObj.approveStatus === 1 ? 'Approved' : 'Rejected'}
-                                </span>
-                              )}
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleApprove(dataObj.id, 1)}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700"
+                                >
+                                  <Check size={14} /> Approve
+                                </button>
+
+                                <button
+                                  onClick={() => handleApprove(dataObj.id, 0)}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md text-xs hover:bg-red-700"
+                                >
+                                  <X size={14} /> Reject
+                                </button>
+                              </div>
                             </td>
                           </tr>
                           {expandedRow === dataObj.id && (
                             <tr className="bg-gray-50">
-                              <td colSpan="9" className="px-6 py-2">
+                              <td colSpan="8" className="px-6 py-2">
                                 <div className="grid grid-cols-3 gap-4 text-sm">
                                   <div>
                                     <p className="text-gray-500 font-medium">Allocation Date</p>

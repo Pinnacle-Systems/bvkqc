@@ -562,7 +562,7 @@ export const updateAqlInspection = async (req, res) => {
   }
 };
 
-export const deleteAqlInspection = async (req, res) => {
+export const deleteSAqlInspection = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
@@ -727,5 +727,31 @@ export const getSAqlInspections = async (req, res) => {
     }
 
     return res.status(statusCode).json(errorResponse);
+  }
+};
+export const updateSAqlStatusInspection = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Inspection ID is required" });
+    }
+    console.log(req.body,"bodyData ")
+
+    const updatedInspection = await prisma.sAqlInspection.update({
+      where: { id: parseInt(id) },
+      data: { approveStatus: req.body.status }, 
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: updatedInspection,
+    });
+  } catch (err) {
+    console.error("Update AQL Status Error:", err);
+    if (err.code === "P2025") {
+      return res.status(404).json({ message: "Inspection not found" });
+    }
+    return res.status(500).json({ message: err.message });
   }
 };
