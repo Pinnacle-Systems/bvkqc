@@ -490,7 +490,7 @@ export const getAqlInspections = async (req, res) => {
   }
 };
 
-export const updateAqlInspection = async (req, res) => {
+export const updateSAqlInspection = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {

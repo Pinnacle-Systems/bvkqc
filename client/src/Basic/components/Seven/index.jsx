@@ -279,7 +279,7 @@ const Aql = () => {
   };
 
   useEffect(() => {
-    if (singleData?.data && readOnly) {
+    if (singleData?.data ) {
       const data = singleData.data;
       const currentConditionData = data[ayanCondition] || [];
       
@@ -378,7 +378,7 @@ const Aql = () => {
   }, [selectedReference]);
 
   useEffect(() => {
-    if (singleData?.data && !formStatus.isDirty && readOnly) {
+    if (singleData?.data && !formStatus.isDirty ) {
       const data = singleData.data;
       console.log("Loading single inspection data:", data);
       
@@ -1703,7 +1703,6 @@ const currentMeasurements = measurements.filter(m =>
               <div className="bg-white px-4 py-2 flex items-center justify-between">
                 <h1 className="text-lg font-bold text-gray-800">
                   {id ? "Seven Sample Inspection Details" : "Seven Sample Inspection Form"}
-                  {readOnly && " (Read Only)"}
                 </h1>
                 <div
                   className="text-indigo-600 hover:text-white rounded-md border border-indigo-600 bg-white hover:bg-indigo-600 px-2 py-1 text-xs flex items-center cursor-pointer"
