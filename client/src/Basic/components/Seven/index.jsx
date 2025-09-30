@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   useGetSizeTableMasterQuery,
   useGetAllocationMasterQuery,
-} from "../../../redux/uniformService/SizeTableMasterService";
+} from "../../../redux/uniformService/SizeTableMasterService.js";
 import secureLocalStorage from "react-secure-storage";
 import {
   useGetSAqlInspectionsQuery,
@@ -10,11 +10,11 @@ import {
   useAddSAqlInspectionMutation,
   useUpdateSAqlInspectionMutation,
   useDeleteSAqlInspectionMutation,
-} from "../../../redux/uniformService/SAqlInspectionService";
+} from "../../../redux/uniformService/SAqlInspectionService.js";
 import Mastertable from "../MasterTable/MaterTable7.jsx";
 import { toast } from "react-toastify";
 import Modal from "../../../UiComponents/Modal/index.js";
-import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService";
+import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService.js";
 import { useGetdefectCorrectionQuery } from "../../../redux/services/DefectCorrectionMasterService.js";
 import { useGetDefectQuery } from "../../../redux/services/DefectMasterService.js";
 import { useGetOperationQuery } from "../../../redux/services/OprtaionMasterService.js";
