@@ -130,27 +130,22 @@ const transformValue = (value) => ({
 
 const validateEmployeeExists = async (tx, employeeId) => {
   if (!employeeId) {
-    console.log("No employeeId provided, skipping employee validation");
     return null;
   }
   
   const parsedEmployeeId = parseInt(employeeId);
   if (isNaN(parsedEmployeeId)) {
-    console.log(`Invalid employeeId format: ${employeeId}, skipping validation`);
     return null;
   }
   
-  console.log(`Checking if employee with ID ${parsedEmployeeId} exists`);
   const employee = await tx.employee.findUnique({
     where: { id: parsedEmployeeId }
   });
   
   if (!employee) {
-    console.warn(`Employee with ID ${parsedEmployeeId} not found`);
     return null;
   }
   
-  console.log(`Employee found: ${employee.name}`);
   return parsedEmployeeId;
 };
 
@@ -301,7 +296,6 @@ const getInspectionInclude = () => ({
 export const createAqlInspection = async (req, res) => {
   try {
     validateInspectionPayload(req.body);
-    console.log("Received payload:", JSON.stringify(req.body, null, 2));
 
     const result = await prisma.$transaction(async (tx) => {
       const validEmployeeId = await validateEmployeeExists(tx, req.body.userId);
@@ -317,21 +311,17 @@ export const createAqlInspection = async (req, res) => {
         employeeId: validEmployeeId, 
       };
 
-      console.log("Creating inspection with data:", inspectionData);
 
       const inspection = await tx.sAqlInspection.create({
         data: inspectionData,
       });
 
-      console.log(`Created inspection with ID: ${inspection.id}`);
 
       if (req.body.before && req.body.before.length > 0) {
-        console.log(`Processing ${req.body.before.length} before samples`);
         await processSamples(tx, req.body.before, "BEFORE", inspection.id);
       }
 
       if (req.body.after && req.body.after.length > 0) {
-        console.log(`Processing ${req.body.after.length} after samples`);
         await processSamples(tx, req.body.after, "AFTER", inspection.id);
       }
 
@@ -340,7 +330,6 @@ export const createAqlInspection = async (req, res) => {
         include: getInspectionInclude(),
       });
 
-      console.log("Inspection created successfully");
       return completeInspection;
     });
 
@@ -349,7 +338,6 @@ export const createAqlInspection = async (req, res) => {
       data: transformInspectionData(result),
     });
   } catch (error) {
-    console.error("Create AQL Inspection Error:", error);
     const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({
       success: false,
@@ -482,7 +470,6 @@ export const getAqlInspections = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Get AQL Inspections Error:", error);
     return res.status(500).json({
       success: false,
       error: "Failed to fetch inspections",
@@ -553,7 +540,6 @@ export const updateSAqlInspection = async (req, res) => {
       data: transformInspectionData(result),
     });
   } catch (error) {
-    console.error("Update AQL Inspection Error:", error);
     const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({
       success: false,
@@ -589,7 +575,6 @@ export const deleteSAqlInspection = async (req, res) => {
       message: "Inspection deleted successfully",
     });
   } catch (error) {
-    console.error("Delete AQL Inspection Error:", error);
     if (error.code === 'P2025') {
       return res.status(404).json({
         success: false,
@@ -632,7 +617,6 @@ export const getAqlInspectionSummary = async (req, res) => {
       data: summary,
     });
   } catch (error) {
-    console.error("Get AQL Inspection Summary Error:", error);
     return res.status(500).json({
       success: false,
       error: "Failed to fetch inspection summary",
@@ -709,7 +693,6 @@ export const getSAqlInspections = async (req, res) => {
       data: formattedReferences,
     });
   } catch (error) {
-    console.error("Get All References Error:", error);
     const statusCode = error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
       success: false,
@@ -736,7 +719,6 @@ export const updateSAqlStatusInspection = async (req, res) => {
     if (!id) {
       return res.status(400).json({ message: "Inspection ID is required" });
     }
-    console.log(req.body,"bodyData ")
 
     const updatedInspection = await prisma.sAqlInspection.update({
       where: { id: parseInt(id) },
@@ -748,7 +730,6 @@ export const updateSAqlStatusInspection = async (req, res) => {
       data: updatedInspection,
     });
   } catch (err) {
-    console.error("Update AQL Status Error:", err);
     if (err.code === "P2025") {
       return res.status(404).json({ message: "Inspection not found" });
     }

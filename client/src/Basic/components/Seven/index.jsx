@@ -1236,21 +1236,59 @@ const currentMeasurements = measurements.filter(m =>
                       ))}
                     </select>
                   </div>
-                  <div className="flex flex-col col-span-2">
-                    <label className="text-xs text-gray-500 mb-0.5">Corrective Action</label>
-                    <select
-                      value={measurementMeta[measurement.id]?.correctiveAction || ""}
-                      onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
-                      className={selectStyle}
-                      disabled={readOnly}
-                      style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
-                    >
-                      <option value="">Select</option>
-                      {correctiveActionOptions?.map((option) => (
-                        <option key={option.id} value={option.name}>{option.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="flex flex-col col-span-2">
+  <label className="text-xs text-gray-500 mb-0.5">Corrective Action</label>
+  <select
+    value={
+      correctiveActionOptions.some(
+        (opt) => opt.name === measurementMeta[measurement.id]?.correctiveAction
+      )
+        ? measurementMeta[measurement.id]?.correctiveAction
+        : "Other" // if not in list, show "Other"
+    }
+    onChange={(e) => {
+      const value = e.target.value;
+      if (value === "Other") {
+        // clear existing and wait for custom input
+        handleMetaChange(measurement.id, "correctiveAction", "");
+      } else {
+        handleMetaChange(measurement.id, "correctiveAction", value);
+      }
+    }}
+    className={selectStyle}
+    disabled={readOnly}
+    style={{
+      backgroundSize: "12px 12px",
+      backgroundPosition: "right 4px center",
+    }}
+  >
+    <option value="">Select</option>
+    {correctiveActionOptions?.map((option) => (
+      <option key={option.id} value={option.name}>
+        {option.name}
+      </option>
+    ))}
+    <option value="Other">Other</option>
+  </select>
+
+  {/* Show text input only when "Other" is selected */}
+  {(!correctiveActionOptions.some(
+    (opt) => opt.name === measurementMeta[measurement.id]?.correctiveAction
+  ) &&
+    measurementMeta[measurement.id]?.correctiveAction !== "") && (
+    <input
+      type="text"
+      value={measurementMeta[measurement.id]?.correctiveAction || ""}
+      onChange={(e) =>
+        handleMetaChange(measurement.id, "correctiveAction", e.target.value)
+      }
+      placeholder="Enter custom action"
+      className="mt-2 border rounded p-1 text-sm"
+      disabled={readOnly}
+    />
+  )}
+</div>
+
                 </div>
 
                 <div className="flex justify-between items-center mb-1.5">

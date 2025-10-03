@@ -242,7 +242,6 @@ export const createAqlInspection = async (req, res) => {
       data: transformInspectionData(result),
     });
   } catch (error) {
-    console.error("Error creating AQL inspection:", error);
     const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({
       success: false,
@@ -256,7 +255,6 @@ export const createAqlInspection = async (req, res) => {
 export const getAqlInspectionById = async (req, res) => {
   try {
     const { id } = req.params;
-   console.log(id,"id call")
     if (!id) {
       throw new AqlInspectionError("Inspection ID is required", 400);
     }
@@ -303,14 +301,12 @@ export const getAqlInspectionById = async (req, res) => {
         404
       );
     }
-    console.log(inspection,"inspectionsss")
 
     return res.status(200).json({
       success: true,
       data: transformInspectionData(inspection),
     });
   } catch (error) {
-    console.error("Get AQL Inspection Error:", error);
     const statusCode =
       error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
@@ -382,7 +378,6 @@ export const getAqlInspectionsByReference = async (req, res) => {
       data: transformInspectionData(inspection),
     });
   } catch (error) {
-    console.error("Get AQL Inspections by Reference Error:", error);
     const statusCode =
       error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
@@ -460,7 +455,6 @@ const formattedReferences = references.map(ref => ({
       data: formattedReferences,
     });
   } catch (error) {
-    console.error("Get All References Error:", error);
     const statusCode =
       error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
@@ -605,7 +599,6 @@ export const updateAqlInspection = async (req, res) => {
       data: transformInspectionData(result),
     });
   } catch (error) {
-    console.error("Update AQL Inspection Error:", error);
     const statusCode =
       error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
@@ -689,7 +682,6 @@ export const deleteAqlInspection = async (req, res) => {
       message: `AQL Inspection with ID ${id} deleted successfully`,
     });
   } catch (error) {
-    console.error("Delete AQL Inspection Error:", error);
     const statusCode =
       error instanceof AqlInspectionError ? error.statusCode : 500;
     const errorResponse = {
@@ -715,7 +707,6 @@ export const updateAqlStatusInspection = async (req, res) => {
     if (!id) {
       return res.status(400).json({ message: "Inspection ID is required" });
     }
-    console.log(req.body,"bodyData ")
 
     const updatedInspection = await prisma.aqlInspection.update({
       where: { id: parseInt(id) },
@@ -727,7 +718,6 @@ export const updateAqlStatusInspection = async (req, res) => {
       data: updatedInspection,
     });
   } catch (err) {
-    console.error("Update AQL Status Error:", err);
     if (err.code === "P2025") {
       return res.status(404).json({ message: "Inspection not found" });
     }

@@ -28,7 +28,7 @@ const Mastertable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedRow, setExpandedRow] = useState(null);
-  const [approveStatusFilter, setApproveStatusFilter] = useState("waiting");
+  const [approveStatusFilter, setApproveStatusFilter] = useState("all");
   const [searchValue, setSearchValue] = useState('');
 
   const filteredData = data?.filter((item) => {
@@ -286,17 +286,16 @@ const Mastertable = ({
                               {dataObj?.lineDetails?.name || 'N/A'}
                             </p>
                           </div>
+                           
                         </div>
+                        
 
-                        <div className="mt-3">
-                          <p className="text-gray-500 font-medium text-xs">Size Status</p>
-                          {renderSizeStatus(
-                            dataObj.hasBefore,
-                            dataObj.hasAfter,
-                            dataObj.beforeSize,
-                            dataObj.afterSize
-                          )}
-                        </div>
+                         <div>
+                            <p className="text-gray-500 font-medium">Employee </p>
+                            <p>
+                              {dataObj?.userDetails?.name || 'N/A'}
+                            </p>
+                          </div>
 
                         <div className="mt-2">
                           {renderApprovalStatus(dataObj.approveStatus)}
@@ -387,6 +386,9 @@ const Mastertable = ({
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Party
                         </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Employee
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Line
                         </th>
@@ -420,6 +422,9 @@ const Mastertable = ({
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {dataObj?.allocationDetails?.[0]?.partyName || 'N/A'}
+                            </td>
+                              <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                              {dataObj?.userDetails?.name || 'N/A'}
                             </td>
                             <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                               {dataObj?.lineDetails?.name || 'N/A'}
