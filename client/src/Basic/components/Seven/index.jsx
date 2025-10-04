@@ -15,7 +15,7 @@ import Mastertable from "../MasterTable/MaterTable7.jsx";
 import { toast } from "react-toastify";
 import Modal from "../../../UiComponents/Modal/index.js";
 import { useGetLineMasterQuery } from "../../../redux/services/LineMasterService.js";
-import { useGetdefectCorrectionQuery } from "../../../redux/services/DefectCorrectionMasterService.js";
+import { useAdddefectCorrectionMutation, useGetdefectCorrectionQuery } from "../../../redux/services/DefectCorrectionMasterService.js";
 import { useGetDefectQuery } from "../../../redux/services/DefectMasterService.js";
 import { useGetOperationQuery } from "../../../redux/services/OprtaionMasterService.js";
 import Filter from "./filter.png";
@@ -25,6 +25,7 @@ const Aql = () => {
   const [inspectionDate, setInspectionDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [newCorrectiveAction, setNewCorrectiveAction] = useState("");
   const [id, setId] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [newItem, setNewItem] = useState(false);
@@ -41,6 +42,8 @@ const Aql = () => {
   const [availableMeasurements, setAvailableMeasurements] = useState([]);
   const [selectedMeasurements, setSelectedMeasurements] = useState([]);
   const [selectedShift, setSelectedShift] = useState("");
+  const [showAddCorrectiveAction, setShowAddCorrectiveAction] = useState(false);
+  const [selectedDefectForCorrection, setSelectedDefectForCorrection] = useState("");
 
   const companyId = secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "userCompanyId"
@@ -78,10 +81,11 @@ const Aql = () => {
   const [addAqlInspection] = useAddSAqlInspectionMutation();
   const [updateAqlInspection] = useUpdateSAqlInspectionMutation();
   const [removeData] = useDeleteSAqlInspectionMutation();
+  const [addDfCorrection] = useAdddefectCorrectionMutation();
 
   const { data: lines = [] } = useGetLineMasterQuery({ params: { companyId } });
   const { data: defect } = useGetDefectQuery({ params: { companyId } });
-  const { data: DefectCorrection } = useGetdefectCorrectionQuery({ params: { companyId } });
+  const { data: DefectCorrection, refetch: refetchDefectCorrection } = useGetdefectCorrectionQuery({ params: { companyId } });
 
   const PIECES_COUNT = 7;
   const storageKey = `aqlFormData_${companyId}_${selectedReference}`;
@@ -142,6 +146,35 @@ const Aql = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Handle adding corrective action
+  const handleAddCorrectiveAction = async () => {
+    if (!newCorrectiveAction.trim()) {
+      toast.error("Please enter a corrective action name");
+      return;
+    }
+
+    if (!selectedDefectForCorrection) {
+      toast.error("Please select a defect first");
+      return;
+    }
+
+    try {
+      const payload = {
+        name: newCorrectiveAction.trim(),
+        defectId: parseInt(selectedDefectForCorrection)
+      };
+
+      await addDfCorrection(payload).unwrap();
+      toast.success("Corrective action added successfully");
+      setNewCorrectiveAction("");
+      setShowAddCorrectiveAction(false);
+      refetchDefectCorrection(); // Refresh the corrective actions list
+    } catch (err) {
+      console.error("Failed to add corrective action:", err);
+      toast.error("Failed to add corrective action");
+    }
+  };
 
   const loadMeasurementSelections = () => {
     try {
@@ -233,13 +266,13 @@ const Aql = () => {
     setAvailableMeasurements(allMeasurements);
     const savedSelections = loadMeasurementSelections();
     const initialSelections = savedSelections.length > 0 ? savedSelections : allMeasurements.map((m) => m.id);
-    
+
     setSelectedMeasurements(initialSelections);
     setShowMeasurementPopup(true);
   };
 
   const handleMeasurementSelection = (measurementId, isSelected) => {
-    setSelectedMeasurements((prev) => 
+    setSelectedMeasurements((prev) =>
       isSelected ? [...prev, measurementId] : prev.filter((id) => id !== measurementId)
     );
   };
@@ -262,30 +295,30 @@ const Aql = () => {
 
     const newCheckValues = {};
     filteredMeasurements.forEach((m) => {
-      const existingValues = 
+      const existingValues =
         formData[ayanCondition].savedMeasurements?.[selectedSize]?.[m.id] ||
         formData[ayanCondition].partialSavedMeasurements?.[selectedSize]?.[m.id] ||
         Array(PIECES_COUNT).fill("");
-      
+
       newCheckValues[m.id] = existingValues;
     });
 
     setCheckValues(newCheckValues);
     saveMeasurementSelections(selectedReference, selectedSize, selectedMeasurements);
     setShowMeasurementPopup(false);
-    
+
     toast.success(`Selected ${filteredMeasurements.length} measurements for ${selectedSize}`);
     setFormStatus((prev) => ({ ...prev, isDirty: true }));
   };
 
   useEffect(() => {
-    if (singleData?.data ) {
+    if (singleData?.data) {
       const data = singleData.data;
       const currentConditionData = data[ayanCondition] || [];
-      
+
       if (selectedSize && currentConditionData.length > 0) {
-        const sizeData = currentConditionData.find(item => item.size === selectedSize );
-        
+        const sizeData = currentConditionData.find(item => item.size === selectedSize);
+
         if (sizeData) {
           const measurementList = sizeData.measurements.map(measurement => ({
             id: measurement.measurementId,
@@ -378,18 +411,18 @@ const Aql = () => {
   }, [selectedReference]);
 
   useEffect(() => {
-    if (singleData?.data && !formStatus.isDirty ) {
+    if (singleData?.data && !formStatus.isDirty) {
       const data = singleData.data;
       console.log("Loading single inspection data:", data);
-      
+
       setSelectedReference(data.reference || "");
       setId(data.id || "");
       setColor(data?.color || "");
-      
+
       if (data.inspectionDate) {
         setInspectionDate(new Date(data.inspectionDate).toISOString().split("T")[0]);
       }
-      
+
       if (data?.lineMasterId) {
         setSelectedLine(data?.lineMasterId.toString());
       }
@@ -446,12 +479,12 @@ const Aql = () => {
       }
 
       setFormData(newFormData);
-      
+
       const firstSize = data.before?.[0]?.size || data.after?.[0]?.size;
       if (firstSize) {
         setSelectedSize(firstSize);
       }
-      
+
       setTimeout(() => {
         setFormStatus(prev => ({ ...prev, isDirty: false }));
       }, 100);
@@ -537,13 +570,22 @@ const Aql = () => {
   };
 
   const handleMetaChange = (measurementId, field, value) => {
-    setMeasurementMeta((prev) => ({
-      ...prev,
-      [measurementId]: {
-        ...prev[measurementId],
-        [field]: value,
-      },
-    }));
+    setMeasurementMeta((prev) => {
+      const updatedMeta = {
+        ...prev,
+        [measurementId]: {
+          ...prev[measurementId],
+          [field]: value,
+        },
+      };
+
+      // If defect is changed, clear the corrective action
+      if (field === "defect") {
+        updatedMeta[measurementId].correctiveAction = "";
+      }
+
+      return updatedMeta;
+    });
     setFormStatus((prev) => ({ ...prev, isDirty: true }));
   };
 
@@ -551,9 +593,9 @@ const Aql = () => {
     const sizeData = formData[condition].savedMeasurements?.[size];
     if (!sizeData) return false;
 
-const currentMeasurements = measurements.filter(m => 
-  Array.isArray(selectedMeasurements) && selectedMeasurements.includes(m.id)
-);
+    const currentMeasurements = measurements.filter(m =>
+      Array.isArray(selectedMeasurements) && selectedMeasurements.includes(m.id)
+    );
     return currentMeasurements.every((measurement) => {
       const values = sizeData[measurement.id];
       return values && values.length === PIECES_COUNT && values.every(val => val !== "" && val !== null && val !== undefined);
@@ -672,14 +714,14 @@ const currentMeasurements = measurements.filter(m =>
 
     const prepareConditionData = (condition) => {
       const allSavedSizes = formData[condition].savedSizes;
-      
+
       return allSavedSizes.map((size) => {
         const sizeMeasurements = getMeasurementsForSize(size);
         const sizeMeta = formData[condition].measurementMeta?.[size] || {};
 
         const completeMeasurements = formData[condition].savedMeasurements?.[size] || {};
         const partialMeasurements = formData[condition].partialSavedMeasurements?.[size] || {};
-        
+
         const allMeasurementsData = { ...partialMeasurements, ...completeMeasurements };
 
         return {
@@ -689,7 +731,7 @@ const currentMeasurements = measurements.filter(m =>
             .map((measurement) => {
               const meta = sizeMeta[measurement.id] || {};
               const measurementValues = allMeasurementsData[measurement.id] || [];
-              
+
               return {
                 measurementId: measurement.id,
                 measurementName: measurement.name,
@@ -747,9 +789,9 @@ const currentMeasurements = measurements.filter(m =>
 
     try {
       const payload = prepareDatabasePayload();
-      
+
       console.log("Submitting ALL sizes:", payload);
-      
+
       let response;
 
       if (id) {
@@ -825,7 +867,7 @@ const currentMeasurements = measurements.filter(m =>
     const updatedCheckValues = { ...checkValues };
     measurements.forEach((measurement) => {
       if (updatedCheckValues[measurement.id]) {
-        updatedCheckValues[measurement.id] = updatedCheckValues[measurement.id].map((value) => 
+        updatedCheckValues[measurement.id] = updatedCheckValues[measurement.id].map((value) =>
           value === "" ? timeString : value
         );
       }
@@ -982,6 +1024,59 @@ const currentMeasurements = measurements.filter(m =>
     </Modal>
   );
 
+const AddCorrectiveActionModal = () => (
+  <Modal isOpen={showAddCorrectiveAction} widthClass="w-96" onClose={() => setShowAddCorrectiveAction(false)}>
+    <div className="p-4">
+      <h3 className="text-lg font-bold mb-4">Add New Corrective Action</h3>
+      
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Selected Defect: 
+          <span className="ml-2 text-blue-600">
+            {defectOptions?.find(d => d.id === parseInt(selectedDefectForCorrection))?.name || "N/A"}
+          </span>
+        </label>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Corrective Action Name *
+        </label>
+        <input
+          type="text"
+          value={newCorrectiveAction}
+          onChange={(e) => setNewCorrectiveAction(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter corrective action name"
+          autoFocus // Add this line
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleAddCorrectiveAction();
+            }
+          }}
+        />
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <button
+          type="button"
+          onClick={() => setShowAddCorrectiveAction(false)}
+          className="px-4 py-2 text-sm bg-gray-300 text-gray-700 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleAddCorrectiveAction}
+          className="px-4 py-2 text-sm bg-blue-600 text-white rounded"
+          disabled={!newCorrectiveAction.trim()}
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </Modal>
+);
   const renderFormControls = () => (
     <div className={`grid ${isMobileView ? "grid-cols-3" : "grid-cols-1 md:grid-cols-7"} gap-4 mb-4`}>
       <div>
@@ -1236,58 +1331,42 @@ const currentMeasurements = measurements.filter(m =>
                       ))}
                     </select>
                   </div>
-                <div className="flex flex-col col-span-2">
-  <label className="text-xs text-gray-500 mb-0.5">Corrective Action</label>
-  <select
-    value={
-      correctiveActionOptions.some(
-        (opt) => opt.name === measurementMeta[measurement.id]?.correctiveAction
-      )
-        ? measurementMeta[measurement.id]?.correctiveAction
-        : "Other" // if not in list, show "Other"
-    }
-    onChange={(e) => {
-      const value = e.target.value;
-      if (value === "Other") {
-        // clear existing and wait for custom input
-        handleMetaChange(measurement.id, "correctiveAction", "");
-      } else {
-        handleMetaChange(measurement.id, "correctiveAction", value);
-      }
-    }}
-    className={selectStyle}
-    disabled={readOnly}
-    style={{
-      backgroundSize: "12px 12px",
-      backgroundPosition: "right 4px center",
-    }}
-  >
-    <option value="">Select</option>
-    {correctiveActionOptions?.map((option) => (
-      <option key={option.id} value={option.name}>
-        {option.name}
-      </option>
-    ))}
-    <option value="Other">Other</option>
-  </select>
-
-  {/* Show text input only when "Other" is selected */}
-  {(!correctiveActionOptions.some(
-    (opt) => opt.name === measurementMeta[measurement.id]?.correctiveAction
-  ) &&
-    measurementMeta[measurement.id]?.correctiveAction !== "") && (
-    <input
-      type="text"
-      value={measurementMeta[measurement.id]?.correctiveAction || ""}
-      onChange={(e) =>
-        handleMetaChange(measurement.id, "correctiveAction", e.target.value)
-      }
-      placeholder="Enter custom action"
-      className="mt-2 border rounded p-1 text-sm"
-      disabled={readOnly}
-    />
-  )}
-</div>
+                  <div className="flex flex-col col-span-2">
+                    <label className="text-xs text-gray-500 mb-0.5">Corrective Action</label>
+                    <div className="flex gap-1">
+                      <select
+                        value={measurementMeta[measurement.id]?.correctiveAction || ""}
+                        onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
+                        className={`${selectStyle} flex-1`}
+                        disabled={readOnly}
+                        style={{ backgroundSize: "12px 12px", backgroundPosition: "right 4px center" }}
+                      >
+                        <option value="">Select</option>
+                        {correctiveActionOptions
+                          ?.filter(option => !measurementMeta[measurement.id]?.defect ||
+                            option.defectId === parseInt(measurementMeta[measurement.id]?.defect))
+                          ?.map((option) => (
+                            <option key={option.id} value={option.id}>{option.name}</option>
+                          ))
+                        }
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!measurementMeta[measurement.id]?.defect) {
+                            toast.error("Please select a defect first");
+                            return;
+                          }
+                          setSelectedDefectForCorrection(measurementMeta[measurement.id]?.defect);
+                          setShowAddCorrectiveAction(true);
+                        }}
+                        className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                        disabled={readOnly}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
 
                 </div>
 
@@ -1327,9 +1406,8 @@ const currentMeasurements = measurements.filter(m =>
                           }
                           handleCheckValueChange(measurement.id, index, val);
                         }}
-                        className={`${inputStyle} text-center ${
-                          value ? checkTolerance(measurement, value) : "border-gray-300"
-                        } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                        className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : "border-gray-300"
+                          } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         readOnly={readOnly}
                       />
                     </div>
@@ -1415,18 +1493,39 @@ const currentMeasurements = measurements.filter(m =>
                       </select>
                     </td>
                     <td className="px-1.5 py-1.5 whitespace-nowrap">
-                      <select
-                        value={measurementMeta[measurement.id]?.correctiveAction || ""}
-                        onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
-                        className={selectStyle}
-                        disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
-                      >
-                        <option value="">Select</option>
-                        {correctiveActionOptions?.map((option) => (
-                          <option key={option.id} value={option.name}>{option.name}</option>
-                        ))}
-                      </select>
+                      <div className="flex gap-1">
+                        <select
+                          value={measurementMeta[measurement.id]?.correctiveAction || ""}
+                          onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
+                          className={selectStyle}
+                          disabled={readOnly}
+                          style={{ backgroundSize: "10px 10px", backgroundPosition: "right 2px center" }}
+                        >
+                          <option value="">Select</option>
+                          {correctiveActionOptions
+                            ?.filter(option => !measurementMeta[measurement.id]?.defect ||
+                              option.defectId === parseInt(measurementMeta[measurement.id]?.defect))
+                            ?.map((option) => (
+                              <option key={option.id} value={option.id}>{option.name}</option>
+                            ))
+                          }
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!measurementMeta[measurement.id]?.defect) {
+                              toast.error("Please select a defect first");
+                              return;
+                            }
+                            setSelectedDefectForCorrection(measurementMeta[measurement.id]?.defect);
+                            setShowAddCorrectiveAction(true);
+                          }}
+                          className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                          disabled={readOnly}
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
                     <td className="px-1.5 py-1.5 whitespace-nowrap font-medium text-gray-900">
                       <div>{measurement.name}</div>
@@ -1461,9 +1560,8 @@ const currentMeasurements = measurements.filter(m =>
                             val = parseFloat(val).toFixed(2);
                             handleCheckValueChange(measurement.id, index, val);
                           }}
-                          className={`${inputStyle} text-center ${
-                            value ? checkTolerance(measurement, value) : "border-gray-300"
-                          } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                          className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : "border-gray-300"
+                            } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                           readOnly={readOnly}
                         />
                       </td>
@@ -1557,18 +1655,39 @@ const currentMeasurements = measurements.filter(m =>
                       </select>
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap">
-                      <select
-                        value={measurementMeta[measurement.id]?.correctiveAction || ""}
-                        onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
-                        className={selectStyle}
-                        disabled={readOnly}
-                        style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
-                      >
-                        <option value="">Select</option>
-                        {correctiveActionOptions?.filter((option) => option.defectId === Number(measurementMeta[measurement.id]?.defect))?.map((option) => (
-                          <option key={option.id} value={option.id}>{option.name}</option>
-                        ))}
-                      </select>
+                      <div className="flex gap-1">
+                        <select
+                          value={measurementMeta[measurement.id]?.correctiveAction || ""}
+                          onChange={(e) => handleMetaChange(measurement.id, "correctiveAction", e.target.value)}
+                          className={selectStyle}
+                          disabled={readOnly}
+                          style={{ backgroundSize: "10px 10px", backgroundPosition: "right 4px center" }}
+                        >
+                          <option value="">Select</option>
+                          {correctiveActionOptions
+                            ?.filter(option => !measurementMeta[measurement.id]?.defect ||
+                              option.defectId === parseInt(measurementMeta[measurement.id]?.defect))
+                            ?.map((option) => (
+                              <option key={option.id} value={option.id}>{option.name}</option>
+                            ))
+                          }
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!measurementMeta[measurement.id]?.defect) {
+                              toast.error("Please select a defect first");
+                              return;
+                            }
+                            setSelectedDefectForCorrection(measurementMeta[measurement.id]?.defect);
+                            setShowAddCorrectiveAction(true);
+                          }}
+                          className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                          disabled={readOnly}
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
                     <td className="px-2 py-1.5 whitespace-nowrap font-medium text-gray-900">
                       {measurement.name} ({measurement.unit})
@@ -1607,9 +1726,8 @@ const currentMeasurements = measurements.filter(m =>
                             val = parseFloat(val).toFixed(2);
                             handleCheckValueChange(measurement.id, index, val);
                           }}
-                          className={`${inputStyle} text-center ${
-                            value ? checkTolerance(measurement, value) : "border-gray-300"
-                          } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                          className={`${inputStyle} text-center ${value ? checkTolerance(measurement, value) : "border-gray-300"
+                            } ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                           readOnly={readOnly}
                         />
                       </td>
@@ -1698,6 +1816,7 @@ const currentMeasurements = measurements.filter(m =>
   return (
     <>
       <MeasurementSelectionPopup />
+      <AddCorrectiveActionModal />
 
       <Modal isOpen={isDetailView} widthClass={"w-[50%] h-[70%]"} onClose={() => setIsDetailView(false)}></Modal>
 
@@ -1752,7 +1871,7 @@ const currentMeasurements = measurements.filter(m =>
               <div className="p-4 flex-1 flex flex-col">
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
                   {renderFormControls()}
-                   <div className="mb-4">
+                  <div className="mb-4">
                     <div className="flex flex-wrap gap-4">
                       <div className="flex-1">
                         <div className="flex flex-wrap gap-2 justify-center">
@@ -1777,7 +1896,7 @@ const currentMeasurements = measurements.filter(m =>
                           ))}
                         </div>
                       </div>
-                     
+
                     </div>
                   </div>
                   {renderMeasurementsTable()}
