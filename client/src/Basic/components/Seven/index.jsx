@@ -147,7 +147,6 @@ const Aql = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Handle adding corrective action
   const handleAddCorrectiveAction = async () => {
     if (!newCorrectiveAction.trim()) {
       toast.error("Please enter a corrective action name");
@@ -169,7 +168,7 @@ const Aql = () => {
       toast.success("Corrective action added successfully");
       setNewCorrectiveAction("");
       setShowAddCorrectiveAction(false);
-      refetchDefectCorrection(); // Refresh the corrective actions list
+      refetchDefectCorrection(); 
     } catch (err) {
       console.error("Failed to add corrective action:", err);
       toast.error("Failed to add corrective action");
@@ -579,7 +578,6 @@ const Aql = () => {
         },
       };
 
-      // If defect is changed, clear the corrective action
       if (field === "defect") {
         updatedMeta[measurementId].correctiveAction = "";
       }
@@ -1048,7 +1046,7 @@ const AddCorrectiveActionModal = () => (
           onChange={(e) => setNewCorrectiveAction(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Enter corrective action name"
-          autoFocus // Add this line
+          autoFocus
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleAddCorrectiveAction();

@@ -111,7 +111,6 @@ const Mastertable = ({
     );
   };
 
-  // Helper function to render approval status badge
   const renderApprovalStatus = (approveStatus) => {
     switch (approveStatus) {
       case 1:
