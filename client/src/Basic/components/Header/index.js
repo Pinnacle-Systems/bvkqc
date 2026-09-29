@@ -3,7 +3,7 @@ import dp from "../../../assets/default-dp.png";
 import { Bell } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import Profile from "./Profile";
-import logo from "../../../assets/Anu (1).png";
+import logo from "../../../assets/bvk.jpeg";
 import { useGetPageGroupQuery } from "../../../redux/services/PageGroupMasterServices";
 import secureLocalStorage from "react-secure-storage";
 import axios from "axios";
@@ -14,7 +14,7 @@ import { getCommonParams } from "../../../Utils/helper";
 import { useDispatch } from "react-redux";
 import { useGetBranchByIdQuery } from "../../../redux/services/BranchMasterService";
 import useLogout from "../../../CustomHooks/useLogout";
-import { Building, GitBranch,Map, User, Award, Sliders, ShoppingBag, Network,Globe, MapPin  } from 'lucide-react'; 
+import { Building, GitBranch, Map, User, Award, Sliders, ShoppingBag, Network, Globe, MapPin } from 'lucide-react';
 import { push } from "../../../redux/features/opentabs";
 
 const BASE_URL = process.env.REACT_APP_SERVER_URL;
@@ -123,18 +123,18 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
   }
 
   const masters = allowedPages.filter((page) => page.type === "Masters");
-  const mastersGroup = [...new Set(masters.map(page => page.pageGroupId))].map(pageId => { 
-    return { id: pageId, name: findElement(pageId, pageGroup?.data) }; 
+  const mastersGroup = [...new Set(masters.map(page => page.pageGroupId))].map(pageId => {
+    return { id: pageId, name: findElement(pageId, pageGroup?.data) };
   });
 
   const transactions = allowedPages.filter((page) => page.type === "Transactions");
-  const transactionsGroup = [...new Set(transactions.map(page => page.pageGroupId))].map(pageId => { 
-    return { id: pageId, name: findElement(pageId, pageGroup?.data) }; 
+  const transactionsGroup = [...new Set(transactions.map(page => page.pageGroupId))].map(pageId => {
+    return { id: pageId, name: findElement(pageId, pageGroup?.data) };
   });
 
   const reports = allowedPages.filter((page) => page.type === "Reports");
-  const reportGroups = [...new Set(reports.map(page => page.pageGroupId))].map(pageId => { 
-    return { id: pageId, name: findElement(pageId, pageGroup?.data) }; 
+  const reportGroups = [...new Set(reports.map(page => page.pageGroupId))].map(pageId => {
+    return { id: pageId, name: findElement(pageId, pageGroup?.data) };
   });
 
   const { branchId } = getCommonParams();
@@ -142,7 +142,7 @@ const Header = ({ profile, setProfile, setLogout, logout }) => {
 
   // const masterButtons = [
   //   { icon: <Building size={18} />, name: "Company", tooltip: "Company Master", onClick: () => dispatch(push({ name: "COMPANY MASTER" })) },
-   
+
   //   { icon: <Award size={18} />, name: "Branch", tooltip: "Employee Designation", onClick: () => dispatch(push({ name: "DESIGNATION MASTER" })) },
   //   { icon: <User size={18} />, name: "Employee", tooltip: "Employee Master", onClick: () => dispatch(push({ name: "EMPLOYEE MASTER" })) },
   //   { icon: <Network size={18} />, name: "Department", tooltip: "Department Master", onClick: () => dispatch(push({ name: "DEPARTMENT MASTER" })) },
