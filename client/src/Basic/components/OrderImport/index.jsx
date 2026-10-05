@@ -50,7 +50,7 @@ export default function PdfTableExtractor() {
   } = useGetPartyQuery({ params, searchParams: searchValue });
   console.log(partyData?.data, "partdyData")
 
-   const extractTables = async (file) => {
+  const extractTables = async (file) => {
     setIsLoading(true);
     setError('');
     setTables([]);
@@ -98,14 +98,19 @@ export default function PdfTableExtractor() {
     let sizeChart = [];
     let visualMeasurements = [];
 
+    const commonSizes = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', '6XL'];
+    const isSizeHeader = (header) => {
+      if (!header) return false;
+      const h = header.toString().toUpperCase().trim();
+      return commonSizes.includes(h);
+    };
+
     // Find the main size chart table (largest table with size headers)
     const mainTable = tables.reduce((largest, table) => {
       if (!table.table || table.table.length < 2) return largest;
 
-      // Check if table has size headers (like "2 YEARS", "3 YEARS", etc.)
-      const hasSizeHeaders = table.table[0]?.some(header =>
-        /\d+\s*YEARS/i.test(header)
-      );
+      // Check if table has size headers
+      const hasSizeHeaders = table.table[0]?.some(header => isSizeHeader(header));
 
       if (!hasSizeHeaders) return largest;
 
@@ -119,30 +124,35 @@ export default function PdfTableExtractor() {
     if (!mainTable) return { sizeChart: [], visualMeasurements: [] };
 
     const headers = mainTable.table[0];
-    const sizeHeaders = headers.filter(header => /\d+\s*YEARS/i.test(header));
+    const sizeHeaders = headers.filter(header => isSizeHeader(header));
 
     // Find the description column index (most consistent column with text)
-    const descriptionIndex = headers.findIndex(header =>
-      header.toLowerCase().includes('description')
-    );
+    const descriptionIndex = headers.findIndex(header => {
+      const h = header?.toString().toLowerCase() || '';
+      return h.includes('description') || h.includes('pom description');
+    });
+
+    const pomIndex = headers.findIndex(h => h?.toString().toUpperCase().trim() === 'POM');
+    const tolMinIndex = headers.findIndex(h => h?.toString().trim() === '-');
+    const tolMaxIndex = headers.findIndex(h => h?.toString().trim() === '+');
 
     // Process each row of the table
     for (let i = 1; i < mainTable.table.length; i++) {
       const row = mainTable.table[i];
       if (!row || row.length < 6) continue;
 
-      const firstCell = row[0] || '';
+      const firstCell = row[0]?.toString() || '';
 
       // Check if this is a visual measurement row
       if (firstCell === 'VISUAL' || firstCell.includes('VISUAL')) {
         // Process visual measurements
         const visualRow = mainTable.table[i + 1];
-        if (visualRow && visualRow[2] && visualRow[2].includes('VISUAL')) {
+        if (visualRow && visualRow[2] && visualRow[2].toString().includes('VISUAL')) {
           const visualDescription = visualRow[2];
           const visualValues = [];
 
           for (let j = 0; j < sizeHeaders.length; j++) {
-            const size = sizeHeaders[j].replace('YEARS', '').trim();
+            const size = sizeHeaders[j].toString().toUpperCase().trim();
             const valueIndex = headers.indexOf(sizeHeaders[j]);
             const value = valueIndex !== -1 && visualRow[valueIndex] ? visualRow[valueIndex] : '';
 
@@ -167,7 +177,7 @@ export default function PdfTableExtractor() {
       // Skip summary rows and empty rows
       if (
         firstCell.includes('Displaying') ||
-        row.some(cell => cell.includes('Displaying'))
+        row.some(cell => cell?.toString().includes('Displaying'))
       ) {
         continue;
       }
@@ -179,24 +189,34 @@ export default function PdfTableExtractor() {
       } else {
         // Fallback: find the longest text in the first few columns
         for (let j = 0; j < 3; j++) {
-          if (row[j] && row[j].length > description.length) {
-            description = row[j];
+          if (row[j] && row[j].toString().length > description.length) {
+            description = row[j].toString();
           }
         }
       }
 
-      // Find dimension values - look for TO-prefixed codes
-      const dimensionIndex = row.findIndex(cell => /^TO\d+[A-Z]*$/i.test(cell));
+      // Find dimension values - look for TO-prefixed codes or POM
+      let dimensionIndex = row.findIndex(cell => /^TO\d+[A-Z]*$/i.test(cell?.toString() || ''));
+      if (dimensionIndex === -1 && pomIndex !== -1) {
+        dimensionIndex = pomIndex;
+      }
       const dimension = dimensionIndex !== -1 ? row[dimensionIndex] : '';
 
       // Find tolerance values
-      const toleranceMin = row.find(cell => /^[-−]?\d+\.\d+$/.test(cell)) || '';
-      const toleranceMax = row.find(cell => /^[+]?\d+\.\d+$/.test(cell)) || '';
+      let toleranceMin = row.find(cell => /^[-−]?\d+\.\d+$/.test(cell?.toString() || '')) || '';
+      let toleranceMax = row.find(cell => /^[+]?\d+\.\d+$/.test(cell?.toString() || '')) || '';
+
+      if (tolMinIndex !== -1 && row[tolMinIndex]) {
+        toleranceMin = row[tolMinIndex];
+      }
+      if (tolMaxIndex !== -1 && row[tolMaxIndex]) {
+        toleranceMax = row[tolMaxIndex];
+      }
 
       // Extract size values
       const values = [];
       for (let j = 0; j < sizeHeaders.length; j++) {
-        const size = sizeHeaders[j].replace('YEARS', '').trim();
+        const size = sizeHeaders[j].toString().toUpperCase().trim();
         const valueIndex = headers.indexOf(sizeHeaders[j]);
         const value = valueIndex !== -1 && row[valueIndex] ? row[valueIndex] : '';
 
@@ -249,57 +269,57 @@ export default function PdfTableExtractor() {
     });
   };
 
-const handleSaveSizeChart = async () => {
-  // Reset previous status
-  setError('');
-  setSaveStatus({ success: false, message: '' });
+  const handleSaveSizeChart = async () => {
+    // Reset previous status
+    setError('');
+    setSaveStatus({ success: false, message: '' });
 
-  // Validate inputs
-  if (!productReference) {
-    setError('Product reference is required');
-    return;
-  }
-
-  if (sizeChartData.length === 0) {
-    setError('No size chart data to save');
-    return;
-  }
-
-  try {
-    const payload = {
-      productReference,
-      measurements: sizeChartData,
-      visualMeasurements: visualData,
-      selectedPartyId: selectedPartyId,
-      companyId: companyId 
-    };
-
-    const result = await addSizeTableMaster(payload).unwrap();
-
-    if (result) {
-      setSaveStatus({
-        success: true,
-        message: `Size chart for ${productReference} saved successfully!`
-      });
-      
-      setTimeout(() => {
-        handleClear();
-        setSaveStatus({ success: false, message: '' });
-      }, 1000);
+    // Validate inputs
+    if (!productReference) {
+      setError('Product reference is required');
+      return;
     }
-  } catch (err) {
-    console.error('Save failed:', err);
-    const errorMessage = err.data?.message || err.message || 'Failed to save size chart';
-    setError(errorMessage);
-    
-    // More detailed error handling
-    if (err.status === 401) {
-      setError('Session expired. Please refresh the page.');
-    } else if (err.status === 409) {
-      setError('This size chart already exists for the product reference.');
+
+    if (sizeChartData.length === 0) {
+      setError('No size chart data to save');
+      return;
     }
-  }
-};
+
+    try {
+      const payload = {
+        productReference,
+        measurements: sizeChartData,
+        visualMeasurements: visualData,
+        selectedPartyId: selectedPartyId,
+        companyId: companyId
+      };
+
+      const result = await addSizeTableMaster(payload).unwrap();
+
+      if (result) {
+        setSaveStatus({
+          success: true,
+          message: `Size chart for ${productReference} saved successfully!`
+        });
+
+        setTimeout(() => {
+          handleClear();
+          setSaveStatus({ success: false, message: '' });
+        }, 1000);
+      }
+    } catch (err) {
+      console.error('Save failed:', err);
+      const errorMessage = err.data?.message || err.message || 'Failed to save size chart';
+      setError(errorMessage);
+
+      // More detailed error handling
+      if (err.status === 401) {
+        setError('Session expired. Please refresh the page.');
+      } else if (err.status === 409) {
+        setError('This size chart already exists for the product reference.');
+      }
+    }
+  };
 
 
   const getSizeValue = (measurement, size) => {
@@ -343,6 +363,9 @@ const handleSaveSizeChart = async () => {
     }
   };
 
+  console.log(sizeChartData, "sizeChartData")
+  console.log(visualData, "sizeChartData")
+
   return (
     <div className="bg-[f1f1f0] py-4 px-3">
       <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden">
@@ -355,145 +378,145 @@ const handleSaveSizeChart = async () => {
           <div className="">
             <div className=" w-full">
               <div className="bg-white rounded-2xl shadow-xl p-6">
-              <div className="flex flex-col md:flex-row md:flex-wrap gap-3 sm:gap-4 items-stretch md:items-end">
-  {/* Order No */}
-  <div className="flex-1 min-w-[180px]">
-    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-      Order No *
-    </label>
-    <div className="relative">
-      <input
-        type="text"
-        value={productReference}
-        onChange={(e) => setProductReference(e.target.value)}
-        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-        placeholder="PRD-2023-XXXXX"
-      />
-      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-        </svg>
-      </div>
-    </div>
-  </div>
+                <div className="flex flex-col md:flex-row md:flex-wrap gap-3 sm:gap-4 items-stretch md:items-end">
+                  {/* Order No */}
+                  <div className="flex-1 min-w-[180px]">
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                      Order No *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={productReference}
+                        onChange={(e) => setProductReference(e.target.value)}
+                        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="PRD-2023-XXXXX"
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
 
 
-  {/* Page */}
-  <div className="w-full sm:w-24">
-    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-      Page
-    </label>
-    <input
-      type="number"
-      min="1"
-      value={targetPage}
-      onChange={(e) => setTargetPage(Math.max(1, parseInt(e.target.value)))}
-      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-center"
-    />
-  </div>
+                  {/* Page */}
+                  <div className="w-full sm:w-24">
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                      Page
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={targetPage}
+                      onChange={(e) => setTargetPage(Math.max(1, parseInt(e.target.value)))}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-center"
+                    />
+                  </div>
 
-  {/* Buyer */}
-  <div className="min-w-[200px] flex-1">
-    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-      Buyer
-    </label>
-    <div className="relative">
-      <select
-        id="party"
-        value={selectedPartyId}
-        onChange={handlePartyChange}
-        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none"
-      >
-        <option value="">Select Buyer</option>
-        {partyData?.data?.map((party) => (
-          <option key={party.id} value={party.id}>
-            {party.name} ({party.aliasName})
-          </option>
-        ))}
-      </select>
-      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
-    </div>
-  </div>
+                  {/* Buyer */}
+                  <div className="min-w-[200px] flex-1">
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                      Buyer
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="party"
+                        value={selectedPartyId}
+                        onChange={handlePartyChange}
+                        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none"
+                      >
+                        <option value="">Select Buyer</option>
+                        {partyData?.data?.map((party) => (
+                          <option key={party.id} value={party.id}>
+                            {party.name} ({party.aliasName})
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
 
-  {/* File Upload */}
-  <div className="flex-1 min-w-[220px]">
-    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-      PDF Document
-    </label>
-    <div className="relative">
-      <input
-        type="file"
-        accept="application/pdf"
-        onChange={handleFileChange}
-        className="hidden"
-        ref={fileInputRef}
-        id="pdf-upload"
-      />
-      <label
-        htmlFor="pdf-upload"
-        className={`flex items-center justify-between bg-gray-50 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 w-full cursor-pointer hover:bg-gray-100 transition-colors ${fileName ? 'border-blue-300 bg-blue-50' : ''}`}
-      >
-        <span className={`truncate max-w-[70%] text-sm ${fileName ? 'font-medium text-gray-800' : 'text-gray-500'}`}>
-          {fileName ? (
-            <span className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              {fileName}
-            </span>
-          ) : "Select file..."}
-        </span>
-        <span className="bg-white border border-green-300 text-green-700 text-xs px-2 sm:px-3 rounded-lg hover:bg-gray-50 transition-colors">
-          Browse
-        </span>
-      </label>
-    </div>
-  </div>
+                  {/* File Upload */}
+                  <div className="flex-1 min-w-[220px]">
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                      PDF Document
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        ref={fileInputRef}
+                        id="pdf-upload"
+                      />
+                      <label
+                        htmlFor="pdf-upload"
+                        className={`flex items-center justify-between bg-gray-50 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 w-full cursor-pointer hover:bg-gray-100 transition-colors ${fileName ? 'border-blue-300 bg-blue-50' : ''}`}
+                      >
+                        <span className={`truncate max-w-[70%] text-sm ${fileName ? 'font-medium text-gray-800' : 'text-gray-500'}`}>
+                          {fileName ? (
+                            <span className="flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              {fileName}
+                            </span>
+                          ) : "Select file..."}
+                        </span>
+                        <span className="bg-white border border-green-300 text-green-700 text-xs px-2 sm:px-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          Browse
+                        </span>
+                      </label>
+                    </div>
+                  </div>
 
-  {/* Action Buttons */}
-  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-    <button
-      onClick={handleProcessClick}
-      disabled={isLoading || !fileName || !productReference}
-      className={`w-full sm:w-auto px-5 py-2 rounded-xl font-medium text-sm flex items-center justify-center transition-all ${(isLoading || !fileName || !productReference)
-        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg'
-        }`}
-    >
-      {isLoading ? (
-        <>
-          <svg className="animate-spin mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Processing
-        </>
-      ) : (
-        <>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-          </svg>
-          Extract
-        </>
-      )}
-    </button>
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={handleProcessClick}
+                      disabled={isLoading || !fileName || !productReference}
+                      className={`w-full sm:w-auto px-5 py-2 rounded-xl font-medium text-sm flex items-center justify-center transition-all ${(isLoading || !fileName || !productReference)
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg'
+                        }`}
+                    >
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing
+                        </>
+                      ) : (
+                        <>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                          </svg>
+                          Extract
+                        </>
+                      )}
+                    </button>
 
-    <button
-      onClick={handleClear}
-      disabled={isLoading}
-      className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors flex items-center justify-center"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-      </svg>
-      Clear
-    </button>
-  </div>
-</div>
+                    <button
+                      onClick={handleClear}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors flex items-center justify-center"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Clear
+                    </button>
+                  </div>
+                </div>
 
 
                 <div className="mt-6">
@@ -577,8 +600,8 @@ const handleSaveSizeChart = async () => {
                     onClick={handleSaveSizeChart}
                     disabled={isSaving || !productReference}
                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-1.5 ${isSaving || !productReference
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
                       } ${isSaving ? 'opacity-80' : ''
                       }`}
                   >
